@@ -1,3 +1,8 @@
+# File: docker-compose.full.yml
+# Created: 2026-01-28T10:37:00.567
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+
 # Complete HCD + JanusGraph Stack with Visualization Tools
 # Platform: macOS M3 Pro (ARM64)
 # Podman machine: podman-wxd

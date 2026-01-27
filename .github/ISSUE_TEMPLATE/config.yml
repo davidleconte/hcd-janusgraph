@@ -1,0 +1,12 @@
+# File: .github/ISSUE_TEMPLATE/config.yml
+# Created: 2026-01-28T10:31:20.567
+# Author: David LECONTE, IBM WorldWide | Data & AI
+
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/your-org/hcd-janusgraph/wiki
+    about: Check documentation for help
+  - name: Security Issue
+    url: https://github.com/your-org/hcd-janusgraph/security
+    about: Report security vulnerabilities

@@ -1,3 +1,8 @@
+# File: docker-compose.yml
+# Created: 2026-01-28T10:37:00.567
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+
 version: '3.8'
 
 services:

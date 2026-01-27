@@ -1,3 +1,8 @@
+# File: Makefile
+# Created: 2026-01-28T10:37:00.123
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+
 .PHONY: help build deploy test clean lint
 
 help:

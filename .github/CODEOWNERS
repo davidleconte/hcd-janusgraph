@@ -1,0 +1,27 @@
+# File: .github/CODEOWNERS
+# Created: 2026-01-28T10:31:21.012
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+# Code ownership and automatic reviewer assignment
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @your-github-username
+
+# Docker files
+/docker/ @your-github-username
+
+# Configuration
+/config/ @your-github-username
+
+# Production configurations (requires security team review)
+/config/environments/prod/ @your-github-username
+
+# Documentation
+/docs/ @your-github-username
+
+# CI/CD workflows
+/.github/workflows/ @your-github-username
+
+# Security-sensitive files
+SECURITY.md @your-github-username

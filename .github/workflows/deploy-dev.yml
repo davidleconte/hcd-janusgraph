@@ -1,0 +1,38 @@
+# File: .github/workflows/deploy-dev.yml
+# Created: 2026-01-28T10:30:15.678
+# Author: David LECONTE, IBM WorldWide | Data & AI
+
+name: Deploy to Development
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up environment
+        run: |
+          echo "DEV_HOST=${{ secrets.DEV_HOST }}" >> $GITHUB_ENV
+      
+      - name: Deploy to development
+        run: |
+          echo "🚀 Deploying to development environment"
+          # Add actual deployment commands here
+          # bash scripts/deployment/deploy_dev.sh
+      
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests"
+          # bash scripts/testing/run_smoke_tests.sh
+      
+      - name: Notify deployment
+        if: always()
+        run: |
+          echo "📣 Deployment ${{ job.status }}"

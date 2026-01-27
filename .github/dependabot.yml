@@ -1,0 +1,58 @@
+# File: .github/dependabot.yml
+# Created: 2026-01-28T10:31:21.234
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+# Automated dependency updates
+# See: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "your-github-username"
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # Docker base images - HCD
+  - package-ecosystem: "docker"
+    directory: "/docker/hcd"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "your-github-username"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Docker base images - Jupyter
+  - package-ecosystem: "docker"
+    directory: "/docker/jupyter"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "your-github-username"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"

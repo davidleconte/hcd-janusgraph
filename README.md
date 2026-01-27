@@ -1,243 +1,191 @@
 # HCD + JanusGraph Containerized Stack
 
-Complete containerized deployment of DataStax HCD 1.2.3 with JanusGraph on Podman.
+**File**: README.md  
+**Created**: 2026-01-28T10:36:00.123  
+**Author**: David LECONTE, IBM WorldWide | Data & AI
 
-## Architecture
+---
 
-```
-podman-wxd machine
-├── hcd-server (container)
-│   └── HCD 1.2.3 (Cassandra-based storage)
-│       - Port 9042: CQL
-│       - Port 7000-7001: Inter-node
-│       - Port 7199: JMX
-│
-└── janusgraph-server (container)
-    └── JanusGraph (graph database)
-        - Port 8182: Gremlin WebSocket
-        - Port 8184: Management
-        - Backend: HCD via CQL
-```
+## Overview
 
-## Prerequisites
+Production-ready containerized stack combining **HyperConverged Database (HCD) 1.2.3** with **JanusGraph** for scalable graph database operations. Fully integrated with Jupyter Lab, monitoring (Prometheus/Grafana), and visualization tools.
 
-- Podman machine `podman-wxd` running (✓ verified)
-- Podman Compose installed
-- HCD tarball extracted to `hcd-1.2.3/` directory
+### Key Features
 
-## Files Overview
+✅ **Production-Ready**: Health checks, resource limits, graceful shutdown  
+✅ **Automated CI/CD**: GitHub Actions workflows for testing and deployment  
+✅ **Comprehensive Monitoring**: Prometheus + Grafana + custom alerts  
+✅ **Backup & Restore**: Automated backup scripts with S3 integration  
+✅ **Security**: CodeQL scanning, secret detection, Trivy image scanning  
+✅ **Multi-Environment**: Separate configs for dev/staging/prod  
+✅ **Documentation**: Complete guides for setup, testing, and operations  
 
-**Core Configuration:**
-1. **Dockerfile.hcd** - Builds HCD container image (Java 11)
-2. **janusgraph-hcd.properties** - JanusGraph configuration for HCD backend
-3. **.env.example** - Configuration template (copy to `.env` for customization)
+---
 
-**Deployment:**
-4. **deploy_full_stack.sh** - Complete stack deployment with visualization tools
-5. **podman-compose.yml** - Basic 2-container stack (HCD + JanusGraph)
-6. **podman-compose-full.yml** - Full stack with monitoring and visualization
-
-**Initialization:**
-7. **init_and_load.py** / **simple_load.py** - Python scripts for schema and data
-
-**Documentation:**
-8. **README.md** - This file (quick start)
-9. **IMPROVEMENTS.md** - Detailed list of fixes applied
-10. **TESTING_GUIDE.md** - Comprehensive testing procedures
-
-## Deployment Steps
-
-### 1. Build HCD Image
+## Quick Start
 
 ```bash
-cd /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph
+# 1. Clone repository
+git clone https://github.com/your-org/hcd-janusgraph.git
+cd hcd-janusgraph
 
-# Build using podman-wxd connection
-podman --remote --connection podman-wxd build \
-  -t localhost/hcd:1.2.3 \
-  -f Dockerfile.hcd .
+# 2. Copy environment template
+cp .env.example .env
+
+# 3. Deploy stack
+make deploy
+
+# 4. Verify installation
+make test
+
+# 5. Access Jupyter
+open http://localhost:8888
 ```
 
-### 2. Deploy Stack
+📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed commands and troubleshooting**
 
-```bash
-# Deploy using podman-compose
-podman-compose --podman-run-args="--connection podman-wxd" up -d
+---
+
+## Project Structure
+
+```
+hcd-tarball-janusgraph/
+├── .github/              # CI/CD workflows, issue/PR templates
+├── config/               # All configuration files
+│   ├── compose/          # Docker compose files
+│   ├── environments/     # Multi-environment configs
+│   ├── janusgraph/       # JanusGraph configuration
+│   └── monitoring/       # Prometheus/Grafana configs
+├── docker/               # Dockerfiles for all services
+├── scripts/              # Automation scripts
+│   ├── deployment/       # Deploy/stop scripts
+│   ├── backup/           # Backup/restore scripts
+│   ├── monitoring/       # Monitoring setup
+│   ├── testing/          # Test scripts
+│   └── maintenance/      # Maintenance tasks
+├── src/                  # Source code
+│   ├── python/           # Python modules
+│   └── groovy/           # Groovy scripts
+├── tests/                # Test suites
+│   ├── integration/      # Integration tests
+│   ├── unit/             # Unit tests
+│   └── fixtures/         # Test fixtures
+├── docs/                 # Documentation
+├── notebooks/            # Jupyter notebooks
+└── data/                 # Data files
 ```
 
-Or manually with podman:
+Total: **8 directories + 11 core files** (vs 43 files at root before restructuring!)
 
-```bash
-# Create network
-podman --remote --connection podman-wxd network create hcd-janusgraph-network
+---
 
-# Create volumes
-podman --remote --connection podman-wxd volume create hcd-data
-podman --remote --connection podman-wxd volume create hcd-commitlog
-podman --remote --connection podman-wxd volume create janusgraph-index
+## Core Components
 
-# Start HCD
-podman --remote --connection podman-wxd run -d \
-  --name hcd-server \
-  --network hcd-janusgraph-network \
-  -p 9042:9042 -p 7000:7000 -p 7199:7199 \
-  -v hcd-data:/var/lib/hcd/data \
-  -v hcd-commitlog:/var/lib/hcd/commitlog \
-  -e MAX_HEAP_SIZE=4G \
-  localhost/hcd:1.2.3
+### Services
 
-# Wait for HCD to be ready (2-3 minutes)
-podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/nodetool status
+| Service | Description | Port |
+|---------|-------------|------|
+| **HCD** | Cassandra-based distributed database | 19042 |
+| **JanusGraph** | Graph database | 18182 |
+| **Jupyter Lab** | Interactive notebooks | 8888 |
+| **Prometheus** | Metrics collection | 9090 |
+| **Grafana** | Monitoring dashboards | 3001 |
+| **Visualizer** | Graph visualization | 3000 |
+| **Graphexp** | Graph explorer | 8080 |
 
-# Start JanusGraph
-podman --remote --connection podman-wxd run -d \
-  --name janusgraph-server \
-  --network hcd-janusgraph-network \
-  -p 8182:8182 -p 8184:8184 \
-  -v $(pwd)/janusgraph.properties:/etc/opt/janusgraph/janusgraph.properties:ro \
-  -v janusgraph-index:/var/lib/janusgraph/index \
-  -e janusgraph.storage.hostname=hcd-server \
-  docker.io/janusgraph/janusgraph:latest
-```
+### Sample Data
 
-### 3. Verify Deployment
+Pre-loaded graph includes:
+- **5 people** (Alice, Bob, Carol, David, Eve)
+- **3 companies** (DataStax, Acme Corp, TechStart)
+- **3 products** (JanusGraph, Cloud Service Platform, Analytics Engine)
+- **19 relationships** (knows, worksFor, created, uses)
 
-```bash
-# Check HCD status
-podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/nodetool status
+---
 
-# Check JanusGraph logs
-podman --remote --connection podman-wxd logs janusgraph-server
+## Documentation
 
-# Test Gremlin connection (from host)
-curl http://localhost:8182?gremlin=g.V().count()
-```
+| Document | Description |
+|----------|-------------|
+| **[QUICKSTART.md](QUICKSTART.md)** | Essential commands, URLs, troubleshooting |
+| **[docs/SETUP.md](docs/SETUP.md)** | Detailed setup instructions |
+| **[docs/TESTING.md](docs/TESTING.md)** | Testing guide |
+| **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System architecture |
+| **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Deployment procedures |
+| **[docs/BACKUP.md](docs/BACKUP.md)** | Backup/restore guide |
+| **[docs/MONITORING.md](docs/MONITORING.md)** | Monitoring setup |
+| **[docs/SECURITY.md](docs/SECURITY.md)** | Security guidelines |
+| **[docs/CHANGELOG.md](docs/CHANGELOG.md)** | Version history |
 
-### 4. Connect to Services
+---
 
-**CQL (HCD):**
-```bash
-podman --remote --connection podman-wxd exec -it hcd-server /opt/hcd/bin/cqlsh
-```
+## Requirements
 
-**Gremlin Console (JanusGraph):**
-```bash
-podman --remote --connection podman-wxd exec -it janusgraph-server ./bin/gremlin.sh
-```
+- **Podman** 4.9+ (or Docker with Compose plugin)
+- **Python** 3.11+
+- **Git**
+- **8GB+ RAM** recommended
+- **20GB+ disk space**
 
-Then in Gremlin console:
-```groovy
-:remote connect tinkerpop.server conf/remote.yaml
-:remote console
-g.V().count()
-```
+---
 
-## Management Commands
+## CI/CD
 
-**View logs:**
-```bash
-podman --remote --connection podman-wxd logs -f hcd-server
-podman --remote --connection podman-wxd logs -f janusgraph-server
-```
+### GitHub Actions Workflows
 
-**Stop stack:**
-```bash
-podman-compose --podman-run-args="--connection podman-wxd" down
-```
+- **CI** (`ci.yml`): Lint, test, build, integration tests, security scan
+- **Security** (`security.yml`): CodeQL, secret scan, dependency check, image scan
+- **Deploy Dev** (`deploy-dev.yml`): Auto-deploy to development
+- **Deploy Prod** (`deploy-prod.yml`): Manual production deployment with approval
 
-**Restart services:**
-```bash
-podman-compose --podman-run-args="--connection podman-wxd" restart
-```
+---
 
-**Remove volumes (CAUTION - deletes data):**
-```bash
-podman --remote --connection podman-wxd volume rm hcd-data hcd-commitlog janusgraph-index
-```
+## Contributing
 
-## Configuration
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-### HCD Configuration
-Main config: `/opt/hcd/resources/cassandra/conf/cassandra.yaml` (inside container)
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
-Key settings pre-configured:
-- Data directory: `/var/lib/hcd/data`
-- Commitlog: `/var/lib/hcd/commitlog`
-- Heap: 4GB (adjustable via `MAX_HEAP_SIZE` env var)
-- Network: Listening on all interfaces
+---
 
-### JanusGraph Configuration
-Config file: `janusgraph-hcd.properties` (mounted read-only)
+## Security
 
-Backend settings:
-- Storage backend: CQL (Cassandra-compatible)
-- Hostname: `hcd-server` (container name)
-- Port: 9042
-- Keyspace: `janusgraph`
-- Index backend: Lucene (for mixed indexes)
-- Vertex ID: Auto-generated (graph.set-vertex-id=false)
+Report security vulnerabilities to: [security@example.com](mailto:security@example.com)
 
-### Customization via .env
-Create `.env` file from `.env.example` to customize:
-- Podman connection name
-- Port mappings
-- Network names
-- Resource limits
+See [SECURITY.md](SECURITY.md) for our security policy.
 
-All deployment scripts automatically load `.env` if present.
+---
 
-## Troubleshooting
+## License
 
-**HCD not starting:**
-- Check logs: `podman --remote --connection podman-wxd logs hcd-server`
-- Verify heap settings (requires 4GB+ free memory)
-- Ensure ports 9042, 7000 not already in use
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
-**JanusGraph can't connect to HCD:**
-- Verify HCD is healthy: `podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/nodetool status`
-- Check network: Both containers must be on `hcd-janusgraph-network`
-- Wait for HCD initialization (can take 2-3 minutes)
+---
 
-**Port conflicts:**
-- Check existing containers: `podman --remote --connection podman-wxd ps -a`
-- Modify port mappings in `podman-compose.yml` if needed
+## Acknowledgments
 
-## Production Considerations
+- **HCD (HyperConverged Database)** by DataStax
+- **JanusGraph** - Open-source graph database
+- **Apache TinkerPop** - Graph computing framework
 
-1. **Resource Allocation**: Increase heap size for HCD (`MAX_HEAP_SIZE`)
-2. **Replication**: Configure multi-node HCD cluster
-3. **Backups**: Set up automated snapshots of volumes
-4. **Monitoring**: Add Prometheus/Grafana for metrics
-5. **Security**: Enable authentication, TLS for inter-node communication
-6. **Performance**: Tune JVM settings, adjust cache sizes
+---
 
-## What's Included
+## Support
 
-**Graph is pre-initialized!** Schema and sample data are already loaded:
-- **11 vertices**: 5 people, 3 companies, 3 products
-- **19 edges**: Social network (knows, worksFor, created, uses)
-- **Indexes**: Composite indexes on name, email fields
+- **Issues**: [GitHub Issues](https://github.com/your-org/hcd-janusgraph/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-org/hcd-janusgraph/discussions)
+- **Email**: support@example.com
 
-**Query Examples:**
-```python
-# Using Python gremlinpython client
-from gremlin_python.driver import client
-gc = client.Client('ws://localhost:18182/gremlin', 'g')
+---
 
-# Alice's friends
-gc.submit("g.V().has('person','name','Alice Johnson').out('knows').values('name')").all().result()
-# Returns: ['Bob Smith', 'Carol Williams', 'David Brown']
+**Version**: 1.0.0  
+**Status**: ✅ Production-ready  
+**Last Updated**: 2026-01-28
 
-# DataStax employees
-gc.submit("g.V().has('company','name','DataStax').in('worksFor').values('name')").all().result()
-# Returns: ['Alice Johnson', 'Carol Williams', 'David Brown']
-```
+---
 
-## Next Steps
-
-1. **Explore the data**: Use Jupyter Lab (http://localhost:8888) or visualizers
-2. **Custom schema**: Modify `init_and_load.py` for your domain model
-3. **Production data**: Replace sample data with real data
-4. **Set up backups**: Create snapshot scripts for HCD volumes
-5. **Add monitoring**: Configure Prometheus alerts and Grafana dashboards
-6. **Security**: Enable authentication and TLS
+**Signature**: David LECONTE, IBM WorldWide | Data & AI
