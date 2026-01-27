@@ -1,0 +1,110 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+.venv
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Environment variables (CRITICAL - NEVER commit actual .env)
+.env
+.env.local
+.env.*.local
+
+# Outputs
+data/exports/*
+!data/exports/.gitkeep
+TEST_RESULTS.md
+
+# Build artifacts
+build.log
+deployment.log
+schema_init.log
+schema_init_output.log
+
+# Temp files
+*.tmp
+*.temp
+.cache/
+tmp/
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Docker
+.dockerignore.bak
+
+# Backups
+*.bak
+*.backup
+backups/*
+!backups/.gitkeep
+
+# Graph exports (generated)
+exports/
+notebooks/graph_interactive.html
+
+# Podman/Docker volumes
+volumes/
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+
+# Large files
+*.tar.gz
+*.zip
+*.tar
+*.tgz
+hcd-*.tar.gz

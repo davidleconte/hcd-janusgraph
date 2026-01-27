@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  hcd:
+    build:
+      context: .
+      dockerfile: ../../docker/hcd/Dockerfile
+    image: localhost/hcd:1.2.3
+    container_name: hcd-server
+    hostname: hcd-server
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "9042:9042"  # CQL
+      - "7000:7000"  # Inter-node
+      - "7001:7001"  # TLS inter-node
+      - "7199:7199"  # JMX
+      - "9160:9160"  # Thrift
+    volumes:
+      - hcd-data:/var/lib/hcd/data
+      - hcd-commitlog:/var/lib/hcd/commitlog
+      - hcd-saved-caches:/var/lib/hcd/saved_caches
+      - hcd-hints:/var/lib/hcd/hints
+      - hcd-logs:/var/log/hcd
+    environment:
+      - MAX_HEAP_SIZE=4G
+      - HEAP_NEWSIZE=800M
+      - JVM_OPTS=-Dcassandra.jmx.local.port=7199 -Djava.rmi.server.hostname=127.0.0.1
+    healthcheck:
+      test: ["CMD", "/opt/hcd/bin/nodetool", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+  janusgraph:
+    image: docker.io/janusgraph/janusgraph:latest
+    container_name: janusgraph-server
+    hostname: janusgraph-server
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "8182:8182"  # Gremlin WebSocket
+      - "8184:8184"  # Management
+    volumes:
+      - ./../../config/janusgraph/janusgraph-hcd.properties:/etc/opt/janusgraph/janusgraph-hcd.properties:ro
+      - janusgraph-index:/var/lib/janusgraph/index
+      - janusgraph-db:/var/lib/janusgraph/db
+    environment:
+      - JANUS_PROPS_TEMPLATE=cql
+      - janusgraph.storage.backend=cql
+      - janusgraph.storage.hostname=hcd-server
+      - janusgraph.storage.port=9042
+      - janusgraph.storage.cql.keyspace=janusgraph
+      - janusgraph.storage.cql.local-datacenter=datacenter1
+    depends_on:
+      hcd:
+        condition: service_healthy
+    command: >
+      bash -c "
+      echo 'Waiting for HCD to be ready...' &&
+      sleep 30 &&
+      echo 'Starting JanusGraph...' &&
+      /opt/janusgraph/bin/janusgraph-server.sh /etc/opt/janusgraph/janusgraph-hcd.properties
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8182?gremlin=g.V().count()"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+networks:
+  hcd-janusgraph-network:
+    driver: bridge
+
+volumes:
+  hcd-data:
+    driver: local
+  hcd-commitlog:
+    driver: local
+  hcd-saved-caches:
+    driver: local
+  hcd-hints:
+    driver: local
+  hcd-logs:
+    driver: local
+  janusgraph-index:
+    driver: local
+  janusgraph-db:
+    driver: local

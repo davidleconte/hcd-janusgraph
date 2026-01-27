@@ -1,0 +1,8 @@
+*.tar.gz
+*.log
+.git
+.gitignore
+README.md
+podman-compose.yml
+janusgraph.properties
+Dockerfile.*

@@ -1,0 +1,7 @@
+gremlinpython==3.8.0
+cassandra-driver==3.29.3
+pandas==2.0.0
+networkx==3.0
+matplotlib==3.7.0
+pyvis==0.3.2
+nest-asyncio==1.6.0

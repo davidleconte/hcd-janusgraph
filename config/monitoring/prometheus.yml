@@ -1,0 +1,34 @@
+# Prometheus Configuration for HCD Monitoring
+# Scrapes JMX metrics from HCD container
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'hcd-janusgraph'
+    environment: 'development'
+
+scrape_configs:
+  # HCD/Cassandra JMX Metrics
+  - job_name: 'hcd'
+    static_configs:
+      - targets: ['hcd-server:7199']
+        labels:
+          service: 'hcd'
+          component: 'database'
+
+  # JanusGraph Server Metrics (if exposed)
+  - job_name: 'janusgraph'
+    static_configs:
+      - targets: ['janusgraph-server:8184']
+        labels:
+          service: 'janusgraph'
+          component: 'graph-server'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          component: 'monitoring'

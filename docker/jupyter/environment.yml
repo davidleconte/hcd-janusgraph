@@ -1,0 +1,61 @@
+# Conda environment for JanusGraph + HCD visualization and analysis
+# Platform: macOS M3 Pro (ARM64)
+# Python version: 3.11.x from conda-forge
+
+name: janusgraph-analysis
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python runtime
+  - python=3.11
+
+  # Jupyter ecosystem
+  - jupyterlab>=4.0
+  - notebook>=7.0
+  - ipywidgets>=8.0
+  - ipykernel
+
+  # Graph analysis
+  - networkx>=3.0
+  - python-igraph
+  - graph-tool  # Advanced graph analysis (if available on ARM)
+
+  # Visualization
+  - matplotlib>=3.7
+  - seaborn>=0.12
+  - plotly>=5.14
+  - bokeh>=3.0
+  - holoviews
+  - hvplot
+
+  # Data manipulation
+  - pandas>=2.0
+  - numpy>=1.24
+  - scipy>=1.10
+
+  # Interactive widgets
+  - ipywidgets
+  - widgetsnbextension
+
+  # Utilities
+  - python-dotenv
+  - pyyaml
+  - requests
+  - aiohttp
+
+  # Package managers (for pip/uv integration)
+  - pip>=23.0
+  - setuptools
+  - wheel
+
+  # pip packages (JanusGraph client, etc.)
+  - pip:
+      - gremlinpython>=3.7.0  # JanusGraph/Gremlin client
+      - cassandra-driver>=3.28  # CQL client for HCD
+      - uv>=0.1.0  # Fast Python package installer
+      - pyvis>=0.3.2  # Network visualization
+      - py2neo  # Alternative graph client (Neo4j-compatible API)
+      - graphviz  # Graph rendering
+      - python-louvain  # Community detection
