@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/maintenance/rotate_secrets.sh
 # Created: 2026-01-28T10:32:16.890
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Rotate secrets and credentials
 
@@ -42,4 +42,4 @@ echo ""
 
 echo "📚 Documentation: docs/SECURITY.md"
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

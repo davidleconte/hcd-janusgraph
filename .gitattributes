@@ -1,6 +1,6 @@
 # File: .gitattributes
 # Created: 2026-01-28T11:00:15.123
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Git attributes for consistent line endings and file handling
 
@@ -63,4 +63,4 @@ Dockerfile* text eol=lf
 *.tar.gz binary
 *.tgz binary
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

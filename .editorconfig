@@ -1,6 +1,6 @@
 # File: .editorconfig
 # Created: 2026-01-28T11:00:15.234
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # EditorConfig for consistent coding styles
 # https://editorconfig.org
@@ -48,4 +48,4 @@ indent_style = tab
 [*.ipynb]
 insert_final_newline = false
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

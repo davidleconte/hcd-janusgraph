@@ -1,7 +1,7 @@
 <!--
 File: .github/PULL_REQUEST_TEMPLATE.md
 Created: 2026-01-28T10:31:20.789
-Author: David LECONTE, IBM WorldWide | Data & AI
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 -->
 
 ## Description
@@ -46,4 +46,4 @@ Any special deployment considerations or migration steps.
 
 ---
 **Reviewed by**: _______________  
-**Signature**: David LECONTE, IBM WorldWide | Data & AI
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

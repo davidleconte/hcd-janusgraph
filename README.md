@@ -2,7 +2,7 @@
 
 **File**: README.md  
 **Created**: 2026-01-28T10:36:00.123  
-**Author**: David LECONTE, IBM WorldWide | Data & AI
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 
 ---
 
@@ -188,4 +188,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
-**Signature**: David LECONTE, IBM WorldWide | Data & AI
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

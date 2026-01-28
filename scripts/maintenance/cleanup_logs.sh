@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/maintenance/cleanup_logs.sh
 # Created: 2026-01-28T10:32:16.678
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Cleanup old logs and temporary files
 
@@ -34,4 +34,4 @@ rm -f "$PROJECT_ROOT/tests/TEST_RESULTS.md" 2>/dev/null || true
 
 echo "✅ Cleanup complete"
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

@@ -2,7 +2,7 @@
 
 **File**: docs/SETUP.md  
 **Created**: 2026-01-28T11:05:00.123  
-**Author**: David LECONTE, IBM WorldWide | Data & AI
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 
 ---
 
@@ -237,4 +237,4 @@ podman restart janusgraph-server
 
 ---
 
-**Signature**: David LECONTE, IBM WorldWide | Data & AI
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

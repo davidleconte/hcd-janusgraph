@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/backup/restore_volumes.sh
 # Created: 2026-01-28T10:32:15.345
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Restore HCD and JanusGraph volumes from backup
 
@@ -61,4 +61,4 @@ echo "  1. Verify data integrity"
 echo "  2. Check application logs"
 echo "  3. Run full test suite"
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

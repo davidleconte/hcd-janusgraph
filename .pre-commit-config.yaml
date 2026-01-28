@@ -1,6 +1,6 @@
 # File: .pre-commit-config.yaml
 # Created: 2026-01-28T11:00:15.345
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Pre-commit hooks for code quality
 # Install: pip install pre-commit && pre-commit install
@@ -58,4 +58,4 @@ repos:
           - mdformat-gfm
           - mdformat-black
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # File: tests/performance/test_load.py
 # Created: 2026-01-28T11:13:00.123
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 """
 Performance and load testing for JanusGraph
 """
@@ -157,4 +157,4 @@ def test_memory_usage_stable(gremlin_client):
 if __name__ == '__main__':
     pytest.main([__file__, '-v', '-m', 'performance'])
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

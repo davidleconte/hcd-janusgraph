@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/backup/test_backup.sh
 # Created: 2026-01-28T10:32:15.567
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Test backup and restore procedures
 
@@ -32,4 +32,4 @@ echo ""
 echo "To restore:"
 echo "  bash scripts/backup/restore_volumes.sh <backup_path>"
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

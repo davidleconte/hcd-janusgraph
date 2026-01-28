@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/backup/backup_volumes.sh
 # Created: 2026-01-28T10:32:15.123
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Backup HCD and JanusGraph volumes
 
@@ -49,4 +49,4 @@ echo "   HCD: hcd_$TIMESTAMP"
 echo "   JanusGraph: janusgraph_$TIMESTAMP.tar.gz"
 echo "   Graph: graph_$TIMESTAMP.graphml"
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117

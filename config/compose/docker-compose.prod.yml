@@ -1,6 +1,6 @@
 # File: config/compose/docker-compose.prod.yml
 # Created: 2026-01-28T10:33:30.123
-# Author: David LECONTE, IBM WorldWide | Data & AI
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 #
 # Production configuration with health checks, resource limits, and restart policies
 
@@ -74,4 +74,4 @@ services:
       retries: 3
     restart: unless-stopped
 
-# Signature: David LECONTE, IBM WorldWide | Data & AI
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
