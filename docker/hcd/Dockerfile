@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 
 # Install required packages
 RUN apt-get update && \
