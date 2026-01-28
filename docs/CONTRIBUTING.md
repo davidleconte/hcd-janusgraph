@@ -38,7 +38,7 @@ cd hcd-janusgraph
 
 ### Add Upstream
 
-git remote add upstream https://github.com/your-org/hcd-janusgraph.git
+git remote add upstream https://github.com/davidleconte/hcd-janusgraph.git
 
 ### Install Dependencies
 
@@ -288,7 +288,7 @@ Maintainers only:
 
 - GitHub Discussions
 - Issues (with question label)
-- Email: support@example.com
+- Email: david.leconte1@ibm.com
 
 ### Community
 

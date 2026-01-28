@@ -466,8 +466,8 @@ podman-compose logs -f
 - Podman Docs: https://docs.podman.io/
 
 ### Support
-- GitHub Issues: https://github.com/your-org/hcd-janusgraph/issues
-- Email: support@example.com
+- GitHub Issues: https://github.com/davidleconte/hcd-janusgraph/issues
+- Email: david.leconte1@ibm.com
 
 ---
 

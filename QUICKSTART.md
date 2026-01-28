@@ -95,11 +95,11 @@ bash scripts/testing/run_tests.sh
 ### GitHub (when configured)
 | Item | URL |
 |------|-----|
-| **Repository** | https://github.com/your-org/hcd-janusgraph |
-| **Issues** | https://github.com/your-org/hcd-janusgraph/issues |
-| **Pull Requests** | https://github.com/your-org/hcd-janusgraph/pulls |
-| **Actions** | https://github.com/your-org/hcd-janusgraph/actions |
-| **Security** | https://github.com/your-org/hcd-janusgraph/security |
+| **Repository** | https://github.com/davidleconte/hcd-janusgraph |
+| **Issues** | https://github.com/davidleconte/hcd-janusgraph/issues |
+| **Pull Requests** | https://github.com/davidleconte/hcd-janusgraph/pulls |
+| **Actions** | https://github.com/davidleconte/hcd-janusgraph/actions |
+| **Security** | https://github.com/davidleconte/hcd-janusgraph/security |
 
 ---
 
@@ -380,9 +380,9 @@ NETWORK_NAME=hcd-janusgraph-network
 - **docs/SECURITY.md** - Security guidelines
 
 ### Support Channels
-- **Issues**: https://github.com/your-org/hcd-janusgraph/issues
-- **Discussions**: https://github.com/your-org/hcd-janusgraph/discussions
-- **Email**: your-email@example.com
+- **Issues**: https://github.com/davidleconte/hcd-janusgraph/issues
+- **Discussions**: https://github.com/davidleconte/hcd-janusgraph/discussions
+- **Email**: david.leconte1@ibm.com
 
 ### External Resources
 - [JanusGraph Docs](https://docs.janusgraph.org/)

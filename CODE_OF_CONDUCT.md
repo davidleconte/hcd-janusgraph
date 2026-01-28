@@ -14,7 +14,7 @@ Examples of behavior that contributes to a positive environment:
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported to [your-email@example.com].
+Instances of unacceptable behavior may be reported to [david.leconte1@ibm.com].
 
 ## Attribution
 

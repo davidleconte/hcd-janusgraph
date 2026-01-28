@@ -26,7 +26,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/your-org/hcd-janusgraph.git
+git clone https://github.com/davidleconte/hcd-janusgraph.git
 cd hcd-janusgraph
 
 # 2. Copy environment template
@@ -176,9 +176,9 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/hcd-janusgraph/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/hcd-janusgraph/discussions)
-- **Email**: support@example.com
+- **Issues**: [GitHub Issues](https://github.com/davidleconte/hcd-janusgraph/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/davidleconte/hcd-janusgraph/discussions)
+- **Email**: david.leconte1@ibm.com
 
 ---
 

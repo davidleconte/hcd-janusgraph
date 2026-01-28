@@ -42,7 +42,7 @@ pip install -r requirements-dev.txt  # For development
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/your-org/hcd-janusgraph.git
+git clone https://github.com/davidleconte/hcd-janusgraph.git
 cd hcd-janusgraph
 ```
 

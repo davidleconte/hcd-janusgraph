@@ -6,22 +6,22 @@
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Default owner for everything
-* @your-github-username
+* @davidleconte
 
 # Docker files
-/docker/ @your-github-username
+/docker/ @davidleconte
 
 # Configuration
-/config/ @your-github-username
+/config/ @davidleconte
 
 # Production configurations (requires security team review)
-/config/environments/prod/ @your-github-username
+/config/environments/prod/ @davidleconte
 
 # Documentation
-/docs/ @your-github-username
+/docs/ @davidleconte
 
 # CI/CD workflows
-/.github/workflows/ @your-github-username
+/.github/workflows/ @davidleconte
 
 # Security-sensitive files
-SECURITY.md @your-github-username
+SECURITY.md @davidleconte
