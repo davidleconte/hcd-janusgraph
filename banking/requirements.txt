@@ -1,0 +1,23 @@
+# Banking Use Cases - Python Dependencies
+# Required for AML data generation and analysis
+
+faker==26.1.0         # Realistic fake data generation
+gremlinpython==4.0.0  # JanusGraph client
+pandas==2.2.0         # Data analysis
+numpy==1.26.0         # Numerical operations
+scipy==1.13.0         # Scientific computing
+
+# OpenSearch integration
+opensearch-py==2.4.0  # OpenSearch Python client
+
+# Visualization
+matplotlib==3.8.0     # Plotting
+seaborn==0.13.0       # Statistical visualizations
+networkx==3.2.0       # Graph visualization
+pyvis==0.3.2          # Interactive network viz
+
+# Utilities
+python-dotenv==1.0.0  # Environment variables
+tqdm==4.66.0          # Progress bars
+
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
