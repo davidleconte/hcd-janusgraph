@@ -54,13 +54,13 @@ echo "Starting tests..."
 
 # Test 1: Container Status
 log_test "Test 1: Container Status"
-if podman --remote --connection $PODMAN_CONNECTION ps | grep -q "hcd-server.*Up"; then
+if podman --remote --connection $PODMAN_CONNECTION ps | grep -q "hcd-server"; then
     log_pass "HCD container running"
 else
     log_fail "HCD container not running"
 fi
 
-if podman --remote --connection $PODMAN_CONNECTION ps | grep -q "janusgraph-server.*Up"; then
+if podman --remote --connection $PODMAN_CONNECTION ps | grep -q "janusgraph-server"; then
     log_pass "JanusGraph container running"
 else
     log_fail "JanusGraph container not running"
@@ -83,10 +83,10 @@ fi
 # Test 3: Initialize Schema and Data
 log_test "Test 3: Schema and Data Initialization"
 
-# Copy scripts
-cd "$SCRIPT_DIR"
-podman --remote --connection $PODMAN_CONNECTION cp init_schema_remote.groovy janusgraph-server:/tmp/ 2>&1
-podman --remote --connection $PODMAN_CONNECTION cp load_data_remote.groovy janusgraph-server:/tmp/ 2>&1
+# Copy scripts from new location (src/groovy/)
+cd "$PROJECT_ROOT"
+podman --remote --connection $PODMAN_CONNECTION cp src/groovy/init_schema_remote.groovy janusgraph-server:/tmp/ 2>&1
+podman --remote --connection $PODMAN_CONNECTION cp src/groovy/load_data_remote.groovy janusgraph-server:/tmp/ 2>&1
 
 # Check current vertex count
 VCOUNT=$(podman --remote --connection $PODMAN_CONNECTION exec janusgraph-server ./bin/gremlin.sh 2>&1 << 'EOF' | grep "^==>" | tail -1 | sed 's/^==>//'
@@ -189,8 +189,8 @@ else
     log_fail "gremlin_python not installed"
 fi
 
-if [ -f "$SCRIPT_DIR/test_janusgraph_client.py" ]; then
-    if timeout 60 python3 "$SCRIPT_DIR/test_janusgraph_client.py" 2>&1 | grep -q "completed successfully"; then
+if [ -f "$PROJECT_ROOT/tests/integration/test_janusgraph_client.py" ]; then
+    if timeout 60 python3 "$PROJECT_ROOT/tests/integration/test_janusgraph_client.py" 2>&1 | grep -q "completed successfully"; then
         log_pass "Python client tests passed"
     else
         log_fail "Python client tests failed"
