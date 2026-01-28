@@ -1,0 +1,66 @@
+# File: .gitattributes
+# Created: 2026-01-28T11:00:15.123
+# Author: David LECONTE, IBM WorldWide | Data & AI
+#
+# Git attributes for consistent line endings and file handling
+
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.py text eol=lf
+*.groovy text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.properties text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+
+# Docker
+Dockerfile* text eol=lf
+*.dockerignore text eol=lf
+
+# Jupyter notebooks (treat as binary to avoid merge conflicts)
+*.ipynb binary
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.pyc binary
+*.pdf binary
+*.ez binary
+*.bz2 binary
+*.swp binary
+*.jar binary
+*.class binary
+
+# Archives
+*.tar.gz binary
+*.tgz binary
+
+# Signature: David LECONTE, IBM WorldWide | Data & AI
