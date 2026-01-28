@@ -9,7 +9,8 @@ source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$PROJECT_ROOT"
 
 # Load environment variables if .env exists
 if [ -f ".env" ]; then
@@ -62,7 +63,7 @@ echo "   This may take 10-15 minutes on first run..."
 echo "   Building Jupyter Lab (conda-forge)..."
 podman --remote --connection $PODMAN_CONNECTION build \
     --platform $PODMAN_PLATFORM \
-    -f Dockerfile.jupyter \
+    -f docker/jupyter/Dockerfile \
     -t localhost/jupyter-janusgraph:latest \
     .
 
@@ -70,7 +71,7 @@ podman --remote --connection $PODMAN_CONNECTION build \
 echo "   Building JanusGraph Visualizer..."
 podman --remote --connection $PODMAN_CONNECTION build \
     --platform $PODMAN_PLATFORM \
-    -f Dockerfile.visualizer \
+    -f docker/visualizer/Dockerfile \
     -t localhost/janusgraph-visualizer:latest \
     .
 
@@ -78,7 +79,7 @@ podman --remote --connection $PODMAN_CONNECTION build \
 echo "   Building Graphexp..."
 podman --remote --connection $PODMAN_CONNECTION build \
     --platform $PODMAN_PLATFORM \
-    -f Dockerfile.graphexp \
+    -f docker/graphexp/Dockerfile \
     -t localhost/graphexp:latest \
     .
 
@@ -86,7 +87,7 @@ podman --remote --connection $PODMAN_CONNECTION build \
 echo "   Building cqlsh client..."
 podman --remote --connection $PODMAN_CONNECTION build \
     --platform $PODMAN_PLATFORM \
-    -f Dockerfile.cqlsh \
+    -f docker/cqlsh/Dockerfile \
     -t localhost/cqlsh-client:latest \
     .
 

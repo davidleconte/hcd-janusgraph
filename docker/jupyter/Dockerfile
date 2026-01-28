@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy environment file
-COPY environment.yml /tmp/environment.yml
+COPY docker/jupyter/environment.yml /tmp/environment.yml
 
 # Create conda environment
 RUN conda env create -f /tmp/environment.yml && \
