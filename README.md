@@ -154,7 +154,7 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ## Security
 
-Report security vulnerabilities to: [security@example.com](mailto:security@example.com)
+Report security vulnerabilities to: [david.leconte1@ibm.com](mailto:david.leconte1@ibm.com)
 
 See [SECURITY.md](SECURITY.md) for our security policy.
 
