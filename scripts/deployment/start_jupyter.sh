@@ -30,7 +30,6 @@ if podman --remote --connection $PODMAN_CONNECTION ps | grep -q "jupyter-lab"; t
     echo "   Access: http://localhost:$JUPYTER_PORT"
     exit 0
 fi
-fi
 
 # Check if image exists
 if ! podman --remote --connection $PODMAN_CONNECTION images | grep -q "jupyter-janusgraph"; then
@@ -38,9 +37,9 @@ if ! podman --remote --connection $PODMAN_CONNECTION images | grep -q "jupyter-j
     echo "   Building image (this takes 5-10 minutes)..."
     podman --remote --connection $PODMAN_CONNECTION build \
         --platform $PODMAN_PLATFORM \
-        -f Dockerfile.jupyter \
+        -f "$PROJECT_ROOT/docker/jupyter/Dockerfile" \
         -t localhost/jupyter-janusgraph:latest \
-        .
+        "$PROJECT_ROOT"
     echo "✅ Image built successfully"
 fi
 
@@ -49,10 +48,10 @@ echo "Starting Jupyter Lab container..."
 podman --remote --connection $PODMAN_CONNECTION run -d \
     --name jupyter-lab \
     --hostname jupyter-lab \
-    --network hcd-janusgraph-network \
-    -p 8888:8888 \
-    -v "$SCRIPT_DIR/notebooks:/workspace/notebooks:Z" \
-    -v "$SCRIPT_DIR/exports:/workspace/exports:Z" \
+    --network $NETWORK_NAME \
+    -p $JUPYTER_PORT:8888 \
+    -v "$PROJECT_ROOT/notebooks:/workspace/notebooks:Z" \
+    -v "$PROJECT_ROOT/notebooks/exports:/workspace/exports:Z" \
     -e GREMLIN_URL=ws://janusgraph-server:8182/gremlin \
     -e HCD_HOST=hcd-server \
     -e HCD_PORT=9042 \
@@ -69,8 +68,8 @@ echo "=========================================="
 echo ""
 echo "📊 Access: http://localhost:8888"
 echo ""
-echo "📁 Notebooks: $SCRIPT_DIR/notebooks"
-echo "📁 Exports:   $SCRIPT_DIR/exports"
+echo "📁 Notebooks: $PROJECT_ROOT/notebooks"
+echo "📁 Exports:   $PROJECT_ROOT/notebooks/exports"
 echo ""
 echo "🧪 Sample Notebook: 01_janusgraph_exploration.ipynb"
 echo ""

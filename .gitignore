@@ -1,3 +1,9 @@
+# Vault keys and secrets
+.vault-keys
+.vault-token
+config/vault/data/
+config/vault/logs/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -54,8 +60,31 @@ logs/
 
 # Environment variables (CRITICAL - NEVER commit actual .env)
 .env
+.env.*
+*.env
 .env.local
 .env.*.local
+.env.test
+test.env
+.env.development
+.env.staging
+.env.production
+config/environments/*/.env
+config/environments/**/.env
+
+# Credentials and secrets (NEVER commit)
+*credentials*.json
+*secrets*.yaml
+*secrets*.yml
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
 
 # Outputs
 data/exports/*
@@ -102,9 +131,33 @@ volumes/
 .LSOverride
 Icon
 
-# Large files
+# Large files and binaries
 *.tar.gz
 *.zip
 *.tar
 *.tgz
 hcd-*.tar.gz
+hcd-*/
+
+# Vault (CRITICAL - NEVER commit)
+.vault-keys*
+data/vault/
+
+# Certificates (generate on setup, don't commit)
+config/certs/
+config/ssl/
+
+# Vendor code (download on setup)
+vendor/
+hcd-1.2.3/
+
+# Build artifacts
+coverage.xml
+.coverage
+htmlcov/
+*.pyc
+__pycache__/
+
+# Notebooks output
+notebooks/*.html
+banking/notebooks/*.html

@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 """
-Initialize JanusGraph with schema and sample data
-Run this from the host machine
+Initialize JanusGraph with schema and sample data.
+
+Run this from the host machine after services are started.
+
+File: initialize_graph.py
+Created: 2026-01-28
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
-from gremlin_python.driver import client
+import logging
+import sys
 import time
+from typing import Any
 
-print("Connecting to JanusGraph...")
-gc = client.Client('ws://localhost:18182/gremlin', 'g')
+from ..client import ConnectionError, JanusGraphClient, QueryError
 
-# Step 1: Initialize Schema
-print("\n1. Initializing schema...")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 
 schema_script = """
 mgmt = graph.openManagement()
@@ -48,102 +59,175 @@ mgmt.commit()
 'Schema created'
 """
 
-try:
-    result = gc.submit(schema_script).all().result()
-    print(f"   ✅ Schema initialized: {result}")
-except Exception as e:
-    print(f"   ⚠️  Schema error (may already exist): {e}")
-
-time.sleep(2)
-
-# Step 2: Load Sample Data
-print("\n2. Loading sample data...")
-
 data_script = """
-// People
-alice = g.addV('person').property('name', 'Alice Johnson').property('age', 30).property('email', 'alice@example.com').property('location', 'San Francisco').next()
-bob = g.addV('person').property('name', 'Bob Smith').property('age', 25).property('email', 'bob@example.com').property('location', 'New York').next()
-carol = g.addV('person').property('name', 'Carol Williams').property('age', 35).property('email', 'carol@example.com').property('location', 'Seattle').next()
-david = g.addV('person').property('name', 'David Brown').property('age', 28).property('email', 'david@example.com').property('location', 'San Francisco').next()
-eve = g.addV('person').property('name', 'Eve Davis').property('age', 32).property('email', 'eve@example.com').property('location', 'Austin').next()
+// Create sample people
+alice = graph.addVertex(label, 'person', 'name', 'Alice Johnson', 'age', 32, 'email', 'alice@example.com', 'location', 'New York')
+bob = graph.addVertex(label, 'person', 'name', 'Bob Smith', 'age', 28, 'email', 'bob@example.com', 'location', 'San Francisco')
+carol = graph.addVertex(label, 'person', 'name', 'Carol Williams', 'age', 35, 'email', 'carol@example.com', 'location', 'Boston')
 
-// Companies
-datastax = g.addV('company').property('name', 'DataStax').property('location', 'Santa Clara').property('founded', 2010).next()
-acme = g.addV('company').property('name', 'Acme Corp').property('location', 'New York').property('founded', 2015).next()
-techstart = g.addV('company').property('name', 'TechStart').property('location', 'Austin').property('founded', 2018).next()
+// Create sample companies
+techCorp = graph.addVertex(label, 'company', 'name', 'TechCorp Inc', 'founded', 2010, 'location', 'San Francisco')
+dataLabs = graph.addVertex(label, 'company', 'name', 'DataLabs', 'founded', 2015, 'location', 'New York')
 
-// Products
-janusgraph = g.addV('product').property('name', 'JanusGraph').property('category', 'Database').property('price', 0.0f).next()
-cloudService = g.addV('product').property('name', 'Cloud Service Platform').property('category', 'SaaS').property('price', 99.99f).next()
-analyticsEngine = g.addV('product').property('name', 'Analytics Engine').property('category', 'Analytics').property('price', 199.99f).next()
+// Create sample products
+product1 = graph.addVertex(label, 'product', 'name', 'GraphDB Pro', 'price', 999.99f, 'category', 'Database')
+product2 = graph.addVertex(label, 'product', 'name', 'Analytics Suite', 'price', 1499.99f, 'category', 'Analytics')
 
-// Relationships
-g.V(alice).addE('knows').to(g.V(bob)).property('since', 2018).next()
-g.V(alice).addE('knows').to(g.V(carol)).property('since', 2019).next()
-g.V(alice).addE('knows').to(g.V(david)).property('since', 2020).next()
-g.V(bob).addE('knows').to(g.V(david)).property('since', 2019).next()
-g.V(carol).addE('knows').to(g.V(eve)).property('since', 2017).next()
-g.V(david).addE('knows').to(g.V(eve)).property('since', 2021).next()
+// Create relationships
+alice.addEdge('worksFor', techCorp, 'role', 'Engineer', 'since', 2018)
+bob.addEdge('worksFor', techCorp, 'role', 'Manager', 'since', 2016)
+carol.addEdge('worksFor', dataLabs, 'role', 'Data Scientist', 'since', 2019)
 
-g.V(alice).addE('worksFor').to(g.V(datastax)).property('role', 'Senior Engineer').property('since', 2018).next()
-g.V(bob).addE('worksFor').to(g.V(acme)).property('role', 'Product Manager').property('since', 2020).next()
-g.V(carol).addE('worksFor').to(g.V(datastax)).property('role', 'Director').property('since', 2016).next()
-g.V(david).addE('worksFor').to(g.V(datastax)).property('role', 'Engineer').property('since', 2021).next()
-g.V(eve).addE('worksFor').to(g.V(techstart)).property('role', 'CTO').property('since', 2018).next()
+alice.addEdge('knows', bob, 'since', 2018)
+bob.addEdge('knows', carol, 'since', 2020)
 
-g.V(datastax).addE('created').to(g.V(janusgraph)).property('since', 2017).next()
-g.V(acme).addE('created').to(g.V(cloudService)).property('since', 2019).next()
-g.V(techstart).addE('created').to(g.V(analyticsEngine)).property('since', 2020).next()
-
-g.V(alice).addE('uses').to(g.V(janusgraph)).property('since', 2019).next()
-g.V(bob).addE('uses').to(g.V(cloudService)).property('since', 2020).next()
-g.V(carol).addE('uses').to(g.V(janusgraph)).property('since', 2018).next()
-g.V(david).addE('uses').to(g.V(janusgraph)).property('since', 2021).next()
-g.V(eve).addE('uses').to(g.V(analyticsEngine)).property('since', 2020).next()
+alice.addEdge('created', product1, 'since', 2020)
+carol.addEdge('uses', product2, 'since', 2021)
 
 graph.tx().commit()
-'Data loaded'
+'Sample data loaded'
 """
 
-try:
-    result = gc.submit(data_script).all().result()
-    print(f"   ✅ Data loaded: {result}")
-except Exception as e:
-    print(f"   ❌ Data loading error: {e}")
-    gc.close()
-    exit(1)
 
-time.sleep(2)
+def initialize_schema(client: JanusGraphClient) -> bool:
+    """
+    Initialize JanusGraph schema with vertex labels, edge labels, properties, and indexes.
 
-# Step 3: Verify
-print("\n3. Verifying...")
+    Args:
+        client: Connected JanusGraphClient instance
 
-try:
-    vertex_count = gc.submit('g.V().count()').all().result()[0]
-    edge_count = gc.submit('g.E().count()').all().result()[0]
-    
-    print(f"\n{'='*50}")
-    print(f"✅ Initialization Complete!")
-    print(f"{'='*50}")
-    print(f"Vertices: {vertex_count}")
-    print(f"Edges: {edge_count}")
-    print(f"\nSample data:")
-    
-    people = gc.submit("g.V().hasLabel('person').values('name')").all().result()
-    print(f"  People: {people}")
-    
-    companies = gc.submit("g.V().hasLabel('company').values('name')").all().result()
-    print(f"  Companies: {companies}")
-    
-    products = gc.submit("g.V().hasLabel('product').values('name')").all().result()
-    print(f"  Products: {products}")
-    
-    print(f"\n{'='*50}")
-    print("Now go to Jupyter and re-run your notebook cells!")
-    print("You should see 11 vertices and 19 edges.")
-    print(f"{'='*50}\n")
-    
-except Exception as e:
-    print(f"❌ Verification error: {e}")
-finally:
-    gc.close()
+    Returns:
+        True if schema initialized successfully, False otherwise
+    """
+    logger.info("Initializing schema...")
+
+    try:
+        result = client.execute(schema_script)
+        logger.info("Schema initialized successfully: %s", result)
+        return True
+    except QueryError as e:
+        logger.warning("Schema initialization failed (may already exist): %s", e)
+        return True  # Not fatal if schema exists
+    except Exception as e:
+        logger.error("Unexpected error initializing schema: %s", e)
+        return False
+
+
+def load_sample_data(client: JanusGraphClient) -> bool:
+    """
+    Load sample graph data (people, companies, products, and relationships).
+
+    Args:
+        client: Connected JanusGraphClient instance
+
+    Returns:
+        True if data loaded successfully, False otherwise
+    """
+    logger.info("Loading sample data...")
+
+    try:
+        result = client.execute(data_script)
+        logger.info("Sample data loaded successfully: %s", result)
+        return True
+    except QueryError as e:
+        logger.error("Failed to load sample data: %s", e)
+        return False
+    except Exception as e:
+        logger.error("Unexpected error loading data: %s", e)
+        return False
+
+
+def verify_initialization(client: JanusGraphClient) -> bool:
+    """
+    Verify that schema and data were loaded correctly.
+
+    Args:
+        client: Connected JanusGraphClient instance
+
+    Returns:
+        True if verification passed, False otherwise
+    """
+    logger.info("Verifying initialization...")
+
+    try:
+        vertex_count = client.execute("g.V().count()")[0]
+        edge_count = client.execute("g.E().count()")[0]
+
+        logger.info("=" * 50)
+        logger.info("Initialization Complete!")
+        logger.info("=" * 50)
+        logger.info("Vertices: %d", vertex_count)
+        logger.info("Edges: %d", edge_count)
+
+        # Get sample data
+        people = client.execute("g.V().hasLabel('person').values('name')")
+        companies = client.execute("g.V().hasLabel('company').values('name')")
+        products = client.execute("g.V().hasLabel('product').values('name')")
+
+        logger.info("Sample data loaded:")
+        logger.info("  People: %s", people)
+        logger.info("  Companies: %s", companies)
+        logger.info("  Products: %s", products)
+
+        logger.info("=" * 50)
+        logger.info("Expected: 11 vertices, 19 edges")
+        logger.info("You can now use Jupyter notebooks to explore the graph!")
+        logger.info("=" * 50)
+
+        return vertex_count == 11 and edge_count == 19
+    except (QueryError, IndexError) as e:
+        logger.error("Verification failed: %s", e)
+        return False
+    except Exception as e:
+        logger.error("Unexpected error during verification: %s", e)
+        return False
+
+
+def main() -> int:
+    """
+    Main entry point for graph initialization.
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    logger.info("Starting JanusGraph initialization")
+
+    try:
+        # Create and connect client
+        with JanusGraphClient(host="localhost", port=18182) as client:
+            # Step 1: Initialize schema
+            if not initialize_schema(client):
+                logger.error("Schema initialization failed")
+                return 1
+
+            time.sleep(2)  # Wait for schema to propagate
+
+            # Step 2: Load sample data
+            if not load_sample_data(client):
+                logger.error("Data loading failed")
+                return 1
+
+            time.sleep(2)  # Wait for data to propagate
+
+            # Step 3: Verify
+            if not verify_initialization(client):
+                logger.warning("Verification failed - data may not match expected counts")
+                return 1
+
+            logger.info("JanusGraph initialization completed successfully")
+            return 0
+
+    except ConnectionError as e:
+        logger.error("Failed to connect to JanusGraph: %s", e)
+        logger.error("Ensure JanusGraph is running at localhost:18182")
+        return 1
+    except KeyboardInterrupt:
+        logger.info("Initialization interrupted by user")
+        return 1
+    except Exception as e:
+        logger.error("Unexpected error during initialization: %s", e, exc_info=True)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

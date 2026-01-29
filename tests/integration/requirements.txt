@@ -1,0 +1,20 @@
+# Integration Test Requirements
+# Install with: pip install -r requirements.txt
+
+# Testing framework
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+pytest-xdist>=3.3.1
+
+# JanusGraph/Gremlin
+gremlinpython>=3.6.0
+
+# Cassandra
+cassandra-driver>=3.28.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Utilities
+python-dateutil>=2.8.2

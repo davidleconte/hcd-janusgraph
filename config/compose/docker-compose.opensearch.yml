@@ -1,0 +1,52 @@
+# File: docker-compose.opensearch.yml
+# Created: 2026-01-28T18:35:00.000
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+# Purpose: OpenSearch service for JanusGraph vector search backend
+
+version: '3.8'
+
+networks:
+  hcd-janusgraph-network:
+    external: true
+
+volumes:
+  opensearch-data:
+    driver: local
+
+services:
+  opensearch:
+    image: docker.io/opensearchproject/opensearch:2.11.1
+    container_name: opensearch
+    hostname: opensearch
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "9200:9200"     # REST API
+      - "9600:9600"     # Performance Analyzer
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+# Made with Bob

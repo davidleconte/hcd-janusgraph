@@ -99,13 +99,13 @@ echo "4. Checking core containers (HCD + JanusGraph)..."
 if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "hcd-server"; then
     echo "⚠️  HCD container not running. Starting core stack..."
     # Start HCD first (already built)
+    # NOTE: JMX port (7199) NOT exposed per security requirements - use SSH tunnel if needed
     podman --remote --connection $PODMAN_CONNECTION run -d \
         --name hcd-server \
         --hostname hcd-server \
         --network $NETWORK_NAME \
         -p $HCD_CQL_PORT:9042 \
         -p 17000-17001:7000-7001 \
-        -p 17199:7199 \
         -p 19160:9160 \
         localhost/hcd:1.2.3
     
@@ -224,8 +224,8 @@ if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "grafana"; the
         --hostname grafana \
         --network $NETWORK_NAME \
         -p $GRAFANA_PORT:3000 \
-        -e GF_SECURITY_ADMIN_USER=admin \
-        -e GF_SECURITY_ADMIN_PASSWORD=admin \
+        -e GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin} \
+        -e GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD} \
         -e GF_USERS_ALLOW_SIGN_UP=false \
         docker.io/grafana/grafana:latest
 fi
@@ -235,8 +235,18 @@ echo ""
 
 # Wait for services to be ready
 echo "7. Waiting for services to be ready..."
-sleep 10
-echo "✅ Services ready"
+echo ""
+echo "⏱️  Expected Startup Times:"
+echo "   • HCD (Cassandra):    60-150 seconds"
+echo "   • JanusGraph:         +20-90 seconds (waits for HCD + initialization)"
+echo "   • Application Layer:  +10-30 seconds (waits for JanusGraph)"
+echo "   • Total Expected:     90-270 seconds (1.5-4.5 minutes)"
+echo ""
+echo "   Current wait: 90 seconds for core services..."
+echo "   (Services continue initializing in background)"
+echo ""
+sleep 90
+echo "✅ Core services should be ready (check health with: podman ps)"
 echo ""
 
 # Display access information

@@ -1,0 +1,21 @@
+# Grafana Datasource Provisioning
+# File: prometheus.yml
+# Created: 2026-01-29
+# Purpose: Auto-provision Prometheus datasource in Grafana
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: '15s'
+      queryTimeout: '60s'
+      httpMethod: 'POST'
+    version: 1
+
+# Made with Bob

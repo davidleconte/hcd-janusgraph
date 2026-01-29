@@ -1,0 +1,94 @@
+# File: docker-compose.tls.yml
+# Created: 2026-01-28
+# Purpose: TLS/SSL enabled configuration for HCD + JanusGraph stack
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+
+version: '3.8'
+
+services:
+  hcd:
+    volumes:
+      # Mount TLS certificates for HCD
+      - ./config/certs/hcd-server.keystore.jks:/etc/hcd/certs/hcd-server.keystore.jks:ro
+      - ./config/certs/hcd-server.truststore.jks:/etc/hcd/certs/hcd-server.truststore.jks:ro
+      - ./config/janusgraph/cassandra-tls.yaml:/opt/hcd/resources/cassandra/conf/cassandra.yaml:ro
+    environment:
+      # TLS/SSL configuration
+      - CASSANDRA_SSL_STORAGE_PORT=7001
+      - SSL_KEYSTORE_PATH=/etc/hcd/certs/hcd-server.keystore.jks
+      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PATH=/etc/hcd/certs/hcd-server.truststore.jks
+      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:-changeit}
+      # Enable client-to-node encryption
+      - CASSANDRA_CLIENT_ENCRYPTION_ENABLED=true
+      # Enable node-to-node encryption
+      - CASSANDRA_INTERNODE_ENCRYPTION=all
+    ports:
+      - "9142:9142"  # CQL with TLS
+
+  janusgraph:
+    volumes:
+      # Mount TLS certificates for JanusGraph
+      - ./config/certs/janusgraph-server.keystore.jks:/etc/janusgraph/certs/janusgraph-server.keystore.jks:ro
+      - ./config/certs/janusgraph-server.truststore.jks:/etc/janusgraph/certs/janusgraph-server.truststore.jks:ro
+      - ./config/janusgraph/janusgraph-server-tls.yaml:/etc/opt/janusgraph/janusgraph-server.yaml:ro
+      - ./config/janusgraph/janusgraph-hcd-tls.properties:/etc/opt/janusgraph/janusgraph-hcd-tls.properties:ro
+    environment:
+      # TLS/SSL configuration
+      - SSL_ENABLED=true
+      - SSL_KEYSTORE_PATH=/etc/janusgraph/certs/janusgraph-server.keystore.jks
+      - SSL_KEYSTORE_PASSWORD=${JANUSGRAPH_KEYSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PATH=/etc/janusgraph/certs/janusgraph-server.truststore.jks
+      - SSL_TRUSTSTORE_PASSWORD=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+      # Update storage connection to use TLS
+      - janusgraph.storage.port=9142
+      - janusgraph.storage.cql.ssl.enabled=true
+      - janusgraph.storage.cql.ssl.truststore.location=/etc/janusgraph/certs/janusgraph-server.truststore.jks
+      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+    command: >
+      bash -c "
+      echo 'Waiting for HCD to be ready with TLS...' &&
+      sleep 30 &&
+      echo 'Starting JanusGraph with TLS...' &&
+      /opt/janusgraph/bin/janusgraph-server.sh /etc/opt/janusgraph/janusgraph-server-tls.yaml
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8182?gremlin=g.V().count()"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Grafana with TLS
+  grafana:
+    environment:
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/etc/grafana/certs/grafana.crt
+      - GF_SERVER_CERT_KEY=/etc/grafana/certs/grafana.key
+    volumes:
+      - ./config/certs/grafana.crt:/etc/grafana/certs/grafana.crt:ro
+      - ./config/certs/grafana.key:/etc/grafana/certs/grafana.key:ro
+    ports:
+      - "3443:3000"  # HTTPS port
+
+  # Prometheus with TLS
+  prometheus:
+    volumes:
+      - ./config/certs/prometheus.crt:/etc/prometheus/certs/prometheus.crt:ro
+      - ./config/certs/prometheus.key:/etc/prometheus/certs/prometheus.key:ro
+      - ./config/monitoring/prometheus-tls.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.config.file=/etc/prometheus/web-config.yml'
+
+networks:
+  hcd-janusgraph-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
+
+# Made with Bob

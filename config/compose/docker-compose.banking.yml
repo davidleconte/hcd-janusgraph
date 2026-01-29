@@ -13,9 +13,18 @@ services:
       - node.name=opensearch-node1
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
-      - plugins.security.disabled=true  # Dev only
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=DevPassword123!
+      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g"
+      # SECURITY: Enable security plugin in production
+      - plugins.security.disabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      # TODO: Configure TLS/SSL certificates
+      # - plugins.security.ssl.http.enabled=true
+      # - plugins.security.ssl.http.pemcert_filepath=certs/opensearch.pem
+      # - plugins.security.ssl.http.pemkey_filepath=certs/opensearch-key.pem
+      # - plugins.security.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
+      # Enable audit logging
+      - plugins.security.audit.type=internal_opensearch
+      - plugins.security.enable_snapshot_restore_privilege=true
     ulimits:
       memlock:
         soft: -1
@@ -26,9 +35,11 @@ services:
     volumes:
       - opensearch-data:/usr/share/opensearch/data
       - ./config/opensearch/jvector-install.sh:/tmp/jvector-install.sh
-    ports:
-      - "9200:9200"
-      - "9600:9600"
+    # SECURITY: Do not expose OpenSearch ports publicly
+    # Access via SSH tunnel: ssh -L 9200:localhost:9200 user@host
+    # ports:
+    #   - "9200:9200"  # OpenSearch API - Use SSH tunnel
+    #   - "9600:9600"  # Performance Analyzer - Use SSH tunnel
     networks:
       - hcd-janusgraph-network
     healthcheck:
@@ -43,10 +54,15 @@ services:
     image: opensearchproject/opensearch-dashboards:latest
     container_name: opensearch-dashboards
     environment:
-      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
-      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
-    ports:
-      - "5601:5601"
+      - OPENSEARCH_HOSTS=["https://opensearch:9200"]
+      # SECURITY: Enable security plugin
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=false
+      - OPENSEARCH_USERNAME=admin
+      - OPENSEARCH_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+    # SECURITY: Do not expose Dashboards publicly
+    # Access via SSH tunnel: ssh -L 5601:localhost:5601 user@host
+    # ports:
+    #   - "5601:5601"  # Dashboards - Use SSH tunnel
     networks:
       - hcd-janusgraph-network
     depends_on:

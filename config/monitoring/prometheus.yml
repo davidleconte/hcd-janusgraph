@@ -12,6 +12,17 @@ global:
     cluster: 'hcd-janusgraph'
     environment: 'development'
 
+# AlertManager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+      timeout: 10s
+
+# Load alert rules
+rule_files:
+  - '/etc/prometheus/alert-rules.yml'
+
 scrape_configs:
   # HCD/Cassandra JMX Metrics
   - job_name: 'hcd'
@@ -28,6 +39,15 @@ scrape_configs:
         labels:
           service: 'janusgraph'
           component: 'graph-server'
+
+  # JanusGraph Metrics Exporter
+  - job_name: 'janusgraph-exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['janusgraph-exporter:8000']
+        labels:
+          service: 'janusgraph'
+          component: 'metrics-exporter'
 
   # Prometheus self-monitoring
   - job_name: 'prometheus'

@@ -1,0 +1,88 @@
+# File: docker-compose.tracing.yml
+# Created: 2026-01-28
+# Purpose: Distributed tracing with Jaeger
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.tracing.yml up -d
+
+version: '3.8'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: jaeger
+    hostname: jaeger
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "5775:5775/udp"   # Zipkin compact thrift
+      - "6831:6831/udp"   # Jaeger compact thrift
+      - "6832:6832/udp"   # Jaeger binary thrift
+      - "5778:5778"       # Serve configs
+      - "16686:16686"     # Jaeger UI
+      - "14268:14268"     # Jaeger collector HTTP
+      - "14250:14250"     # Jaeger collector gRPC
+      - "9411:9411"       # Zipkin compatible endpoint
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+      - METRICS_STORAGE_TYPE=prometheus
+      - PROMETHEUS_SERVER_URL=http://prometheus:9090
+      - PROMETHEUS_QUERY_SUPPORT_SPANMETRICS_CONNECTOR=true
+    volumes:
+      - jaeger-badger-data:/badger/data
+      - jaeger-badger-key:/badger/key
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:14269/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    labels:
+      - "com.docker.compose.project=hcd-janusgraph"
+      - "com.docker.compose.service=jaeger"
+      - "description=Jaeger distributed tracing"
+
+  # OpenTelemetry Collector (optional, for advanced scenarios)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    container_name: otel-collector
+    hostname: otel-collector
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Prometheus metrics
+      - "13133:13133" # Health check
+    volumes:
+      - ./config/tracing/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    command: ["--config=/etc/otel-collector-config.yml"]
+    depends_on:
+      - jaeger
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    labels:
+      - "com.docker.compose.project=hcd-janusgraph"
+      - "com.docker.compose.service=otel-collector"
+      - "description=OpenTelemetry Collector"
+
+volumes:
+  jaeger-badger-data:
+    driver: local
+  jaeger-badger-key:
+    driver: local
+
+networks:
+  hcd-janusgraph-network:
+    external: true
+
+# Made with Bob

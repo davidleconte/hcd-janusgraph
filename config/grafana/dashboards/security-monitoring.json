@@ -1,0 +1,237 @@
+{
+  "dashboard": {
+    "title": "Security Monitoring",
+    "tags": ["security", "audit", "compliance"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "1m",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Authentication Attempts",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(auth_attempts_total{status=\"success\"}[5m])",
+            "legendFormat": "Successful"
+          },
+          {
+            "expr": "rate(auth_attempts_total{status=\"failed\"}[5m])",
+            "legendFormat": "Failed"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [5], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["B", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"},
+              "type": "query"
+            }
+          ],
+          "name": "High Failed Authentication Rate",
+          "message": "Multiple failed authentication attempts detected"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Rate Limit Violations",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(nginx_http_requests_total{status=\"429\"}[1h]))",
+            "legendFormat": "429 Responses (1h)"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "graphMode": "area"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 100, "color": "yellow"},
+                {"value": 500, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "TLS Connection Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(tls_connections_active)",
+            "legendFormat": "Active TLS Connections"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Failed Login Attempts by IP",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "topk(10, sum by (ip) (increase(auth_attempts_total{status=\"failed\"}[1h])))",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {"Time": true},
+              "indexByName": {"ip": 0, "Value": 1},
+              "renameByName": {"ip": "IP Address", "Value": "Failed Attempts"}
+            }
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Security Events Timeline",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(security_events_total{type=\"injection_attempt\"}[5m])",
+            "legendFormat": "Injection Attempts"
+          },
+          {
+            "expr": "rate(security_events_total{type=\"xss_attempt\"}[5m])",
+            "legendFormat": "XSS Attempts"
+          },
+          {
+            "expr": "rate(security_events_total{type=\"path_traversal\"}[5m])",
+            "legendFormat": "Path Traversal"
+          },
+          {
+            "expr": "rate(security_events_total{type=\"brute_force\"}[5m])",
+            "legendFormat": "Brute Force"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Certificate Expiration",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "(ssl_cert_not_after - time()) / 86400",
+            "legendFormat": "Days Until Expiration"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 30, "color": "yellow"},
+                {"value": 90, "color": "green"}
+              ]
+            },
+            "unit": "d"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Backup Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "time() - backup_last_success_timestamp",
+            "legendFormat": "Time Since Last Backup"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 86400, "color": "yellow"},
+                {"value": 172800, "color": "red"}
+              ]
+            },
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Encryption Status",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 16},
+        "targets": [
+          {
+            "expr": "encryption_enabled",
+            "legendFormat": "Encryption Enabled"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "options": {"0": {"text": "Disabled", "color": "red"}}},
+              {"type": "value", "options": {"1": {"text": "Enabled", "color": "green"}}}
+            ]
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Audit Log Volume",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "rate(audit_log_entries_total[5m])",
+            "legendFormat": "Audit Entries/sec"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Compliance Score",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "compliance_score_percentage",
+            "legendFormat": "Compliance %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 70, "color": "yellow"},
+                {"value": 90, "color": "green"}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    ]
+  }
+}

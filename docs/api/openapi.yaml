@@ -1,0 +1,964 @@
+openapi: 3.0.3
+info:
+  title: HCD JanusGraph API
+  description: |
+    REST API for HCD JanusGraph graph database operations.
+    
+    This API provides endpoints for:
+    - Graph traversal and querying
+    - Vertex and edge operations
+    - Schema management
+    - Health monitoring
+    - Metrics and statistics
+    
+    ## Authentication
+    All endpoints require authentication using API keys or JWT tokens.
+    Include the authentication token in the `Authorization` header:
+    ```
+    Authorization: Bearer <token>
+    ```
+    
+    ## Rate Limiting
+    - 1000 requests per hour per API key
+    - 100 requests per minute per IP address
+    
+    ## Error Handling
+    All errors follow RFC 7807 Problem Details format.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+  - url: http://localhost:8182
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Health check and status endpoints
+  - name: Vertices
+    description: Vertex operations
+  - name: Edges
+    description: Edge operations
+  - name: Queries
+    description: Graph traversal and query operations
+  - name: Schema
+    description: Schema management operations
+  - name: Metrics
+    description: Metrics and statistics
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns the health status of the API and database
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness check
+      description: Returns whether the service is ready to accept requests
+      operationId: getReadiness
+      security: []
+      responses:
+        '200':
+          description: Service is ready
+        '503':
+          description: Service is not ready
+
+  /health/live:
+    get:
+      tags:
+        - Health
+      summary: Liveness check
+      description: Returns whether the service is alive
+      operationId: getLiveness
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+        '503':
+          description: Service is not alive
+
+  /vertices:
+    get:
+      tags:
+        - Vertices
+      summary: List vertices
+      description: Retrieve a list of vertices with optional filtering
+      operationId: listVertices
+      parameters:
+        - name: label
+          in: query
+          description: Filter by vertex label
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of vertices to return
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          description: Number of vertices to skip
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of vertices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VertexListResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+    post:
+      tags:
+        - Vertices
+      summary: Create vertex
+      description: Create a new vertex with properties
+      operationId: createVertex
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVertexRequest'
+      responses:
+        '201':
+          description: Vertex created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertex'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /vertices/{id}:
+    get:
+      tags:
+        - Vertices
+      summary: Get vertex by ID
+      description: Retrieve a specific vertex by its ID
+      operationId: getVertex
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Vertex ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vertex details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertex'
+        '404':
+          description: Vertex not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    put:
+      tags:
+        - Vertices
+      summary: Update vertex
+      description: Update vertex properties
+      operationId: updateVertex
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Vertex ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVertexRequest'
+      responses:
+        '200':
+          description: Vertex updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vertex'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Vertex not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      tags:
+        - Vertices
+      summary: Delete vertex
+      description: Delete a vertex and its edges
+      operationId: deleteVertex
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Vertex ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Vertex deleted successfully
+        '404':
+          description: Vertex not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /edges:
+    get:
+      tags:
+        - Edges
+      summary: List edges
+      description: Retrieve a list of edges with optional filtering
+      operationId: listEdges
+      parameters:
+        - name: label
+          in: query
+          description: Filter by edge label
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of edges to return
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          description: Number of edges to skip
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of edges
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeListResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      tags:
+        - Edges
+      summary: Create edge
+      description: Create a new edge between vertices
+      operationId: createEdge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEdgeRequest'
+      responses:
+        '201':
+          description: Edge created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Edge'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /edges/{id}:
+    get:
+      tags:
+        - Edges
+      summary: Get edge by ID
+      description: Retrieve a specific edge by its ID
+      operationId: getEdge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Edge ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Edge details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Edge'
+        '404':
+          description: Edge not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    delete:
+      tags:
+        - Edges
+      summary: Delete edge
+      description: Delete an edge
+      operationId: deleteEdge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Edge ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Edge deleted successfully
+        '404':
+          description: Edge not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /queries/gremlin:
+    post:
+      tags:
+        - Queries
+      summary: Execute Gremlin query
+      description: Execute a Gremlin traversal query
+      operationId: executeGremlinQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GremlinQueryRequest'
+      responses:
+        '200':
+          description: Query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid query syntax
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /queries/cypher:
+    post:
+      tags:
+        - Queries
+      summary: Execute Cypher query
+      description: Execute a Cypher query (translated to Gremlin)
+      operationId: executeCypherQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CypherQueryRequest'
+      responses:
+        '200':
+          description: Query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid query syntax
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /schema:
+    get:
+      tags:
+        - Schema
+      summary: Get schema
+      description: Retrieve the current graph schema
+      operationId: getSchema
+      responses:
+        '200':
+          description: Graph schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /schema/vertex-labels:
+    get:
+      tags:
+        - Schema
+      summary: List vertex labels
+      description: Retrieve all vertex labels
+      operationId: listVertexLabels
+      responses:
+        '200':
+          description: List of vertex labels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  labels:
+                    type: array
+                    items:
+                      type: string
+
+    post:
+      tags:
+        - Schema
+      summary: Create vertex label
+      description: Create a new vertex label
+      operationId: createVertexLabel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVertexLabelRequest'
+      responses:
+        '201':
+          description: Vertex label created successfully
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /schema/edge-labels:
+    get:
+      tags:
+        - Schema
+      summary: List edge labels
+      description: Retrieve all edge labels
+      operationId: listEdgeLabels
+      responses:
+        '200':
+          description: List of edge labels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  labels:
+                    type: array
+                    items:
+                      type: string
+
+    post:
+      tags:
+        - Schema
+      summary: Create edge label
+      description: Create a new edge label
+      operationId: createEdgeLabel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEdgeLabelRequest'
+      responses:
+        '201':
+          description: Edge label created successfully
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /metrics:
+    get:
+      tags:
+        - Metrics
+      summary: Get metrics
+      description: Retrieve system metrics and statistics
+      operationId: getMetrics
+      responses:
+        '200':
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  responses:
+    UnauthorizedError:
+      description: Authentication required or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per hour
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests in current window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when the rate limit resets
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        components:
+          type: object
+          properties:
+            database:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+                responseTime:
+                  type: integer
+                  description: Response time in milliseconds
+            cache:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [up, down]
+
+    ErrorResponse:
+      type: object
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI reference identifying the problem type
+        title:
+          type: string
+          description: Short, human-readable summary
+        status:
+          type: integer
+          description: HTTP status code
+        detail:
+          type: string
+          description: Human-readable explanation
+        instance:
+          type: string
+          format: uri
+          description: URI reference identifying the specific occurrence
+        traceId:
+          type: string
+          description: Distributed tracing ID
+
+    Vertex:
+      type: object
+      required:
+        - id
+        - label
+      properties:
+        id:
+          type: string
+          description: Unique vertex identifier
+        label:
+          type: string
+          description: Vertex label/type
+        properties:
+          type: object
+          additionalProperties: true
+          description: Vertex properties
+
+    Edge:
+      type: object
+      required:
+        - id
+        - label
+        - inV
+        - outV
+      properties:
+        id:
+          type: string
+          description: Unique edge identifier
+        label:
+          type: string
+          description: Edge label/type
+        inV:
+          type: string
+          description: Incoming vertex ID
+        outV:
+          type: string
+          description: Outgoing vertex ID
+        properties:
+          type: object
+          additionalProperties: true
+          description: Edge properties
+
+    CreateVertexRequest:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: Vertex label
+        properties:
+          type: object
+          additionalProperties: true
+          description: Vertex properties
+
+    UpdateVertexRequest:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties: true
+          description: Properties to update
+
+    CreateEdgeRequest:
+      type: object
+      required:
+        - label
+        - outV
+        - inV
+      properties:
+        label:
+          type: string
+          description: Edge label
+        outV:
+          type: string
+          description: Outgoing vertex ID
+        inV:
+          type: string
+          description: Incoming vertex ID
+        properties:
+          type: object
+          additionalProperties: true
+          description: Edge properties
+
+    VertexListResponse:
+      type: object
+      properties:
+        vertices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vertex'
+        total:
+          type: integer
+          description: Total number of vertices
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    EdgeListResponse:
+      type: object
+      properties:
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Edge'
+        total:
+          type: integer
+          description: Total number of edges
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    GremlinQueryRequest:
+      type: object
+      required:
+        - gremlin
+      properties:
+        gremlin:
+          type: string
+          description: Gremlin query string
+        bindings:
+          type: object
+          additionalProperties: true
+          description: Query parameter bindings
+        language:
+          type: string
+          default: gremlin-groovy
+          description: Query language
+
+    CypherQueryRequest:
+      type: object
+      required:
+        - cypher
+      properties:
+        cypher:
+          type: string
+          description: Cypher query string
+        parameters:
+          type: object
+          additionalProperties: true
+          description: Query parameters
+
+    QueryResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+          description: Query results
+        requestId:
+          type: string
+          description: Request identifier
+        status:
+          type: object
+          properties:
+            message:
+              type: string
+            code:
+              type: integer
+        executionTime:
+          type: integer
+          description: Execution time in milliseconds
+
+    SchemaResponse:
+      type: object
+      properties:
+        vertexLabels:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              properties:
+                type: array
+                items:
+                  type: object
+        edgeLabels:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              properties:
+                type: array
+                items:
+                  type: object
+        propertyKeys:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dataType:
+                type: string
+              cardinality:
+                type: string
+
+    CreateVertexLabelRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Vertex label name
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dataType:
+                type: string
+              cardinality:
+                type: string
+
+    CreateEdgeLabelRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Edge label name
+        multiplicity:
+          type: string
+          enum: [MULTI, SIMPLE, MANY2ONE, ONE2MANY, ONE2ONE]
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              dataType:
+                type: string
+
+    MetricsResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        vertexCount:
+          type: integer
+        edgeCount:
+          type: integer
+        queryStats:
+          type: object
+          properties:
+            totalQueries:
+              type: integer
+            avgExecutionTime:
+              type: number
+            slowQueries:
+              type: integer
+        systemStats:
+          type: object
+          properties:
+            cpuUsage:
+              type: number
+            memoryUsage:
+              type: number
+            diskUsage:
+              type: number
+
+# Made with Bob

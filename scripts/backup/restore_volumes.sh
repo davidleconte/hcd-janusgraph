@@ -11,16 +11,40 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
 
-BACKUP_PATH="$1"
+BACKUP_DIR="${1:-}"
 
-if [ -z "$BACKUP_PATH" ] || [ ! -d "$BACKUP_PATH" ]; then
-    echo "❌ Usage: $0 <backup_path>"
-    echo "   Example: $0 /backups/janusgraph/hcd_20260128_103000"
+if [ -z "$BACKUP_DIR" ]; then
+    echo "❌ Usage: $0 <backup_directory> <timestamp>"
+    echo "   Example: $0 /backups/janusgraph 20260128_103000"
+    echo ""
+    echo "Available backups:"
+    ls -lh /backups/janusgraph/ 2>/dev/null | grep -E "hcd_|janusgraph_" || echo "  No backups found"
+    exit 1
+fi
+
+TIMESTAMP="${2:-}"
+if [ -z "$TIMESTAMP" ]; then
+    echo "❌ Timestamp required"
+    echo "   Example: $0 /backups/janusgraph 20260128_103000"
+    exit 1
+fi
+
+HCD_BACKUP="$BACKUP_DIR/hcd_$TIMESTAMP"
+JG_BACKUP="$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
+
+if [ ! -d "$HCD_BACKUP" ]; then
+    echo "❌ HCD backup not found: $HCD_BACKUP"
+    exit 1
+fi
+
+if [ ! -f "$JG_BACKUP" ]; then
+    echo "❌ JanusGraph backup not found: $JG_BACKUP"
     exit 1
 fi
 
 echo "⚠️  WARNING: This will OVERWRITE current data!"
-echo "   Backup path: $BACKUP_PATH"
+echo "   HCD backup: $HCD_BACKUP"
+echo "   JanusGraph backup: $JG_BACKUP"
 read -p "Type 'yes' to continue: " confirm
 
 if [ "$confirm" != "yes" ]; then
@@ -34,14 +58,13 @@ bash "$PROJECT_ROOT/scripts/deployment/stop_full_stack.sh"
 
 # Restore HCD data
 echo "📦 Restoring HCD data..."
-${PODMAN_CONNECTION} cp "$BACKUP_PATH/hcd" hcd-server:/var/lib/cassandra/data
+${PODMAN_CONNECTION} cp "$HCD_BACKUP" hcd-server:/var/lib/cassandra/data
 
 # Restore JanusGraph data
-if [ -f "$BACKUP_PATH/janusgraph.tar.gz" ]; then
-    echo "📦 Restoring JanusGraph data..."
-    ${PODMAN_CONNECTION} cp "$BACKUP_PATH/janusgraph.tar.gz" janusgraph-server:/tmp/
-    ${PODMAN_CONNECTION} exec janusgraph-server tar -xzf /tmp/janusgraph.tar.gz -C /
-fi
+echo "📦 Restoring JanusGraph data..."
+${PODMAN_CONNECTION} cp "$JG_BACKUP" janusgraph-server:/tmp/janusgraph_restore.tar.gz
+${PODMAN_CONNECTION} exec janusgraph-server tar -xzf /tmp/janusgraph_restore.tar.gz -C /
+${PODMAN_CONNECTION} exec janusgraph-server rm /tmp/janusgraph_restore.tar.gz
 
 # Start services
 echo "🚀 Starting services..."

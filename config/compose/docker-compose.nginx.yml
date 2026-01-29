@@ -1,0 +1,71 @@
+# File: docker-compose.nginx.yml
+# Created: 2026-01-28
+# Purpose: Nginx reverse proxy with rate limiting and DDoS protection
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.nginx.yml up -d
+
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx-proxy
+    hostname: nginx-proxy
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginx configuration
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/429.html:/usr/share/nginx/html/429.html:ro
+      
+      # TLS certificates (if using HTTPS)
+      - ./config/certs:/etc/nginx/certs:ro
+      
+      # Logs
+      - nginx-logs:/var/log/nginx
+      
+      # Cache
+      - nginx-cache:/var/cache/nginx
+    environment:
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    depends_on:
+      - janusgraph
+      - grafana
+      - prometheus
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    labels:
+      - "com.docker.compose.project=hcd-janusgraph"
+      - "com.docker.compose.service=nginx"
+      - "description=Nginx reverse proxy with rate limiting"
+
+  # Update JanusGraph to not expose port directly
+  janusgraph:
+    ports: []  # Remove direct port exposure, access via nginx
+
+  # Update Grafana to not expose port directly
+  grafana:
+    ports: []  # Remove direct port exposure, access via nginx
+
+  # Update Prometheus to not expose port directly
+  prometheus:
+    ports: []  # Remove direct port exposure, access via nginx
+
+volumes:
+  nginx-logs:
+    driver: local
+  nginx-cache:
+    driver: local
+
+networks:
+  hcd-janusgraph-network:
+    external: true
+
+# Made with Bob

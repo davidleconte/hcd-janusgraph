@@ -1,0 +1,33 @@
+# Test Requirements for Synthetic Data Generators
+# ================================================
+
+# Core testing framework
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.1
+pytest-benchmark>=4.0.0
+pytest-timeout>=2.1.0
+pytest-mock>=3.11.1
+
+# Performance profiling
+memory-profiler>=0.61.0
+line-profiler>=4.0.3
+py-spy>=0.3.14
+
+# Data validation
+pydantic>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.0.0
+
+# Code quality
+black>=23.7.0
+flake8>=6.1.0
+mypy>=1.5.0
+pylint>=2.17.0
+
+# Coverage reporting
+coverage[toml]>=7.3.0
+
+# Documentation
+pytest-html>=3.2.0

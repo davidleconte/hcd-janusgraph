@@ -1,0 +1,194 @@
+# File: cassandra-tls.yaml
+# Created: 2026-01-28
+# Purpose: HCD/Cassandra configuration with TLS/SSL enabled
+# This file extends the base cassandra.yaml with TLS settings
+
+# Cluster name
+cluster_name: 'HCD Cluster'
+
+# Seeds
+seed_provider:
+  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+    parameters:
+      - seeds: "hcd-server"
+
+# Listen addresses
+listen_address: hcd-server
+rpc_address: 0.0.0.0
+broadcast_rpc_address: hcd-server
+
+# Native transport (CQL)
+native_transport_port: 9042
+native_transport_port_ssl: 9142
+
+# Storage port
+storage_port: 7000
+ssl_storage_port: 7001
+
+# Data directories
+data_file_directories:
+  - /var/lib/hcd/data
+commitlog_directory: /var/lib/hcd/commitlog
+saved_caches_directory: /var/lib/hcd/saved_caches
+hints_directory: /var/lib/hcd/hints
+
+# Memory settings
+memtable_allocation_type: heap_buffers
+
+# Disk settings
+disk_optimization_strategy: ssd
+concurrent_reads: 32
+concurrent_writes: 32
+concurrent_counter_writes: 32
+
+# Compaction
+compaction_throughput_mb_per_sec: 64
+concurrent_compactors: 4
+
+# Client encryption (client-to-node)
+client_encryption_options:
+  enabled: true
+  optional: false
+  keystore: /etc/hcd/certs/hcd-server.keystore.jks
+  keystore_password: changeit
+  require_client_auth: false
+  truststore: /etc/hcd/certs/hcd-server.truststore.jks
+  truststore_password: changeit
+  protocol: TLSv1.2
+  algorithm: SunX509
+  store_type: JKS
+  cipher_suites:
+    - TLS_RSA_WITH_AES_128_CBC_SHA
+    - TLS_RSA_WITH_AES_256_CBC_SHA
+    - TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+    - TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+
+# Server encryption (node-to-node)
+server_encryption_options:
+  internode_encryption: all
+  keystore: /etc/hcd/certs/hcd-server.keystore.jks
+  keystore_password: changeit
+  truststore: /etc/hcd/certs/hcd-server.truststore.jks
+  truststore_password: changeit
+  protocol: TLSv1.2
+  algorithm: SunX509
+  store_type: JKS
+  require_client_auth: false
+  require_endpoint_verification: false
+  cipher_suites:
+    - TLS_RSA_WITH_AES_128_CBC_SHA
+    - TLS_RSA_WITH_AES_256_CBC_SHA
+    - TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+    - TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+
+# Authentication
+authenticator: PasswordAuthenticator
+authorizer: CassandraAuthorizer
+role_manager: CassandraRoleManager
+
+# Timeouts
+read_request_timeout_in_ms: 60000
+range_request_timeout_in_ms: 60000
+write_request_timeout_in_ms: 60000
+counter_write_request_timeout_in_ms: 60000
+cas_contention_timeout_in_ms: 10000
+truncate_request_timeout_in_ms: 60000
+request_timeout_in_ms: 60000
+
+# Tombstones
+tombstone_warn_threshold: 1000
+tombstone_failure_threshold: 100000
+
+# Batch size
+batch_size_warn_threshold_in_kb: 64
+batch_size_fail_threshold_in_kb: 640
+
+# Commitlog
+commitlog_sync: periodic
+commitlog_sync_period_in_ms: 10000
+commitlog_segment_size_in_mb: 32
+
+# Memtable
+memtable_flush_writers: 2
+
+# Caching
+row_cache_size_in_mb: 0
+counter_cache_size_in_mb: 0
+
+# Networking
+rpc_server_type: sync
+rpc_min_threads: 16
+rpc_max_threads: 2048
+
+# Streaming
+stream_throughput_outbound_megabits_per_sec: 400
+inter_dc_stream_throughput_outbound_megabits_per_sec: 200
+
+# Snapshots
+snapshot_before_compaction: false
+auto_snapshot: true
+
+# Repair
+repair_session_max_tree_depth: 18
+
+# Hints
+hinted_handoff_enabled: true
+max_hint_window_in_ms: 10800000
+hinted_handoff_throttle_in_kb: 1024
+max_hints_delivery_threads: 2
+hints_flush_period_in_ms: 10000
+
+# Endpoint snitch
+endpoint_snitch: SimpleSnitch
+
+# Dynamic snitch
+dynamic_snitch_update_interval_in_ms: 100
+dynamic_snitch_reset_interval_in_ms: 600000
+dynamic_snitch_badness_threshold: 0.1
+
+# Request scheduler
+request_scheduler: org.apache.cassandra.scheduler.NoScheduler
+
+# Encryption at rest (optional - can be enabled later)
+# transparent_data_encryption_options:
+#   enabled: false
+#   chunk_length_kb: 64
+#   cipher: AES/CBC/PKCS5Padding
+#   key_alias: testing:1
+#   key_provider:
+#     - class_name: org.apache.cassandra.security.JKSKeyProvider
+#       parameters:
+#         - keystore: /etc/hcd/certs/.keystore
+#           keystore_password: changeit
+#           store_type: JCEKS
+#           key_password: changeit
+
+# Audit logging
+audit_logging_options:
+  enabled: true
+  logger:
+    - class_name: BinAuditLogger
+  included_keyspaces: ""
+  excluded_keyspaces: "system,system_schema,system_virtual_schema"
+  included_categories: ""
+  excluded_categories: ""
+  included_users: ""
+  excluded_users: ""
+
+# Full query logging
+full_query_logging_options:
+  log_dir: /var/log/hcd/fql
+  roll_cycle: HOURLY
+  block: true
+  max_queue_weight: 268435456
+  max_log_size: 17179869184
+
+# Made with Bob

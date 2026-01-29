@@ -8,20 +8,26 @@ version: '3.8'
 services:
   hcd:
     build:
-      context: .
-      dockerfile: ../../docker/hcd/Dockerfile
+      context: ../..
+      dockerfile: docker/hcd/Dockerfile
     image: localhost/hcd:1.2.3
     container_name: hcd-server
     hostname: hcd-server
     networks:
       - hcd-janusgraph-network
     ports:
-      - "9042:9042"  # CQL
+      - "9042:9042"  # CQL (non-TLS, for backward compatibility)
+      - "9142:9142"  # CQL with TLS (default)
       - "7000:7000"  # Inter-node
       - "7001:7001"  # TLS inter-node
-      - "7199:7199"  # JMX
-      - "9160:9160"  # Thrift
+      # SECURITY: JMX and management ports not exposed publicly
+      # Access via SSH tunnel: ssh -L 7199:localhost:7199 user@host
+      # - "7199:7199"  # JMX - Use SSH tunnel
+      # - "9160:9160"  # Thrift - Deprecated, not needed
     volumes:
+      - ./config/certs/hcd/hcd-server.keystore.jks:/etc/hcd/certs/hcd-server.keystore.jks:ro
+      - ./config/certs/hcd/hcd-server.truststore.jks:/etc/hcd/certs/hcd-server.truststore.jks:ro
+      - ./config/janusgraph/cassandra-tls.yaml:/opt/hcd/resources/cassandra/conf/cassandra.yaml:ro
       - hcd-data:/var/lib/hcd/data
       - hcd-commitlog:/var/lib/hcd/commitlog
       - hcd-saved-caches:/var/lib/hcd/saved_caches
@@ -31,6 +37,12 @@ services:
       - MAX_HEAP_SIZE=4G
       - HEAP_NEWSIZE=800M
       - JVM_OPTS=-Dcassandra.jmx.local.port=7199 -Djava.rmi.server.hostname=127.0.0.1
+      - SSL_KEYSTORE_PATH=/etc/hcd/certs/hcd-server.keystore.jks
+      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PATH=/etc/hcd/certs/hcd-server.truststore.jks
+      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:-changeit}
+      - CASSANDRA_CLIENT_ENCRYPTION_ENABLED=true
+      - CASSANDRA_INTERNODE_ENCRYPTION=all
     healthcheck:
       test: ["CMD", "/opt/hcd/bin/nodetool", "status"]
       interval: 30s
@@ -49,14 +61,21 @@ services:
       - "8182:8182"  # Gremlin WebSocket
       - "8184:8184"  # Management
     volumes:
-      - ./../../config/janusgraph/janusgraph-hcd.properties:/etc/opt/janusgraph/janusgraph-hcd.properties:ro
+      - ./config/janusgraph/janusgraph-hcd-tls.properties:/etc/opt/janusgraph/janusgraph-hcd-tls.properties:ro
+      - ./config/janusgraph/janusgraph-server-tls.yaml:/etc/opt/janusgraph/janusgraph-server-tls.yaml:ro
+      - ./config/certs/janusgraph/janusgraph-server.keystore.jks:/etc/janusgraph/certs/janusgraph-server.keystore.jks:ro
+      - ./config/certs/janusgraph/janusgraph-server.truststore.jks:/etc/janusgraph/certs/janusgraph-server.truststore.jks:ro
       - janusgraph-index:/var/lib/janusgraph/index
       - janusgraph-db:/var/lib/janusgraph/db
     environment:
       - JANUS_PROPS_TEMPLATE=cql
       - janusgraph.storage.backend=cql
       - janusgraph.storage.hostname=hcd-server
-      - janusgraph.storage.port=9042
+      - janusgraph.storage.port=9142
+      - janusgraph.storage.cql.ssl.enabled=true
+      - janusgraph.storage.cql.ssl.truststore.location=/etc/janusgraph/certs/janusgraph-server.truststore.jks
+      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+      - SSL_ENABLED=true
       - janusgraph.storage.cql.keyspace=janusgraph
       - janusgraph.storage.cql.local-datacenter=datacenter1
     depends_on:
@@ -66,11 +85,11 @@ services:
       bash -c "
       echo 'Waiting for HCD to be ready...' &&
       sleep 30 &&
-      echo 'Starting JanusGraph...' &&
-      /opt/janusgraph/bin/janusgraph-server.sh /etc/opt/janusgraph/janusgraph-hcd.properties
+      echo 'Starting JanusGraph with TLS...' &&
+      /opt/janusgraph/bin/janusgraph-server.sh /etc/opt/janusgraph/janusgraph-server-tls.yaml
       "
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8182?gremlin=g.V().count()"]
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8182?gremlin=g.V().count()"]
       interval: 30s
       timeout: 10s
       retries: 5

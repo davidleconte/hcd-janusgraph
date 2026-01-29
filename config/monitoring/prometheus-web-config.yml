@@ -1,0 +1,47 @@
+# File: prometheus-web-config.yml
+# Created: 2026-01-28
+# Purpose: Prometheus web server TLS/SSL configuration
+
+tls_server_config:
+  # Server certificate and key
+  cert_file: /etc/prometheus/certs/prometheus.crt
+  key_file: /etc/prometheus/certs/prometheus.key
+  
+  # Client authentication (optional)
+  client_auth_type: NoClientCert
+  
+  # TLS version
+  min_version: TLS12
+  max_version: TLS13
+  
+  # Cipher suites (TLS 1.2)
+  cipher_suites:
+    - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+    - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+    - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+  
+  # Prefer server cipher suites
+  prefer_server_cipher_suites: true
+  
+  # Curve preferences
+  curve_preferences:
+    - X25519
+    - CurveP256
+    - CurveP384
+
+# HTTP server configuration
+http_server_config:
+  # HTTP/2 support
+  http2: true
+  
+  # Headers
+  headers:
+    X-Frame-Options: DENY
+    X-Content-Type-Options: nosniff
+    X-XSS-Protection: "1; mode=block"
+    Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+
+# Made with Bob

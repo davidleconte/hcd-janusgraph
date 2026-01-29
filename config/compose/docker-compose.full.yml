@@ -17,9 +17,14 @@ volumes:
   hcd-data:
   hcd-commitlog:
   hcd-logs:
+  janusgraph-index:
+  janusgraph-db:
   jupyter-notebooks:
   prometheus-data:
   grafana-data:
+  vault-data:
+  vault-logs:
+  alertmanager-data:
 
 services:
   # ============================================================================
@@ -63,25 +68,27 @@ services:
     ports:
       - "18182:8182"    # Gremlin WebSocket
       - "18184:8184"    # Management (optional)
-    environment:
-      - janusgraph.storage.backend=cql
-      - janusgraph.storage.hostname=hcd-server
-      - janusgraph.storage.port=9042
-      - janusgraph.storage.cql.keyspace=janusgraph
-      - janusgraph.storage.cql.local-datacenter=datacenter1
-      - janusgraph.storage.cql.replication-factor=1
-      - janusgraph.storage.cql.replication-strategy-class=SimpleStrategy
-      - index.search.backend=lucene
-      - index.search.directory=/var/lib/janusgraph/index
-      - gremlinserver.graphs.graph=/opt/janusgraph/conf/janusgraph-cql-server.properties
-      - gremlinserver.graphManager=org.janusgraph.graphdb.management.JanusGraphManager
+    volumes:
+      - ../../config/janusgraph/janusgraph-hcd.properties:/opt/janusgraph/conf/janusgraph-hcd.properties:ro
+      - ../../config/janusgraph/janusgraph-server-hcd.yaml:/opt/janusgraph/conf/janusgraph-server-hcd.yaml:ro
+      - janusgraph-index:/var/lib/janusgraph/index
+      - janusgraph-db:/var/lib/janusgraph/db
+    command: >
+      bash -c "
+      echo 'Waiting for HCD to be fully ready...' &&
+      sleep 20 &&
+      echo 'Starting JanusGraph with HCD backend...' &&
+      /opt/janusgraph/bin/janusgraph-server.sh /opt/janusgraph/conf/janusgraph-server-hcd.yaml
+      "
     depends_on:
-      - hcd-server
+      hcd-server:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8182/"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 90s
     restart: unless-stopped
 
   # ============================================================================
@@ -90,8 +97,8 @@ services:
 
   jupyter:
     build:
-      context: .
-      dockerfile: ../../docker/jupyter/Dockerfile
+      context: ../..
+      dockerfile: docker/jupyter/Dockerfile
     image: localhost/jupyter-janusgraph:latest
     container_name: jupyter-lab
     hostname: jupyter-lab
@@ -101,6 +108,7 @@ services:
       - "8888:8888"    # Jupyter Lab
     volumes:
       - jupyter-notebooks:/workspace/notebooks
+      - ./banking:/workspace/banking
       - ./exports:/workspace/exports
     environment:
       - JUPYTER_ENABLE_LAB=yes
@@ -108,13 +116,20 @@ services:
       - HCD_HOST=hcd-server
       - HCD_PORT=9042
     depends_on:
-      - janusgraph-server
+      janusgraph-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   janusgraph-visualizer:
     build:
-      context: .
-      dockerfile: ../../docker/visualizer/Dockerfile
+      context: ../..
+      dockerfile: docker/visualizer/Dockerfile
     image: localhost/janusgraph-visualizer:latest
     container_name: janusgraph-visualizer
     hostname: janusgraph-visualizer
@@ -125,13 +140,20 @@ services:
     environment:
       - GREMLIN_URL=ws://janusgraph-server:8182/gremlin
     depends_on:
-      - janusgraph-server
+      janusgraph-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   graphexp:
     build:
-      context: .
-      dockerfile: ../../docker/graphexp/Dockerfile
+      context: ../..
+      dockerfile: docker/graphexp/Dockerfile
     image: localhost/graphexp:latest
     container_name: graphexp
     hostname: graphexp
@@ -140,7 +162,14 @@ services:
     ports:
       - "8080:8080"    # Web UI
     depends_on:
-      - janusgraph-server
+      janusgraph-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   # ============================================================================
@@ -149,8 +178,8 @@ services:
 
   cqlsh-client:
     build:
-      context: .
-      dockerfile: ../../docker/cqlsh/Dockerfile
+      context: ../..
+      dockerfile: docker/cqlsh/Dockerfile
     image: localhost/cqlsh-client:latest
     container_name: cqlsh-client
     hostname: cqlsh-client
@@ -167,6 +196,37 @@ services:
     command: ["tail", "-f", "/dev/null"]  # Keep alive for interactive use
 
   # ============================================================================
+  # SECRETS MANAGEMENT
+  # ============================================================================
+
+  vault:
+    image: docker.io/hashicorp/vault:latest
+    container_name: vault-server
+    hostname: vault
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "8200:8200"    # Vault API
+    volumes:
+      - ./../../data/vault:/vault/file:Z  # Use local directory instead of volume
+      - ./../../config/vault/config.hcl:/vault/config/config.hcl:ro,Z
+    environment:
+      - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_API_ADDR=http://0.0.0.0:8200
+      - VAULT_LOG_LEVEL=info
+      - SKIP_SETCAP=true  # Skip capability setting for rootless
+    cap_add:
+      - IPC_LOCK
+    command: server
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ============================================================================
   # MONITORING
   # ============================================================================
 
@@ -180,14 +240,72 @@ services:
       - "9090:9090"    # Prometheus UI
     volumes:
       - ./../../config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./../../config/monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
       - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
     depends_on:
       - hcd-server
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  alertmanager:
+    image: docker.io/prom/alertmanager:latest
+    container_name: alertmanager
+    hostname: alertmanager
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "9093:9093"    # AlertManager UI
+    volumes:
+      - ./../../config/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    environment:
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-changeme}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  janusgraph-exporter:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.exporter
+    image: localhost/janusgraph-exporter:latest
+    container_name: janusgraph-exporter
+    hostname: janusgraph-exporter
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "8000:8000"    # Metrics endpoint
+    environment:
+      - GREMLIN_URL=ws://janusgraph-server:8182/gremlin
+      - EXPORTER_PORT=8000
+      - SCRAPE_INTERVAL=15
+    depends_on:
+      janusgraph-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
   grafana:
@@ -200,11 +318,14 @@ services:
       - "3001:3000"    # Grafana UI (using 3001 to avoid conflict with visualizer)
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./../../config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./../../config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=http://localhost:3001
     depends_on:
       - prometheus
+      - alertmanager
     restart: unless-stopped
