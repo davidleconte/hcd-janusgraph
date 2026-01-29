@@ -2,7 +2,7 @@
 # Created: 2026-01-28T10:37:00.345
 # Author: David LECONTE, IBM WorldWide | Data & AI
 
-pytest==8.0.0
+pytest==9.0.2
 pytest-cov==4.1.0
 pytest-asyncio==0.23.0
 black==24.0.0
