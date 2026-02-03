@@ -37,16 +37,19 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 readonly REQUIRED_CONDA_ENV="janusgraph-analysis"
 readonly REQUIRED_PYTHON_VERSION="3.11"
-readonly PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
-readonly PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
-# Load .env if exists
+# Load .env BEFORE setting defaults (to allow .env to override)
 if [[ -f "$PROJECT_ROOT/.env" ]]; then
-    set -a
+    # Source .env but ignore errors for variables already set
+    set +e
     # shellcheck disable=SC1091
-    source "$PROJECT_ROOT/.env"
-    set +a
+    source "$PROJECT_ROOT/.env" 2>/dev/null || true
+    set -e
 fi
+
+# Set defaults after .env is loaded (only if not already set)
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
 # Logging functions
 log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
