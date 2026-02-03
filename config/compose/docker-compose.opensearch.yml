@@ -16,7 +16,6 @@ volumes:
 services:
   opensearch:
     image: docker.io/opensearchproject/opensearch:2.11.1
-    container_name: opensearch
     hostname: opensearch
     networks:
       - hcd-janusgraph-network

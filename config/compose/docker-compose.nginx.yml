@@ -8,7 +8,6 @@ version: '3.8'
 services:
   nginx:
     image: nginx:1.25-alpine
-    container_name: nginx-proxy
     hostname: nginx-proxy
     networks:
       - hcd-janusgraph-network

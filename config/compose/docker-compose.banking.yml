@@ -7,7 +7,6 @@ services:
   # OpenSearch 3.4+ with JVector plugin
   opensearch:
     image: opensearchproject/opensearch:latest
-    container_name: opensearch
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node1
@@ -52,7 +51,6 @@ services:
   # OpenSearch Dashboards (optional, for visualization)
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:latest
-    container_name: opensearch-dashboards
     environment:
       - OPENSEARCH_HOSTS=["https://opensearch:9200"]
       # SECURITY: Enable security plugin

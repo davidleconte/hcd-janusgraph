@@ -8,7 +8,6 @@ version: '3.8'
 services:
   jaeger:
     image: jaegertracing/all-in-one:1.51
-    container_name: jaeger
     hostname: jaeger
     networks:
       - hcd-janusgraph-network
@@ -49,7 +48,6 @@ services:
   # OpenTelemetry Collector (optional, for advanced scenarios)
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.91.0
-    container_name: otel-collector
     hostname: otel-collector
     networks:
       - hcd-janusgraph-network
