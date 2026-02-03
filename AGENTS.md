@@ -96,6 +96,27 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 
 # Initialize Vault
 ./scripts/security/init_vault.sh
+
+# Run validation checks before deployment
+./scripts/validation/preflight_check.sh
+
+# Run with auto-fix for common issues
+./scripts/validation/preflight_check.sh --fix
+```
+
+### Validation Scripts
+
+**Run before every deployment:**
+```bash
+# Full preflight check (recommended)
+./scripts/validation/preflight_check.sh
+
+# Auto-fix common issues
+./scripts/validation/preflight_check.sh --fix
+
+# Individual checks
+./scripts/validation/check_python_env.sh        # Python environment
+./scripts/validation/validate_podman_isolation.sh  # Podman isolation
 ```
 
 ### Project Status
