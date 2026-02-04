@@ -202,9 +202,10 @@ app.add_middleware(
 # ===========================================================================
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
-async def health_check():
+def health_check():
     """
     Check service health and connectivity to backend services.
+    Note: Using sync endpoint to avoid event loop conflicts with gremlin-python.
     """
     services = {}
     
@@ -227,9 +228,10 @@ async def health_check():
 
 
 @app.get("/stats", response_model=GraphStatsResponse, tags=["Health"])
-async def graph_stats():
+def graph_stats():
     """
     Get graph statistics.
+    Note: Using sync endpoint to avoid event loop conflicts with gremlin-python.
     """
     try:
         g = get_graph_connection()
@@ -257,7 +259,7 @@ async def graph_stats():
 # ===========================================================================
 
 @app.post("/api/v1/ubo/discover", response_model=UBOResponse, tags=["UBO Discovery"])
-async def discover_ubo(request: UBORequest):
+def discover_ubo(request: UBORequest):
     """
     Discover Ultimate Beneficial Owners for a company.
     
@@ -330,7 +332,7 @@ async def discover_ubo(request: UBORequest):
 
 
 @app.get("/api/v1/ubo/network/{company_id}", response_model=NetworkResponse, tags=["UBO Discovery"])
-async def get_ownership_network(
+def get_ownership_network(
     company_id: str,
     depth: int = Query(3, ge=1, le=5, description="Traversal depth")
 ):
@@ -402,7 +404,7 @@ async def get_ownership_network(
 # ===========================================================================
 
 @app.post("/api/v1/aml/structuring", response_model=StructuringResponse, tags=["AML Detection"])
-async def detect_structuring(request: StructuringAlertRequest):
+def detect_structuring(request: StructuringAlertRequest):
     """
     Detect potential structuring (smurfing) patterns.
     
@@ -482,7 +484,7 @@ async def detect_structuring(request: StructuringAlertRequest):
 # ===========================================================================
 
 @app.get("/api/v1/fraud/rings", tags=["Fraud Detection"])
-async def detect_fraud_rings(
+def detect_fraud_rings(
     min_members: int = Query(3, ge=2, le=10, description="Minimum ring members"),
     include_accounts: bool = Query(True, description="Include account details")
 ):
