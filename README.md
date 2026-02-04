@@ -93,6 +93,7 @@ Total: **8 directories + 11 core files** (vs 43 files at root before restructuri
 |---------|-------------|------|
 | **HCD** | Cassandra-based distributed database | 19042 (9142 TLS) |
 | **JanusGraph** | Graph database | 18182 |
+| **Analytics API** | FastAPI analytics service | 8001 |
 | **Jupyter Lab** | Interactive notebooks | 8888 |
 | **Prometheus** | Metrics collection | 9090 |
 | **Grafana** | Monitoring dashboards | 3001 |
@@ -101,6 +102,44 @@ Total: **8 directories + 11 core files** (vs 43 files at root before restructuri
 | **Vault** | Secrets management | 8200 |
 | **Visualizer** | Graph visualization | 3000 |
 | **Graphexp** | Graph explorer | 8080 |
+
+### Analytics API
+
+REST API for graph-based analytics including UBO discovery, AML detection, and fraud analysis.
+
+**Base URL**: `http://localhost:8001`
+
+**Documentation**: 
+- OpenAPI Docs: http://localhost:8001/docs
+- ReDoc: http://localhost:8001/redoc
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Service health check |
+| `/stats` | GET | Graph statistics (vertex/edge counts) |
+| `/api/v1/ubo/discover` | POST | Discover Ultimate Beneficial Owners |
+| `/api/v1/ubo/network/{company_id}` | GET | Get ownership network for visualization |
+| `/api/v1/aml/structuring` | POST | Detect structuring (smurfing) patterns |
+| `/api/v1/fraud/rings` | POST | Detect fraud ring patterns |
+
+**Example Usage**:
+```bash
+# Health check
+curl http://localhost:8001/health
+
+# Graph statistics
+curl http://localhost:8001/stats
+
+# Discover UBOs for a company
+curl -X POST http://localhost:8001/api/v1/ubo/discover \
+  -H "Content-Type: application/json" \
+  -d '{"company_id": "COMP-001", "ownership_threshold": 0.25}'
+
+# Detect structuring patterns
+curl -X POST http://localhost:8001/api/v1/aml/structuring \
+  -H "Content-Type: application/json" \
+  -d '{"time_window_days": 30, "threshold_amount": 10000}'
+```
 
 ### Sample Data
 
