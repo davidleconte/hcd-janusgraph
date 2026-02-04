@@ -362,3 +362,33 @@ services:
       - prometheus
       - alertmanager
     restart: unless-stopped
+
+  # ============================================================================
+  # ANALYTICS API
+  # ============================================================================
+
+  analytics-api:
+    build:
+      context: ../..
+      dockerfile: docker/api/Dockerfile
+    image: localhost/analytics-api:latest
+    hostname: analytics-api
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "8001:8001"    # FastAPI
+    environment:
+      - JANUSGRAPH_HOST=janusgraph-server
+      - JANUSGRAPH_PORT=8182
+      - API_PORT=8001
+      - API_HOST=0.0.0.0
+    depends_on:
+      janusgraph-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
