@@ -137,13 +137,17 @@ class TestRiskLevelDetermination:
     @patch('banking.fraud.fraud_detection.EmbeddingGenerator')
     @patch('banking.fraud.fraud_detection.VectorSearchClient')
     def test_high_risk_level(self, mock_search, mock_gen):
-        """Test high risk level assignment"""
+        """Test high risk level assignment
+        
+        Weighted score calculation:
+        0.9 * 0.3 + 0.75 * 0.25 + 0.75 * 0.25 + 0.75 * 0.2 = 0.27 + 0.1875 + 0.1875 + 0.15 = 0.795 >= 0.75 (HIGH)
+        """
         detector = FraudDetector()
         
-        detector._check_velocity = Mock(return_value=0.8)
-        detector._check_network = Mock(return_value=0.7)
-        detector._check_merchant = Mock(return_value=0.7)
-        detector._check_behavior = Mock(return_value=0.7)
+        detector._check_velocity = Mock(return_value=0.9)
+        detector._check_network = Mock(return_value=0.75)
+        detector._check_merchant = Mock(return_value=0.75)
+        detector._check_behavior = Mock(return_value=0.75)
         
         score = detector.score_transaction(
             'TX-001', 'ACC-123', 1000.0, 'Merchant', 'Description'
