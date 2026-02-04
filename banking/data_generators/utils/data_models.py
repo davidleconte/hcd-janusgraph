@@ -13,8 +13,16 @@ from datetime import datetime, date
 from decimal import Decimal
 from enum import Enum
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, validator, EmailStr
+from pydantic import BaseModel, Field, field_validator, EmailStr, ConfigDict
+from pydantic.functional_serializers import PlainSerializer
+from typing_extensions import Annotated
 import uuid
+
+
+# Custom serializers for Pydantic V2
+DatetimeSerializer = Annotated[datetime, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
+DateSerializer = Annotated[date, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
+DecimalSerializer = Annotated[Decimal, PlainSerializer(lambda v: str(v), return_type=str)]
 
 
 # ============================================================================
@@ -128,17 +136,16 @@ class RelationshipType(str, Enum):
 
 class BaseEntity(BaseModel):
     """Base entity with common fields"""
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        ser_json_timedelta='iso8601',
+        ser_json_bytes='utf8',
+    )
+    
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            Decimal: lambda v: str(v)
-        }
 
 
 # ============================================================================
@@ -254,11 +261,12 @@ class Person(BaseEntity):
     social_media_profiles: Dict[str, str] = Field(default_factory=dict)
     online_activity_score: float = 0.5  # 0-1 scale
     
-    @validator('age', always=True)
-    def calculate_age(cls, v, values):
+    @field_validator('age', mode='before')
+    @classmethod
+    def calculate_age(cls, v, info):
         """Calculate age from date of birth"""
-        if 'date_of_birth' in values:
-            dob = values['date_of_birth']
+        if hasattr(info, 'data') and 'date_of_birth' in info.data:
+            dob = info.data['date_of_birth']
             today = date.today()
             return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         return v
