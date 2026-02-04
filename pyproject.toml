@@ -13,6 +13,22 @@ dependencies = [
     "pyvis==0.3.2",
     "prometheus-client==0.19.0",
     "sentence-transformers>=2.2.2",
+    "nest-asyncio>=1.5.0",
+    "opensearch-py>=2.4.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-timeout>=2.1.0",
+    "pytest-mock>=3.11.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.4.0",
 ]
 
 [build-system]
@@ -41,6 +57,7 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --cov=src --cov-report=html --cov-report=term"
+timeout = 300
 
 [tool.mypy]
 python_version = "3.11"
