@@ -242,29 +242,179 @@ class EnhancedStructuringDetector:
     def detect_semantic_patterns(
         self,
         min_similarity: float = 0.85,
-        k: int = 20
+        k: int = 20,
+        time_window_hours: int = 72,
+        min_cluster_size: int = 3
     ) -> List[StructuringPattern]:
         """
         Detect structuring using semantic transaction analysis.
         
         Finds transactions with similar descriptions that may indicate
-        coordinated structuring attempts.
+        coordinated structuring attempts. Looks for:
+        1. Semantically similar transaction descriptions across accounts
+        2. Clusters of transactions with matching patterns
+        3. Potential coordinated structuring by related parties
         
         Args:
-            min_similarity: Minimum similarity threshold
-            k: Number of similar transactions to retrieve
+            min_similarity: Minimum similarity threshold (0-1)
+            k: Number of similar transactions to retrieve per query
+            time_window_hours: Time window to analyze
+            min_cluster_size: Minimum transactions in a cluster
         
         Returns:
             List of detected patterns
         """
-        logger.info("Detecting semantic structuring patterns...")
+        logger.info(f"Detecting semantic structuring patterns (similarity>={min_similarity}, window={time_window_hours}h)...")
         
         patterns = []
+        processed_clusters = set()  # Track processed transaction clusters
         
-        # This would query recent transactions and find semantic clusters
-        # Simplified implementation for demonstration
+        try:
+            # Connect to graph and get recent transactions
+            connection = DriverRemoteConnection(self.graph_url, 'g')
+            g = traversal().withRemote(connection)
+            
+            cutoff_time = datetime.utcnow() - timedelta(hours=time_window_hours)
+            cutoff_ms = int(cutoff_time.timestamp() * 1000)
+            
+            # Get recent transactions below reporting threshold
+            recent_txns = (
+                g.V().hasLabel('Transaction')
+                .has('timestamp', P.gte(cutoff_ms))
+                .has('amount', P.lt(self.STRUCTURING_THRESHOLD))
+                .has('amount', P.gt(self.STRUCTURING_THRESHOLD * 0.5))  # Focus on near-threshold
+                .project('tx_id', 'amount', 'description', 'merchant', 'account_id', 'person_id', 'person_name', 'timestamp')
+                .by(__.values('transaction_id'))
+                .by(__.values('amount'))
+                .by(__.coalesce(__.values('description'), __.constant('')))
+                .by(__.coalesce(__.values('merchant'), __.constant('')))
+                .by(__.in_('MADE_TRANSACTION').values('account_id'))
+                .by(__.in_('MADE_TRANSACTION').in_('OWNS_ACCOUNT').values('person_id').fold())
+                .by(__.in_('MADE_TRANSACTION').in_('OWNS_ACCOUNT').coalesce(__.values('full_name'), __.values('company_name')).fold())
+                .by(__.values('timestamp'))
+                .limit(500)  # Limit for performance
+                .toList()
+            )
+            
+            connection.close()
+            
+            if len(recent_txns) < min_cluster_size:
+                logger.info(f"Only {len(recent_txns)} recent transactions found - insufficient for pattern detection")
+                return patterns
+            
+            logger.info(f"Analyzing {len(recent_txns)} transactions for semantic patterns")
+            
+            # Build transaction descriptions for embedding
+            tx_texts = []
+            tx_data = []
+            for txn in recent_txns:
+                description = txn.get('description', '') or ''
+                merchant = txn.get('merchant', '') or ''
+                amount = txn.get('amount', 0)
+                
+                # Create rich text representation for semantic analysis
+                text = f"{description} {merchant} ${amount:.2f}"
+                tx_texts.append(text)
+                tx_data.append(txn)
+            
+            # Generate embeddings for all transactions
+            logger.debug(f"Generating embeddings for {len(tx_texts)} transactions")
+            embeddings = self.generator.encode(tx_texts)
+            
+            # Find semantic clusters using pairwise similarity
+            import numpy as np
+            similarity_matrix = np.dot(embeddings, embeddings.T)
+            
+            # Identify clusters of similar transactions
+            for i, txn in enumerate(tx_data):
+                if txn['tx_id'] in processed_clusters:
+                    continue
+                
+                # Find similar transactions
+                similarities = similarity_matrix[i]
+                similar_indices = np.where(similarities >= min_similarity)[0]
+                
+                if len(similar_indices) < min_cluster_size:
+                    continue
+                
+                # Get cluster transactions
+                cluster_txns = [tx_data[j] for j in similar_indices]
+                
+                # Check if cluster involves multiple accounts (potential coordination)
+                account_ids = set()
+                person_ids = set()
+                for ct in cluster_txns:
+                    account_ids.add(ct.get('account_id'))
+                    pids = ct.get('person_id', [])
+                    if isinstance(pids, list):
+                        person_ids.update(pids)
+                    elif pids:
+                        person_ids.add(pids)
+                
+                # Interesting patterns: same person/multiple accounts OR multiple people with similar txns
+                total_amount = sum(ct.get('amount', 0) for ct in cluster_txns)
+                
+                # Only flag if total exceeds threshold (structuring indicator)
+                if total_amount >= self.STRUCTURING_THRESHOLD:
+                    pattern_id = f"SEM-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{len(patterns)}"
+                    
+                    # Get primary person info
+                    primary_person_id = list(person_ids)[0] if person_ids else 'UNKNOWN'
+                    primary_person_name = cluster_txns[0].get('person_name', ['Unknown'])
+                    if isinstance(primary_person_name, list):
+                        primary_person_name = primary_person_name[0] if primary_person_name else 'Unknown'
+                    
+                    # Calculate risk score based on cluster characteristics
+                    risk_score = min(1.0, 
+                        0.5 +  # Base risk for semantic similarity
+                        0.2 * (len(cluster_txns) / 10.0) +  # More transactions = higher risk
+                        0.3 * (total_amount / (self.STRUCTURING_THRESHOLD * 3))  # Amount factor
+                    )
+                    
+                    # Calculate average similarity within cluster
+                    cluster_similarities = similarities[similar_indices]
+                    avg_similarity = float(np.mean(cluster_similarities))
+                    
+                    pattern = StructuringPattern(
+                        pattern_id=pattern_id,
+                        pattern_type='semantic_similarity',
+                        account_id=list(account_ids)[0] if account_ids else 'MULTIPLE',
+                        person_id=primary_person_id,
+                        person_name=primary_person_name,
+                        transactions=[{
+                            'transaction_id': ct.get('tx_id'),
+                            'amount': ct.get('amount'),
+                            'description': ct.get('description'),
+                            'merchant': ct.get('merchant'),
+                            'account_id': ct.get('account_id')
+                        } for ct in cluster_txns],
+                        total_amount=total_amount,
+                        transaction_count=len(cluster_txns),
+                        time_window_hours=float(time_window_hours),
+                        risk_score=risk_score,
+                        detection_method='vector',
+                        timestamp=datetime.utcnow().isoformat()
+                    )
+                    
+                    patterns.append(pattern)
+                    
+                    # Mark these transactions as processed
+                    for ct in cluster_txns:
+                        processed_clusters.add(ct['tx_id'])
+                    
+                    logger.warning(
+                        f"Semantic pattern detected: {pattern_id} - "
+                        f"{len(cluster_txns)} transactions, ${total_amount:.2f} total, "
+                        f"avg similarity={avg_similarity:.2f}, "
+                        f"{len(account_ids)} accounts, {len(person_ids)} persons"
+                    )
+            
+        except Exception as e:
+            logger.error(f"Error detecting semantic patterns: {e}")
+            import traceback
+            traceback.print_exc()
         
-        logger.info(f"Found {len(patterns)} semantic patterns")
+        logger.info(f"Found {len(patterns)} semantic structuring patterns")
         return patterns
     
     def detect_hybrid_patterns(

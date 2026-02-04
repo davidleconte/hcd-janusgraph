@@ -303,9 +303,29 @@ class FraudDetector:
             logger.error(f"Error checking network: {e}")
             return 0.0
     
+    # High-risk merchant categories and keywords
+    HIGH_RISK_MERCHANTS = {
+        # Crypto exchanges (high fraud risk)
+        'crypto': 0.7, 'bitcoin': 0.7, 'coinbase': 0.5, 'binance': 0.6,
+        # Wire transfer services (money laundering risk)
+        'wire transfer': 0.6, 'western union': 0.5, 'moneygram': 0.5,
+        # Gambling (fraud and addiction risk)
+        'casino': 0.6, 'gambling': 0.6, 'betting': 0.5, 'poker': 0.5,
+        # High-value goods (fraud target)
+        'jewelry': 0.4, 'electronics': 0.3, 'luxury': 0.4,
+        # Online services (card-not-present fraud)
+        'online gaming': 0.4, 'virtual': 0.3,
+        # Money services
+        'money order': 0.5, 'prepaid card': 0.4, 'gift card': 0.4
+    }
+    
     def _check_merchant(self, merchant: str) -> float:
         """
         Check merchant fraud risk.
+        
+        Analyzes merchant name against:
+        1. Known high-risk merchant categories
+        2. Historical fraud cases involving this merchant
         
         Args:
             merchant: Merchant name
@@ -313,9 +333,50 @@ class FraudDetector:
         Returns:
             Merchant risk score (0-1)
         """
-        # Check against known compromised merchants
-        # Simplified: return low risk for demo
-        return 0.1
+        if not merchant:
+            return 0.0
+        
+        merchant_lower = merchant.lower()
+        category_risk = 0.0
+        historical_risk = 0.0
+        
+        # Check against high-risk categories
+        for keyword, risk in self.HIGH_RISK_MERCHANTS.items():
+            if keyword in merchant_lower:
+                category_risk = max(category_risk, risk)
+                logger.debug(f"Merchant '{merchant}' matches high-risk keyword '{keyword}' (risk={risk})")
+        
+        # Query historical fraud cases involving this merchant
+        try:
+            # Generate embedding for merchant name
+            merchant_embedding = self.generator.encode(merchant)
+            
+            # Search for similar merchants in fraud cases
+            results = self.search_client.search(
+                index_name=self.fraud_index,
+                query_vector=merchant_embedding[0].tolist(),
+                k=5,
+                filters={'confirmed': True}
+            )
+            
+            # Calculate historical risk based on fraud case similarity
+            if results:
+                # High similarity to confirmed fraud cases = high risk
+                similarities = [r.get('_score', 0) for r in results]
+                historical_risk = min(0.8, sum(similarities) / len(similarities))
+                if historical_risk > 0.3:
+                    logger.warning(f"Merchant '{merchant}' similar to {len(results)} fraud cases")
+                    
+        except Exception as e:
+            logger.debug(f"Could not query fraud history for merchant: {e}")
+            # Continue with category risk only
+        
+        # Combined score (weight: 60% category, 40% historical)
+        final_score = category_risk * 0.6 + historical_risk * 0.4
+        
+        logger.info(f"Merchant risk for '{merchant}': category={category_risk:.2f}, historical={historical_risk:.2f}, final={final_score:.2f}")
+        
+        return final_score
     
     def _check_behavior(
         self,
@@ -327,6 +388,11 @@ class FraudDetector:
         """
         Check for unusual behavioral patterns.
         
+        Analyzes transaction against account's historical patterns:
+        1. Amount deviation from typical spending
+        2. Merchant category deviation
+        3. Transaction description semantic anomaly
+        
         Args:
             account_id: Account ID
             amount: Transaction amount
@@ -336,9 +402,120 @@ class FraudDetector:
         Returns:
             Behavioral risk score (0-1)
         """
-        # Use semantic similarity to find unusual transactions
-        # Simplified: return low risk for demo
-        return 0.2
+        amount_risk = 0.0
+        merchant_risk = 0.0
+        semantic_risk = 0.0
+        
+        try:
+            connection = DriverRemoteConnection(self.graph_url, 'g')
+            g = traversal().withRemote(connection)
+            
+            # Get historical transaction data for this account (last 90 days)
+            ninety_days_ago = int((datetime.utcnow() - timedelta(days=90)).timestamp() * 1000)
+            
+            historical_txns = (
+                g.V().has('Account', 'account_id', account_id)
+                .outE('MADE_TRANSACTION')
+                .has('timestamp', P.gte(ninety_days_ago))
+                .project('amount', 'merchant', 'description')
+                .by(__.values('amount').fold())
+                .by(__.values('merchant').fold())
+                .by(__.values('description').fold())
+                .toList()
+            )
+            
+            connection.close()
+            
+            if not historical_txns:
+                # No history - first transaction is inherently riskier
+                logger.debug(f"No transaction history for account {account_id}")
+                return 0.3
+            
+            # Flatten historical data
+            amounts = []
+            merchants = []
+            descriptions = []
+            for txn in historical_txns:
+                amounts.extend(txn.get('amount', []))
+                merchants.extend(txn.get('merchant', []))
+                descriptions.extend(txn.get('description', []))
+            
+            # 1. Amount deviation analysis
+            if amounts:
+                avg_amount = np.mean(amounts)
+                std_amount = np.std(amounts) if len(amounts) > 1 else avg_amount * 0.5
+                
+                # Calculate z-score for current amount
+                if std_amount > 0:
+                    z_score = abs(amount - avg_amount) / std_amount
+                    # Convert z-score to risk (z > 3 = very unusual)
+                    amount_risk = min(1.0, z_score / 4.0)
+                else:
+                    # All same amounts - any deviation is unusual
+                    amount_risk = 0.5 if amount != avg_amount else 0.0
+                
+                logger.debug(f"Amount analysis: current={amount}, avg={avg_amount:.2f}, std={std_amount:.2f}, risk={amount_risk:.2f}")
+            
+            # 2. Merchant frequency analysis
+            if merchants and merchant:
+                merchant_lower = merchant.lower()
+                merchant_counts = {}
+                for m in merchants:
+                    m_lower = m.lower() if m else ''
+                    merchant_counts[m_lower] = merchant_counts.get(m_lower, 0) + 1
+                
+                total_txns = len(merchants)
+                current_merchant_freq = merchant_counts.get(merchant_lower, 0) / total_txns
+                
+                # Never seen this merchant before = higher risk
+                if current_merchant_freq == 0:
+                    merchant_risk = 0.5
+                elif current_merchant_freq < 0.05:  # Rarely used merchant
+                    merchant_risk = 0.3
+                else:
+                    merchant_risk = 0.0
+                
+                logger.debug(f"Merchant analysis: '{merchant}' frequency={current_merchant_freq:.2%}, risk={merchant_risk:.2f}")
+            
+            # 3. Semantic similarity analysis
+            if descriptions and description:
+                try:
+                    # Generate embedding for current description
+                    current_embedding = self.generator.encode(description)[0]
+                    
+                    # Generate embeddings for historical descriptions
+                    historical_embeddings = self.generator.encode(descriptions[:50])  # Limit for performance
+                    
+                    # Calculate similarities
+                    similarities = np.dot(historical_embeddings, current_embedding)
+                    max_similarity = np.max(similarities)
+                    avg_similarity = np.mean(similarities)
+                    
+                    # Low similarity to any historical transaction = unusual
+                    if max_similarity < 0.5:
+                        semantic_risk = 0.6
+                    elif max_similarity < 0.7:
+                        semantic_risk = 0.3
+                    elif avg_similarity < 0.4:
+                        semantic_risk = 0.2
+                    else:
+                        semantic_risk = 0.0
+                    
+                    logger.debug(f"Semantic analysis: max_sim={max_similarity:.2f}, avg_sim={avg_similarity:.2f}, risk={semantic_risk:.2f}")
+                    
+                except Exception as e:
+                    logger.debug(f"Semantic analysis failed: {e}")
+            
+        except Exception as e:
+            logger.error(f"Error checking behavior for account {account_id}: {e}")
+            return 0.2  # Default moderate risk on error
+        
+        # Combined behavioral risk score
+        final_score = amount_risk * 0.4 + merchant_risk * 0.3 + semantic_risk * 0.3
+        
+        logger.info(f"Behavioral risk for account {account_id}: amount={amount_risk:.2f}, merchant={merchant_risk:.2f}, semantic={semantic_risk:.2f}, final={final_score:.2f}")
+        
+        return final_score
     
     def detect_account_takeover(
         self,
