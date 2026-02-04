@@ -67,7 +67,7 @@ class EnhancedStructuringDetector:
     def __init__(
         self,
         janusgraph_host: str = 'localhost',
-        janusgraph_port: int = 8182,
+        janusgraph_port: int = int(os.getenv('JANUSGRAPH_PORT', '18182')),
         opensearch_host: str = 'localhost',
         opensearch_port: int = 9200,
         embedding_model: str = 'mpnet'
@@ -820,7 +820,7 @@ if __name__ == "__main__":
     print("\n1. Initializing enhanced detector...")
     detector = EnhancedStructuringDetector(
         janusgraph_host='localhost',
-        janusgraph_port=8182,
+        janusgraph_port=18182,
         opensearch_host='localhost',
         opensearch_port=9200
     )

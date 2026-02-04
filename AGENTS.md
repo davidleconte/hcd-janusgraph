@@ -21,6 +21,28 @@ python --version  # Should show Python 3.11+
 
 **All Python commands in this document assume the conda environment is activated.**
 
+### Conda Environment Variables (Pre-configured)
+
+The `janusgraph-analysis` environment has the following variables pre-configured:
+
+| Variable | Value | Purpose |
+|----------|-------|---------|
+| `JANUSGRAPH_PORT` | `18182` | JanusGraph Gremlin server port (podman mapped port) |
+| `JANUSGRAPH_USE_SSL` | `false` | Disable SSL for local development |
+
+These are automatically set when you activate the environment. To verify:
+```bash
+conda activate janusgraph-analysis
+echo $JANUSGRAPH_PORT      # Should show: 18182
+echo $JANUSGRAPH_USE_SSL   # Should show: false
+```
+
+To modify these values (if needed):
+```bash
+conda env config vars set JANUSGRAPH_PORT=18182 JANUSGRAPH_USE_SSL=false
+conda deactivate && conda activate janusgraph-analysis
+```
+
 ### Package Management
 
 **Use `uv` for package management when possible** (faster than pip):

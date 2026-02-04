@@ -145,6 +145,10 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
    # Activate conda environment
    conda activate janusgraph-analysis
    
+   # Verify environment variables (pre-configured in conda env)
+   echo $JANUSGRAPH_PORT      # Should show: 18182
+   echo $JANUSGRAPH_USE_SSL   # Should show: false
+   
    # Verify packages
    pip list | grep -E "opensearch|sentence-transformers|pandas"
    ```

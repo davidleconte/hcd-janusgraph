@@ -39,6 +39,22 @@ Most notebooks require JanusGraph (port 18182) and some require OpenSearch (port
 cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
+### 4. Environment Variables (Pre-configured in Conda)
+
+The `janusgraph-analysis` conda environment has these variables pre-configured:
+
+| Variable | Value | Purpose |
+|----------|-------|---------|
+| `JANUSGRAPH_PORT` | `18182` | Gremlin server port (podman mapped) |
+| `JANUSGRAPH_USE_SSL` | `false` | Disable SSL for local development |
+
+Verify after activation:
+```bash
+conda activate janusgraph-analysis
+echo $JANUSGRAPH_PORT      # 18182
+echo $JANUSGRAPH_USE_SSL   # false
+```
+
 ---
 
 ## Notebook Configuration

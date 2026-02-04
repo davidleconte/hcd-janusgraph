@@ -83,7 +83,7 @@ class StructuringDetector:
     def __init__(
         self,
         janusgraph_host: str = 'localhost',
-        janusgraph_port: int = 8182,
+        janusgraph_port: int = int(os.getenv('JANUSGRAPH_PORT', '18182')),
         ctr_threshold: Optional[Decimal] = None
     ):
         """
@@ -510,7 +510,7 @@ if __name__ == "__main__":
     print("\n1. Initializing structuring detector...")
     detector = StructuringDetector(
         janusgraph_host='localhost',
-        janusgraph_port=8182
+        janusgraph_port=18182
     )
     
     # Test smurfing detection
