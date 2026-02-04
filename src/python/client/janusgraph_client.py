@@ -52,7 +52,7 @@ class JanusGraphClient:
     def __init__(
         self,
         host: str = "localhost",
-        port: int = 8182,
+        port: int = int(os.getenv('JANUSGRAPH_PORT', '18182')),
         username: Optional[str] = None,
         password: Optional[str] = None,
         traversal_source: str = "g",

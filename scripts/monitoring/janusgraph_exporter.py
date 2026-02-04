@@ -26,7 +26,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configuration from environment
-GREMLIN_URL = os.getenv('GREMLIN_URL', 'ws://localhost:8182/gremlin')
+GREMLIN_URL = os.getenv('GREMLIN_URL', f'ws://localhost:{os.getenv("JANUSGRAPH_PORT", "18182")}/gremlin')
 EXPORTER_PORT = int(os.getenv('EXPORTER_PORT', '8000'))
 SCRAPE_INTERVAL = int(os.getenv('SCRAPE_INTERVAL', '15'))
 
