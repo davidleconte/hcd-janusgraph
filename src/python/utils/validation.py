@@ -323,6 +323,8 @@ class Validator:
             raise ValidationError("Query must be a non-empty string")
         
         query = query.strip()
+        if not query:
+             raise ValidationError("Query must be a non-empty string")
         
         if len(query) > max_length:
             raise ValidationError(
@@ -759,6 +761,137 @@ class Validator:
             )
         
         return name
+    
+    @staticmethod
+    @staticmethod
+    def validate_phone(phone: str) -> str:
+        """
+        Validate phone number.
+        
+        Args:
+            phone: Phone number to validate
+            
+        Returns:
+            Validated phone number
+            
+        Raises:
+            ValidationError: If phone is invalid
+        """
+        if not phone or not isinstance(phone, str):
+            raise ValidationError("Phone must be a non-empty string")
+        # Basic regex: optional +, allowed chars digits, space, dash. Min length 7.
+        if not re.match(r'^\+?[\d\s-]{7,20}$', phone):
+            raise ValidationError(f"Invalid phone format: {phone}")
+        return phone.strip()
+
+    @staticmethod
+    def validate_iban(iban: str) -> str:
+        """
+        Validate IBAN.
+        
+        Args:
+            iban: IBAN to validate
+            
+        Returns:
+            Validated IBAN
+            
+        Raises:
+            ValidationError: If IBAN is invalid
+        """
+        if not iban or not isinstance(iban, str):
+            raise ValidationError("IBAN must be a non-empty string")
+        # Basic structure: 2 letters, 2 digits, alphanumeric. Min length 15.
+        if not re.match(r'^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$', iban):
+            raise ValidationError(f"Invalid IBAN format: {iban}")
+        return iban
+
+    @staticmethod
+    def validate_swift(swift: str) -> str:
+        """
+        Validate SWIFT/BIC code.
+        
+        Args:
+            swift: Code to validate
+            
+        Returns:
+            Validated SWIFT code
+            
+        Raises:
+            ValidationError: If SWIFT code is invalid
+        """
+        if not swift or not isinstance(swift, str):
+            raise ValidationError("SWIFT code must be a non-empty string")
+        if not re.match(r'^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$', swift):
+            raise ValidationError(f"Invalid SWIFT code format: {swift}")
+        return swift
+
+    @staticmethod
+    def validate_ssn(ssn: str) -> str:
+        """
+        Validate SSN.
+        
+        Args:
+            ssn: SSN to validate
+            
+        Returns:
+            Validated SSN
+            
+        Raises:
+            ValidationError: If SSN is invalid
+        """
+        if not ssn or not isinstance(ssn, str):
+            raise ValidationError("SSN must be a non-empty string")
+        
+        clean_ssn = ssn.replace('-', '')
+        if not re.match(r'^\d{9}$', clean_ssn):
+            raise ValidationError(f"Invalid SSN format: {ssn}")
+        
+        # Check for invalid groups (000)
+        if clean_ssn.startswith('000') or clean_ssn[3:5] == '00' or clean_ssn[5:] == '0000':
+            raise ValidationError(f"Invalid SSN value: {ssn}")
+            
+        return ssn
+
+    @staticmethod
+    def validate_currency(currency: str) -> str:
+        """
+        Validate currency code.
+        
+        Args:
+            currency: Currency code to validate
+            
+        Returns:
+            Validated currency code
+            
+        Raises:
+            ValidationError: If currency is invalid
+        """
+        if not currency or not isinstance(currency, str):
+            raise ValidationError("Currency must be a non-empty string")
+        if not re.match(r'^[A-Z]{3}$', currency):
+            raise ValidationError(f"Invalid currency code: {currency}")
+        return currency
+
+    @staticmethod
+    def validate_account_number(account_number: str) -> str:
+        """
+        Validate account number.
+        
+        Args:
+            account_number: Account number to validate
+            
+        Returns:
+            Validated account number
+            
+        Raises:
+            ValidationError: If account number is invalid
+        """
+        if not account_number or not isinstance(account_number, str):
+            raise ValidationError("Account number must be a non-empty string")
+        # Numeric, 5-20 digits
+        if not re.match(r'^\d{5,20}$', account_number):
+            raise ValidationError(f"Invalid account number format: {account_number}")
+        return account_number
 
 
 # Backward compatibility: expose functions at module level
@@ -779,6 +912,12 @@ validate_file_path = Validator.validate_file_path
 validate_connection_name = Validator.validate_connection_name
 validate_password_strength = Validator.validate_password_strength
 validate_env_var_name = Validator.validate_env_var_name
+validate_phone = Validator.validate_phone
+validate_iban = Validator.validate_iban
+validate_swift = Validator.validate_swift
+validate_ssn = Validator.validate_ssn
+validate_currency = Validator.validate_currency
+validate_account_number = Validator.validate_account_number
 
 
 __all__ = [
@@ -801,6 +940,10 @@ __all__ = [
     'validate_connection_name',
     'validate_password_strength',
     'validate_env_var_name',
+    'validate_phone',
+    'validate_iban',
+    'validate_swift',
+    'validate_ssn',
+    'validate_currency',
+    'validate_account_number',
 ]
-
-# Made with Bob

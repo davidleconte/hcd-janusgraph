@@ -138,7 +138,7 @@ class TestValidatorSanitizeString:
 
     def test_sanitize_string_max_length(self):
         """Test string truncation at max length"""
-        long_string = "a" * 2000
+        long_string = "a" * 150  # Must be < 2*max_length to avoid DoS error
         result = Validator.sanitize_string(long_string, max_length=100)
         assert len(result) == 100
 
