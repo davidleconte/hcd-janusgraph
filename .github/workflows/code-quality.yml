@@ -10,7 +10,7 @@ on:
     - cron: '0 2 * * *'
 
 env:
-  PYTHON_VERSION: '3.8'
+  PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
 
 jobs:
@@ -64,10 +64,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install mypy types-all
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt || pip install .
       
       - name: Run mypy
-        run: mypy src/ --ignore-missing-imports --python-version=3.8
+        run: mypy src/ --ignore-missing-imports --python-version=3.11
 
   # Security scanning
   security:
@@ -87,7 +87,7 @@ jobs:
           pip install bandit safety
       
       - name: Run Bandit
-        run: bandit -r src/ -ll -f json -o bandit-report.json
+        run: bandit -r src/ banking/ scripts/ -ll -f json -o bandit-report.json --exclude tests
         continue-on-error: true
       
       - name: Run Safety
@@ -151,8 +151,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt || true
+          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
           pip install pytest pytest-cov pytest-xdist pytest-timeout
       
       - name: Run unit tests
@@ -207,8 +207,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements-dev.txt || true
+          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
           pip install pytest pytest-cov
       
       - name: Wait for JanusGraph
@@ -248,7 +248,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt || true
+          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
           pip install pytest pytest-benchmark
       
       - name: Run performance tests
@@ -277,15 +278,15 @@ jobs:
       
       - name: Build Docker images
         run: |
-          docker-compose build --no-cache
+          cd config/compose && docker-compose -f docker-compose.full.yml build --no-cache
       
       - name: Test Docker containers
         run: |
-          docker-compose up -d
+          cd config/compose && docker-compose -f docker-compose.full.yml up -d
           sleep 30
-          docker-compose ps
-          docker-compose logs
-          docker-compose down
+          docker-compose -f config/compose/docker-compose.full.yml ps
+          docker-compose -f config/compose/docker-compose.full.yml logs
+          cd config/compose && docker-compose -f docker-compose.full.yml down
 
   # Documentation build
   docs-build:
