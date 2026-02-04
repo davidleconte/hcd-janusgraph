@@ -14,7 +14,7 @@ help:
 	@echo "  make clean     - Clean up containers and temp files"
 
 build:
-	@bash scripts/deployment/build_images.sh
+	@cd config/compose && podman-compose -f docker-compose.full.yml build
 
 deploy:
 	@cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
@@ -23,9 +23,9 @@ test:
 	@bash scripts/testing/run_tests.sh
 
 lint:
-	@black --check src/ tests/
-	@flake8 src/ tests/
-	@isort --check-only src/ tests/
+	@black --check src/ tests/ banking/ scripts/
+	@flake8 src/ tests/ banking/ scripts/ --max-line-length=100
+	@isort --check-only src/ tests/ banking/ scripts/
 
 clean:
 	@bash scripts/deployment/stop_full_stack.sh

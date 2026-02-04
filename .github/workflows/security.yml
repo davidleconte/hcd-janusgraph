@@ -56,8 +56,8 @@ jobs:
       
       - name: Run safety check
         run: |
-          pip install -r requirements.txt
-          safety check --file requirements.txt || true
+          pip install -r requirements-dev.txt || pip install safety
+          safety check --full-report 2>/dev/null || echo "::warning::Some dependencies may have vulnerabilities - review above"
 
   secret-scan:
     name: Secret Scanning

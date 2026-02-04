@@ -1,19 +1,34 @@
 # File: config/compose/docker-compose.prod.yml
 # Created: 2026-01-28T10:33:30.123
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Updated: 2026-02-04 - Security hardening
+# Author: David LECONTE - IBM Worldwide
 #
-# Production configuration with health checks, resource limits, and restart policies
+# PRODUCTION configuration with security hardening
+# 
+# USAGE: docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
+#
+# REQUIREMENTS:
+#   - All *_PASSWORD variables MUST be set (will fail if not)
+#   - SSL certificates must be generated: ./scripts/security/generate_certificates.sh
+#   - Vault must be initialized: ./scripts/security/init_vault.sh
 
 version: '3.8'
 
 services:
+  # ============================================================================
+  # HCD (Cassandra) - Production Hardening
+  # ============================================================================
   hcd-server:
+    environment:
+      # FAIL-FAST: Require non-default passwords
+      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:?HCD_KEYSTORE_PASSWORD is required in production}
+      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:?HCD_TRUSTSTORE_PASSWORD is required in production}
     healthcheck:
       test: ["CMD-SHELL", "nodetool status | grep UN || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 120s  # HCD needs time to start
+      start_period: 120s
     restart: unless-stopped
     deploy:
       resources:
@@ -24,9 +39,19 @@ services:
           cpus: '2'
           memory: 4G
 
+  # ============================================================================
+  # JanusGraph - Production Hardening
+  # ============================================================================
   janusgraph-server:
+    environment:
+      # FAIL-FAST: Require non-default passwords
+      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:?JANUSGRAPH_TRUSTSTORE_PASSWORD is required in production}
+    volumes:
+      # Mount CA certificate for TLS verification
+      - ./../certs/ca/ca-cert.pem:/etc/janusgraph/certs/ca.pem:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8182 || exit 1"]
+      # Use CA certificate for proper TLS verification (NO -k flag)
+      test: ["CMD", "curl", "-f", "--cacert", "/etc/janusgraph/certs/ca.pem", "https://localhost:8182?gremlin=g.V().count()"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -44,20 +69,59 @@ services:
       hcd-server:
         condition: service_healthy
 
-  jupyter-lab:
+  # ============================================================================
+  # OpenSearch - Production Hardening
+  # ============================================================================
+  opensearch:
+    environment:
+      # ENABLE security in production
+      - plugins.security.disabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD:?OPENSEARCH_ADMIN_PASSWORD is required in production}
+    # Don't expose ports directly in production - use reverse proxy
+    ports: []
+
+  # ============================================================================
+  # Vault - Production Hardening
+  # ============================================================================
+  vault:
+    environment:
+      # Bind to internal network only (not 0.0.0.0)
+      - VAULT_ADDR=http://127.0.0.1:8200
+      - VAULT_API_ADDR=http://vault:8200
+      - VAULT_LOG_LEVEL=info
+    # Don't expose port directly in production
+    ports: []
+
+  # ============================================================================
+  # Grafana - Production Hardening
+  # ============================================================================
+  grafana:
+    environment:
+      # FAIL-FAST: Require non-default admin password
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required in production}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8888 || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
 
+  # ============================================================================
+  # Jupyter - Production Hardening (DISABLED by default)
+  # ============================================================================
+  jupyter:
+    # In production, Jupyter should require authentication
+    build:
+      args:
+        - DEV_MODE=false
+    profiles:
+      - dev-tools  # Only start with --profile dev-tools
+
+  # ============================================================================
+  # Prometheus & AlertManager - Production Hardening
+  # ============================================================================
   prometheus:
     healthcheck:
       test: ["CMD-SHELL", "wget --spider --quiet http://localhost:9090/-/healthy || exit 1"]
@@ -66,12 +130,24 @@ services:
       retries: 3
     restart: unless-stopped
 
-  grafana:
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  alertmanager:
     restart: unless-stopped
 
-# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# ============================================================================
+# PRODUCTION DEPLOYMENT NOTES:
+# ============================================================================
+# 1. Set all required environment variables in .env:
+#    - HCD_KEYSTORE_PASSWORD
+#    - HCD_TRUSTSTORE_PASSWORD
+#    - JANUSGRAPH_TRUSTSTORE_PASSWORD
+#    - OPENSEARCH_ADMIN_PASSWORD
+#    - GRAFANA_ADMIN_PASSWORD
+#
+# 2. Generate SSL certificates before first deployment:
+#    ./scripts/security/generate_certificates.sh
+#
+# 3. Initialize Vault after deployment:
+#    ./scripts/security/init_vault.sh
+#
+# 4. Deploy with: 
+#    docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
