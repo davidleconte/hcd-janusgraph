@@ -36,6 +36,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Testing Guide](guides/testing-guide.md)** - Testing strategies and execution
 - **[Code Refactoring](development/CODE_REFACTORING_GUIDE.md)** - Refactoring best practices
 - **[Authentication Guide](security/AUTHENTICATION_GUIDE.md)** - Security authentication patterns
+- **[Visualization Tools](guides/visualization-tools.md)** - Graph visualization tools (G.V() recommended for macOS Silicon)
 
 #### Banking Module
 - **[User Guide](banking/guides/USER_GUIDE.md)** - Banking module usage
@@ -204,7 +205,8 @@ docs/
 ├── guides/                     # General guides
 │   ├── setup-guide.md
 │   ├── deployment-guide.md
-│   └── testing-guide.md
+│   ├── testing-guide.md
+│   └── visualization-tools.md
 │
 ├── implementation/             # Implementation tracking
 │   ├── audits/                # Audit reports
