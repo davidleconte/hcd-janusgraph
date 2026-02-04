@@ -263,36 +263,49 @@ class SanctionsScreener:
         customers: List[Dict[str, str]],
         k: int = 10,
         min_score: float = None
-    ) -> List[ScreeningResult]:
+    ) -> Dict[str, Any]:
         """
         Screen multiple customers in batch.
         
         Args:
-            customers: List of dicts with 'customer_id' and 'customer_name'
+            customers: List of dicts with 'customer_id'/'customer_name' OR 'id'/'name'
             k: Number of top matches per customer
             min_score: Minimum similarity score
         
         Returns:
-            List of ScreeningResults
+            Dict with 'total_screened', 'matches_found', 'processing_time_seconds', 'results'
         """
+        import time
+        start_time = time.time()
+        
         logger.info(f"Batch screening {len(customers)} customers...")
         
         results = []
         for customer in customers:
+            # Support both key formats: customer_id/customer_name and id/name
+            cust_id = customer.get('customer_id') or customer.get('id', 'UNKNOWN')
+            cust_name = customer.get('customer_name') or customer.get('name', '')
+            
             result = self.screen_customer(
-                customer_id=customer['customer_id'],
-                customer_name=customer['customer_name'],
+                customer_id=cust_id,
+                customer_name=cust_name,
                 k=k,
                 min_score=min_score
             )
             results.append(result)
         
+        processing_time = time.time() - start_time
+        
         # Summary
         matches = [r for r in results if r.is_match]
         logger.info(f"Batch screening complete: {len(matches)}/{len(customers)} matches found")
         
-        return results
-    
+        return {
+            'total_screened': len(customers),
+            'matches_found': len(matches),
+            'processing_time_seconds': processing_time,
+            'results': results
+        }
     def get_statistics(self) -> Dict[str, Any]:
         """Get sanctions list statistics."""
         stats = self.search_client.get_index_stats(self.index_name)
