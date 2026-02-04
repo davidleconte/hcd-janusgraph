@@ -8,7 +8,7 @@
 
 ## Overview
 
-This guide covers the 9 Jupyter notebooks in `banking/notebooks/` that demonstrate the banking compliance platform's capabilities.
+This guide covers the 10 Jupyter notebooks in `banking/notebooks/` that demonstrate the banking compliance platform's capabilities. Several notebooks now feature **cross-service integration**, demonstrating how JanusGraph, OpenSearch, and HCD work together for comprehensive compliance workflows.
 
 ## Prerequisites
 
@@ -69,17 +69,18 @@ PROJECT_ROOT = config['project_root']
 
 ## Notebooks
 
-| # | Notebook | Use Case | Services Required |
-|---|----------|----------|-------------------|
-| 01 | Sanctions_Screening_Demo | Fuzzy name matching with vector embeddings | OpenSearch |
-| 02 | AML_Structuring_Detection_Demo | Detect transaction structuring patterns | JanusGraph |
-| 03 | Fraud_Detection_Demo | Identify fraudulent transaction patterns | JanusGraph |
-| 04 | Customer_360_View_Demo | Unified customer profile view | JanusGraph |
-| 05 | Advanced_Analytics_OLAP | OLAP-style analytics on graph data | JanusGraph |
-| 06 | TBML_Detection_Demo | Trade-based money laundering detection | JanusGraph |
-| 07 | Insider_Trading_Detection_Demo | Coordinated trading pattern detection | JanusGraph |
-| 08 | UBO_Discovery_Demo | Ultimate beneficial owner identification | JanusGraph |
-| 09 | API_Integration_Demo | FastAPI analytics service integration | FastAPI |
+| # | Notebook | Use Case | Services Required | Cross-Service Integration |
+|---|----------|----------|-------------------|---------------------------|
+| 01 | Sanctions_Screening_Demo | Fuzzy name matching with vector embeddings | OpenSearch | ✅ JanusGraph network tracing |
+| 02 | AML_Structuring_Detection_Demo | Detect transaction structuring patterns | JanusGraph | - |
+| 03 | Fraud_Detection_Demo | Identify fraudulent transaction patterns | JanusGraph | - |
+| 04 | Customer_360_View_Demo | Unified customer profile view | JanusGraph | ✅ HCD audit logging |
+| 05 | Advanced_Analytics_OLAP | OLAP-style analytics on graph data | JanusGraph | - |
+| 06 | TBML_Detection_Demo | Trade-based money laundering detection | JanusGraph | - |
+| 07 | Insider_Trading_Detection_Demo | Coordinated trading pattern detection | JanusGraph | ✅ OpenSearch MNPI search |
+| 08 | UBO_Discovery_Demo | Ultimate beneficial owner identification | JanusGraph | ✅ OpenSearch fuzzy matching |
+| 09 | API_Integration_Demo | FastAPI analytics service integration | FastAPI | - |
+| 10 | Integrated_Architecture_Demo | Multi-service architecture demonstration | All Services | ✅ Full integration demo |
 
 ### Detailed Descriptions
 
@@ -87,6 +88,7 @@ PROJECT_ROOT = config['project_root']
 - **Objective**: Real-time sanctions screening with fuzzy name matching
 - **Techniques**: Vector embeddings, k-NN similarity search
 - **Business Value**: OFAC, EU, UN sanctions compliance
+- **Cross-Service**: JanusGraph network tracing for flagged entities (trace 2-hop relationships)
 
 #### 02: AML Structuring Detection Demo  
 - **Objective**: Detect structuring (smurfing) patterns
@@ -102,6 +104,7 @@ PROJECT_ROOT = config['project_root']
 - **Objective**: Unified view of customer relationships
 - **Techniques**: Multi-hop graph traversal
 - **Business Value**: KYC enhancement, relationship intelligence
+- **Cross-Service**: HCD compliance audit logging for profile access (GDPR)
 
 #### 05: Advanced Analytics OLAP Demo
 - **Objective**: OLAP-style analytics on graph data
@@ -117,16 +120,24 @@ PROJECT_ROOT = config['project_root']
 - **Objective**: Detect coordinated trading patterns
 - **Techniques**: Timing correlation, communication network analysis
 - **Business Value**: SEC compliance, market manipulation detection
+- **Cross-Service**: OpenSearch MNPI keyword search in communications
 
 #### 08: UBO Discovery Demo
 - **Objective**: Ultimate beneficial owner identification
 - **Techniques**: Ownership chain traversal, effective ownership calculation
 - **Business Value**: EU 5AMLD compliance, FATF recommendations
+- **Cross-Service**: OpenSearch fuzzy company name matching for entity resolution
 
 #### 09: API Integration Demo
 - **Objective**: Demonstrate FastAPI analytics service integration
 - **Techniques**: REST API calls, batch processing
 - **Business Value**: Production-ready API integration patterns
+
+#### 10: Integrated Architecture Demo
+- **Objective**: Demonstrate multi-service architecture synergies
+- **Techniques**: Service latency benchmarking, cross-service AML investigation workflow
+- **Business Value**: End-to-end compliance workflow demonstration
+- **Cross-Service**: Full integration of JanusGraph + OpenSearch + HCD with architecture diagrams
 
 ---
 
@@ -205,4 +216,4 @@ Select "JanusGraph Analysis (Python 3.11)" from kernel dropdown.
 
 ---
 
-*Last Updated: 2026-02-04*
+*Last Updated: 2026-02-04* (Added NB10, cross-service integration documentation)

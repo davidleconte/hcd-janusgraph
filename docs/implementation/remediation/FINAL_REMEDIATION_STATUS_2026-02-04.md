@@ -57,16 +57,17 @@ All major remediation items have been executed. The system is fully operational 
 
 ## Test Results
 
-### Notebooks (9/9 Pass)
-- 01_Sanctions_Screening_Demo ✅
+### Notebooks (10/10 Pass)
+- 01_Sanctions_Screening_Demo ✅ (+ JanusGraph network tracing)
 - 02_AML_Structuring_Detection_Demo ✅
 - 03_Fraud_Detection_Demo ✅
-- 04_Customer_360_View_Demo ✅
+- 04_Customer_360_View_Demo ✅ (+ HCD audit logging)
 - 05_Advanced_Analytics_OLAP ✅
 - 06_TBML_Detection_Demo ✅
-- 07_Insider_Trading_Detection_Demo ✅
-- 08_UBO_Discovery_Demo ✅
+- 07_Insider_Trading_Detection_Demo ✅ (+ OpenSearch MNPI search)
+- 08_UBO_Discovery_Demo ✅ (+ OpenSearch fuzzy matching)
 - 09_API_Integration_Demo ✅
+- 10_Integrated_Architecture_Demo ✅ (full multi-service integration)
 
 ### Integration Tests
 - E2E Tests: 7 passed, 16 skipped
