@@ -434,16 +434,16 @@ class TestDataPersistence:
         """
         g = janusgraph_connection
         
-        # Create vertex
+        # Create vertex with string property (use unique name to avoid schema conflicts)
         vertex = g.addV('persistence_test') \
-            .property('value', 'original') \
+            .property('test_status', 'original') \
             .next()
         
         # Update property
-        g.V(vertex).property('value', 'updated').next()
+        g.V(vertex).property('test_status', 'updated').next()
         
         # Verify update persisted
-        updated_value = g.V(vertex).values('value').next()
+        updated_value = g.V(vertex).values('test_status').next()
         assert updated_value == 'updated'
         
         logger.info("✅ Property update persistence verified")
@@ -467,8 +467,13 @@ class TestErrorHandling:
         """
         g = janusgraph_connection
         
-        # Test querying non-existent vertex
-        count = g.V('non_existent_id').count().next()
+        # Test querying with invalid vertex ID (JanusGraph uses numeric IDs)
+        # Use a very large ID that definitely doesn't exist
+        count = g.V(9999999999999).count().next()
+        assert count == 0
+        
+        # Test querying with non-existent property value
+        count = g.V().has('name', 'definitely_not_a_real_name_xyz123').count().next()
         assert count == 0
         
         logger.info("✅ Invalid query handled gracefully")

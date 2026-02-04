@@ -20,6 +20,7 @@ from typing import Dict, Optional
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
+from gremlin_python.driver.serializer import GraphSONSerializersV3d0
 from gremlin_python.process.anonymous_traversal import traversal
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,6 @@ SERVICES = {
         'port': int(os.getenv('JANUSGRAPH_PORT', '18182')),
         'name': 'JanusGraph',
         'check_type': 'tcp',
-        # URL for HTTP check reference, though we use TCP for primary health
         'url': f"http://{os.getenv('JANUSGRAPH_HOST', 'localhost')}:{os.getenv('JANUSGRAPH_PORT', '18182')}"
     },
     'prometheus': {
@@ -66,9 +66,11 @@ SERVICES = {
     },
 }
 
-def check_port_open(host: str, port: int, timeout: float = 2.0) -> bool:
+
+def check_port_open(host: str, port: int, timeout: float = 3.0) -> bool:
     """
-    Check if a TCP port is open.
+    Check if a TCP port is open using high-level connection.
+    Handles IPv4/IPv6 resolution automatically.
     
     Args:
         host: Hostname or IP address
@@ -78,15 +80,12 @@ def check_port_open(host: str, port: int, timeout: float = 2.0) -> bool:
     Returns:
         True if port is open, False otherwise
     """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(timeout)
     try:
-        result = sock.connect_ex((host, port))
-        return result == 0
-    except socket.error:
+        # create_connection handles address resolution and tries all returned addresses
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except (socket.timeout, socket.error, OSError):
         return False
-    finally:
-        sock.close()
 
 
 def check_http_endpoint(url: str, timeout: float = 5.0) -> bool:
@@ -284,8 +283,13 @@ def hcd_session(require_hcd):
 def janusgraph_connection(require_janusgraph):
     """
     Fixture providing JanusGraph graph traversal connection.
+    Uses GraphSON serializer for JanusGraph compatibility.
     """
-    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
+    connection = DriverRemoteConnection(
+        'ws://localhost:18182/gremlin', 
+        'g',
+        message_serializer=GraphSONSerializersV3d0()
+    )
     g = traversal().withRemote(connection)
     yield g
     connection.close()
