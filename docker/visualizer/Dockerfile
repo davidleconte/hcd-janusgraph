@@ -9,7 +9,7 @@ LABEL description="Web-based interactive graph visualization for JanusGraph"
 WORKDIR /app
 
 # Install git (needed for npm install from GitHub)
-RUN apk add --no-cache git
+RUN apk add --no-cache git curl
 
 # Clone JanusGraph Visualizer
 RUN git clone https://github.com/JanusGraph/janusgraph-visualizer.git .

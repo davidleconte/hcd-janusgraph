@@ -61,185 +61,29 @@ echo "   This may take 10-15 minutes on first run..."
 
 # Build Jupyter
 echo "   Building Jupyter Lab (conda-forge)..."
-podman --remote --connection $PODMAN_CONNECTION build \
-    --platform $PODMAN_PLATFORM \
-    -f docker/jupyter/Dockerfile \
-    -t localhost/jupyter-janusgraph:latest \
-    .
+# ============================================================================
+# DEPLOYMENT
+# ============================================================================
+echo "3. Deploying Full Stack via Podman Compose..."
+echo "   This will build custom images (OpenSearch w/ JVector, Visualization tools)"
+echo "   and start all services with dependencies managed."
 
-# Build JanusGraph Visualizer
-echo "   Building JanusGraph Visualizer..."
-podman --remote --connection $PODMAN_CONNECTION build \
-    --platform $PODMAN_PLATFORM \
-    -f docker/visualizer/Dockerfile \
-    -t localhost/janusgraph-visualizer:latest \
-    .
+cd "$PROJECT_ROOT/config/compose"
 
-# Build Graphexp
-echo "   Building Graphexp..."
-podman --remote --connection $PODMAN_CONNECTION build \
-    --platform $PODMAN_PLATFORM \
-    -f docker/graphexp/Dockerfile \
-    -t localhost/graphexp:latest \
-    .
+# Set project name for isolation
+export COMPOSE_PROJECT_NAME="janusgraph-demo"
 
-# Build cqlsh client
-echo "   Building cqlsh client..."
-podman --remote --connection $PODMAN_CONNECTION build \
-    --platform $PODMAN_PLATFORM \
-    -f docker/cqlsh/Dockerfile \
-    -t localhost/cqlsh-client:latest \
-    .
+# Run podman-compose
+# --build ensures we pick up the new Dockerfiles (OpenSearch JVector, etc)
+podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d --build
 
-echo "✅ All images built"
+if [ $? -ne 0 ]; then
+    echo "❌ Deployment failed."
+    exit 1
+fi
+
+echo "✅ Deployment commands sent successfully."
 echo ""
-
-# Check if core containers are running
-echo "4. Checking core containers (HCD + JanusGraph)..."
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "hcd-server"; then
-    echo "⚠️  HCD container not running. Starting core stack..."
-    # Start HCD first (already built)
-    # NOTE: JMX port (7199) NOT exposed per security requirements - use SSH tunnel if needed
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name hcd-server \
-        --hostname hcd-server \
-        --network $NETWORK_NAME \
-        -p $HCD_CQL_PORT:9042 \
-        -p 17000-17001:7000-7001 \
-        -p 19160:9160 \
-        localhost/hcd:1.2.3
-    
-    echo "   Waiting for HCD to be ready (60s)..."
-    sleep 60
-fi
-
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "janusgraph-server"; then
-    echo "   Starting JanusGraph..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name janusgraph-server \
-        --hostname janusgraph-server \
-        --network $NETWORK_NAME \
-        -p $JANUSGRAPH_GREMLIN_PORT:8182 \
-        -p $JANUSGRAPH_MGMT_PORT:8184 \
-        -e janusgraph.storage.backend=cql \
-        -e janusgraph.storage.hostname=hcd-server \
-        -e janusgraph.storage.port=9042 \
-        -e janusgraph.storage.cql.keyspace=janusgraph \
-        -e janusgraph.storage.cql.local-datacenter=datacenter1 \
-        -e janusgraph.storage.cql.replication-factor=1 \
-        -e janusgraph.storage.cql.replication-strategy-class=SimpleStrategy \
-        -e index.search.backend=lucene \
-        -e index.search.directory=/var/lib/janusgraph/index \
-        -e gremlinserver.graphs.graph=/opt/janusgraph/conf/janusgraph-cql-server.properties \
-        -e gremlinserver.graphManager=org.janusgraph.graphdb.management.JanusGraphManager \
-        docker.io/janusgraph/janusgraph:latest
-    
-    echo "   Waiting for JanusGraph to be ready (30s)..."
-    sleep 30
-fi
-
-echo "✅ Core stack running"
-echo ""
-
-# Start visualization containers
-echo "5. Starting visualization containers..."
-
-# Jupyter Lab
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "jupyter-lab"; then
-    echo "   Starting Jupyter Lab..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name jupyter-lab \
-        --hostname jupyter-lab \
-        --network $NETWORK_NAME \
-        -p $JUPYTER_PORT:8888 \
-        -v "$PWD/notebooks:/workspace/notebooks:Z" \
-        -v "$PWD/exports:/workspace/exports:Z" \
-        -e GREMLIN_URL=ws://janusgraph-server:8182/gremlin \
-        -e HCD_HOST=hcd-server \
-        -e HCD_PORT=9042 \
-        localhost/jupyter-janusgraph:latest
-fi
-
-# JanusGraph Visualizer
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "janusgraph-visualizer"; then
-    echo "   Starting JanusGraph Visualizer..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name janusgraph-visualizer \
-        --hostname janusgraph-visualizer \
-        --network $NETWORK_NAME \
-        -p $VISUALIZER_PORT:3000 \
-        -e GREMLIN_URL=ws://janusgraph-server:8182/gremlin \
-        localhost/janusgraph-visualizer:latest
-fi
-
-# Graphexp
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "graphexp"; then
-    echo "   Starting Graphexp..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name graphexp \
-        --hostname graphexp \
-        --network $NETWORK_NAME \
-        -p $GRAPHEXP_PORT:8080 \
-        localhost/graphexp:latest
-fi
-
-# cqlsh client (kept running for exec access)
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "cqlsh-client"; then
-    echo "   Starting cqlsh client..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name cqlsh-client \
-        --hostname cqlsh-client \
-        --network $NETWORK_NAME \
-        -e CQLSH_HOST=hcd-server \
-        -e CQLSH_PORT=9042 \
-        localhost/cqlsh-client:latest \
-        tail -f /dev/null
-fi
-
-echo "✅ Visualization containers started"
-echo ""
-
-# Start monitoring containers
-echo "6. Starting monitoring containers..."
-
-# Prometheus
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "prometheus"; then
-    echo "   Starting Prometheus..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name prometheus \
-        --hostname prometheus \
-        --network $NETWORK_NAME \
-        -p $PROMETHEUS_PORT:9090 \
-        -v "$PWD/prometheus.yml:/etc/prometheus/prometheus.yml:ro,Z" \
-        docker.io/prom/prometheus:latest \
-        --config.file=/etc/prometheus/prometheus.yml \
-        --storage.tsdb.path=/prometheus
-fi
-
-# Grafana
-if ! podman --remote --connection $PODMAN_CONNECTION ps | grep -q "grafana"; then
-    echo "   Starting Grafana..."
-    podman --remote --connection $PODMAN_CONNECTION run -d \
-        --name grafana \
-        --hostname grafana \
-        --network $NETWORK_NAME \
-        -p $GRAFANA_PORT:3000 \
-        -e GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin} \
-        -e GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD} \
-        -e GF_USERS_ALLOW_SIGN_UP=false \
-        docker.io/grafana/grafana:latest
-fi
-
-echo "✅ Monitoring containers started"
-echo ""
-
-# Wait for services to be ready
-echo "7. Waiting for services to be ready..."
-echo ""
-echo "⏱️  Expected Startup Times:"
-echo "   • HCD (Cassandra):    60-150 seconds"
-echo "   • JanusGraph:         +20-90 seconds (waits for HCD + initialization)"
-echo "   • Application Layer:  +10-30 seconds (waits for JanusGraph)"
 echo "   • Total Expected:     90-270 seconds (1.5-4.5 minutes)"
 echo ""
 echo "   Current wait: 90 seconds for core services..."

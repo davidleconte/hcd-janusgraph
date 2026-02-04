@@ -325,7 +325,17 @@ class MasterOrchestrator:
         if self.config.communication_count > 0:
             logger.info(f"\nGenerating {self.config.communication_count} communications...")
             for i in range(self.config.communication_count):
-                communication = self.communication_gen.generate()
+                # Select random sender and recipient from generated persons
+                sender = random.choice(self.persons)
+                recipient = random.choice(self.persons)
+                # Avoid self-communication
+                while recipient.id == sender.id and len(self.persons) > 1:
+                    recipient = random.choice(self.persons)
+                
+                communication = self.communication_gen.generate(
+                    sender_id=sender.id,
+                    recipient_id=recipient.id
+                )
                 self.communications.append(communication)
                 
                 if (i + 1) % 1000 == 0:
@@ -388,26 +398,36 @@ class MasterOrchestrator:
             logger.info("No patterns configured for generation")
             return
         
+        # Collect existing entity IDs for pattern injection
+        person_ids = [p.id for p in self.persons]
+        company_ids = [c.id for c in self.companies]
+
         # Generate insider trading patterns
         if self.config.insider_trading_patterns > 0:
             logger.info(f"Generating {self.config.insider_trading_patterns} insider trading patterns...")
             for i in range(self.config.insider_trading_patterns):
-                pattern = self.insider_trading_gen.generate(
+                pattern, trades, communications = self.insider_trading_gen.generate(
                     pattern_type="pre_announcement",
-                    entity_count=random.randint(2, 5)
+                    entity_count=random.randint(2, 5),
+                    existing_entity_ids=person_ids
                 )
                 self.patterns.append(pattern)
+                self.trades.extend(trades)
+                self.communications.extend(communications)
             logger.info(f"✓ Generated {self.config.insider_trading_patterns} insider trading patterns")
         
         # Generate TBML patterns
         if self.config.tbml_patterns > 0:
             logger.info(f"\nGenerating {self.config.tbml_patterns} TBML patterns...")
             for i in range(self.config.tbml_patterns):
-                pattern = self.tbml_gen.generate(
+                pattern, transactions, documents = self.tbml_gen.generate(
                     pattern_type="over_invoicing",
-                    entity_count=random.randint(3, 7)
+                    entity_count=random.randint(3, 7),
+                    existing_entity_ids=company_ids
                 )
                 self.patterns.append(pattern)
+                self.transactions.extend(transactions)
+                self.documents.extend(documents)
             logger.info(f"✓ Generated {self.config.tbml_patterns} TBML patterns")
         
         # Generate fraud ring patterns
@@ -527,6 +547,59 @@ class MasterOrchestrator:
                 'warnings': self.stats.warnings
             }, f, indent=2)
         logger.info(f"✓ Exported generation statistics to {stats_path}")
+    
+    def export_to_json(self, output_path: str) -> Dict[str, Any]:
+        """
+        Export all generated data to a single JSON file.
+        
+        This is a convenience method for exporting all data to one file,
+        commonly used in testing and simple workflows.
+        
+        Args:
+            output_path: Path to the output JSON file
+            
+        Returns:
+            Dictionary containing all generated data
+        """
+        from pathlib import Path
+        
+        # Prepare data dictionary
+        data = {
+            'persons': [p.model_dump() if hasattr(p, 'model_dump') else p.dict() for p in self.persons],
+            'companies': [c.model_dump() if hasattr(c, 'model_dump') else c.dict() for c in self.companies],
+            'accounts': [a.model_dump() if hasattr(a, 'model_dump') else a.dict() for a in self.accounts],
+            'transactions': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.transactions],
+            'communications': [c.model_dump() if hasattr(c, 'model_dump') else c.dict() for c in self.communications],
+            'trades': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.trades],
+            'travels': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.travels],
+            'documents': [d.model_dump() if hasattr(d, 'model_dump') else d.dict() for d in self.documents],
+            'patterns': [p.model_dump() if hasattr(p, 'model_dump') else p.dict() for p in self.patterns],
+            'statistics': {
+                'start_time': self.stats.start_time.isoformat() if self.stats.start_time else None,
+                'end_time': self.stats.end_time.isoformat() if self.stats.end_time else None,
+                'persons_generated': self.stats.persons_generated,
+                'companies_generated': self.stats.companies_generated,
+                'accounts_generated': self.stats.accounts_generated,
+                'transactions_generated': self.stats.transactions_generated,
+                'communications_generated': self.stats.communications_generated,
+                'trades_generated': self.stats.trades_generated,
+                'travels_generated': self.stats.travels_generated,
+                'documents_generated': self.stats.documents_generated,
+                'patterns_generated': self.stats.patterns_generated,
+                'total_records': self.stats.total_records,
+                'generation_time_seconds': self.stats.generation_time_seconds,
+            }
+        }
+        
+        # Write to file
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_file, 'w') as f:
+            json.dump(data, f, indent=2, default=str)
+        
+        logger.info(f"✓ Exported all data to {output_path}")
+        return data
 
 
 # Example usage

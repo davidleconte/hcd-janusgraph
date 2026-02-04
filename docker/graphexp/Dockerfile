@@ -9,7 +9,7 @@ LABEL description="Lightweight web-based graph exploration for JanusGraph"
 WORKDIR /app
 
 # Install git
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 # Clone Graphexp
 RUN git clone https://github.com/bricaud/graphexp.git .

@@ -10,7 +10,7 @@ Date: 2026-01-28
 
 import random
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from decimal import Decimal
 from faker import Faker
 
@@ -95,8 +95,9 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         entity_count: Optional[int] = None,
         document_count: Optional[int] = None,
         transaction_count: Optional[int] = None,
-        duration_days: Optional[int] = None
-    ) -> Pattern:
+        duration_days: Optional[int] = None,
+        existing_entity_ids: Optional[List[str]] = None
+    ) -> Tuple[Pattern, List[Any], List[Any]]:
         """
         Generate a single TBML pattern.
         
@@ -108,7 +109,10 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             duration_days: Duration of pattern (30-180 days)
             
         Returns:
-            Pattern object with all attributes
+            Tuple containing:
+            - Pattern object
+            - List of generated Transaction objects
+            - List of generated Document objects
         """
         # Select pattern type
         if pattern_type is None:
@@ -132,10 +136,15 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         # Generate pattern dates
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=duration_days)
-        
-        # Generate entities involved
+        # Generate entities involved (or select from existing)
+        if existing_entity_ids:
+            sample_count = min(entity_count, len(existing_entity_ids))
+            entity_ids = random.sample(existing_entity_ids, sample_count)
+            if sample_count < entity_count:
+                 entity_ids.extend([f"COM-{self.faker.uuid4()[:8]}" for _ in range(entity_count - sample_count)])
+        else:
+            entity_ids = [f"COM-{self.faker.uuid4()[:8]}" for _ in range(entity_count)]
         entity_ids = [f"COM-{self.faker.uuid4()[:8]}" for _ in range(entity_count)]
-        
         # Generate documents
         documents = self._generate_pattern_documents(
             entity_ids,
@@ -196,7 +205,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             len(red_flags)
         )
         
-        return Pattern(
+        pattern = Pattern(
             pattern_id=f"PTN-TBML-{self.faker.uuid4()[:12]}",
             pattern_type="tbml",
             detection_date=datetime.utcnow(),
@@ -233,6 +242,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             }
         )
         
+        return pattern, transactions, documents
     def _generate_high_risk_routes(self) -> List[Dict[str, str]]:
         """Generate list of high-risk trade routes."""
         routes = []
@@ -535,7 +545,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         network_size: int = 5,
         document_count: int = 20,
         duration_days: int = 180
-    ) -> Pattern:
+    ) -> Tuple[Pattern, List[Any], List[Any]]:
         """
         Generate a complex TBML network with multiple entities and documents.
         
@@ -545,7 +555,10 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             duration_days: Duration of pattern
             
         Returns:
-            Pattern object representing complex TBML network
+            Tuple containing:
+            - Pattern object
+            - List of generated Transaction objects
+            - List of generated Document objects
         """
         return self.generate(
             pattern_type="carousel_fraud",

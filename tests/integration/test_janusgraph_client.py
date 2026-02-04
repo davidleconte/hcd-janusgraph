@@ -9,7 +9,16 @@ from gremlin_python.driver.protocol import GremlinServerError
 import sys
 import time
 
+import pytest
 
+@pytest.fixture(scope="module")
+def jg():
+    """Fixture to provide JanusGraphClient instance"""
+    client = JanusGraphClient(host='localhost', port=18182)
+    if not client.connect():
+        pytest.skip("Could not connect to JanusGraph")
+    yield client
+    client.close()
 class JanusGraphClient:
     """Simple client for JanusGraph using Gremlin Python driver"""
     

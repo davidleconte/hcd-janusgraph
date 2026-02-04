@@ -28,16 +28,15 @@ logger = logging.getLogger(__name__)
 SERVICES = {
     'hcd': {
         'host': 'localhost',
-        'port': 9042,
+        'port': 19042,  # Mapped port
         'name': 'HCD/Cassandra',
         'check_type': 'tcp'
     },
     'janusgraph': {
         'host': 'localhost',
-        'port': 8182,
+        'port': 18182,  # Mapped port
         'name': 'JanusGraph',
-        'check_type': 'http',
-        'url': 'http://localhost:8182?gremlin=g.V().count()'
+        'check_type': 'tcp'  # HTTP check might fail on WS endpoint, verify TCP first
     },
     'prometheus': {
         'host': 'localhost',
@@ -269,7 +268,7 @@ def hcd_session(require_hcd):
     )
     cluster = Cluster(
         ['localhost'],
-        port=9042,
+        port=19042,
         auth_provider=auth_provider
     )
     session = cluster.connect()
@@ -282,7 +281,7 @@ def janusgraph_connection(require_janusgraph):
     """
     Fixture providing JanusGraph graph traversal connection.
     """
-    connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
     g = traversal().withRemote(connection)
     yield g
     connection.close()

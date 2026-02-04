@@ -102,8 +102,9 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
         pattern_type: Optional[str] = None,
         entity_count: Optional[int] = None,
         trade_count: Optional[int] = None,
-        days_before_announcement: Optional[int] = None
-    ) -> Pattern:
+        days_before_announcement: Optional[int] = None,
+        existing_entity_ids: Optional[List[str]] = None
+    ) -> Tuple[Pattern, List[Any], List[Any]]:
         """
         Generate a single insider trading pattern.
         
@@ -114,7 +115,10 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             days_before_announcement: Days before public announcement (1-90)
             
         Returns:
-            Pattern object with all attributes
+            Tuple containing:
+            - Pattern object
+            - List of generated Trade objects
+            - List of generated Communication objects
         """
         # Select pattern type (ensure not None)
         if pattern_type is None:
@@ -138,9 +142,16 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
         
         # Generate pattern start date
         start_date = announcement_date - timedelta(days=days_before_announcement)
-        
-        # Generate entities involved
-        entity_ids = [f"PER-{self.faker.uuid4()[:8]}" for _ in range(entity_count)]
+        # Generate entities involved (or select from existing)
+        if existing_entity_ids:
+            # Ensure we don't try to sample more than available
+            sample_count = min(entity_count, len(existing_entity_ids))
+            entity_ids = random.sample(existing_entity_ids, sample_count)
+            # If we need more than available, generate new ones
+            if sample_count < entity_count:
+                 entity_ids.extend([f"PER-{self.faker.uuid4()[:8]}" for _ in range(entity_count - sample_count)])
+        else:
+            entity_ids = [f"PER-{self.faker.uuid4()[:8]}" for _ in range(entity_count)]
         
         # Generate trades
         trades = self._generate_pattern_trades(
@@ -202,7 +213,7 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             days_before_announcement
         )
         
-        return Pattern(
+        pattern = Pattern(
             pattern_id=f"PTN-IT-{self.faker.uuid4()[:12]}",
             pattern_type="insider_trading",
             detection_date=datetime.utcnow(),
@@ -240,6 +251,7 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             }
         )
         
+        return pattern, trades, communications
     def _generate_pattern_trades(
         self,
         entity_ids: List[str],
@@ -475,7 +487,7 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
         network_size: int = 10,
         trade_count: int = 50,
         days_before_announcement: int = 60
-    ) -> Pattern:
+    ) -> Tuple[Pattern, List[Any], List[Any]]:
         """
         Generate a complex insider trading network with multiple layers.
         
@@ -485,7 +497,10 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             days_before_announcement: Days before announcement
             
         Returns:
-            Pattern object representing complex network
+            Tuple containing:
+            - Pattern object
+            - List of generated Trade objects
+            - List of generated Communication objects
         """
         return self.generate(
             pattern_type="coordinated_insider_trading",

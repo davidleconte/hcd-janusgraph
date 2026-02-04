@@ -202,6 +202,12 @@ class Employment(BaseModel):
 
 class Person(BaseEntity):
     """Person entity with comprehensive attributes"""
+    
+    @property
+    def person_id(self) -> str:
+        """Alias for id field - provides semantic clarity when referring to a person's identifier"""
+        return self.id
+    
     # Basic Information
     first_name: str
     middle_name: Optional[str] = None

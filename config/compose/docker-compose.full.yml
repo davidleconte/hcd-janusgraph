@@ -17,7 +17,7 @@ volumes:
   hcd-data:
   hcd-commitlog:
   hcd-logs:
-  janusgraph-index:
+  opensearch-data:
   janusgraph-db:
   jupyter-notebooks:
   prometheus-data:
@@ -35,7 +35,9 @@ services:
     image: localhost/hcd:1.2.3
     hostname: hcd-server
     networks:
-      - hcd-janusgraph-network
+      hcd-janusgraph-network:
+        aliases:
+          - hcd-server
     ports:
       - "19042:9042"    # CQL
       - "17000-17001:7000-7001"  # Inter-node
@@ -58,18 +60,58 @@ services:
       retries: 5
     restart: unless-stopped
 
+  opensearch:
+    build:
+      context: ../..
+      dockerfile: docker/opensearch/Dockerfile
+    image: localhost/opensearch-jvector:latest
+    hostname: opensearch
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "9200:9200"      # REST API
+      - "9600:9600"      # Performance Analyzer
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node1
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - plugins.security.disabled=true  # Dev mode - enable in production
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=JanusGr@ph2026Demo!  # Required even with security disabled
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+      - ../../config/opensearch/jvector-install.sh:/tmp/jvector-install.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
   janusgraph-server:
     image: docker.io/janusgraph/janusgraph:latest
     hostname: janusgraph-server
     networks:
-      - hcd-janusgraph-network
+      hcd-janusgraph-network:
+        aliases:
+          - janusgraph-server
     ports:
       - "18182:8182"    # Gremlin WebSocket
       - "18184:8184"    # Management (optional)
     volumes:
       - ../../config/janusgraph/janusgraph-hcd.properties:/opt/janusgraph/conf/janusgraph-hcd.properties:ro
       - ../../config/janusgraph/janusgraph-server-hcd.yaml:/opt/janusgraph/conf/janusgraph-server-hcd.yaml:ro
-      - janusgraph-index:/var/lib/janusgraph/index
+      - ../../config/janusgraph/janusgraph-init.groovy:/opt/janusgraph/scripts/janusgraph-init.groovy:ro
       - janusgraph-db:/var/lib/janusgraph/db
     command: >
       bash -c "
@@ -81,8 +123,10 @@ services:
     depends_on:
       hcd-server:
         condition: service_healthy
+      opensearch:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8182/"]
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/8182' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
