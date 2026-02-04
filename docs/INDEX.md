@@ -70,6 +70,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Architecture Decision Records (ADRs)
 - **[ADR Index](architecture/README.md)** - All architecture decisions
+- **[Event-Sourced Ingestion Architecture](architecture/EVENT_SOURCED_INGESTION_ARCHITECTURE.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
 - **[ADR-005: JWT Authentication](architecture/ADR-005-jwt-authentication.md)**
 - **[ADR-010: Distributed Tracing](architecture/ADR-010-distributed-tracing.md)**
 - **[ADR-011: Query Caching](architecture/ADR-011-query-caching-strategy.md)**
