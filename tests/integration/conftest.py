@@ -15,6 +15,7 @@ import requests
 import socket
 import time
 import logging
+import os
 from typing import Dict, Optional
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
@@ -25,42 +26,45 @@ logger = logging.getLogger(__name__)
 
 
 # Service configuration
+# Ports default to exposed localhost ports (mapped in docker-compose.full.yml)
+# Can be overridden via environment variables for CI/CD or internal network tests
 SERVICES = {
     'hcd': {
-        'host': 'localhost',
-        'port': 19042,  # Mapped port
+        'host': os.getenv('HCD_HOST', 'localhost'),
+        'port': int(os.getenv('HCD_PORT', '19042')),
         'name': 'HCD/Cassandra',
         'check_type': 'tcp'
     },
     'janusgraph': {
-        'host': 'localhost',
-        'port': 18182,  # Mapped port
+        'host': os.getenv('JANUSGRAPH_HOST', 'localhost'),
+        'port': int(os.getenv('JANUSGRAPH_PORT', '18182')),
         'name': 'JanusGraph',
-        'check_type': 'tcp'  # HTTP check might fail on WS endpoint, verify TCP first
+        'check_type': 'tcp',
+        # URL for HTTP check reference, though we use TCP for primary health
+        'url': f"http://{os.getenv('JANUSGRAPH_HOST', 'localhost')}:{os.getenv('JANUSGRAPH_PORT', '18182')}"
     },
     'prometheus': {
-        'host': 'localhost',
-        'port': 9090,
+        'host': os.getenv('PROMETHEUS_HOST', 'localhost'),
+        'port': int(os.getenv('PROMETHEUS_PORT', '9090')),
         'name': 'Prometheus',
         'check_type': 'http',
-        'url': 'http://localhost:9090/-/healthy'
+        'url': f"http://{os.getenv('PROMETHEUS_HOST', 'localhost')}:{os.getenv('PROMETHEUS_PORT', '9090')}/-/healthy"
     },
     'grafana': {
-        'host': 'localhost',
-        'port': 3001,
+        'host': os.getenv('GRAFANA_HOST', 'localhost'),
+        'port': int(os.getenv('GRAFANA_PORT', '3001')),
         'name': 'Grafana',
         'check_type': 'http',
-        'url': 'http://localhost:3001/api/health'
+        'url': f"http://{os.getenv('GRAFANA_HOST', 'localhost')}:{os.getenv('GRAFANA_PORT', '3001')}/api/health"
     },
     'alertmanager': {
-        'host': 'localhost',
-        'port': 9093,
+        'host': os.getenv('ALERTMANAGER_HOST', 'localhost'),
+        'port': int(os.getenv('ALERTMANAGER_PORT', '9093')),
         'name': 'AlertManager',
         'check_type': 'http',
-        'url': 'http://localhost:9093/-/healthy'
+        'url': f"http://{os.getenv('ALERTMANAGER_HOST', 'localhost')}:{os.getenv('ALERTMANAGER_PORT', '9093')}/-/healthy"
     },
 }
-
 
 def check_port_open(host: str, port: int, timeout: float = 2.0) -> bool:
     """
