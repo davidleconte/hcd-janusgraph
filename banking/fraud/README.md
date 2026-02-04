@@ -75,6 +75,53 @@ rings = detector.detect_fraud_rings(
 - Ensemble methods
 - Real-time scoring
 
+## Implemented Scoring Components (2026-02-04)
+
+The fraud detection system uses a weighted scoring approach combining four risk factors:
+
+### 1. Velocity Check (`_check_velocity`)
+- **Weight:** 30%
+- Monitors transaction frequency and amounts per hour
+- Thresholds: MAX_TRANSACTIONS_PER_HOUR=10, MAX_AMOUNT_PER_HOUR=$5,000
+- Queries JanusGraph for recent transaction history
+
+### 2. Network Analysis (`_check_network`)
+- **Weight:** 25%
+- Analyzes connections to other accounts via graph traversal
+- Higher connection count may indicate fraud ring involvement
+- Score = min(1.0, connection_count / 50.0)
+
+### 3. Merchant Risk (`_check_merchant`) ✅ NEW
+- **Weight:** 25%
+- **High-risk categories detected:**
+  - Crypto exchanges (coinbase, binance, bitcoin): 0.5-0.7 risk
+  - Gambling (casino, poker, betting): 0.5-0.6 risk
+  - Wire transfers (western union, moneygram): 0.5-0.6 risk
+  - Money services (prepaid cards, gift cards): 0.4-0.5 risk
+  - High-value goods (jewelry, luxury): 0.3-0.4 risk
+- **Historical analysis:** Queries fraud case index using embeddings to find similar merchants
+- **Final score:** 60% category risk + 40% historical risk
+
+### 4. Behavioral Analysis (`_check_behavior`) ✅ NEW
+- **Weight:** 20%
+- **Amount deviation:** Z-score analysis comparing to 90-day history
+- **Merchant frequency:** Flags new or rarely-used merchants
+- **Semantic analysis:** Compares transaction descriptions using embeddings
+- **Final score:** 40% amount + 30% merchant + 30% semantic
+
+### Overall Scoring Formula
+```
+overall_score = velocity_score * 0.3 + network_score * 0.25 + merchant_score * 0.25 + behavioral_score * 0.2
+```
+
+### Risk Thresholds
+| Threshold | Score | Recommendation |
+|-----------|-------|----------------|
+| CRITICAL | >= 0.9 | Block |
+| HIGH | >= 0.75 | Review |
+| MEDIUM | >= 0.5 | Review |
+| LOW | < 0.5 | Approve |
+
 ## Documentation
 
 - **User Guide:** [`../docs/banking/guides/USER_GUIDE.md`](../docs/banking/guides/USER_GUIDE.md)
