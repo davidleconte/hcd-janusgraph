@@ -523,7 +523,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    ./scripts/deployment/pre_deploy_checks.sh
    
    # Deploy with zero downtime
-   docker-compose -f docker-compose.prod.yml up -d --no-deps --build janusgraph
+   docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d --no-deps --build janusgraph
    
    # Health check
    ./scripts/deployment/health_check.sh

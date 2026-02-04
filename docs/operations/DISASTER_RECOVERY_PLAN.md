@@ -107,7 +107,7 @@ terraform apply -var-file=dr.tfvars
 
 # 2. Deploy Docker Compose stack
 cd /backup/compose
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 
 # 3. Verify services
 ./scripts/health_check.sh
@@ -345,7 +345,7 @@ echo "Step 6: Restoring configurations..."
 
 # 7. Start services
 echo "Step 7: Starting services..."
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 
 # 8. Wait for services
 echo "Step 8: Waiting for services..."

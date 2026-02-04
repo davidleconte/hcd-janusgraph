@@ -53,7 +53,7 @@ cp config/environments/prod/.env.example .env
 
 # 3. Deploy with health checks
 cd config/compose
-podman-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+podman-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 
 # 4. Verify deployment
 bash scripts/testing/run_tests.sh

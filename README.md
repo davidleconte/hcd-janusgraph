@@ -50,6 +50,27 @@ open http://localhost:8888
 
 📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed commands and troubleshooting**
 
+### Production Deployment
+
+For production environments with security hardening:
+
+```bash
+# 1. Set required environment variables (will fail if not set)
+export HCD_KEYSTORE_PASSWORD=your-secure-password
+export JANUSGRAPH_TRUSTSTORE_PASSWORD=your-secure-password
+export GRAFANA_ADMIN_PASSWORD=your-secure-password
+export OPENSEARCH_ADMIN_PASSWORD=your-secure-password
+
+# 2. Generate certificates
+./scripts/security/generate_certificates.sh
+
+# 3. Deploy with security overlay
+cd config/compose
+podman-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
+```
+
+See `config/compose/docker-compose.prod.yml` for security hardening details.
+
 ---
 
 ## Project Structure
