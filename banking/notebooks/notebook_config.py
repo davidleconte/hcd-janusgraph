@@ -47,9 +47,16 @@ def verify_conda_environment():
 
 # Connection Configuration
 # Override with environment variables for different environments
+_jg_use_ssl = os.getenv('JANUSGRAPH_USE_SSL', 'false').lower() == 'true'
+_jg_protocol = 'wss' if _jg_use_ssl else 'ws'
+_jg_host = os.getenv('JANUSGRAPH_HOST', 'localhost')
+_jg_port = os.getenv('JANUSGRAPH_PORT', '18182')
+
 JANUSGRAPH_CONFIG = {
-    'url': os.getenv('GREMLIN_URL', 'ws://localhost:18182/gremlin'),
+    'url': os.getenv('GREMLIN_URL', f'{_jg_protocol}://{_jg_host}:{_jg_port}/gremlin'),
     'traversal_source': 'g',
+    'use_ssl': _jg_use_ssl,
+    'ca_certs': os.getenv('JANUSGRAPH_CA_CERTS', None),
 }
 
 OPENSEARCH_CONFIG = {

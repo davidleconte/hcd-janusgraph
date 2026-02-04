@@ -145,19 +145,28 @@ _connection = None
 _traversal = None
 
 
+# JanusGraph SSL configuration
+JANUSGRAPH_USE_SSL = os.getenv('JANUSGRAPH_USE_SSL', 'false').lower() == 'true'
+JANUSGRAPH_CA_CERTS = os.getenv('JANUSGRAPH_CA_CERTS', None)
+
+
 def get_graph_connection():
-    """Get or create graph traversal connection"""
+    """Get or create graph traversal connection with optional TLS"""
     global _connection, _traversal
     
     if _connection is None:
         try:
+            protocol = 'wss' if JANUSGRAPH_USE_SSL else 'ws'
+            url = f'{protocol}://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin'
+            
             _connection = DriverRemoteConnection(
-                f'ws://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin',
+                url,
                 'g',
                 message_serializer=serializer.GraphSONSerializersV3d0()
             )
             _traversal = traversal().withRemote(_connection)
-            logger.info(f"Connected to JanusGraph at {JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}")
+            ssl_status = "with TLS" if JANUSGRAPH_USE_SSL else "without TLS"
+            logger.info(f"Connected to JanusGraph at {JANUSGRAPH_HOST}:{JANUSGRAPH_PORT} ({ssl_status})")
         except Exception as e:
             logger.error(f"Failed to connect to JanusGraph: {e}")
             raise HTTPException(status_code=503, detail="Graph database unavailable")
