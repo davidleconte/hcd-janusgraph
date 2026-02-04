@@ -58,7 +58,9 @@ class EnhancedStructuringDetector:
     
     # Detection thresholds
     STRUCTURING_THRESHOLD = 10000.0  # $10,000 reporting threshold
+    REPORTING_THRESHOLD = 10000.0  # Alias for backwards compatibility
     RAPID_SEQUENCE_HOURS = 24  # Time window for rapid sequences
+    TIME_WINDOW_HOURS = 24  # Alias for backwards compatibility
     MIN_TRANSACTIONS = 3  # Minimum transactions for pattern
     SEMANTIC_SIMILARITY_THRESHOLD = 0.85  # Transaction description similarity
     
@@ -498,6 +500,264 @@ class EnhancedStructuringDetector:
             'amount': float(tx_data.get('amount', [0])[0]),
             'timestamp': tx_data.get('timestamp', [0])[0],
             'description': tx_data.get('description', [''])[0]
+        }
+    
+    def detect_structuring(
+        self,
+        account_id: str,
+        transactions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Detect structuring patterns for a single account.
+        
+        Simple interface for notebook demos.
+        
+        Args:
+            account_id: Account identifier
+            transactions: List of transaction dicts with 'amount', 'timestamp', 'type'
+        
+        Returns:
+            Dict with detection results
+        """
+        total_amount = sum(t.get('amount', 0) for t in transactions)
+        tx_count = len(transactions)
+        
+        # Check if pattern matches structuring criteria
+        near_threshold_count = sum(
+            1 for t in transactions 
+            if 9000 <= t.get('amount', 0) < self.STRUCTURING_THRESHOLD
+        )
+        
+        # Detect structuring if:
+        # 1. Multiple transactions near threshold
+        # 2. Total exceeds threshold
+        # 3. Transactions within time window
+        is_structuring = (
+            near_threshold_count >= self.MIN_TRANSACTIONS and
+            total_amount > self.STRUCTURING_THRESHOLD
+        )
+        
+        risk_score = self._calculate_risk_score(total_amount, tx_count, self.STRUCTURING_THRESHOLD)
+        
+        indicators = []
+        if near_threshold_count >= self.MIN_TRANSACTIONS:
+            indicators.append(f"{near_threshold_count} transactions near $10K threshold")
+        if total_amount > self.STRUCTURING_THRESHOLD:
+            indicators.append(f"Total ${total_amount:,.2f} exceeds reporting threshold")
+        if tx_count >= self.MIN_TRANSACTIONS:
+            indicators.append(f"Rapid sequence of {tx_count} transactions")
+        
+        risk_level = 'low'
+        if risk_score >= 0.7:
+            risk_level = 'high'
+        elif risk_score >= 0.4:
+            risk_level = 'medium'
+        
+        return {
+            'is_structuring': is_structuring,
+            'risk_score': risk_score,
+            'risk_level': risk_level,
+            'pattern_type': 'simple_structuring' if is_structuring else 'none',
+            'indicators': indicators,
+            'account_id': account_id,
+            'total_amount': total_amount,
+            'transaction_count': tx_count
+        }
+    
+    def detect_multi_account_structuring(
+        self,
+        transactions: List[Dict[str, Any]],
+        relationship_data: Optional[Dict] = None,
+        time_window_hours: int = 24
+    ) -> Dict[str, Any]:
+        """
+        Detect coordinated structuring across multiple accounts.
+        
+        Args:
+            transactions: List of transactions from multiple accounts
+            relationship_data: Optional relationship info between accounts
+            time_window_hours: Time window for pattern analysis (hours)
+        
+        Returns:
+            Dict with multi-account detection results
+        """
+        # Group by account
+        account_txs = {}
+        for tx in transactions:
+            acc_id = tx.get('account_id', 'unknown')
+            if acc_id not in account_txs:
+                account_txs[acc_id] = []
+            account_txs[acc_id].append(tx)
+        
+        # Analyze each account
+        account_results = {}
+        for acc_id, acc_txs in account_txs.items():
+            account_results[acc_id] = self.detect_structuring(acc_id, acc_txs)
+        
+        # Check for coordinated patterns
+        coordinated_accounts = [
+            acc_id for acc_id, result in account_results.items()
+            if result['is_structuring']
+        ]
+        
+        total_amount = sum(t.get('amount', 0) for t in transactions)
+        total_txs = len(transactions)
+        
+        # High risk if multiple accounts show structuring
+        is_coordinated = len(coordinated_accounts) >= 2
+        
+        if is_coordinated:
+            risk_score = min(1.0, 0.6 + len(coordinated_accounts) * 0.1)
+            risk_level = 'high'
+        else:
+            risk_score = max(r['risk_score'] for r in account_results.values()) if account_results else 0
+            risk_level = 'medium' if any(r['is_structuring'] for r in account_results.values()) else 'low'
+        
+        indicators = []
+        if is_coordinated:
+            indicators.append(f"Coordinated activity across {len(coordinated_accounts)} accounts")
+        indicators.append(f"Total amount: ${total_amount:,.2f}")
+        indicators.append(f"Total transactions: {total_txs}")
+        
+        return {
+            'is_structuring': is_coordinated,  # Alias for notebook compatibility
+            'is_coordinated_structuring': is_coordinated,
+            'risk_score': risk_score,
+            'risk_level': risk_level,
+            'pattern_type': 'multi_account_structuring' if is_coordinated else 'isolated',
+            'indicators': indicators,
+            'accounts_involved': list(account_txs.keys()),
+            'coordinated_accounts': coordinated_accounts,
+            'account_results': account_results,
+            'total_amount': total_amount,
+            'total_transactions': total_txs,
+            'relationship_score': risk_score * 0.8  # Derived relationship score
+        }
+    
+    def analyze_amount_clustering(
+        self,
+        account_id: str,
+        transactions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Analyze amount clustering patterns in transactions.
+        
+        Args:
+            account_id: Account identifier
+            transactions: List of transaction dicts with amounts
+        
+        Returns:
+            Dict with clustering analysis results
+        """
+        if len(transactions) < 2:
+            return {
+                'is_clustered': False,
+                'cluster_center': 0.0,
+                'cluster_tightness': 0.0,
+                'cluster_size': 0,
+                'risk_level': 'low'
+            }
+        
+        amounts = [t.get('amount', 0) for t in transactions]
+        avg_amount = sum(amounts) / len(amounts)
+        std_dev = (sum((a - avg_amount) ** 2 for a in amounts) / len(amounts)) ** 0.5
+        
+        # Check if amounts cluster near the threshold
+        near_threshold = [a for a in amounts if 9000 <= a < self.STRUCTURING_THRESHOLD]
+        
+        # Calculate cluster tightness (1 - coefficient of variation)
+        cv = std_dev / avg_amount if avg_amount > 0 else 1.0
+        cluster_tightness = max(0.0, 1.0 - cv)
+        
+        # Clustered if low variance and amounts near threshold
+        is_clustered = (
+            cluster_tightness >= 0.9 and  # Very tight cluster
+            len(near_threshold) >= self.MIN_TRANSACTIONS and
+            8500 <= avg_amount < self.STRUCTURING_THRESHOLD
+        )
+        
+        risk_level = 'low'
+        if is_clustered:
+            risk_level = 'high' if cluster_tightness >= 0.95 else 'medium'
+        elif len(near_threshold) >= 2:
+            risk_level = 'medium'
+        
+        return {
+            'is_clustered': is_clustered,
+            'cluster_center': avg_amount,
+            'cluster_tightness': cluster_tightness,
+            'cluster_size': len(near_threshold),
+            'risk_level': risk_level,
+            'account_id': account_id,
+            'std_dev': std_dev
+        }
+    
+    def analyze_temporal_pattern(
+        self,
+        account_id: str,
+        transactions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Analyze temporal patterns in transactions.
+        
+        Args:
+            account_id: Account identifier
+            transactions: List of transaction dicts with timestamps
+        
+        Returns:
+            Dict with temporal analysis results
+        """
+        if len(transactions) < 2:
+            return {
+                'is_systematic': False,
+                'regularity_score': 0.0,
+                'avg_interval_hours': 0.0,
+                'interval_variance': 0.0,
+                'risk_level': 'low'
+            }
+        
+        # Calculate intervals between transactions
+        sorted_txns = sorted(transactions, key=lambda t: t.get('timestamp', datetime.min))
+        intervals = []
+        
+        for i in range(1, len(sorted_txns)):
+            t1 = sorted_txns[i-1].get('timestamp')
+            t2 = sorted_txns[i].get('timestamp')
+            if hasattr(t1, 'timestamp') and hasattr(t2, 'timestamp'):
+                interval_hours = (t2 - t1).total_seconds() / 3600
+                intervals.append(interval_hours)
+        
+        if not intervals:
+            return {
+                'is_systematic': False,
+                'regularity_score': 0.0,
+                'avg_interval_hours': 0.0,
+                'interval_variance': 0.0,
+                'risk_level': 'low'
+            }
+        
+        avg_interval = sum(intervals) / len(intervals)
+        variance = sum((i - avg_interval) ** 2 for i in intervals) / len(intervals)
+        std_dev = variance ** 0.5
+        
+        # Calculate regularity score (lower variance = more systematic)
+        regularity_score = max(0.0, 1.0 - (std_dev / avg_interval)) if avg_interval > 0 else 0.0
+        
+        # Systematic if high regularity and multiple transactions
+        is_systematic = regularity_score >= 0.7 and len(transactions) >= self.MIN_TRANSACTIONS
+        
+        risk_level = 'low'
+        if is_systematic:
+            risk_level = 'high' if regularity_score >= 0.9 else 'medium'
+        
+        return {
+            'is_systematic': is_systematic,
+            'regularity_score': regularity_score,
+            'avg_interval_hours': avg_interval,
+            'interval_variance': variance,
+            'risk_level': risk_level,
+            'account_id': account_id,
+            'transaction_count': len(transactions)
         }
     
     def generate_report(

@@ -32,24 +32,25 @@ class VectorSearchClient:
         port: int = 9200,
         username: Optional[str] = None,
         password: Optional[str] = None,
-        use_ssl: bool = True,
-        verify_certs: bool = True,
+        use_ssl: bool = False,
+        verify_certs: bool = False,
         ca_certs: Optional[str] = None
     ):
         """
-        Initialize OpenSearch client with security.
+        Initialize OpenSearch client with optional security.
         
         Args:
             host: OpenSearch host
             port: OpenSearch port
-            username: Authentication username (required)
-            password: Authentication password (required)
-            use_ssl: Use SSL/TLS - default True
-            verify_certs: Verify SSL certificates - default True
+            username: Authentication username (optional for local dev)
+            password: Authentication password (optional for local dev)
+            use_ssl: Use SSL/TLS - default False for local development
+            verify_certs: Verify SSL certificates - default False
             ca_certs: Path to CA certificate bundle
         
-        Raises:
-            ValueError: If authentication credentials not provided
+        Note:
+            For production, set OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD
+            environment variables or pass credentials to constructor.
         """
         # Get credentials from environment if not provided
         if not username:
@@ -57,29 +58,32 @@ class VectorSearchClient:
         if not password:
             password = os.getenv('OPENSEARCH_PASSWORD')
         
-        # Require authentication
-        if not username or not password:
-            raise ValueError(
-                "Authentication required: username and password must be provided. "
-                "Set OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD environment variables "
-                "or pass credentials to constructor."
-            )
-        
-        auth = (username, password)
+        # Configure authentication only if credentials provided
+        auth = None
+        if username and password:
+            auth = (username, password)
+            logger.info("Using authenticated OpenSearch connection")
+        else:
+            logger.warning("No authentication configured - using unauthenticated connection (development mode)")
         
         # Configure SSL options
         ssl_options = {}
         if use_ssl and ca_certs:
             ssl_options['ca_certs'] = ca_certs
         
-        self.client = OpenSearch(
-            hosts=[{'host': host, 'port': port}],
-            http_auth=auth,
-            use_ssl=use_ssl,
-            verify_certs=verify_certs,
-            ssl_show_warn=False,
-            **ssl_options
-        )
+        client_kwargs = {
+            'hosts': [{'host': host, 'port': port}],
+            'use_ssl': use_ssl,
+            'verify_certs': verify_certs,
+            'ssl_show_warn': False,
+        }
+        
+        if auth:
+            client_kwargs['http_auth'] = auth
+        
+        client_kwargs.update(ssl_options)
+        
+        self.client = OpenSearch(**client_kwargs)
         
         logger.info(f"Connected to OpenSearch at {host}:{port} (SSL: {use_ssl})")
         
