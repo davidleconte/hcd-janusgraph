@@ -93,13 +93,22 @@ def get_gremlin_client():
 def get_opensearch_client():
     """Create and return an OpenSearch client."""
     from opensearchpy import OpenSearch
+    import warnings
+    
+    # Suppress SSL warnings for non-SSL connections
+    warnings.filterwarnings('ignore', message='.*verify_certs.*')
+    
+    # Use dict-based host specification (more reliable than URL strings)
     return OpenSearch(
         hosts=[{
             'host': OPENSEARCH_CONFIG['host'],
             'port': OPENSEARCH_CONFIG['port']
         }],
-        use_ssl=OPENSEARCH_CONFIG['use_ssl'],
-        verify_certs=OPENSEARCH_CONFIG['verify_certs'],
+        http_compress=False,
+        use_ssl=False,  # Explicitly False for local dev
+        verify_certs=False,
+        ssl_assert_hostname=False,
+        ssl_show_warn=False,
     )
 
 
