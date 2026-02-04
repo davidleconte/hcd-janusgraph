@@ -161,3 +161,6 @@ __pycache__/
 # Notebooks output
 notebooks/*.html
 banking/notebooks/*.html
+
+# Generated Data
+output/

@@ -12,7 +12,7 @@ global:
   smtp_require_tls: true
   
   # Slack webhook (configure via environment variable)
-  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  # slack_api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'  # Uncomment and set when Slack is configured
 
 # Route tree for alert distribution
 route:
@@ -61,8 +61,9 @@ route:
       repeat_interval: 24h
 
 # Notification receivers
+# Notification receivers
 receivers:
-  # Default team notifications (email + Slack)
+  # Default team notifications (email only - Slack disabled until webhook configured)
   - name: 'team-notifications'
     email_configs:
       - to: 'ops-team@example.com'
@@ -78,18 +79,19 @@ receivers:
           <p><strong>Description:</strong> {{ .Annotations.description }}</p>
           <p><strong>Started:</strong> {{ .StartsAt }}</p>
           {{ end }}
-    slack_configs:
-      - channel: '#janusgraph-alerts'
-        title: '{{ .GroupLabels.alertname }}'
-        text: |
-          *Severity:* {{ .GroupLabels.severity }}
-          *Cluster:* {{ .GroupLabels.cluster }}
-          {{ range .Alerts }}
-          *Summary:* {{ .Annotations.summary }}
-          *Description:* {{ .Annotations.description }}
-          {{ end }}
-        color: '{{ if eq .GroupLabels.severity "critical" }}danger{{ else if eq .GroupLabels.severity "warning" }}warning{{ else }}good{{ end }}'
-        send_resolved: true
+    # Slack configs commented out until webhook URL is configured
+    # slack_configs:
+    #   - channel: '#janusgraph-alerts'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     text: |
+    #       *Severity:* {{ .GroupLabels.severity }}
+    #       *Cluster:* {{ .GroupLabels.cluster }}
+    #       {{ range .Alerts }}
+    #       *Summary:* {{ .Annotations.summary }}
+    #       *Description:* {{ .Annotations.description }}
+    #       {{ end }}
+    #     color: '{{ if eq .GroupLabels.severity "critical" }}danger{{ else if eq .GroupLabels.severity "warning" }}warning{{ else }}good{{ end }}'
+    #     send_resolved: true
   
   # Critical alerts - multiple channels
   - name: 'critical-alerts'
@@ -107,18 +109,19 @@ receivers:
           <p><strong>Service:</strong> {{ .Labels.service }}</p>
           <p><strong>Started:</strong> {{ .StartsAt }}</p>
           {{ end }}
-    slack_configs:
-      - channel: '#janusgraph-critical'
-        title: ':rotating_light: CRITICAL: {{ .GroupLabels.alertname }}'
-        text: |
-          @channel Critical alert requires immediate attention!
-          {{ range .Alerts }}
-          *Summary:* {{ .Annotations.summary }}
-          *Description:* {{ .Annotations.description }}
-          *Service:* {{ .Labels.service }}
-          {{ end }}
-        color: 'danger'
-        send_resolved: true
+    # Slack configs commented out until webhook URL is configured
+    # slack_configs:
+    #   - channel: '#janusgraph-critical'
+    #     title: ':rotating_light: CRITICAL: {{ .GroupLabels.alertname }}'
+    #     text: |
+    #       @channel Critical alert requires immediate attention!
+    #       {{ range .Alerts }}
+    #       *Summary:* {{ .Annotations.summary }}
+    #       *Description:* {{ .Annotations.description }}
+    #       *Service:* {{ .Labels.service }}
+    #       {{ end }}
+    #     color: 'danger'
+    #     send_resolved: true
   
   # Security team notifications
   - name: 'security-team'
@@ -134,15 +137,16 @@ receivers:
           <p><strong>Description:</strong> {{ .Annotations.description }}</p>
           <p><strong>Severity:</strong> {{ .Labels.severity }}</p>
           {{ end }}
-    slack_configs:
-      - channel: '#security-alerts'
-        title: ':shield: Security Alert: {{ .GroupLabels.alertname }}'
-        text: |
-          {{ range .Alerts }}
-          *Summary:* {{ .Annotations.summary }}
-          *Description:* {{ .Annotations.description }}
-          {{ end }}
-        color: 'warning'
+    # Slack configs commented out until webhook URL is configured
+    # slack_configs:
+    #   - channel: '#security-alerts'
+    #     title: ':shield: Security Alert: {{ .GroupLabels.alertname }}'
+    #     text: |
+    #       {{ range .Alerts }}
+    #       *Summary:* {{ .Annotations.summary }}
+    #       *Description:* {{ .Annotations.description }}
+    #       {{ end }}
+    #     color: 'warning'
   
   # Compliance team notifications
   - name: 'compliance-team'
@@ -164,10 +168,11 @@ receivers:
       - to: 'performance-team@example.com'
         headers:
           Subject: '[PERFORMANCE] {{ .GroupLabels.alertname }}'
-    slack_configs:
-      - channel: '#performance-alerts'
-        title: 'Performance Alert: {{ .GroupLabels.alertname }}'
-        color: 'warning'
+    # Slack configs commented out until webhook URL is configured
+    # slack_configs:
+    #   - channel: '#performance-alerts'
+    #     title: 'Performance Alert: {{ .GroupLabels.alertname }}'
+    #     color: 'warning'
 
 # Inhibition rules - suppress certain alerts when others are firing
 inhibit_rules:

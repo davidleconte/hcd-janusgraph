@@ -54,8 +54,11 @@ dependencies:
   - pip:
       - gremlinpython>=3.7.0  # JanusGraph/Gremlin client
       - cassandra-driver>=3.28  # CQL client for HCD
+      - opensearch-py>=2.7.1  # OpenSearch client (for banking demos)
       - uv>=0.1.0  # Fast Python package installer
       - pyvis>=0.3.2  # Network visualization
       - py2neo  # Alternative graph client (Neo4j-compatible API)
       - graphviz  # Graph rendering
       - python-louvain  # Community detection
+      - sentence-transformers>=2.2.0  # Text embeddings (for sanctions screening)
+      - faker>=20.0.0  # Fake data generation (for demos)
