@@ -147,7 +147,7 @@ testpaths = ["tests", "banking/data_generators/tests", "banking/analytics/tests"
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = "-v --cov=src --cov=banking --cov-report=html --cov-report=term"
+addopts = "-v --cov=src --cov=banking --cov-report=html --cov-report=term -n auto"
 timeout = 300
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

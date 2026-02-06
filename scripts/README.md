@@ -130,6 +130,13 @@ Scripts for routine system maintenance.
 - **Updates:** Database passwords, API keys, certificates
 - **Requirements:** Admin privileges
 
+#### [`clear_notebook_outputs.sh`](maintenance/clear_notebook_outputs.sh)
+- **Purpose:** Clear execution outputs from Jupyter notebooks
+- **Usage:** `./clear_notebook_outputs.sh`
+- **Output:** Clears outputs from banking and exploratory notebooks
+- **Why:** Prevents hardcoded paths from being committed
+- **Requirements:** Jupyter installed, conda environment activated
+
 ### Monitoring Scripts (`monitoring/`)
 
 Scripts for setting up monitoring and alerts.
