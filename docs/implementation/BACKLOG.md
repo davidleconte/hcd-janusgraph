@@ -66,6 +66,15 @@ This document tracks remaining improvements and technical debt items for the HCD
 
 ## Completed Recently
 
+- 2026-02-06: **Fixed Pulsar networking on Apple Silicon macOS**
+  - Root cause: Pulsar standalone resolves `advertisedAddress` via hostname lookup returning stale container IPs
+  - Fix: Added `--advertised-address localhost` to startup command
+  - Fix: Added `_JAVA_OPTIONS=-XX:UseSVE=0` for Apple Silicon JVM compatibility (JDK-8345296)
+  - References: [#15401](https://github.com/apache/pulsar/issues/15401), [#23891](https://github.com/apache/pulsar/issues/23891)
+- 2026-02-06: **Documented OpenSearch dev mode configuration**
+  - OpenSearch runs with `plugins.security.disabled=true` (no SSL in dev)
+  - Tests require `OPENSEARCH_USE_SSL=false` environment variable
+  - Added to conda environment variables in AGENTS.md
 - 2026-02-06: **Completed all P4 technical debt items**
   - Added `clear_notebook_outputs.sh` script for removing execution outputs
   - Configured pytest parallel execution with `-n auto` flag

@@ -260,6 +260,66 @@ dlq.process_with_retry(
 
 ---
 
+## Troubleshooting
+
+### Pulsar Connection Issues on macOS (Apple Silicon)
+
+**Symptom**: Pulsar tests fail with `TimeOut` or `No route to host` errors after container restarts.
+
+**Root Cause**: Pulsar standalone mode resolves `advertisedAddress` via hostname lookup, which can return stale container IPs on macOS.
+
+**Solution**: The `docker-compose.full.yml` has been configured with:
+```yaml
+environment:
+  - _JAVA_OPTIONS=-XX:UseSVE=0  # Apple Silicon JVM fix (JDK-8345296)
+command: bin/pulsar standalone --advertised-address localhost
+```
+
+If issues persist:
+```bash
+# Stop and remove Pulsar container
+podman stop janusgraph-demo_pulsar_1
+podman rm janusgraph-demo_pulsar_1
+
+# Remove stale data volume
+podman volume rm janusgraph-demo_pulsar-data
+
+# Restart Pulsar
+cd config/compose
+podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d pulsar
+```
+
+**References**: 
+- [GitHub Issue #15401](https://github.com/apache/pulsar/issues/15401)
+- [GitHub Issue #23891](https://github.com/apache/pulsar/issues/23891)
+
+### OpenSearch SSL Configuration
+
+**Symptom**: OpenSearch integration tests skip or fail with SSL errors.
+
+**Configuration**: OpenSearch runs with security disabled in dev mode:
+```yaml
+environment:
+  - plugins.security.disabled=true  # Dev mode - no SSL
+```
+
+**Environment Variable**: Tests require `OPENSEARCH_USE_SSL=false`:
+```bash
+# Add to conda environment
+conda env config vars set OPENSEARCH_USE_SSL=false
+conda deactivate && conda activate janusgraph-analysis
+
+# Or set per-command
+OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_streaming.py -v
+```
+
+**Verification**:
+```bash
+curl http://localhost:9200  # Should return cluster info (no https)
+```
+
+---
+
 ## Related Documentation
 
 - [Streaming Architecture Summary](../../docs/archive/streaming_summary.md)

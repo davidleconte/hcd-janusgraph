@@ -29,17 +29,19 @@ The `janusgraph-analysis` environment has the following variables pre-configured
 |----------|-------|---------|
 | `JANUSGRAPH_PORT` | `18182` | JanusGraph Gremlin server port (podman mapped port) |
 | `JANUSGRAPH_USE_SSL` | `false` | Disable SSL for local development |
+| `OPENSEARCH_USE_SSL` | `false` | Disable SSL for OpenSearch in dev (security plugin disabled) |
 
 These are automatically set when you activate the environment. To verify:
 ```bash
 conda activate janusgraph-analysis
 echo $JANUSGRAPH_PORT      # Should show: 18182
 echo $JANUSGRAPH_USE_SSL   # Should show: false
+echo $OPENSEARCH_USE_SSL   # Should show: false
 ```
 
 To modify these values (if needed):
 ```bash
-conda env config vars set JANUSGRAPH_PORT=18182 JANUSGRAPH_USE_SSL=false
+conda env config vars set JANUSGRAPH_PORT=18182 JANUSGRAPH_USE_SSL=false OPENSEARCH_USE_SSL=false
 conda deactivate && conda activate janusgraph-analysis
 ```
 
