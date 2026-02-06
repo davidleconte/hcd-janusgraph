@@ -41,7 +41,7 @@ jobs:
     needs: [validate]
     environment: production  # Requires manual approval
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.version }}
       
