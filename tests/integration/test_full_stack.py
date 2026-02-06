@@ -5,7 +5,7 @@ Integration Tests for HCD + JanusGraph Full Stack
 Comprehensive integration tests for the full stack deployment.
 Tests require services to be running - use fixtures for automatic skipping.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Updated: 2026-01-29 (Day 5 improvements)
 Phase: Week 3 Day 5 - Integration Test Improvements
@@ -522,4 +522,4 @@ class TestErrorHandling:
         logger.info(f"✅ Concurrent operations: created {count} vertices")
 
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

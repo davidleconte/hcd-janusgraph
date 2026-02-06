@@ -309,4 +309,4 @@ if __name__ == "__main__":
     # Shutdown tracing
     tracing_manager.shutdown()
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

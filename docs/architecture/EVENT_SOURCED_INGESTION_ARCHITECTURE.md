@@ -3,7 +3,7 @@
 **Date:** 2026-02-04  
 **Version:** 1.0  
 **Status:** Proposed  
-**Author:** AdaL
+**Author:** David Leconte
 
 ---
 
@@ -901,4 +901,4 @@ volumes:
 **Last Updated**: 2026-02-04  
 **Next Review**: After implementation begins
 
-Co-Authored-By: AdaL <adal@sylph.ai>
+Co-Authored-By: David Leconte <david.leconte1@ibm.com>

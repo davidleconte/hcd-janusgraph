@@ -1,7 +1,7 @@
 # Banking Use Cases: Comprehensive Gap Analysis & Enhanced Remediation Plan
 
 **Date:** 2026-01-28  
-**Author:** IBM Bob (Senior Technical Leader)  
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Senior Technical Leader)  
 **Context:** Analysis of IBM HCD + JanusGraph + OpenSearch (JVector) Banking Use Cases Implementation
 
 ---
@@ -490,7 +490,7 @@ This plan **extends** the completed 12-week infrastructure work with **6 additio
 3. **Immediate actions**: Clear 48-hour priorities
 4. **Realistic timeline**: 3-week estimate for core functionality
 
-### IBM Bob Enhanced Plan Improvements 🚀
+### David Leconte Enhanced Plan Improvements 🚀
 
 1. **Extended Timeline**: 6 weeks vs 3 weeks
    - **Rationale**: More realistic for production-quality implementation
@@ -498,34 +498,34 @@ This plan **extends** the completed 12-week infrastructure work with **6 additio
 
 2. **Integration with Completed Work**: Builds on 12-week infrastructure
    - **Gemini**: Treats as separate effort
-   - **IBM Bob**: Phases 5-9 extend Phases 1-4
+   - **David Leconte**: Phases 5-9 extend Phases 1-4
 
 3. **Real-Time + Batch Processing**: Explicit OLTP/OLAP implementation
    - **Gemini**: Mentions but doesn't detail
-   - **IBM Bob**: Dedicated tasks for both modes
+   - **David Leconte**: Dedicated tasks for both modes
 
 4. **Interactive Dashboard**: Added Streamlit app
    - **Gemini**: Optional
-   - **IBM Bob**: Core deliverable for stakeholder engagement
+   - **David Leconte**: Core deliverable for stakeholder engagement
 
 5. **Security & Compliance**: Dedicated review phase
    - **Gemini**: Not explicitly covered
-   - **IBM Bob**: Week 18 security review
+   - **David Leconte**: Week 18 security review
 
 6. **Performance Benchmarking**: Explicit optimization phase
    - **Gemini**: Implicit
-   - **IBM Bob**: Dedicated tasks with metrics
+   - **David Leconte**: Dedicated tasks with metrics
 
 7. **Documentation Depth**: More comprehensive
    - **Gemini**: Basic docs
-   - **IBM Bob**: Complete handoff materials
+   - **David Leconte**: Complete handoff materials
 
 ---
 
 ## Resource Requirements
 
 ### Team Composition
-- **Lead Engineer** (IBM Bob): 40 hours/week × 6 weeks = 240 hours
+- **Lead Engineer** (David Leconte): 40 hours/week × 6 weeks = 240 hours
 - **ML Engineer** (Optional): 20 hours/week × 3 weeks = 60 hours (for vector optimization)
 - **Domain Expert** (Banking): 10 hours/week × 6 weeks = 60 hours (for validation)
 
@@ -639,7 +639,7 @@ This plan **extends** the completed 12-week infrastructure work with **6 additio
 
 ---
 
-**Document Owner:** IBM Bob  
+**Document Owner:** David Leconte  
 **Approved By:** [Pending]  
 **Next Review:** 2026-02-04  
 **Status:** READY FOR APPROVAL

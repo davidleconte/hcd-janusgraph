@@ -5,8 +5,8 @@ Constants for Synthetic Data Generation
 Comprehensive constants including countries, currencies, languages, time zones,
 tax havens, suspicious keywords, and other reference data.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 from typing import Dict, List, Tuple

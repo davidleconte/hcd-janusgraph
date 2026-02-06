@@ -599,4 +599,4 @@ tests/
 **Last Updated**: 2026-02-04  
 **Next Steps**: Review and approve Week 1 tasks
 
-Co-Authored-By: AdaL <adal@sylph.ai>
+Co-Authored-By: David Leconte <david.leconte1@ibm.com>

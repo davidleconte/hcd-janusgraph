@@ -13,7 +13,7 @@ Checks:
 - Cluster health
 
 Author: David LECONTE - IBM Worldwide
-Date: 2026-01-29
+Date: 2026-02-06
 """
 
 import sys

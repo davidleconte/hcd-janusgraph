@@ -2,7 +2,7 @@
 Pattern Generator Tests
 Tests for AML/Fraud pattern generation modules.
 
-Author: AdaL
+Author: David Leconte
 Created: 2026-02-04
 """
 

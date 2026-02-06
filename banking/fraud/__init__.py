@@ -3,7 +3,7 @@ Fraud Detection Module
 ======================
 Real-time fraud detection using graph analysis and ML.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

@@ -8,7 +8,7 @@ REST API for graph-based analytics including:
 - Fraud pattern detection
 - Graph visualization data
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

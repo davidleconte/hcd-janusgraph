@@ -394,5 +394,5 @@ result = screener.screen_customer(
 ---
 
 **Report Generated:** 2026-01-28 19:59:00 UTC  
-**Author:** IBM Bob  
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
 **Version:** 1.0

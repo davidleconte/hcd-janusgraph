@@ -2,7 +2,7 @@
 Input Validation and Sanitization Utilities
 Provides secure validation for all user inputs
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Updated: 2026-01-28 - Review fixes applied
 Phase: Week 1 Remediation - Security Hardening

@@ -507,5 +507,5 @@ The system is ready for Week 6-8 activities: advanced combinations, testing, and
 
 ---
 
-**Made with ❤️ by IBM Bob**  
+**Made with ❤️ by David Leconte**  
 *Synthetic Data Generation for Financial Crime Detection*

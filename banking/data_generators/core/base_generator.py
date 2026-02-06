@@ -5,8 +5,8 @@ Base Generator Class
 Abstract base class for all entity generators providing common functionality
 for configuration, seed management, batch generation, and error handling.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import random

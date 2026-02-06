@@ -2,7 +2,7 @@
 Authentication Utilities
 Shared authentication helpers for consistent credential handling
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: Week 1 Remediation - Security Hardening
 """
@@ -110,4 +110,4 @@ __all__ = [
     'validate_ssl_config',
 ]
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

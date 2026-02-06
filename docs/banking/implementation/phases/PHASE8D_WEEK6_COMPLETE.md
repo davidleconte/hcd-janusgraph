@@ -580,5 +580,5 @@ The synthetic data generation framework is now 80% complete and ready for final 
 
 ---
 
-**Made with ❤️ by IBM Bob**  
+**Made with ❤️ by David Leconte**  
 *Enterprise-Grade Synthetic Data Generation for Financial Crime Detection*

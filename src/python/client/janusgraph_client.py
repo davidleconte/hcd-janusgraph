@@ -3,7 +3,7 @@ Production-ready JanusGraph client with authentication, SSL/TLS, and validation.
 
 File: janusgraph_client.py
 Updated: 2026-01-28 - Security Hardening
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 """
 
 import logging
@@ -268,4 +268,4 @@ class JanusGraphClient:
         status = "connected" if self.is_connected() else "disconnected"
         return f"JanusGraphClient(url={self.url}, ssl={self.use_ssl}, status={status})"
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

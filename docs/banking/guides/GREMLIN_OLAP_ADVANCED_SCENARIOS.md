@@ -1,7 +1,7 @@
 # Gremlin OLAP & Advanced Scenarios Guide
 
 **Date:** 2026-01-28  
-**Author:** IBM Bob  
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
 **Purpose:** OLAP operations using Gremlin graph traversals + Ultra-complex realistic scenarios
 
 ---

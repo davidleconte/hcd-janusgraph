@@ -12,7 +12,7 @@ Features:
 - Idempotent loading with duplicate detection
 - Progress tracking and statistics
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-03
 """
 

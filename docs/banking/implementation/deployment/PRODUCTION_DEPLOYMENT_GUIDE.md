@@ -3,7 +3,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-01-28  
-**Author:** IBM Bob
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 
 ---
 
@@ -631,7 +631,7 @@ Following this guide will deploy a production-ready banking compliance and fraud
 3. Monitor for 24 hours
 4. Begin realizing business value
 
-**Support:** Contact IBM Bob for deployment assistance
+**Support:** Contact David Leconte for deployment assistance
 
 ---
 

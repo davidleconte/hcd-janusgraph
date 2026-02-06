@@ -4,8 +4,8 @@ Insider Trading Pattern Generator for Banking Compliance
 Generates sophisticated insider trading patterns with 30+ dimensional analysis
 including pre-announcement trading, coordinated activity, and unusual volume/price patterns.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import random

@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-04  
 **Status:** Active  
-**Author:** IBM Bob
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 
 ## Overview
 

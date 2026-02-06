@@ -8,7 +8,7 @@ Complete test suite for src/python/utils/validation.py covering:
 - Edge cases and error handling
 - Security validation
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-29
 Phase: Week 3 Days 3-4 - Utils Module Testing
 """

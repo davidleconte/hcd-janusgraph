@@ -6,8 +6,8 @@ Generates realistic synthetic financial transaction entities with comprehensive
 attributes including multi-currency support, geographic routing, risk scoring,
 and structuring pattern detection.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import random

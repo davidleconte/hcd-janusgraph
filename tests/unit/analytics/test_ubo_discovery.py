@@ -6,7 +6,7 @@ Tests for Ultimate Beneficial Owner discovery functionality
 including ownership chain traversal, effective ownership calculation,
 and risk scoring.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

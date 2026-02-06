@@ -669,4 +669,4 @@ class TestThresholdConstants:
         assert detector.HIGH_THRESHOLD > detector.MEDIUM_THRESHOLD
         assert detector.MEDIUM_THRESHOLD > detector.LOW_THRESHOLD
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

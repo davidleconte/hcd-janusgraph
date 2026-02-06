@@ -143,4 +143,4 @@ echo -e "${GREEN}✅ Test alerts sent successfully!${NC}"
 echo ""
 echo -e "${YELLOW}⚠️  Note: Notifications will only be sent if SMTP/Slack are configured in .env${NC}"
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

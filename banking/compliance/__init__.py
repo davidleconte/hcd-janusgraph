@@ -12,4 +12,4 @@ from banking.compliance.audit_logger import AuditLogger, AuditEvent, AuditEventT
 
 __all__ = ["AuditLogger", "AuditEvent", "AuditEventType"]
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

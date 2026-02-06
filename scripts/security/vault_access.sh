@@ -61,4 +61,4 @@ if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     echo "You can now use: podman exec -e VAULT_TOKEN=\$VAULT_TOKEN vault-server vault kv get janusgraph/admin"
 fi
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

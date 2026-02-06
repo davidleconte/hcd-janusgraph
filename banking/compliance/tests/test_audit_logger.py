@@ -628,4 +628,4 @@ class TestComplianceRequirements:
             assert "sar_number" in log_data["metadata"]
             assert "filing_date" in log_data["metadata"]
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

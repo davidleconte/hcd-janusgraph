@@ -7,7 +7,7 @@ Tests the newly implemented stub methods with realistic complex scenarios:
 2. _check_behavior() - Behavioral anomaly detection  
 3. detect_semantic_patterns() - Semantic clustering for structuring detection
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

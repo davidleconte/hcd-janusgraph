@@ -499,5 +499,5 @@ After Week 7 completion:
 
 ---
 
-**Made with ❤️ by IBM Bob**  
+**Made with ❤️ by David Leconte**  
 *Comprehensive Testing for Enterprise-Grade Synthetic Data Generation*

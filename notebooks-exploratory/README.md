@@ -41,4 +41,4 @@ podman-compose -p janusgraph-demo up jupyter
 
 ---
 
-**Co-Authored-By:** AdaL <adal@sylph.ai>
+**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>

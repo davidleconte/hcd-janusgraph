@@ -379,5 +379,5 @@ After Week 6 completion:
 
 ---
 
-**Made with ❤️ by IBM Bob**  
+**Made with ❤️ by David Leconte**  
 *Advanced Synthetic Data Generation for Financial Crime Detection*

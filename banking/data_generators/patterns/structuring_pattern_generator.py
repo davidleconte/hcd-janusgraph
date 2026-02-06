@@ -4,8 +4,8 @@ Structuring Pattern Generator (Smurfing)
 Generates AML structuring patterns with just-below-threshold transactions,
 temporal analysis, geographic distribution, and coordinated deposit detection.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import random

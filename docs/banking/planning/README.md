@@ -1,0 +1,20 @@
+# Banking Planning Documentation
+
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
+**Last Updated:** 2026-02-06
+
+## Overview
+
+This directory contains planning documents for the Banking module implementation.
+
+## Contents
+
+- **[gap-analysis.md](gap-analysis.md)** - Gap analysis and requirements
+- **[SYNTHETIC_DATA_GENERATOR_PLAN.md](SYNTHETIC_DATA_GENERATOR_PLAN.md)** - Data generation strategy
+- **[technical-spec.md](technical-spec.md)** - Technical specifications
+- **[technical-spec-complete.md](technical-spec-complete.md)** - Complete technical specifications
+
+## Related Documentation
+
+- [Banking Architecture](../architecture/)
+- [Implementation Phases](../implementation/phases/)

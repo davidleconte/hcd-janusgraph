@@ -9,8 +9,8 @@ Comprehensive tests for master orchestration including:
 - Integration tests
 - Performance tests
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import pytest

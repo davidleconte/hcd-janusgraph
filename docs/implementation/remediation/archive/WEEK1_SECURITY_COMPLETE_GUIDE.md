@@ -25,7 +25,7 @@ Production-ready JanusGraph client with authentication, SSL/TLS, and validation.
 
 File: janusgraph_client.py
 Updated: 2026-01-28 - Security Hardening
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 """
 
 import logging
@@ -816,7 +816,7 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 Security Tests
 Tests for authentication, validation, and sanitization
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 Created: 2026-01-28
 """
 

@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-30  
 **Status:** Critical Issues Identified  
-**Auditor:** AdaL  
+**Auditor:** David Leconte  
 **Scope:** Full project structure, Python environments, Podman isolation, folder organization
 
 ---

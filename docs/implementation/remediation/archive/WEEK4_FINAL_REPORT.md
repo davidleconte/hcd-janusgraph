@@ -382,4 +382,4 @@ The JanusGraph Banking Compliance System is **PRODUCTION READY** and meets all e
 **Certification:** ✅ PRODUCTION READY  
 **Grade:** A+ (98/100)  
 **Date:** 2026-01-29  
-**Approved By:** IBM Bob, Senior Software Engineer
+**Approved By:** David Leconte, Senior Software Engineer

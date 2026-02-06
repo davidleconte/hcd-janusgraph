@@ -97,7 +97,7 @@ HCD JanusGraph provides a scalable, secure graph database platform for complex r
 
 **Total Duration**: 12 weeks  
 **Total Investment**: $12.19 in API costs  
-**Team Size**: 1 senior engineer (IBM Bob)
+**Team Size**: 1 senior engineer (David Leconte)
 
 ---
 
@@ -772,7 +772,7 @@ curl https://api/metrics/cache/size
 ### Core Team
 
 **Project Lead:**
-- Name: IBM Bob
+- Name: David Leconte
 - Email: bob@ibm.com
 - Slack: @ibm-bob
 - Timezone: UTC
@@ -907,7 +907,7 @@ curl https://api/metrics/cache/size
 
 ### Project Completion
 
-**Completed By**: IBM Bob  
+**Completed By**: David Leconte  
 **Date**: 2026-01-28  
 **Status**: ✅ PRODUCTION READY
 

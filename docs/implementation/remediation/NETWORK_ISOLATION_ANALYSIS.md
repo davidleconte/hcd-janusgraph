@@ -377,5 +377,5 @@ podman exec janusgraph-server ping other-project-container
 ---
 
 **Analysis Date:** 2026-01-29T04:15:00Z  
-**Analyst:** IBM Bob (Advanced Mode)  
+**Analyst:** David Leconte (Advanced Mode)  
 **Status:** ⚠️ Needs Improvement

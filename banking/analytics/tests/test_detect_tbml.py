@@ -7,7 +7,7 @@ Tests for Trade-Based Money Laundering detection algorithms including:
 - Over/under invoicing detection
 - Shell company network detection
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

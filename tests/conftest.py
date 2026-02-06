@@ -4,8 +4,8 @@ Root Test Configuration
 
 Shared fixtures and configuration for all tests.
 
-Author: IBM Bob
-Date: 2026-01-29
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import pytest
@@ -178,4 +178,4 @@ def temp_directory(tmp_path):
     """Provide a temporary directory for tests"""
     return tmp_path
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

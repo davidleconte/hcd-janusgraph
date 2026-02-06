@@ -1,7 +1,7 @@
 # Notebooks Audit Report
 
 **Date:** 2026-01-29  
-**Auditor:** AdaL (SylphAI CLI)  
+**Auditor:** David Leconte (SylphAI CLI)  
 **Scope:** All Jupyter notebooks in project  
 **Total Notebooks:** 10
 

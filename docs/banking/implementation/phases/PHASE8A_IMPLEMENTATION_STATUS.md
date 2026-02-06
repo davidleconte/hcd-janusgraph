@@ -336,7 +336,7 @@ Phase 8A focuses on implementing the foundational utilities and core entity gene
 ## Resources
 
 ### Team
-- **Lead Developer**: IBM Bob
+- **Lead Developer**: David Leconte
 - **Estimated Effort**: 80 hours (2 weeks, 1 developer)
 
 ### Documentation
@@ -350,8 +350,8 @@ Phase 8A focuses on implementing the foundational utilities and core entity gene
 
 | Date | Change | Author |
 |------|--------|--------|
-| 2026-01-28 | Phase 8A started, utils package complete | IBM Bob |
-| 2026-01-28 | Data models, constants, helpers implemented | IBM Bob |
+| 2026-01-28 | Phase 8A started, utils package complete | David Leconte |
+| 2026-01-28 | Data models, constants, helpers implemented | David Leconte |
 
 ---
 

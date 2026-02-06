@@ -1,7 +1,7 @@
 # Synthetic Data Generator Plan - Enterprise Patterns
 
 **Date:** 2026-01-28  
-**Author:** IBM Bob  
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
 **Purpose:** Comprehensive plan for generating realistic synthetic data matching all advanced patterns
 
 ---

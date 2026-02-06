@@ -306,7 +306,7 @@ cd banking/data_generators/tests
 
 ## Team & Acknowledgments
 
-**Development Team**: IBM Bob  
+**Development Team**: David Leconte  
 **Duration**: 8 weeks (Phase 8)  
 **Methodology**: Agile, iterative development  
 **Quality Assurance**: Comprehensive testing framework  

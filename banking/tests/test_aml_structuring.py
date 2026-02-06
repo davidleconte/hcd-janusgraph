@@ -578,4 +578,4 @@ class TestThresholdConfiguration:
         assert detector.MEDIUM_CONFIDENCE_THRESHOLD == 0.70
         assert detector.HIGH_CONFIDENCE_THRESHOLD > detector.MEDIUM_CONFIDENCE_THRESHOLD
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

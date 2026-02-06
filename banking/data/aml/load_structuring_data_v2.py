@@ -4,7 +4,7 @@ Improved AML Structuring Data Loader
 Better error handling and compatibility
 
 Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
-Date: 2026-01-28
+Date: 2026-02-06
 """
 
 import json

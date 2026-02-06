@@ -10,7 +10,7 @@ coordinated accounts converging to a single beneficiary account.
 
 Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
 Contact: david.leconte1@ibm.com | +33614126117
-Date: 2026-01-28
+Date: 2026-02-06
 """
 
 import random

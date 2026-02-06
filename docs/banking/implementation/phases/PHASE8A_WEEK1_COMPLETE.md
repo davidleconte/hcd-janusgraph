@@ -408,4 +408,4 @@ print(f"Generation rate: {stats['generation_rate_per_second']:.2f} people/sec")
 **Document Version**: 1.0  
 **Last Updated**: 2026-01-28  
 **Next Review**: 2026-02-04 (Week 2 completion)  
-**Author**: IBM Bob
+**Author**: David Leconte

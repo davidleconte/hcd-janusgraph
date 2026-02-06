@@ -10,7 +10,7 @@ Advanced detection of TBML patterns including:
 5. Price Manipulation Patterns
 6. Shell Company Network Detection
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

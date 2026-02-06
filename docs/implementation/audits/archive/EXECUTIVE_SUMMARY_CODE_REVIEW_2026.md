@@ -2,7 +2,7 @@
 **HCD + JanusGraph Banking Compliance System**
 
 **Date:** 2026-01-28  
-**Reviewer:** IBM Bob  
+**Reviewer:** David Leconte  
 **Document Type:** Executive Summary  
 **Audience:** C-Level Executives, Project Sponsors, Technical Leadership
 
@@ -354,7 +354,7 @@ The HCD + JanusGraph banking compliance system is a **well-architected, feature-
 
 ---
 
-**Prepared By:** IBM Bob  
+**Prepared By:** David Leconte  
 **Date:** 2026-01-28  
 **Classification:** Internal Use  
 **Distribution:** Executive Leadership, Project Sponsors, Technical Leadership

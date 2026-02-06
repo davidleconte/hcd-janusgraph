@@ -2,7 +2,7 @@
 # File: scripts/validation/validate_credentials.sh
 # Purpose: Validate that default/placeholder credentials are not used in production
 # Created: 2026-02-06
-# Author: AdaL (AI Assistant)
+# Author: David Leconte (AI Assistant)
 
 set -e
 

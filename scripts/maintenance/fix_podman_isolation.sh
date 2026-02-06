@@ -13,7 +13,7 @@
 #
 # Reference: /Users/david.leconte/Documents/Work/Labs/adal/podman-architecture/PODMAN_ARCHITECTURE.md
 #
-# Co-Authored-By: AdaL <adal@sylph.ai>
+# Co-Authored-By: David Leconte <david.leconte1@ibm.com>
 # =============================================================================
 
 set -euo pipefail

@@ -8,8 +8,8 @@ Systematically fixes all banking notebooks:
 2. Fix import paths for container environment
 3. Add prerequisites sections
 
-Author: AdaL (SylphAI CLI)
-Date: 2026-01-29
+Author: David Leconte (SylphAI CLI)
+Date: 2026-02-06
 """
 
 import json

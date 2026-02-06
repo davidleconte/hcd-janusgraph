@@ -454,4 +454,4 @@ def get_audit_logger() -> AuditLogger:
         _audit_logger = AuditLogger()
     return _audit_logger
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

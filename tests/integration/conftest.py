@@ -5,7 +5,7 @@ Integration Test Configuration and Fixtures
 Shared fixtures and utilities for integration tests.
 Provides service health checks and automatic test skipping.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-29
 Phase: Week 3 Day 5 - Integration Test Improvements
 """
@@ -350,4 +350,4 @@ def log_test_environment():
         )
 
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

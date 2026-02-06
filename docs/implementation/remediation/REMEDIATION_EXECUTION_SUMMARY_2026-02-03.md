@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-03  
 **Status:** PHASE 1 COMPLETE ✅  
-**Executor:** AdaL  
+**Executor:** David Leconte  
 
 ---
 
@@ -175,4 +175,4 @@ This remediation ensures compliance with the Five Layers of Isolation:
 
 **Document Status:** Complete  
 **Last Updated:** 2026-02-03  
-**Co-Authored-By:** AdaL <adal@sylph.ai>
+**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>

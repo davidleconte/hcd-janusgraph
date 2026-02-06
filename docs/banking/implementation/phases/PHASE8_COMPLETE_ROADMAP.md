@@ -409,7 +409,7 @@ Complete integration, comprehensive testing, optimization, and documentation.
 ## Resource Allocation
 
 ### Team
-- **Lead Developer**: IBM Bob
+- **Lead Developer**: David Leconte
 - **Total Effort**: 320 hours (8 weeks × 40 hours)
 - **Phase Breakdown**:
   - Phase 8A: 80 hours (utilities + core generators)
@@ -514,4 +514,4 @@ banking/data_generators/
 **Document Version**: 1.0  
 **Last Updated**: 2026-01-28  
 **Next Review**: 2026-02-04 (Week 2 checkpoint)  
-**Owner**: IBM Bob
+**Owner**: David Leconte

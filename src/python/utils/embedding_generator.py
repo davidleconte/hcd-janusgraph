@@ -2,7 +2,7 @@
 Embedding Generator for Banking Use Cases
 Generates vector embeddings for text data using sentence-transformers
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: 5 (Vector/AI Foundation)
 """
@@ -294,4 +294,4 @@ if __name__ == "__main__":
     print(f"Similarity '{name1}' vs '{name3}': {sim_13:.4f}")
     print(f"✅ Fuzzy matching works! Similar names have higher similarity.")
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

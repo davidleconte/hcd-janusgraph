@@ -4,7 +4,7 @@ Notebook Configuration Module
 Centralized configuration for all banking notebooks.
 Provides consistent connection settings and path management.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

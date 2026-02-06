@@ -478,4 +478,4 @@ if __name__ == "__main__":
     
     print(f"Backup code verification: {is_backup_valid}")
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

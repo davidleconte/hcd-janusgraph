@@ -499,5 +499,5 @@ Test execution will be logged here...
 ---
 
 **Test Plan Created:** 2026-01-29T04:07:00Z  
-**Tester:** IBM Bob (Advanced Mode)  
+**Tester:** David Leconte (Advanced Mode)  
 **Status:** 📋 Ready for Execution

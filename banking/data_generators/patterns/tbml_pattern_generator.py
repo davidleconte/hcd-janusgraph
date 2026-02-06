@@ -4,8 +4,8 @@ Trade-Based Money Laundering (TBML) Pattern Generator
 Generates sophisticated TBML patterns with 20+ indicators including over/under-invoicing,
 phantom shipping, multiple invoicing, and goods misclassification.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import random

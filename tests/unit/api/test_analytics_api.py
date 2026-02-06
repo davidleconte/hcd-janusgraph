@@ -5,7 +5,7 @@ Unit Tests for FastAPI Analytics API
 Tests for the Graph Analytics API endpoints including health checks,
 UBO discovery, AML structuring detection, and fraud ring detection.
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

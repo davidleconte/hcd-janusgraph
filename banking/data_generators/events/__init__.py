@@ -5,8 +5,8 @@ Event Generators Package
 Event generators for banking compliance use cases including transactions,
 communications, trades, travel, and documents.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 from .transaction_generator import TransactionGenerator

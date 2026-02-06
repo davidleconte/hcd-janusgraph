@@ -9,7 +9,7 @@ Tests for highly complex fraud and AML detection scenarios:
 4. Temporal pattern analysis
 5. Coordinated fraud rings
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

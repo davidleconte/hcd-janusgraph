@@ -497,4 +497,4 @@ export -f get_validation_error_count
 export -f reset_validation_errors
 export -f exit_on_validation_errors
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

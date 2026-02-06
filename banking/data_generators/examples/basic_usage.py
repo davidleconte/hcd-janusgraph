@@ -5,8 +5,8 @@ Basic Usage Example for Synthetic Data Generators
 Demonstrates how to use the Person, Company, and Account generators
 to create realistic synthetic data.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import sys

@@ -136,5 +136,5 @@ curl -s http://localhost:18182/
 
 ---
 
-**Executor:** AdaL  
-**Co-Authored-By:** AdaL <adal@sylph.ai>
+**Executor:** David Leconte  
+**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>

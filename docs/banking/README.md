@@ -400,7 +400,7 @@ graph LR
 
 ### Team Contacts
 
-- **Technical Lead**: IBM Bob (Senior Technical Leader)
+- **Technical Lead**: David Leconte (Senior Technical Leader)
 - **Project Manager**: [TBD]
 - **Product Owner**: [TBD]
 

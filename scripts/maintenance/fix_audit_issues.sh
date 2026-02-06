@@ -2,7 +2,7 @@
 # Fix Audit Issues Script
 # Addresses all critical and high-priority issues from project structure audit
 # Date: 2026-01-29
-# Author: IBM Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 
 set -e
 
@@ -242,4 +242,4 @@ echo "  3. Commit changes: git add -A && git commit -m 'fix: audit remediation -
 echo ""
 echo -e "${GREEN}✓ Audit remediation complete!${NC}"
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

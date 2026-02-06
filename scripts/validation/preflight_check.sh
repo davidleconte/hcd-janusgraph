@@ -18,7 +18,7 @@
 #   5. Security (placeholder passwords, certificates)
 #   6. Port availability
 #
-# Co-Authored-By: AdaL <adal@sylph.ai>
+# Co-Authored-By: David Leconte <david.leconte1@ibm.com>
 # =============================================================================
 
 set -euo pipefail

@@ -5,8 +5,8 @@ Pattern Generators Package
 Pattern generators for detecting sophisticated financial crime patterns including
 insider trading, trade-based money laundering, fraud rings, structuring, and CATO.
 
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 from .insider_trading_pattern_generator import InsiderTradingPatternGenerator

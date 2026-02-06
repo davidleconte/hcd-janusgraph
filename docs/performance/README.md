@@ -1,0 +1,17 @@
+# Performance Documentation
+
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
+**Last Updated:** 2026-02-06
+
+## Overview
+
+This directory contains performance optimization documentation for the HCD + JanusGraph Banking Platform.
+
+## Contents
+
+- **[INFRASTRUCTURE_OPTIMIZATION.md](INFRASTRUCTURE_OPTIMIZATION.md)** - Infrastructure optimization guide
+
+## Related Documentation
+
+- [System Architecture](../architecture/system-architecture.md)
+- [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md)

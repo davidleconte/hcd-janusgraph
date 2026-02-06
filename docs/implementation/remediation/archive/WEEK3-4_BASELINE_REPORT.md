@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-29  
 **Status:** Baseline Established  
-**Author:** IBM Bob
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 
 ## Executive Summary
 
@@ -321,4 +321,4 @@ Follow the detailed 10-day plan in [`WEEK3-4_TEST_COVERAGE_PLAN.md`](WEEK3-4_TES
 
 **Report Generated:** 2026-01-29T00:32:00Z  
 **Next Review:** After Day 5 of implementation  
-**Contact:** IBM Bob
+**Contact:** David Leconte

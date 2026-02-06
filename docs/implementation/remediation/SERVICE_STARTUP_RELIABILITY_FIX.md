@@ -425,7 +425,7 @@ depends_on:
 
 **Audit Trail:**
 - Created: 2026-01-29
-- Author: AdaL (SylphAI CLI)
+- Author: David Leconte (SylphAI CLI)
 - Issue: Service startup failures
 - Resolution: New deployment script + config fixes
 - Status: Ready for testing

@@ -4,7 +4,7 @@
 **Version:** 1.0.0  
 **Date:** 2026-01-30  
 **Status:** Complete Outline/Template  
-**Author:** IBM Bob (AdaL)  
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (David Leconte)  
 **Project:** Hierarchical Content Delivery + JanusGraph Banking Compliance System
 
 ---
@@ -13,7 +13,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-30 | IBM Bob | Initial comprehensive outline based on audit findings |
+| 1.0.0 | 2026-01-30 | David Leconte | Initial comprehensive outline based on audit findings |
 
 ### Document Purpose
 
@@ -1155,7 +1155,7 @@ g.getManagement().printIndexes()
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0.0 | 2026-01-30 | IBM Bob | Initial comprehensive outline/template |
+| 1.0.0 | 2026-01-30 | David Leconte | Initial comprehensive outline/template |
 
 ---
 

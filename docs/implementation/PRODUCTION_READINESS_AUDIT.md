@@ -2,7 +2,7 @@
 **HCD + JanusGraph Banking Compliance System**
 
 **Date:** 2026-01-28  
-**Auditor:** IBM Bob - Advanced Mode  
+**Auditor:** David Leconte - Advanced Mode  
 **Version:** 1.0  
 **Overall Grade:** B+ (83/100)
 
@@ -977,7 +977,7 @@ With the recommended improvements, this system will be **production-ready and en
 
 **Report Generated:** 2026-01-28T23:45:00Z  
 **Next Review:** 2026-02-28 (or after critical fixes)  
-**Auditor:** IBM Bob - Advanced Mode  
+**Auditor:** David Leconte - Advanced Mode  
 **Contact:** For questions about this audit, contact the development team.
 
 ---

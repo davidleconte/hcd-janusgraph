@@ -8,8 +8,8 @@ Comprehensive tests for account entity generation including:
 - Balance validation tests
 - Account type tests
 
-Author: IBM Bob
-Date: 2026-01-29
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 import pytest
@@ -257,4 +257,4 @@ class TestAccountGeneratorAccountTypes:
 
 # Run tests with: pytest banking/data_generators/tests/test_core/test_account_generator.py -v
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

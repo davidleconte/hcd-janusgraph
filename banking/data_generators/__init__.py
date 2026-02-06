@@ -10,12 +10,12 @@ advanced financial crime detection patterns including:
 - Corporate account takeover (CATO)
 
 Version: 1.0.0
-Author: IBM Bob
-Date: 2026-01-28
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Date: 2026-02-06
 """
 
 __version__ = "1.0.0"
-__author__ = "IBM Bob"
+__author__ = "David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS"
 
 from banking.data_generators.core.person_generator import PersonGenerator
 from banking.data_generators.core.company_generator import CompanyGenerator

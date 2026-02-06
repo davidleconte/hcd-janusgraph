@@ -11,7 +11,7 @@
 #   - Python version: 3.11.x
 #   - Package manager: uv (preferred) or pip
 #
-# Co-Authored-By: AdaL <adal@sylph.ai>
+# Co-Authored-By: David Leconte <david.leconte1@ibm.com>
 # =============================================================================
 
 set -euo pipefail

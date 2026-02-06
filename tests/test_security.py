@@ -2,7 +2,7 @@
 Security Tests
 Tests for authentication, validation, and sanitization
 
-Author: IBM Bob
+Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 """
 
@@ -326,4 +326,4 @@ class TestSecureLogging:
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

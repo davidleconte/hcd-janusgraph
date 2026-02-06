@@ -276,5 +276,5 @@ This fix resolves a critical deployment blocker by correcting the build context 
 ---
 
 **Last Updated**: 2026-01-29  
-**Author**: IBM Bob  
+**Author**: David Leconte  
 **Review Status**: Complete

@@ -464,4 +464,4 @@ class TestReproducibility:
             
         assert differences > 0
 
-# Made with Bob
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
