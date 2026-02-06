@@ -28,6 +28,15 @@ tqdm==4.66.0          # Progress bars
 # Phase 5: ML/AI Stack (Vector/Semantic Search)
 # ============================================
 
+# ============================================
+# Phase 6: Streaming (Event-Sourced Architecture)
+# ============================================
+# Apache Pulsar client for event streaming
+# - Dual ingestion to JanusGraph and OpenSearch
+# - Entity-level ordering via Key_Shared subscription
+# - Message deduplication via sequence_id
+pulsar-client>=3.4.0
+
 # Deep Learning Framework
 torch==2.1.0          # PyTorch for ML operations
 torchvision==0.16.0   # Vision utilities

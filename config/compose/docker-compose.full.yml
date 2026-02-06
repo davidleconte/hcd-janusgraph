@@ -27,6 +27,7 @@ volumes:
   vault-data:
   vault-logs:
   alertmanager-data:
+  pulsar-data:
 
 services:
   # ============================================================================
@@ -133,6 +134,47 @@ services:
       timeout: 10s
       retries: 5
       start_period: 90s
+    restart: unless-stopped
+
+  # ============================================================================
+  # STREAMING (Event-Sourced Architecture)
+  # ============================================================================
+
+  pulsar:
+    image: docker.io/apachepulsar/pulsar:3.2.0
+    hostname: pulsar
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "6650:6650"     # Pulsar protocol (binary)
+      - "8081:8080"     # HTTP admin API (using 8081 to avoid conflict with graphexp)
+    environment:
+      - PULSAR_MEM=-Xms512m -Xmx1g
+      - PULSAR_STANDALONE_USE_ZOOKEEPER=1
+    command: >
+      bash -c "
+      bin/pulsar standalone &
+      sleep 30 &&
+      echo 'Creating banking namespace and topics...' &&
+      bin/pulsar-admin namespaces create public/banking &&
+      bin/pulsar-admin namespaces set-deduplication public/banking --enable &&
+      bin/pulsar-admin topics create persistent://public/banking/persons-events &&
+      bin/pulsar-admin topics create persistent://public/banking/accounts-events &&
+      bin/pulsar-admin topics create persistent://public/banking/transactions-events &&
+      bin/pulsar-admin topics create persistent://public/banking/companies-events &&
+      bin/pulsar-admin topics create persistent://public/banking/communications-events &&
+      bin/pulsar-admin topics create persistent://public/banking/dlq-events &&
+      echo 'Pulsar topics created successfully!' &&
+      wait
+      "
+    volumes:
+      - pulsar-data:/pulsar/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8080/admin/v2/clusters | grep -q standalone"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
 
   # ============================================================================
