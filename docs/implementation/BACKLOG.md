@@ -66,6 +66,11 @@ This document tracks remaining improvements and technical debt items for the HCD
 
 ## Completed Recently
 
+- 2026-02-06: **Complete Pydantic V2 migration - eliminated all deprecation warnings**
+  - Removed all backward compatibility patterns (`model_dump() if hasattr... else dict()`)
+  - Simplified code to use `.model_dump()` directly (project requires pydantic>=2.0.0)
+  - Updated 4 files: entity_converter.py, events.py, janusgraph_loader.py, master_orchestrator.py
+  - Zero PydanticDeprecatedSince20 warnings remaining
 - 2026-02-06: **Fixed Pulsar networking on Apple Silicon macOS**
   - Root cause: Pulsar standalone resolves `advertisedAddress` via hostname lookup returning stale container IPs
   - Fix: Added `--advertised-address localhost` to startup command
