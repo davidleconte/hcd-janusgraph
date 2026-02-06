@@ -28,10 +28,10 @@ class TestJanusGraphClientInitialization:
         """Test client initialization with default parameters"""
         client = JanusGraphClient()
         assert client.host == "localhost"
-        assert client.port == 8182
+        assert client.port == 18182  # Project default is 18182 (podman mapped port)
         assert client.traversal_source == "g"
         assert client.timeout == 30
-        assert client.url == "wss://localhost:8182/gremlin"
+        assert client.url == "wss://localhost:18182/gremlin"
         assert not client.is_connected()
 
     def test_init_with_custom_parameters(self):

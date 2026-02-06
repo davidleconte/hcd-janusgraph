@@ -160,6 +160,19 @@ def reset_singletons():
     # Add singleton reset logic here if needed
 
 
+@pytest.fixture(autouse=True)
+def clear_janusgraph_env_vars(monkeypatch):
+    """Clear JanusGraph environment variables to ensure tests use default values.
+    
+    This prevents the conda environment's JANUSGRAPH_PORT=18182 from interfering
+    with unit tests that expect the default port 8182.
+    """
+    # Clear env vars that might interfere with default values in tests
+    monkeypatch.delenv("JANUSGRAPH_PORT", raising=False)
+    monkeypatch.delenv("JANUSGRAPH_USE_SSL", raising=False)
+    monkeypatch.delenv("JANUSGRAPH_HOST", raising=False)
+
+
 @pytest.fixture
 def temp_directory(tmp_path):
     """Provide a temporary directory for tests"""

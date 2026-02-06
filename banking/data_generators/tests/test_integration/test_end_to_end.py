@@ -92,16 +92,17 @@ class TestEndToEndWorkflow:
             data = json.load(f)
         
         # Validate referential integrity
-        person_ids = {p['person_id'] for p in data['persons']}
-        company_ids = {c['company_id'] for c in data['companies']}
-        account_ids = {a['account_id'] for a in data['accounts']}
+        # Note: Models use 'id' field, not entity-specific IDs (person_id, company_id, etc.)
+        person_ids = {p['id'] for p in data['persons']}
+        company_ids = {c['id'] for c in data['companies']}
+        account_ids = {a['id'] for a in data['accounts']}
         
         # Check accounts reference valid owners
+        # Note: Account model uses 'owner_id' which can reference person or company
+        all_owner_ids = person_ids | company_ids
         for account in data['accounts']:
-            if account.get('owner_person_id'):
-                assert account['owner_person_id'] in person_ids
-            if account.get('owner_company_id'):
-                assert account['owner_company_id'] in company_ids
+            if account.get('owner_id'):
+                assert account['owner_id'] in all_owner_ids, f"Account owner_id {account['owner_id']} not found"
         
         # Check transactions reference valid accounts
         for txn in data['transactions']:

@@ -42,14 +42,14 @@ class TestJanusGraphClientInitialization:
         client = JanusGraphClient()
         
         assert client.host == 'localhost'
-        assert client.port == 8182
+        assert client.port == 18182  # Project default is 18182 (podman mapped port)
         assert client.username == 'test_user'
         assert client.password == 'test_password'
         assert client.traversal_source == 'g'
         assert client.timeout == 30
         assert client.use_ssl is True
         assert client.verify_certs is True
-        assert client.url == 'wss://localhost:8182/gremlin'
+        assert client.url == 'wss://localhost:18182/gremlin'
 
     def test_init_with_custom_parameters(self, monkeypatch):
         """Test initialization with custom parameters"""
@@ -82,15 +82,14 @@ class TestJanusGraphClientInitialization:
         monkeypatch.setenv('JANUSGRAPH_PASSWORD', 'pass')
         
         client = JanusGraphClient(host='secure.example.com', use_ssl=True)
-        assert client.url == 'wss://secure.example.com:8182/gremlin'
+        assert client.url == 'wss://secure.example.com:18182/gremlin'
 
     def test_init_no_ssl_url_format(self, monkeypatch):
         """Test URL format with SSL disabled"""
         monkeypatch.setenv('JANUSGRAPH_USERNAME', 'user')
         monkeypatch.setenv('JANUSGRAPH_PASSWORD', 'pass')
         client = JanusGraphClient(host='insecure.example.com', use_ssl=False, verify_certs=False)
-        assert client.url == 'ws://insecure.example.com:8182/gremlin'
-        assert client.url == 'ws://insecure.example.com:8182/gremlin'
+        assert client.url == 'ws://insecure.example.com:18182/gremlin'
     def test_init_missing_credentials(self, monkeypatch):
         """Test initialization fails without credentials"""
         monkeypatch.delenv('JANUSGRAPH_USERNAME', raising=False)
@@ -492,7 +491,7 @@ class TestJanusGraphClientRepresentation:
         repr_str = repr(client)
         
         assert 'JanusGraphClient' in repr_str
-        assert 'wss://localhost:8182/gremlin' in repr_str
+        assert 'wss://localhost:18182/gremlin' in repr_str
         assert 'ssl=True' in repr_str
         assert 'disconnected' in repr_str
 

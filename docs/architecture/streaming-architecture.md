@@ -31,6 +31,43 @@ Event Sources -> Pulsar -> Graph Loaders -> JanusGraph+HCD
  Mobile Apps   Tiered Store  (100+)         Strong Writes
 ```
 
+### High-Level Flow (Mermaid)
+
+```mermaid
+flowchart LR
+    subgraph Sources["Event Sources"]
+        BC[Banking Core]
+        ATM[ATM Network]
+        MA[Mobile Apps]
+    end
+    
+    subgraph Pulsar["Apache Pulsar"]
+        P1[Broker 1]
+        P2[Broker 2]
+        P3[Broker 3]
+        BK[(BookKeeper)]
+    end
+    
+    subgraph Loaders["Graph Loaders"]
+        GL1[Worker 1]
+        GL2[Worker 2]
+        GLN[Worker N]
+    end
+    
+    subgraph Storage["JanusGraph + HCD"]
+        JG[JanusGraph]
+        HCD[(HCD Storage)]
+        OS[(OpenSearch)]
+    end
+    
+    Sources --> Pulsar
+    Pulsar --> Loaders
+    Loaders --> Storage
+    
+    style Pulsar fill:#f9f,stroke:#333
+    style Storage fill:#bbf,stroke:#333
+```
+
 ### Components
 
 **Pulsar Cluster**:
@@ -55,6 +92,35 @@ Event Sources -> Pulsar -> Graph Loaders -> JanusGraph+HCD
 ---
 
 ## Data Flow
+
+### Data Flow Sequence (Mermaid)
+
+```mermaid
+sequenceDiagram
+    participant S as Event Source
+    participant P as Pulsar Broker
+    participant BK as BookKeeper
+    participant C as Graph Loader
+    participant JG as JanusGraph
+    participant HCD as HCD Storage
+    participant OS as OpenSearch
+    
+    S->>P: Send Event (partition_key, seq_id)
+    P->>P: Dedup Check
+    P->>BK: Write (3 replicas)
+    BK-->>P: ACK
+    P-->>S: Producer ACK
+    
+    C->>P: Subscribe (Key_Shared)
+    P->>C: Deliver Batch (1000 msgs)
+    C->>JG: Gremlin Transaction
+    JG->>HCD: Write WAL + Data
+    HCD-->>JG: Commit ACK
+    JG->>OS: Index Update
+    OS-->>JG: Index ACK
+    JG-->>C: Txn Complete
+    C->>P: Consumer ACK
+```
 
 ### 1. Event Generation
 

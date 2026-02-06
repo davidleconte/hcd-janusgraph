@@ -5,30 +5,119 @@ description = "Production-ready banking analytics platform with HCD and JanusGra
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "gremlinpython==3.8.0",
+    "gremlinpython>=3.6.0,<3.8.0",  # 3.8.0+ has .discard() incompatible with JanusGraph
     "cassandra-driver==3.29.3",
-    "pandas==2.0.0",
-    "networkx==3.0",
-    "matplotlib==3.7.0",
-    "pyvis==0.3.2",
-    "prometheus-client==0.19.0",
+    "pandas>=2.0.0",
+    "networkx>=3.0",
+    "matplotlib>=3.7.0",
+    "pyvis>=0.3.2",
+    "prometheus-client>=0.19.0",
     "sentence-transformers>=2.2.2",
     "nest-asyncio>=1.5.0",
     "opensearch-py>=2.4.0",
     "python-dotenv>=1.0.0",
+    "faker>=20.0.0",
+    "pydantic>=2.0.0",
+    "numpy>=1.24.0",
+    "tqdm>=4.65.0",
 ]
 
 [project.optional-dependencies]
+# Development and testing tools
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-timeout>=2.1.0",
     "pytest-mock>=3.11.0",
     "pytest-asyncio>=0.21.0",
+    "pytest-xdist>=3.3.1",
+    "pytest-benchmark>=4.0.0",
+    "pytest-html>=3.2.0",
     "black>=23.0.0",
     "isort>=5.12.0",
     "mypy>=1.5.0",
+    "flake8>=7.0.0",
+    "pylint>=2.17.0",
     "pre-commit>=3.4.0",
+    "coverage[toml]>=7.3.0",
+    "memory-profiler>=0.61.0",
+]
+
+# Distributed tracing (OpenTelemetry)
+tracing = [
+    "opentelemetry-api>=1.21.0",
+    "opentelemetry-sdk>=1.21.0",
+    "opentelemetry-exporter-jaeger>=1.21.0",
+    "opentelemetry-exporter-otlp>=1.21.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.21.0",
+    "opentelemetry-instrumentation>=0.42b0",
+    "opentelemetry-instrumentation-requests>=0.42b0",
+    "opentelemetry-instrumentation-logging>=0.42b0",
+    "jaeger-client>=4.8.0",
+    "grpcio>=1.59.0",
+    "protobuf>=4.25.0",
+]
+
+# Security and authentication
+security = [
+    "pyotp>=2.9.0",
+    "qrcode[pil]>=7.4.2",
+    "Pillow>=10.2.0",
+    "bcrypt>=4.1.2",
+    "argon2-cffi>=23.1.0",
+    "PyJWT>=2.8.0",
+    "cryptography>=42.0.0",
+    "redis>=5.0.1",
+    "limits>=3.7.0",
+    "secure>=0.3.0",
+    "validators>=0.22.0",
+    "bleach>=6.1.0",
+    "python-json-logger>=2.0.7",
+]
+
+# ML/AI and vector search
+ml = [
+    "torch>=2.1.0",
+    "transformers>=4.36.0",
+    "tokenizers>=0.15.0",
+    "spacy>=3.7.2",
+    "nltk>=3.8.1",
+    "textblob>=0.17.1",
+    "scikit-learn>=1.4.0",
+    "xgboost>=2.0.3",
+    "huggingface-hub>=0.20.0",
+    "safetensors>=0.4.1",
+    "accelerate>=0.25.0",
+    "scipy>=1.11.0",
+]
+
+# Streaming (Apache Pulsar)
+streaming = [
+    "pulsar-client>=3.4.0",
+]
+
+# Data generators
+generators = [
+    "langdetect>=1.0.9",
+    "phonenumbers>=8.13.0",
+    "pycountry>=22.3.5",
+    "geopy>=2.3.0",
+    "python-dateutil>=2.8.2",
+    "pytz>=2023.3",
+    "pyyaml>=6.0",
+]
+
+# Visualization
+viz = [
+    "seaborn>=0.13.0",
+    "plotly>=5.18.0",
+    "wordcloud>=1.9.3",
+    "pyarrow>=14.0.2",
+]
+
+# All optional dependencies combined
+all = [
+    "hcd-janusgraph-banking[dev,tracing,security,ml,streaming,generators,viz]",
 ]
 
 [build-system]
@@ -42,7 +131,9 @@ include = '\.pyi?$'
 extend-exclude = '''
 /(
   | notebooks
+  | notebooks-exploratory
   | hcd-1.2.3
+  | vendor
 )/
 '''
 
@@ -52,16 +143,33 @@ line_length = 100
 skip_gitignore = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "banking/data_generators/tests", "banking/analytics/tests", "banking/compliance/tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --cov=src --cov=banking --cov-report=html --cov-report=term"
 timeout = 300
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "benchmark: marks tests as benchmark tests",
+]
 
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-exclude = ['notebooks/', 'hcd-1.2.3/']
+exclude = ['notebooks/', 'notebooks-exploratory/', 'hcd-1.2.3/', 'vendor/']
+
+[tool.coverage.run]
+source = ["src", "banking"]
+omit = ["**/tests/*", "**/__pycache__/*", "**/htmlcov/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

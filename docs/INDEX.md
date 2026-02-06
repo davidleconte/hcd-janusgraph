@@ -69,10 +69,13 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Banking Architecture](banking/architecture/ARCHITECTURE.md)** - Banking module architecture
 - **[Enterprise Patterns](banking/architecture/ENTERPRISE_ADVANCED_PATTERNS_PLAN.md)** - Advanced design patterns
 
-#### Architecture Decision Records (ADRs)
-- **[ADR Index](architecture/README.md)** - All architecture decisions
+#### Data Flow & Pipeline
+- **[Unified Data Flow](architecture/data-flow-unified.md)** - Complete data flow with ASCII & Mermaid diagrams (ID consistency, topic structure, DLQ)
 - **[Streaming Architecture](architecture/streaming-architecture.md)** - Real-time streaming pipeline architecture with Pulsar
 - **[Event-Sourced Ingestion Architecture](architecture/EVENT_SOURCED_INGESTION_ARCHITECTURE.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
+
+#### Architecture Decision Records (ADRs)
+- **[ADR Index](architecture/README.md)** - All architecture decisions
 - **[Pulsar Implementation Plan](architecture/PULSAR_IMPLEMENTATION_PLAN.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
 - **[ADR-005: JWT Authentication](architecture/ADR-005-jwt-authentication.md)**
 - **[ADR-010: Distributed Tracing](architecture/ADR-010-distributed-tracing.md)**

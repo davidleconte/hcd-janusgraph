@@ -118,6 +118,7 @@ htmlcov/
 *.backup
 backups/*
 !backups/.gitkeep
+config/compose/.backup/
 
 # Graph exports (generated)
 exports/
