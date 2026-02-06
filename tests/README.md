@@ -64,6 +64,13 @@ Tests for complete system integration and workflows.
 - **Dependencies:** JanusGraph and HCD running
 - **Run:** `pytest tests/integration/test_janusgraph_client.py -v`
 
+#### [`test_e2e_hcd_opensearch.py`](integration/test_e2e_hcd_opensearch.py)
+- **Purpose:** E2E tests for HCD (Cassandra) and OpenSearch integration
+- **Coverage:** HCD keyspace/schema verification, OpenSearch vector indexes, VectorConsumer integration, cross-system consistency
+- **Tests:** 16 tests (4 HCD, 5 OpenSearch, 2 VectorConsumer, 3 Pipeline, 2 Consistency)
+- **Dependencies:** Full stack (HCD port 19042, JanusGraph, OpenSearch, Pulsar)
+- **Run:** `PYTHONPATH=. HCD_PORT=19042 OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_hcd_opensearch.py -v`
+
 #### [`requirements.txt`](integration/requirements.txt)
 - **Purpose:** Integration test dependencies
 - **Contents:** pytest, gremlinpython, requests, etc.
