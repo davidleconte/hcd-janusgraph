@@ -92,7 +92,7 @@ podman network ls | grep janusgraph-demo
 podman volume ls | grep janusgraph-demo
 ```
 
-**See:** [`docs/implementation/remediation/NETWORK_ISOLATION_ANALYSIS.md`](docs/implementation/remediation/NETWORK_ISOLATION_ANALYSIS.md) for complete analysis
+**See:** [`docs/implementation/remediation/network-isolation-analysis.md`](docs/implementation/remediation/network-isolation-analysis.md) for complete analysis
 
 
 ---
@@ -453,12 +453,12 @@ OVERALL                         82%         170+
 
 ### File Naming
 
-**Documentation follows strict organization** - see [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md) for complete standards
+**Documentation follows strict organization** - see [`docs/documentation-standards.md`](docs/documentation-standards.md) for complete standards
 
 **File naming convention is kebab-case** - all documentation files use kebab-case:
 ```
 ✅ user-guide.md, api-reference.md, phase-8-complete.md
-❌ USER_GUIDE.md, ApiReference.md, user_guide.md
+❌ user-guide.md, ApiReference.md, user_guide.md
 ```
 
 **Exceptions to kebab-case** - only these root-level files use UPPERCASE:
@@ -472,7 +472,7 @@ README.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.
 ```
 docs/
 ├── INDEX.md                    # Central navigation (start here)
-├── DOCUMENTATION_STANDARDS.md  # Standards guide
+├── documentation-standards.md  # Standards guide
 ├── [core-docs].md             # Core documentation
 ├── api/                        # API documentation
 ├── architecture/               # Architecture decisions (ADRs)
@@ -726,8 +726,8 @@ pytest --cov=src --cov=banking --cov-report=html
 - [`README.md`](README.md) - Project overview and quick start
 - [`docs/INDEX.md`](docs/INDEX.md) - Central documentation index
 - [`docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md`](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md) - Latest audit report
-- [`docs/banking/guides/USER_GUIDE.md`](docs/banking/guides/USER_GUIDE.md) - Banking system user guide
-- [`docs/operations/OPERATIONS_RUNBOOK.md`](docs/operations/OPERATIONS_RUNBOOK.md) - Operations procedures
+- [`docs/banking/guides/user-guide.md`](docs/banking/guides/user-guide.md) - Banking system user guide
+- [`docs/operations/operations-runbook.md`](docs/operations/operations-runbook.md) - Operations procedures
 
 ### Implementation Reports
 - Week 1: Security Hardening (A-, 90/100)

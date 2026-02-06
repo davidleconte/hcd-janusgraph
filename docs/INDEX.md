@@ -35,11 +35,11 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Development Guides
 - **[Testing Guide](guides/testing-guide.md)** - Testing strategies and execution
 - **[Code Refactoring](development/CODE_REFACTORING_GUIDE.md)** - Refactoring best practices
-- **[Authentication Guide](security/AUTHENTICATION_GUIDE.md)** - Security authentication patterns
+- **[Authentication Guide](security/authentication-guide.md)** - Security authentication patterns
 - **[Visualization Tools](guides/visualization-tools.md)** - Graph visualization tools (G.V() recommended for macOS Silicon)
 
 #### Banking Module
-- **[User Guide](banking/guides/USER_GUIDE.md)** - Banking module usage
+- **[User Guide](banking/guides/user-guide.md)** - Banking module usage
 - **[Streaming Module](../banking/streaming/README.md)** - Event streaming with Pulsar (Producer, Consumer, DLQ, Metrics)
 - **[Advanced Analytics](banking/guides/ADVANCED_ANALYTICS_OLAP_GUIDE.md)** - OLAP and analytics
 - **[Gremlin OLAP](banking/guides/GREMLIN_OLAP_ADVANCED_SCENARIOS.md)** - Advanced graph queries
@@ -52,10 +52,10 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Production Verification](banking/implementation/deployment/PRODUCTION_SYSTEM_VERIFICATION.md)** - System verification
 
 #### Operations
-- **[Operations Runbook](operations/OPERATIONS_RUNBOOK.md)** - Day-to-day operations
+- **[Operations Runbook](operations/operations-runbook.md)** - Day-to-day operations
 - **[Monitoring Guide](operations/monitoring-guide.md)** - System monitoring and alerting
 - **[Backup Procedures](operations/backup-procedures.md)** - Backup and restore procedures
-- **[Disaster Recovery](operations/DISASTER_RECOVERY_PLAN.md)** - DR planning and execution
+- **[Disaster Recovery](operations/disaster-recovery-plan.md)** - DR planning and execution
 
 #### Security
 - **[Security Policy](../SECURITY.md)** - Security guidelines and reporting
@@ -76,7 +76,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Architecture Decision Records (ADRs)
 - **[ADR Index](architecture/README.md)** - All architecture decisions
-- **[Pulsar Implementation Plan](architecture/PULSAR_IMPLEMENTATION_PLAN.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
+- **[Pulsar Implementation Plan](architecture/pulsar-implementation-plan.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
 - **[ADR-005: JWT Authentication](architecture/ADR-005-jwt-authentication.md)**
 - **[ADR-010: Distributed Tracing](architecture/ADR-010-distributed-tracing.md)**
 - **[ADR-011: Query Caching](architecture/ADR-011-query-caching-strategy.md)**
@@ -105,9 +105,9 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 ### 🔒 For Compliance Teams
 
 #### Compliance Documentation
-- **[GDPR Compliance](compliance/GDPR_COMPLIANCE.md)** - GDPR requirements
-- **[SOC2 Controls](compliance/SOC2_CONTROLS.md)** - SOC2 compliance
-- **[Data Retention Policy](compliance/DATA_RETENTION_POLICY.md)** - Data retention rules
+- **[GDPR Compliance](compliance/gdpr-compliance.md)** - GDPR requirements
+- **[SOC2 Controls](compliance/soc2-controls.md)** - SOC2 compliance
+- **[Data Retention Policy](compliance/data-retention-policy.md)** - Data retention rules
 
 #### Banking Compliance
 - **[AML Setup](banking/setup/01_AML_PHASE1_SETUP.md)** - Anti-Money Laundering setup
@@ -122,11 +122,11 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [Deployment Guide](guides/deployment-guide.md)
 - [TLS Deployment](operations/tls-deployment-guide.md)
 - [Backup Procedures](operations/backup-procedures.md)
-- [Disaster Recovery](operations/DISASTER_RECOVERY_PLAN.md)
+- [Disaster Recovery](operations/disaster-recovery-plan.md)
 
 ### Monitoring & Operations
 - [Monitoring Guide](operations/monitoring-guide.md)
-- [Operations Runbook](operations/OPERATIONS_RUNBOOK.md)
+- [Operations Runbook](operations/operations-runbook.md)
 - [Incident Response](operations/incident-response-plan.md)
 - [Infrastructure Optimization](performance/INFRASTRUCTURE_OPTIMIZATION.md)
 
@@ -134,10 +134,10 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Testing Guide](guides/testing-guide.md)
 - [Code Refactoring](development/CODE_REFACTORING_GUIDE.md)
-- [Authentication Guide](security/AUTHENTICATION_GUIDE.md)
+- [Authentication Guide](security/authentication-guide.md)
 
 ### Banking & Compliance
-- [Banking User Guide](banking/guides/USER_GUIDE.md)
+- [Banking User Guide](banking/guides/user-guide.md)
 - [Banking API Reference](banking/guides/API_REFERENCE.md)
 - [AML Setup](banking/setup/01_AML_PHASE1_SETUP.md)
 - [Advanced Analytics](banking/guides/ADVANCED_ANALYTICS_OLAP_GUIDE.md)
@@ -169,7 +169,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **"How do I deploy?"** → [Deployment Guide](guides/deployment-guide.md)
 - **"How do I test?"** → [Testing Guide](guides/testing-guide.md)
 - **"What's the architecture?"** → [System Architecture](architecture/system-architecture.md)
-- **"How do I use the banking module?"** → [Banking User Guide](banking/guides/USER_GUIDE.md)
+- **"How do I use the banking module?"** → [Banking User Guide](banking/guides/user-guide.md)
 - **"How do I monitor?"** → [Monitoring Guide](operations/monitoring-guide.md)
 
 ---
@@ -181,8 +181,8 @@ docs/
 ├── INDEX.md                    # This file - central navigation
 ├── CHANGELOG.md                # Version history
 ├── CONTRIBUTING.md             # Contribution guidelines
-├── DOCUMENTATION_STANDARDS.md  # Documentation standards
-├── TECHNICAL_SPECIFICATIONS.md # Technical specs
+├── documentation-standards.md  # Documentation standards
+├── technical-specifications.md # Technical specs
 │
 ├── api/                        # API documentation
 │   ├── GREMLIN_API.md
@@ -203,9 +203,9 @@ docs/
 │   └── setup/                 # Setup guides
 │
 ├── compliance/                 # Compliance documentation
-│   ├── GDPR_COMPLIANCE.md
-│   ├── SOC2_CONTROLS.md
-│   └── DATA_RETENTION_POLICY.md
+│   ├── gdpr-compliance.md
+│   ├── soc2-controls.md
+│   └── data-retention-policy.md
 │
 ├── development/                # Development guides
 │   └── CODE_REFACTORING_GUIDE.md
@@ -222,18 +222,18 @@ docs/
 │   └── remediation/           # Remediation plans
 │
 ├── operations/                 # Operations documentation
-│   ├── OPERATIONS_RUNBOOK.md
+│   ├── operations-runbook.md
 │   ├── monitoring-guide.md
 │   ├── backup-procedures.md
 │   ├── tls-deployment-guide.md
 │   ├── incident-response-plan.md
-│   └── DISASTER_RECOVERY_PLAN.md
+│   └── disaster-recovery-plan.md
 │
 ├── performance/                # Performance docs
 │   └── INFRASTRUCTURE_OPTIMIZATION.md
 │
 ├── security/                   # Security documentation
-│   └── AUTHENTICATION_GUIDE.md
+│   └── authentication-guide.md
 │
 ├── strategic/                  # Strategic analysis
 │   └── REBUILD_VS_REMEDIATION_ANALYSIS_2026-01-30.md
@@ -252,7 +252,7 @@ docs/
 
 ### Support Channels
 1. **Documentation:** Start here - most questions are answered
-2. **Operations Runbook:** [OPERATIONS_RUNBOOK.md](operations/OPERATIONS_RUNBOOK.md)
+2. **Operations Runbook:** [operations-runbook.md](operations/operations-runbook.md)
 3. **GitHub Issues:** For bugs and feature requests
 4. **Team Chat:** For real-time assistance
 
@@ -288,4 +288,4 @@ This index is maintained by the project team and updated with each major release
 
 ---
 
-**Questions?** Check [Operations Runbook](operations/OPERATIONS_RUNBOOK.md) or open an issue.
+**Questions?** Check [Operations Runbook](operations/operations-runbook.md) or open an issue.
