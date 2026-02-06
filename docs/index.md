@@ -11,10 +11,10 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 **New to the project?** Start here:
 
-1. **[README](../README.md)** - Project overview and introduction
-2. **[QUICKSTART](../QUICKSTART.md)** - Get started in 5 minutes
+1. **README** (see repo root) - Project overview and introduction
+2. **[Quick Start](getting-started/quickstart.md)** - Get started in 5 minutes
 3. **[Setup Guide](guides/setup-guide.md)** - Detailed installation and configuration guide
-4. **[AGENTS.md](../AGENTS.md)** - AI assistant guidance and project patterns
+4. **AGENTS.md** (see repo root) - AI assistant guidance and project patterns
 
 ---
 
@@ -25,31 +25,31 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Getting Started
 - **[Setup Guide](guides/setup-guide.md)** - Complete development environment setup
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
-- **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
+- **Code of Conduct** (see repo root) - Community guidelines
 
 #### API & Integration
-- **[API Reference](banking/guides/API_REFERENCE.md)** - Complete API documentation
-- **[Gremlin API](api/GREMLIN_API.md)** - Graph traversal API reference
-- **[Integration Guide](api/INTEGRATION_GUIDE.md)** - Third-party integration patterns
+- **[API Reference](banking/guides/api-reference.md)** - Complete API documentation
+- **[Gremlin API](api/gremlin-api.md)** - Graph traversal API reference
+- **[Integration Guide](api/integration-guide.md)** - Third-party integration patterns
 
 #### Development Guides
 - **[Testing Guide](guides/testing-guide.md)** - Testing strategies and execution
-- **[Code Refactoring](development/CODE_REFACTORING_GUIDE.md)** - Refactoring best practices
+- **[Code Refactoring](development/code-refactoring-guide.md)** - Refactoring best practices
 - **[Authentication Guide](security/authentication-guide.md)** - Security authentication patterns
 - **[Visualization Tools](guides/visualization-tools.md)** - Graph visualization tools (G.V() recommended for macOS Silicon)
 
 #### Banking Module
 - **[User Guide](banking/guides/user-guide.md)** - Banking module usage
-- **[Streaming Module](../banking/streaming/README.md)** - Event streaming with Pulsar (Producer, Consumer, DLQ, Metrics)
-- **[Advanced Analytics](banking/guides/ADVANCED_ANALYTICS_OLAP_GUIDE.md)** - OLAP and analytics
-- **[Gremlin OLAP](banking/guides/GREMLIN_OLAP_ADVANCED_SCENARIOS.md)** - Advanced graph queries
+- **[Streaming Architecture](architecture/streaming-architecture.md)** - Event streaming with Pulsar (Producer, Consumer, DLQ, Metrics)
+- **[Advanced Analytics](banking/guides/advanced-analytics-olap-guide.md)** - OLAP and analytics
+- **[Gremlin OLAP](banking/guides/gremlin-olap-advanced-scenarios.md)** - Advanced graph queries
 
 ### 🔧 For Operators
 
 #### Deployment
 - **[Deployment Guide](guides/deployment-guide.md)** - Production deployment procedures
-- **[Production Deployment](banking/implementation/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)** - Banking module deployment
-- **[Production Verification](banking/implementation/deployment/PRODUCTION_SYSTEM_VERIFICATION.md)** - System verification
+- **[Production Deployment](banking/implementation/deployment/production-deployment-guide.md)** - Banking module deployment
+- **[Production Verification](banking/implementation/deployment/production-system-verification.md)** - System verification
 
 #### Operations
 - **[Operations Runbook](operations/operations-runbook.md)** - Day-to-day operations
@@ -58,7 +58,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Disaster Recovery](operations/disaster-recovery-plan.md)** - DR planning and execution
 
 #### Security
-- **[Security Policy](../SECURITY.md)** - Security guidelines and reporting
+- **Security Policy** (see repo root) - Security guidelines and reporting
 - **[TLS Deployment](operations/tls-deployment-guide.md)** - TLS/SSL configuration
 - **[Incident Response](operations/incident-response-plan.md)** - Security incident procedures
 
@@ -66,25 +66,25 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Architecture
 - **[System Architecture](architecture/system-architecture.md)** - Overall system design
-- **[Banking Architecture](banking/architecture/ARCHITECTURE.md)** - Banking module architecture
-- **[Enterprise Patterns](banking/architecture/ENTERPRISE_ADVANCED_PATTERNS_PLAN.md)** - Advanced design patterns
+- **[Banking Architecture](banking/architecture/architecture.md)** - Banking module architecture
+- **[Enterprise Patterns](banking/architecture/enterprise-advanced-patterns-plan.md)** - Advanced design patterns
 
 #### Data Flow & Pipeline
 - **[Unified Data Flow](architecture/data-flow-unified.md)** - Complete data flow with ASCII & Mermaid diagrams (ID consistency, topic structure, DLQ)
 - **[Streaming Architecture](architecture/streaming-architecture.md)** - Real-time streaming pipeline architecture with Pulsar
-- **[Event-Sourced Ingestion Architecture](architecture/EVENT_SOURCED_INGESTION_ARCHITECTURE.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
+- **[Event-Sourced Ingestion Architecture](architecture/event-sourced-ingestion-architecture.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
 
 #### Architecture Decision Records (ADRs)
 - **[ADR Index](architecture/README.md)** - All architecture decisions
 - **[Pulsar Implementation Plan](architecture/pulsar-implementation-plan.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
-- **[ADR-005: JWT Authentication](architecture/ADR-005-jwt-authentication.md)**
-- **[ADR-010: Distributed Tracing](architecture/ADR-010-distributed-tracing.md)**
-- **[ADR-011: Query Caching](architecture/ADR-011-query-caching-strategy.md)**
-- **[ADR Template](architecture/ADR-TEMPLATE.md)** - Template for new ADRs
+- **[ADR-005: JWT Authentication](architecture/adr-005-jwt-authentication.md)**
+- **[ADR-010: Distributed Tracing](architecture/adr-010-distributed-tracing.md)**
+- **[ADR-011: Query Caching](architecture/adr-011-query-caching-strategy.md)**
+- **[ADR Template](architecture/adr-template.md)** - Template for new ADRs
 
 #### Planning & Strategy
-- **[Synthetic Data Generator Plan](banking/planning/SYNTHETIC_DATA_GENERATOR_PLAN.md)** - Data generation strategy
-- **[Phase 8 Implementation Guide](banking/planning/PHASE8_IMPLEMENTATION_GUIDE.md)** - Implementation roadmap
+- **[Synthetic Data Generator Plan](banking/planning/synthetic-data-generator-plan.md)** - Data generation strategy
+- **[Phase 8 Implementation Guide](banking/planning/phase8-implementation-guide.md)** - Implementation roadmap
 
 ### 📊 For Project Managers
 
@@ -95,7 +95,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Audits & Reports
 - **[Audit Reports](implementation/audits/)** - Security and code audits
-- **[Executive Summary](implementation/audits/EXECUTIVE_SUMMARY.md)** - High-level findings
+- **[Executive Summary](implementation/audits/executive-summary.md)** - High-level findings
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
 
 #### Gap Analysis
@@ -110,8 +110,8 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Data Retention Policy](compliance/data-retention-policy.md)** - Data retention rules
 
 #### Banking Compliance
-- **[AML Setup](banking/setup/01_AML_PHASE1_SETUP.md)** - Anti-Money Laundering setup
-- **[Banking Overview](banking/setup/00_OVERVIEW.md)** - Banking module overview
+- **[AML Setup](banking/setup/01-aml-phase1-setup.md)** - Anti-Money Laundering setup
+- **[Banking Overview](banking/setup/00-overview.md)** - Banking module overview
 
 ---
 
@@ -128,25 +128,25 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [Monitoring Guide](operations/monitoring-guide.md)
 - [Operations Runbook](operations/operations-runbook.md)
 - [Incident Response](operations/incident-response-plan.md)
-- [Infrastructure Optimization](performance/INFRASTRUCTURE_OPTIMIZATION.md)
+- [Infrastructure Optimization](performance/infrastructure-optimization.md)
 
 ### Development & Testing
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Testing Guide](guides/testing-guide.md)
-- [Code Refactoring](development/CODE_REFACTORING_GUIDE.md)
+- [Code Refactoring](development/code-refactoring-guide.md)
 - [Authentication Guide](security/authentication-guide.md)
 
 ### Banking & Compliance
 - [Banking User Guide](banking/guides/user-guide.md)
-- [Banking API Reference](banking/guides/API_REFERENCE.md)
-- [AML Setup](banking/setup/01_AML_PHASE1_SETUP.md)
-- [Advanced Analytics](banking/guides/ADVANCED_ANALYTICS_OLAP_GUIDE.md)
+- [Banking API Reference](banking/guides/api-reference.md)
+- [AML Setup](banking/setup/01-aml-phase1-setup.md)
+- [Advanced Analytics](banking/guides/advanced-analytics-olap-guide.md)
 
 ### Architecture & Design
 - [System Architecture](architecture/system-architecture.md)
-- [Banking Architecture](banking/architecture/ARCHITECTURE.md)
+- [Banking Architecture](banking/architecture/architecture.md)
 - [ADR Index](architecture/README.md)
-- [Enterprise Patterns](banking/architecture/ENTERPRISE_ADVANCED_PATTERNS_PLAN.md)
+- [Enterprise Patterns](banking/architecture/enterprise-advanced-patterns-plan.md)
 
 ---
 
@@ -185,8 +185,8 @@ docs/
 ├── technical-specifications.md # Technical specs
 │
 ├── api/                        # API documentation
-│   ├── GREMLIN_API.md
-│   ├── INTEGRATION_GUIDE.md
+│   ├── gremlin-api.md
+│   ├── integration-guide.md
 │   └── openapi.yaml
 │
 ├── architecture/               # Architecture decisions
@@ -208,7 +208,7 @@ docs/
 │   └── data-retention-policy.md
 │
 ├── development/                # Development guides
-│   └── CODE_REFACTORING_GUIDE.md
+│   └── code-refactoring-guide.md
 │
 ├── guides/                     # General guides
 │   ├── setup-guide.md
@@ -230,7 +230,7 @@ docs/
 │   └── disaster-recovery-plan.md
 │
 ├── performance/                # Performance docs
-│   └── INFRASTRUCTURE_OPTIMIZATION.md
+│   └── infrastructure-optimization.md
 │
 ├── security/                   # Security documentation
 │   └── authentication-guide.md
