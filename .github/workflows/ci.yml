@@ -134,6 +134,21 @@ jobs:
       - name: Run integration tests
         run: pytest tests/integration/ -v
 
+  link-validation:
+    name: Documentation Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.github/mlc_config.json'
+          folder-path: 'docs/'
+          file-extension: '.md'
+
   security-scan:
     name: Security Scanning
     runs-on: ubuntu-latest

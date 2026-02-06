@@ -91,6 +91,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Project Tracking
 - **[Changelog](CHANGELOG.md)** - Version history and changes
 - **[Implementation Phases](implementation/phases/)** - Phase completion summaries
+- **[Project Backlog](implementation/BACKLOG.md)** - Remaining tasks and technical debt
 
 #### Audits & Reports
 - **[Audit Reports](implementation/audits/)** - Security and code audits
