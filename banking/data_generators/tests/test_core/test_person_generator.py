@@ -240,11 +240,11 @@ class TestPersonGeneratorIntegration:
     def test_pydantic_validation(self, sample_person):
         """Test that Pydantic validation works"""
         # Should be able to convert to dict and back
-        person_dict = sample_person.dict()
+        person_dict = sample_person.model_dump()
         assert isinstance(person_dict, dict)
         
         # Should be able to serialize to JSON
-        person_json = sample_person.json()
+        person_json = sample_person.model_dump_json()
         assert isinstance(person_json, str)
     
     def test_serialization_deserialization(self, sample_person):
@@ -252,7 +252,7 @@ class TestPersonGeneratorIntegration:
         from banking.data_generators.utils.data_models import Person
         
         # Serialize
-        person_dict = sample_person.dict()
+        person_dict = sample_person.model_dump()
         
         # Deserialize
         person_restored = Person(**person_dict)

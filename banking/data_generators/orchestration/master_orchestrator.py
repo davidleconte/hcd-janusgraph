@@ -487,42 +487,42 @@ class MasterOrchestrator:
         if self.persons:
             path = self.config.output_dir / "persons.json"
             with open(path, 'w') as f:
-                json.dump([p.dict() for p in self.persons], f, indent=2, default=str)
+                json.dump([p.model_dump() for p in self.persons], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.persons)} persons to {path}")
         
         # Export companies
         if self.companies:
             path = self.config.output_dir / "companies.json"
             with open(path, 'w') as f:
-                json.dump([c.dict() for c in self.companies], f, indent=2, default=str)
+                json.dump([c.model_dump() for c in self.companies], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.companies)} companies to {path}")
         
         # Export accounts
         if self.accounts:
             path = self.config.output_dir / "accounts.json"
             with open(path, 'w') as f:
-                json.dump([a.dict() for a in self.accounts], f, indent=2, default=str)
+                json.dump([a.model_dump() for a in self.accounts], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.accounts)} accounts to {path}")
         
         # Export transactions
         if self.transactions:
             path = self.config.output_dir / "transactions.json"
             with open(path, 'w') as f:
-                json.dump([t.dict() for t in self.transactions], f, indent=2, default=str)
+                json.dump([t.model_dump() for t in self.transactions], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.transactions)} transactions to {path}")
         
         # Export communications
         if self.communications:
             path = self.config.output_dir / "communications.json"
             with open(path, 'w') as f:
-                json.dump([c.dict() for c in self.communications], f, indent=2, default=str)
+                json.dump([c.model_dump() for c in self.communications], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.communications)} communications to {path}")
         
         # Export patterns
         if self.patterns:
             path = self.config.output_dir / "patterns.json"
             with open(path, 'w') as f:
-                json.dump([p.dict() for p in self.patterns], f, indent=2, default=str)
+                json.dump([p.model_dump() for p in self.patterns], f, indent=2, default=str)
             logger.info(f"✓ Exported {len(self.patterns)} patterns to {path}")
         
         # Export statistics

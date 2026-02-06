@@ -231,11 +231,11 @@ class TestTransactionGeneratorIntegration:
     def test_pydantic_validation(self, sample_transaction):
         """Test that Pydantic validation works"""
         # Should be able to convert to dict
-        txn_dict = sample_transaction.dict()
+        txn_dict = sample_transaction.model_dump()
         assert isinstance(txn_dict, dict)
         
         # Should be able to serialize to JSON
-        txn_json = sample_transaction.json()
+        txn_json = sample_transaction.model_dump_json()
         assert isinstance(txn_json, str)
     
     def test_serialization_deserialization(self, sample_transaction):
@@ -243,7 +243,7 @@ class TestTransactionGeneratorIntegration:
         from banking.data_generators.utils.data_models import Transaction
         
         # Serialize
-        txn_dict = sample_transaction.dict()
+        txn_dict = sample_transaction.model_dump()
         
         # Deserialize
         txn_restored = Transaction(**txn_dict)
