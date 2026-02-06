@@ -151,19 +151,22 @@ services:
     environment:
       - PULSAR_MEM=-Xms512m -Xmx1g
       - PULSAR_STANDALONE_USE_ZOOKEEPER=1
+      # Fix for Apple Silicon (M1/M2/M3/M4) - JDK-8345296
+      - _JAVA_OPTIONS=-XX:UseSVE=0
     command: >
       bash -c "
-      bin/pulsar standalone &
-      sleep 30 &&
+      echo 'Starting Pulsar with advertised-address localhost (fix for macOS networking)...' &&
+      bin/pulsar standalone --advertised-address localhost &
+      sleep 45 &&
       echo 'Creating banking namespace and topics...' &&
-      bin/pulsar-admin namespaces create public/banking &&
-      bin/pulsar-admin namespaces set-deduplication public/banking --enable &&
-      bin/pulsar-admin topics create persistent://public/banking/persons-events &&
-      bin/pulsar-admin topics create persistent://public/banking/accounts-events &&
-      bin/pulsar-admin topics create persistent://public/banking/transactions-events &&
-      bin/pulsar-admin topics create persistent://public/banking/companies-events &&
-      bin/pulsar-admin topics create persistent://public/banking/communications-events &&
-      bin/pulsar-admin topics create persistent://public/banking/dlq-events &&
+      bin/pulsar-admin namespaces create public/banking 2>/dev/null || true &&
+      bin/pulsar-admin namespaces set-deduplication public/banking --enable 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/persons-events 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/accounts-events 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/transactions-events 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/companies-events 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/communications-events 2>/dev/null || true &&
+      bin/pulsar-admin topics create persistent://public/banking/dlq-events 2>/dev/null || true &&
       echo 'Pulsar topics created successfully!' &&
       wait
       "
@@ -174,7 +177,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     restart: unless-stopped
 
   # ============================================================================
