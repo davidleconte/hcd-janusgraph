@@ -15,6 +15,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 2. **[Quick Start](getting-started/quickstart.md)** - Get started in 5 minutes
 3. **[Setup Guide](guides/setup-guide.md)** - Detailed installation and configuration guide
 4. **AGENTS.md** (see repo root) - AI assistant guidance and project patterns
+5. **[FAQ](FAQ.md)** - Frequently Asked Questions
 
 ---
 
@@ -278,13 +279,38 @@ We welcome documentation improvements! See [CONTRIBUTING.md](CONTRIBUTING.md) fo
 
 ---
 
+## 🛠️ Documentation Tools
+
+### Quality Assurance
+- **Markdownlint**: Linting configuration in `.markdownlint.json`
+- **Link Checker**: Configuration in `.markdown-link-check.json`
+- **CI Workflow**: Automated checks in `.github/workflows/docs-lint.yml`
+
+### Coverage & Search
+- **Doc Coverage**: `python scripts/docs/doc_coverage.py --report`
+- **AI Search**: `python scripts/docs/setup_doc_search.py --index` (requires OpenSearch)
+
+### Building Documentation Site
+```bash
+# Install MkDocs with Material theme
+pip install mkdocs-material pymdown-extensions mkdocs-mermaid2-plugin
+
+# Serve locally
+mkdocs serve
+
+# Build static site
+mkdocs build
+```
+
+---
+
 ## 📅 Maintenance
 
 This index is maintained by the project team and updated with each major release.
 
 **Review Schedule:** Monthly  
-**Last Review:** 2026-02-04  
-**Next Review:** 2026-03-04
+**Last Review:** 2026-02-06  
+**Next Review:** 2026-03-06
 
 ---
 
