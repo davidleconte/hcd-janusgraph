@@ -47,15 +47,25 @@ conda deactivate && conda activate janusgraph-analysis
 
 ### Package Management
 
-**Use `uv` for package management when possible** (faster than pip):
+**New environment setup** - use ONE of these methods:
+
+```bash
+# Option A: Conda (recommended for new users)
+conda env create -f environment.yml
+conda activate janusgraph-analysis
+
+# Option B: pip with requirements.txt
+pip install -r requirements.txt
+
+# Option C: uv (faster than pip)
+uv pip install -r requirements.txt
+```
+
+**Adding packages** - use `uv` when possible (faster than pip):
 
 ```bash
 # Install packages with uv (preferred)
 uv pip install package-name
-
-# Install from requirements
-uv pip install -r requirements.txt
-uv pip install -r requirements-dev.txt
 
 # Fallback to pip if uv unavailable
 pip install package-name

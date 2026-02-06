@@ -28,21 +28,37 @@
 
 ## Installation Methods
 
-### Method 1: pip/uv (Recommended)
+### Method 1: Conda (Recommended)
 
 ```bash
-# Using uv (faster)
-uv pip install -e ".[dev,streaming]"
+# Create environment from file
+conda env create -f environment.yml
 
-# Using pip
-pip install -e ".[dev,streaming]"
+# Activate
+conda activate janusgraph-analysis
 ```
 
-### Method 2: From requirements
+### Method 2: pip/uv
 
 ```bash
+# Create virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Using uv (faster)
+uv pip install -r requirements.txt
+
+# Or using pip
 pip install -r requirements.txt
-pip install -r requirements-dev.txt
+
+# For development (includes testing tools)
+pip install -e ".[dev]"
+```
+
+### Method 3: From pyproject.toml (all extras)
+
+```bash
+pip install -e ".[dev,streaming,security,ml]"
 ```
 
 ## Troubleshooting
