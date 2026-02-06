@@ -132,7 +132,10 @@ flowchart TB
 - Vector search with embeddings
 - Full-text search capabilities
 - Semantic similarity matching
+- **OLAP-style analytics via aggregation framework**
 - Port: 9200 (REST API)
+
+> **Note**: This project uses OpenSearch aggregations for OLAP operations (slice, dice, drill-down, roll-up, pivot) instead of Spark. This provides sub-second response times without additional infrastructure. See [Advanced Analytics OLAP Guide](../banking/guides/advanced-analytics-olap-guide.md) for implementation details.
 
 ### 4. Apache Pulsar
 - Event streaming platform

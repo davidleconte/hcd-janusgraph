@@ -41,6 +41,53 @@ We implement OLAP using:
 - **Pandas DataFrames** (in-memory processing)
 - **JanusGraph** (graph traversals for relationships)
 
+### Why OpenSearch Instead of Spark?
+
+This project deliberately uses **OpenSearch aggregations** for OLAP-style analytics rather than Apache Spark or JanusGraph's SparkGraphComputer. Here's why:
+
+| Factor | OpenSearch Approach | Spark Approach |
+|--------|---------------------|----------------|
+| **Latency** | Sub-second responses | Minutes for job startup |
+| **Infrastructure** | Already deployed for vector search | Requires separate Spark cluster |
+| **Data Scale** | Optimal for medium-scale (millions of records) | Better for billions of records |
+| **Real-time** | True real-time analytics | Batch-oriented |
+| **Complexity** | Simple REST API | Requires Spark expertise |
+
+**When Spark Would Be Better:**
+- Petabyte-scale graph analytics
+- Complex iterative algorithms (PageRank, community detection)
+- Machine learning pipelines on graph data
+- Cross-cluster federated queries
+
+**When OpenSearch Is Better (Our Use Case):**
+- Real-time compliance dashboards
+- Sub-second query response requirements
+- OLAP operations (slice, dice, drill-down, roll-up, pivot)
+- Aggregations and statistical analysis
+- Vector similarity search (already deployed)
+
+### Alternative: JanusGraph with Spark
+
+If you need true distributed OLAP with Spark, JanusGraph supports it via SparkGraphComputer:
+
+```properties
+# janusgraph.properties
+gremlin.graph=org.janusgraph.core.JanusGraphFactory
+storage.backend=cql
+storage.hostname=cassandra
+# Spark OLAP configuration
+spark.master=spark://spark-master:7077
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+```
+
+```python
+# Spark OLAP traversal
+g.withComputer().V().count()
+g.withComputer().V().pageRank().by('pageRank').order().by('pageRank', desc).limit(10)
+```
+
+This requires additional infrastructure (Spark cluster) and is not implemented in this project.
+
 ---
 
 ## Direct OpenSearch Queries

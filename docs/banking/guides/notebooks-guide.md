@@ -124,8 +124,9 @@ PROJECT_ROOT = config['project_root']
 
 #### 05: Advanced Analytics OLAP Demo
 - **Objective**: OLAP-style analytics on graph data
-- **Techniques**: Aggregations, grouping, statistical analysis
+- **Techniques**: OpenSearch aggregations (slice, dice, drill-down, roll-up, pivot)
 - **Business Value**: Business intelligence, reporting
+- **Implementation**: Uses OpenSearch aggregation framework (not Spark) for sub-second response times. See [Advanced Analytics OLAP Guide](advanced-analytics-olap-guide.md) for details.
 
 #### 06: TBML Detection Demo
 - **Objective**: Trade-based money laundering detection
