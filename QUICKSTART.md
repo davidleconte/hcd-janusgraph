@@ -455,7 +455,9 @@ hcd-tarball-janusgraph/
 - `.env` - Environment variables (NOT committed)
 - `.env.example` - Environment template
 - `Makefile` - Common commands
-- `requirements.txt` - Python dependencies
+- `requirements.txt` - Python dependencies (pip)
+- `environment.yml` - Conda environment definition
+- `pyproject.toml` - Project metadata and all dependencies
 - `docker-compose.yml` - Stack definition (symlink)
 - `SECURITY.md` - Security policy
 

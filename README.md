@@ -50,6 +50,40 @@ open http://localhost:8888
 
 📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed commands and troubleshooting**
 
+### Python Environment Setup
+
+Choose ONE of these installation methods:
+
+**Option A: Conda (Recommended)**
+```bash
+# Create environment from file
+conda env create -f environment.yml
+
+# Activate
+conda activate janusgraph-analysis
+```
+
+**Option B: pip**
+```bash
+# Create virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# For development (includes testing tools)
+pip install -e ".[dev]"
+```
+
+**Option C: uv (Fast)**
+```bash
+# Create virtual environment and install
+uv venv --python 3.11
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
+
 ### Production Deployment
 
 For production environments with security hardening:
