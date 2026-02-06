@@ -26,6 +26,15 @@ from .events import EntityEvent, EntityEventBatch, create_person_event, create_a
 from .producer import EntityProducer, MockEntityProducer, get_producer
 from .graph_consumer import GraphConsumer
 from .vector_consumer import VectorConsumer
+from .entity_converter import (
+    convert_entity_to_event,
+    convert_entities_to_events,
+    entity_to_dict,
+    get_entity_id,
+    get_entity_type,
+    get_text_for_embedding,
+)
+from .streaming_orchestrator import StreamingOrchestrator, StreamingConfig, StreamingStats
 
 __all__ = [
     # Events
@@ -42,4 +51,15 @@ __all__ = [
     # Consumers
     'GraphConsumer',
     'VectorConsumer',
+    # Entity Converter
+    'convert_entity_to_event',
+    'convert_entities_to_events',
+    'entity_to_dict',
+    'get_entity_id',
+    'get_entity_type',
+    'get_text_for_embedding',
+    # Streaming Orchestrator
+    'StreamingOrchestrator',
+    'StreamingConfig',
+    'StreamingStats',
 ]

@@ -100,7 +100,23 @@ class EntityEvent:
     
     def to_json(self) -> str:
         """Serialize event to JSON string."""
-        return json.dumps(self.to_dict())
+        from datetime import date
+        from decimal import Decimal
+        def json_serializer(obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            if isinstance(obj, date):
+                return obj.isoformat()
+            if isinstance(obj, Decimal):
+                return float(obj)
+            if hasattr(obj, 'model_dump'):
+                return obj.model_dump()
+            if hasattr(obj, 'dict'):
+                return obj.dict()
+            if hasattr(obj, '__dict__'):
+                return obj.__dict__
+            raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
+        return json.dumps(self.to_dict(), default=json_serializer)
     
     def to_bytes(self) -> bytes:
         """Serialize event to bytes for Pulsar message content."""

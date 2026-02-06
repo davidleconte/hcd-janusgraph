@@ -27,6 +27,10 @@ try:
 except ImportError:
     PULSAR_AVAILABLE = False
     pulsar = None
+    # Define placeholder types for type hints when pulsar is not available
+    Client = None
+    Producer = None
+    CompressionType = None
 
 from .events import EntityEvent, EntityEventBatch
 
