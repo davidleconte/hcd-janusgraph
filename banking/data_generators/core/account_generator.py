@@ -12,19 +12,19 @@ Date: 2026-02-06
 import random
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import List, Optional, Dict, Any
+from typing import Optional, Dict, Any
 
 from .base_generator import BaseGenerator
 from ..utils.data_models import (
     Account, AccountType, RiskLevel
 )
 from ..utils.constants import (
-    CURRENCIES, COUNTRIES
+    CURRENCIES
 )
 from ..utils.helpers import (
     random_choice_weighted, random_date_between,
     generate_account_number, generate_iban, generate_swift_code,
-    random_amount, calculate_entity_risk_score
+    random_amount
 )
 
 

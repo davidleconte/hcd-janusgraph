@@ -119,7 +119,8 @@ def chunk_document(content: str, file_path: str) -> Generator[Dict, None, None]:
                 section_text = '\n'.join(current_content)
                 for i, chunk in enumerate(_chunk_text(section_text)):
                     chunk_id = hashlib.md5(
-                        f"{file_path}:{current_section}:{i}".encode()
+                        f"{file_path}:{current_section}:{i}".encode(),
+                        usedforsecurity=False
                     ).hexdigest()[:12]
                     yield {
                         'content': chunk,
@@ -138,7 +139,8 @@ def chunk_document(content: str, file_path: str) -> Generator[Dict, None, None]:
         section_text = '\n'.join(current_content)
         for i, chunk in enumerate(_chunk_text(section_text)):
             chunk_id = hashlib.md5(
-                f"{file_path}:{current_section}:{i}".encode()
+                f"{file_path}:{current_section}:{i}".encode(),
+                usedforsecurity=False
             ).hexdigest()[:12]
             yield {
                 'content': chunk,

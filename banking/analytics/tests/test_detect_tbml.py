@@ -12,8 +12,8 @@ Date: 2026-02-04
 """
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
-from datetime import datetime, timedelta
+from unittest.mock import Mock
+from datetime import datetime
 from banking.analytics.detect_tbml import (
     TBMLDetector, TBMLAlert, PriceAnomaly
 )

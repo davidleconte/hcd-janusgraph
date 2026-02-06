@@ -10,7 +10,6 @@ Tests cover:
 Created: 2026-02-04
 """
 
-import pytest
 from banking.streaming.events import EntityEvent, create_person_event
 from banking.streaming.producer import MockEntityProducer, get_producer
 

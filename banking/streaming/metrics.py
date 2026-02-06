@@ -13,9 +13,6 @@ Week 6: DLQ Handling + Monitoring
 
 import time
 import logging
-from typing import Dict, Any, Optional
-from dataclasses import dataclass, field
-from datetime import datetime
 from functools import wraps
 
 logger = logging.getLogger(__name__)

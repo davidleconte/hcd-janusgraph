@@ -16,14 +16,14 @@ Regulatory Background:
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
-from gremlin_python.driver import client, serializer
+from gremlin_python.driver import serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.traversal import T, P, Order
+from gremlin_python.process.traversal import T, P
 
 logger = logging.getLogger(__name__)
 

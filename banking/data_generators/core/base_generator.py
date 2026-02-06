@@ -83,7 +83,6 @@ class BaseGenerator(ABC, Generic[T]):
         Returns:
             Generated entity
         """
-        pass
     
     def generate_batch(self, count: int, show_progress: bool = False) -> List[T]:
         """

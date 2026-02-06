@@ -9,8 +9,7 @@ Created: 2026-02-06
 Week 2: Event Schema & Producers
 """
 
-from typing import Dict, Any, Optional, Union
-from datetime import datetime
+from typing import Dict, Any, Optional
 
 from .events import EntityEvent
 

@@ -14,11 +14,9 @@ Created: 2026-02-04
 Week 2: Event Schema & Producers
 """
 
-import json
 import logging
 import os
 from typing import Dict, List, Optional, Any
-from contextlib import contextmanager
 
 try:
     import pulsar
@@ -341,7 +339,6 @@ class MockEntityProducer:
     
     def flush(self):
         """No-op for mock."""
-        pass
     
     def close(self):
         """Clear stored events."""

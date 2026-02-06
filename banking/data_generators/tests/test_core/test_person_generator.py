@@ -15,7 +15,7 @@ Date: 2026-02-06
 
 import pytest
 import re
-from datetime import date, datetime
+from datetime import date
 
 
 class TestPersonGeneratorSmoke:

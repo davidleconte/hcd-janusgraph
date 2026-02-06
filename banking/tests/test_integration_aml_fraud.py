@@ -11,8 +11,8 @@ End-to-end testing of:
 
 import pytest
 from decimal import Decimal
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, MagicMock, call
+from datetime import datetime
+from unittest.mock import Mock, patch, MagicMock
 from banking.aml.structuring_detection import StructuringDetector, StructuringPattern
 from banking.fraud.fraud_detection import FraudDetector, FraudScore
 

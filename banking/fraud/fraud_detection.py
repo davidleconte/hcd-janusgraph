@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.traversal import T, P, Order
+from gremlin_python.process.traversal import P
 
 from utils.embedding_generator import EmbeddingGenerator
 from utils.vector_search import VectorSearchClient

@@ -12,7 +12,6 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 import logging
 import sys
 import time
-from typing import Any
 
 from ..client import ConnectionError, JanusGraphClient, QueryError
 

@@ -9,7 +9,7 @@ Phase: Week 1 Remediation - Security Hardening
 
 import re
 import logging
-from typing import Any, Dict, Optional, Pattern, Tuple
+from typing import Dict, Optional, Pattern, Tuple
 
 
 class PIISanitizer(logging.Filter):

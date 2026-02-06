@@ -11,8 +11,7 @@ Date: 2026-02-06
 import pytest
 import sys
 from pathlib import Path
-from datetime import datetime, timedelta
-from decimal import Decimal
+from datetime import datetime
 
 # Add project root to path (go up 3 levels: tests -> data_generators -> banking -> root)
 project_root = Path(__file__).parent.parent.parent.parent

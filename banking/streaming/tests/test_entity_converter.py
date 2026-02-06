@@ -10,7 +10,6 @@ Created: 2026-02-06
 import pytest
 from dataclasses import dataclass
 from pydantic import BaseModel
-from typing import Optional
 
 import sys
 from pathlib import Path

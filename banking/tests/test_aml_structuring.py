@@ -12,14 +12,11 @@ Comprehensive test suite covering:
 - Confidence calculation
 """
 
-import pytest
 from decimal import Decimal
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, MagicMock
+from datetime import datetime
 from banking.aml.structuring_detection import (
     StructuringDetector,
-    StructuringPattern,
-    StructuringAlert
+    StructuringPattern
 )
 
 

@@ -10,18 +10,18 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
 
 from .base_generator import BaseGenerator
 from ..utils.data_models import (
-    Company, CompanyAddress, CompanyOfficer,
-    CompanyType, IndustryType, RiskLevel
+    Company, CompanyAddress, CompanyType,
+    IndustryType, RiskLevel
 )
 from ..utils.constants import (
     COUNTRIES, HIGH_RISK_COUNTRIES, TAX_HAVENS,
-    FINANCIAL_CENTERS, STOCK_EXCHANGES, SANCTIONS_LISTS
+    STOCK_EXCHANGES, SANCTIONS_LISTS
 )
 from ..utils.helpers import (
     random_choice_weighted, random_date_between,
@@ -376,7 +376,7 @@ class CompanyGenerator(BaseGenerator[Company]):
                               registration_country: str, tax_havens: List[str],
                               industry: IndustryType) -> RiskLevel:
         """Calculate risk level."""
-        from ..utils.constants import HIGH_RISK_INDUSTRIES, CASH_INTENSIVE_BUSINESSES
+        from ..utils.constants import CASH_INTENSIVE_BUSINESSES
         
         score = calculate_entity_risk_score(
             is_pep=False,

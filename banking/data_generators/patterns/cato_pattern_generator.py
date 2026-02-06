@@ -27,12 +27,11 @@ Detection Indicators:
 
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 import random
 
 from ..utils.data_models import (
-    Person, Account, Transaction, Communication,
-    Pattern, RiskLevel
+    Transaction, Communication, Pattern, RiskLevel
 )
 from ..utils.helpers import (
     random_date_between, random_amount

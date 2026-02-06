@@ -17,9 +17,8 @@ Date: 2026-02-03
 """
 
 import logging
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
 from datetime import datetime
-from collections import defaultdict
 from gremlin_python.driver import client, serializer
 
 logger = logging.getLogger(__name__)

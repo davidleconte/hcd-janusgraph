@@ -13,8 +13,7 @@ Date: 2026-02-04
 """
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
-from datetime import datetime, timedelta
+from datetime import datetime
 from banking.analytics.detect_insider_trading import (
     InsiderTradingDetector, InsiderTradingAlert, TradeCluster, CorporateEvent
 )

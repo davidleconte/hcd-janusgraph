@@ -12,13 +12,11 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any, Tuple
 from decimal import Decimal
-from faker import Faker
 
 from ..core.base_generator import BaseGenerator
 from ..events.trade_generator import TradeGenerator
 from ..events.communication_generator import CommunicationGenerator
 from ..utils.data_models import Pattern, RiskLevel
-from ..utils.constants import STOCK_EXCHANGES
 from ..utils.helpers import (
     random_datetime_between,
     random_choice_weighted,

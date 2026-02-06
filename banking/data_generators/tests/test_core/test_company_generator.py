@@ -12,8 +12,6 @@ Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product S
 Date: 2026-02-06
 """
 
-import pytest
-import re
 from datetime import date
 
 

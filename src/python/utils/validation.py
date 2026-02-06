@@ -9,7 +9,6 @@ Phase: Week 1 Remediation - Security Hardening
 """
 
 import re
-import os
 import ipaddress
 import logging
 from typing import Any, Optional, Union, List
@@ -50,7 +49,6 @@ class ValidationError(Exception):
     Use this instead of ValueError for validation-specific errors to
     distinguish validation failures from other value errors.
     """
-    pass
 
 
 class Validator:

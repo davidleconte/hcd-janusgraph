@@ -12,7 +12,6 @@ Date: 2026-02-06
 
 import json
 import sys
-from datetime import datetime
 from gremlin_python.driver import client
 from gremlin_python.driver.protocol import GremlinServerError
 from tqdm import tqdm

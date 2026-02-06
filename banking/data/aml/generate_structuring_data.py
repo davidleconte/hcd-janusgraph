@@ -14,9 +14,8 @@ Date: 2026-02-06
 """
 
 import random
-import string
 from datetime import datetime, timedelta
-from typing import List, Dict, Tuple
+from typing import List, Dict
 import json
 from faker import Faker
 

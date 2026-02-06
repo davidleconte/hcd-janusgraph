@@ -10,7 +10,7 @@ import logging
 import statistics
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict
 import json
 import hashlib
@@ -193,8 +193,8 @@ class QueryProfiler:
         # Normalize query (remove whitespace, lowercase)
         normalized = ' '.join(query_text.lower().split())
         
-        # Generate hash
-        return hashlib.md5(normalized.encode()).hexdigest()[:16]
+        # Generate hash (not for security, just fingerprinting)
+        return hashlib.md5(normalized.encode(), usedforsecurity=False).hexdigest()[:16]
     
     def _count_traversal_steps(self, query_text: str) -> int:
         """

@@ -9,7 +9,7 @@ import time
 import logging
 import statistics
 import concurrent.futures
-from typing import List, Dict, Any, Callable, Optional
+from typing import List, Dict, Any, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 import json

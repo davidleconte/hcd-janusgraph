@@ -9,17 +9,15 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
-from faker import Faker
 
 from ..core.base_generator import BaseGenerator
 from ..utils.data_models import BaseEntity
-from ..utils.constants import COUNTRIES, CURRENCIES
+from ..utils.constants import COUNTRIES
 from ..utils.helpers import (
     random_datetime_between,
-    random_date_between,
     random_choice_weighted,
     random_amount
 )

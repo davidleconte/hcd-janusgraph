@@ -14,7 +14,6 @@ Created: 2026-02-04
 Week 3: Graph Consumer (Leg 1)
 """
 
-import json
 import logging
 import os
 from typing import Dict, List, Optional, Any, Callable
@@ -33,7 +32,6 @@ try:
     from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
     from gremlin_python.process.anonymous_traversal import traversal
     from gremlin_python.process.graph_traversal import GraphTraversalSource
-    from gremlin_python.process.traversal import T
     GREMLIN_AVAILABLE = True
 except ImportError:
     GREMLIN_AVAILABLE = False

@@ -12,11 +12,10 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
-from faker import Faker
 
 from ..core.base_generator import BaseGenerator
 from ..utils.data_models import Trade
-from ..utils.constants import STOCK_EXCHANGES, CURRENCIES
+from ..utils.constants import STOCK_EXCHANGES
 from ..utils.helpers import (
     random_datetime_between,
     random_choice_weighted,

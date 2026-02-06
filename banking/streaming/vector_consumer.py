@@ -14,7 +14,6 @@ Created: 2026-02-04
 Week 4: Vector Consumer (Leg 2)
 """
 
-import json
 import logging
 import os
 from typing import Dict, List, Optional, Any, Callable
@@ -31,7 +30,6 @@ except ImportError:
 
 try:
     from opensearchpy import OpenSearch, helpers
-    import numpy as np
     OPENSEARCH_AVAILABLE = True
 except ImportError:
     OPENSEARCH_AVAILABLE = False

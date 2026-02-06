@@ -14,12 +14,8 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from gremlin_python.driver import client
-from gremlin_python.process.anonymous_traversal import traversal
-from gremlin_python.process.graph_traversal import __
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 import pandas as pd
 import json
-from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 

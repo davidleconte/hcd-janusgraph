@@ -10,13 +10,11 @@ Author: David LECONTE - IBM Worldwide | Data & AI
 class JanusGraphError(Exception):
     """Base exception for all JanusGraph client errors."""
 
-    pass
 
 
 class ConnectionError(JanusGraphError):
     """Raised when connection to JanusGraph server fails."""
 
-    pass
 
 
 class QueryError(JanusGraphError):
@@ -37,10 +35,8 @@ class QueryError(JanusGraphError):
 class TimeoutError(JanusGraphError):
     """Raised when an operation times out."""
 
-    pass
 
 
 class ValidationError(JanusGraphError):
     """Raised when input validation fails."""
 
-    pass

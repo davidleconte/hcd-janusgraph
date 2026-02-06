@@ -21,7 +21,6 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import pytest
-from datetime import datetime, timedelta
 from gremlin_python.driver import client, serializer
 
 # Mark all tests in this module as integration tests

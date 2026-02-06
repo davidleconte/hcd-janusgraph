@@ -7,7 +7,7 @@ Created: 2026-01-28
 Phase: 5 (Vector/AI Foundation)
 """
 
-from typing import List, Dict, Optional, Union
+from typing import List, Optional, Union
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import logging

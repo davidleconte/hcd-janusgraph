@@ -12,17 +12,14 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
-from faker import Faker
 
 from ..core.base_generator import BaseGenerator
 from ..events.transaction_generator import TransactionGenerator
 from ..utils.data_models import Pattern, RiskLevel
-from ..utils.constants import STRUCTURING_THRESHOLDS
 from ..utils.helpers import (
     random_datetime_between,
     random_choice_weighted,
-    calculate_pattern_confidence,
-    random_just_below_threshold
+    calculate_pattern_confidence
 )
 
 

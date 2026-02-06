@@ -10,7 +10,7 @@ Created: 2026-02-04
 Week 2: Event Schema & Producers
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 import uuid

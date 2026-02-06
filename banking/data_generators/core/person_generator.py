@@ -11,12 +11,10 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
 
-from faker import Faker
-import phonenumbers
 
 from .base_generator import BaseGenerator
 from ..utils.data_models import (
@@ -24,8 +22,8 @@ from ..utils.data_models import (
     IdentificationDocument, Employment, Gender, RiskLevel
 )
 from ..utils.constants import (
-    COUNTRIES, LANGUAGES, HIGH_RISK_COUNTRIES,
-    TAX_HAVENS, PEP_CATEGORIES, SANCTIONS_LISTS
+    COUNTRIES, HIGH_RISK_COUNTRIES, PEP_CATEGORIES,
+    SANCTIONS_LISTS
 )
 from ..utils.helpers import (
     random_choice_weighted, random_date_between,

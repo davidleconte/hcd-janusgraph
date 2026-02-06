@@ -15,13 +15,10 @@ Date: 2026-02-04
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from collections import defaultdict
-from decimal import Decimal
+from datetime import datetime
 from gremlin_python.driver import client, serializer
-from gremlin_python.process.graph_traversal import __
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

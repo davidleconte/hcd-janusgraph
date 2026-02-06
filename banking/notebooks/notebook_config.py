@@ -45,12 +45,59 @@ def verify_conda_environment():
     return True
 
 
+# Auto-detect container environment
+def _detect_container_environment():
+    """Detect if running inside a Docker/Podman container and return appropriate hosts."""
+    import socket
+    
+    # Check if we can resolve container hostnames
+    container_hosts = {
+        'janusgraph': 'janusgraph-server',
+        'opensearch': 'opensearch',
+        'hcd': 'hcd-server',
+    }
+    
+    detected = {}
+    for service, hostname in container_hosts.items():
+        try:
+            socket.gethostbyname(hostname)
+            detected[service] = hostname
+        except socket.gaierror:
+            detected[service] = None
+    
+    return detected
+
+_container_hosts = _detect_container_environment()
+_in_container = any(_container_hosts.values())
+
 # Connection Configuration
 # Override with environment variables for different environments
+# Auto-detects container environment and uses correct hostnames
 _jg_use_ssl = os.getenv('JANUSGRAPH_USE_SSL', 'false').lower() == 'true'
 _jg_protocol = 'wss' if _jg_use_ssl else 'ws'
-_jg_host = os.getenv('JANUSGRAPH_HOST', 'localhost')
-_jg_port = os.getenv('JANUSGRAPH_PORT', '18182')
+
+# Auto-detect hosts based on environment
+if _container_hosts.get('janusgraph'):
+    _jg_host_default = _container_hosts['janusgraph']
+    _jg_port_default = '8182'  # Internal container port
+else:
+    _jg_host_default = 'localhost'
+    _jg_port_default = '18182'  # External mapped port
+
+if _container_hosts.get('opensearch'):
+    _os_host_default = _container_hosts['opensearch']
+else:
+    _os_host_default = 'localhost'
+
+if _container_hosts.get('hcd'):
+    _hcd_host_default = _container_hosts['hcd']
+    _hcd_port_default = 9042  # Internal container port
+else:
+    _hcd_host_default = 'localhost'
+    _hcd_port_default = 19042  # External mapped port
+
+_jg_host = os.getenv('JANUSGRAPH_HOST', _jg_host_default)
+_jg_port = os.getenv('JANUSGRAPH_PORT', _jg_port_default)
 
 JANUSGRAPH_CONFIG = {
     'url': os.getenv('GREMLIN_URL', f'{_jg_protocol}://{_jg_host}:{_jg_port}/gremlin'),
@@ -60,15 +107,15 @@ JANUSGRAPH_CONFIG = {
 }
 
 OPENSEARCH_CONFIG = {
-    'host': os.getenv('OPENSEARCH_HOST', 'localhost'),
+    'host': os.getenv('OPENSEARCH_HOST', _os_host_default),
     'port': int(os.getenv('OPENSEARCH_PORT', 9200)),
     'use_ssl': os.getenv('OPENSEARCH_USE_SSL', 'false').lower() == 'true',
     'verify_certs': False,
 }
 
 HCD_CONFIG = {
-    'host': os.getenv('HCD_HOST', 'localhost'),
-    'port': int(os.getenv('HCD_PORT', 9042)),
+    'host': os.getenv('HCD_HOST', _hcd_host_default),
+    'port': int(os.getenv('HCD_PORT', _hcd_port_default)),
 }
 
 # Data paths (relative to project root)

@@ -11,7 +11,7 @@ import hashlib
 import pickle
 from typing import Any, Optional, Callable, Dict, List, Set
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 import json
 
@@ -406,7 +406,7 @@ class CachedQueryExecutor:
         key_string = '|'.join(key_parts)
         
         # Hash for consistent length
-        return hashlib.md5(key_string.encode()).hexdigest()
+        return hashlib.md5(key_string.encode(), usedforsecurity=False).hexdigest()
 
 
 class CacheWarmer:

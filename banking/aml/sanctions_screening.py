@@ -9,7 +9,7 @@ Phase: 6 (Complete AML Implementation)
 
 import sys
 import os
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime
 import logging
@@ -19,7 +19,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
 
 from utils.embedding_generator import EmbeddingGenerator, encode_person_name
 from utils.vector_search import VectorSearchClient
-import numpy as np
 
 logger = logging.getLogger(__name__)
 

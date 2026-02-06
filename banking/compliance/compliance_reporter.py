@@ -17,13 +17,12 @@ Reports are generated from audit logs and provide:
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from collections import defaultdict, Counter
 from dataclasses import dataclass, asdict
 
-from banking.compliance.audit_logger import AuditEventType, AuditSeverity
 
 
 @dataclass

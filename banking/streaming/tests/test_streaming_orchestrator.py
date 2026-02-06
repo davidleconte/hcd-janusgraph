@@ -8,7 +8,6 @@ Created: 2026-02-06
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 import tempfile
 import shutil
@@ -22,7 +21,6 @@ from banking.streaming.streaming_orchestrator import (
     StreamingStats,
 )
 from banking.streaming.producer import MockEntityProducer
-from banking.streaming.events import EntityEvent
 
 
 class TestStreamingConfig:

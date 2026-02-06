@@ -9,7 +9,7 @@ Phase: Week 1 Remediation (CRITICAL-001)
 
 import sys
 import os
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.traversal import T, P, Order
+from gremlin_python.process.traversal import T, P
 
 logger = logging.getLogger(__name__)
 

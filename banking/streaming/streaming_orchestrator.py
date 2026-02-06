@@ -12,14 +12,12 @@ Week 2: Event Schema & Producers - Integration Phase
 import logging
 from typing import Optional, Dict, Any, List, Union
 from dataclasses import dataclass, field
-from datetime import datetime
 
 from banking.data_generators.orchestration.master_orchestrator import (
     MasterOrchestrator, 
     GenerationConfig, 
     GenerationStats
 )
-from .events import EntityEvent
 from .producer import EntityProducer, MockEntityProducer, get_producer
 from .entity_converter import convert_entity_to_event
 

@@ -14,12 +14,10 @@ import hashlib
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from typing import List, Optional, Tuple, Dict, Any
-import re
 
 from .constants import (
-    COUNTRIES, CURRENCIES, LANGUAGES, TIME_ZONES,
-    STRUCTURING_THRESHOLDS, ROUND_AMOUNTS, TAX_HAVENS,
-    HIGH_RISK_COUNTRIES, SUSPICIOUS_KEYWORDS
+    STRUCTURING_THRESHOLDS, ROUND_AMOUNTS, TAX_HAVENS, HIGH_RISK_COUNTRIES,
+    SUSPICIOUS_KEYWORDS
 )
 
 

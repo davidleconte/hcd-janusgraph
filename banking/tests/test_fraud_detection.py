@@ -13,12 +13,10 @@ Comprehensive test suite covering:
 - Alert generation
 """
 
-import pytest
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, MagicMock
+from datetime import datetime
+from unittest.mock import Mock, patch
 from banking.fraud.fraud_detection import (
     FraudDetector,
-    FraudAlert,
     FraudScore
 )
 

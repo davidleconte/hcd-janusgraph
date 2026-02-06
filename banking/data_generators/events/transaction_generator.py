@@ -17,11 +17,10 @@ from typing import List, Optional, Dict, Any
 
 from ..core.base_generator import BaseGenerator
 from ..utils.data_models import (
-    Transaction, TransactionType, RiskLevel
+    Transaction, TransactionType
 )
 from ..utils.constants import (
-    CURRENCIES, COUNTRIES, HIGH_RISK_COUNTRIES,
-    STRUCTURING_THRESHOLDS, ROUND_AMOUNTS
+    CURRENCIES, COUNTRIES
 )
 from ..utils.helpers import (
     random_choice_weighted, random_datetime_between,

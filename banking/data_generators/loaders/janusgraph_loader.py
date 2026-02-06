@@ -20,10 +20,6 @@ import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from gremlin_python.driver import client, serializer
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
-from gremlin_python.process.anonymous_traversal import traversal
-from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.traversal import T, P
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,6 @@ import random
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
-from faker import Faker
 
 from ..core.base_generator import BaseGenerator
 from ..events.transaction_generator import TransactionGenerator
