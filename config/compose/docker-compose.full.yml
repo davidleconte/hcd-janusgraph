@@ -101,6 +101,27 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  opensearch-dashboards:
+    image: docker.io/opensearchproject/opensearch-dashboards:2.11.1
+    hostname: opensearch-dashboards
+    networks:
+      - hcd-janusgraph-network
+    ports:
+      - "5601:5601"    # OpenSearch Dashboards UI
+    environment:
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5601/api/status | grep -q 'available'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
   janusgraph-server:
     image: docker.io/janusgraph/janusgraph:latest
     hostname: janusgraph-server
@@ -135,6 +156,24 @@ services:
       retries: 5
       start_period: 90s
     restart: unless-stopped
+
+  gremlin-console:
+    image: docker.io/janusgraph/janusgraph:latest
+    hostname: gremlin-console
+    networks:
+      - hcd-janusgraph-network
+    volumes:
+      - ../../config/janusgraph/janusgraph-hcd.properties:/opt/janusgraph/conf/janusgraph-hcd.properties:ro
+      - ../../config/janusgraph/remote-connect.properties:/opt/janusgraph/conf/remote-connect.properties:ro
+    environment:
+      - GREMLIN_REMOTE_HOSTS=janusgraph-server
+    entrypoint: ["tail", "-f", "/dev/null"]
+    depends_on:
+      janusgraph-server:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    restart: "no"
 
   # ============================================================================
   # STREAMING (Event-Sourced Architecture)

@@ -70,12 +70,42 @@ uv pip install package-name
 # Fallback to pip if uv unavailable
 pip install package-name
 ```
-### Pulsar CLI Access
+### CLI Tools & Consoles
 
-Interactive Pulsar admin CLI is available via the `pulsar-cli` service:
+The following CLI tools and consoles are available for interacting with services:
 
+| Tool | Container | Access |
+|------|-----------|--------|
+| **CQLSH** (HCD/Cassandra) | `cqlsh-client` | `podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server` |
+| **Gremlin Console** | `gremlin-console` | `podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh` |
+| **Pulsar CLI** | `pulsar-cli` | `podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin ...` |
+| **OpenSearch Dashboards** | `opensearch-dashboards` | http://localhost:5601 |
+
+#### CQLSH (Cassandra Query Language Shell)
 ```bash
-# Access Pulsar admin CLI
+# Interactive CQL session
+podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server
+
+# Run CQL command directly
+podman exec janusgraph-demo_cqlsh-client_1 cqlsh hcd-server -e "DESCRIBE KEYSPACES"
+podman exec janusgraph-demo_cqlsh-client_1 cqlsh hcd-server -e "SELECT * FROM janusgraph.edgestore LIMIT 5"
+```
+
+#### Gremlin Console (JanusGraph Graph Queries)
+```bash
+# Start interactive Gremlin console
+podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh
+
+# Inside Gremlin console:
+:remote connect tinkerpop.server conf/remote-connect.properties
+:remote console
+g.V().count()
+g.V().hasLabel('Person').limit(5).valueMap()
+```
+
+#### Pulsar CLI (Message Streaming)
+```bash
+# List topics
 podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
 
 # List namespaces
@@ -84,9 +114,16 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin namespaces list public
 # Check topic stats
 podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persistent://public/banking/persons-events
 
-# Consume messages (for debugging)
+# Consume messages (debugging)
 podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-client consume -s test-sub persistent://public/banking/persons-events -n 5
 ```
+
+#### OpenSearch Dashboards (Web UI)
+Access at http://localhost:5601 for:
+- Index management
+- Query console (Dev Tools)
+- Visualizations
+- Index pattern creation
 
 ### Podman/Docker Deployment (REQUIRED)
 
