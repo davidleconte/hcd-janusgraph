@@ -172,10 +172,11 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 ```
 
 ### Project Status
-- **Production Readiness:** A+ (98/100) ✅
+- **Production Readiness:** A+ (99/100) ✅
 - **Test Coverage:** 82% (170+ tests)
-- **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging)
+- **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging, Startup Validation)
 - **Compliance:** GDPR, SOC 2, BSA/AML, PCI DSS ready
+- **CI Quality Gates:** 8 workflows (coverage, docstrings, security, types, lint)
 
 ---
 
@@ -350,6 +351,33 @@ janusgraph/data/admin
 - Use Black formatter with line length 100
 - Use isort for import sorting
 - No hardcoded credentials (use environment variables or Vault)
+
+### Code Quality Tools
+
+**Pre-commit hooks** (`.pre-commit-config.yaml`):
+```bash
+uv pip install pre-commit && pre-commit install
+pre-commit run --all-files
+```
+
+**Code analysis with uv**:
+```bash
+uv tool run vulture src/ banking/ --min-confidence 80   # Dead code
+uv tool run radon cc src/ banking/ -s -a                # Complexity
+uv tool run bandit -r src/ banking/ -ll                 # Security scan
+uv tool run pip-audit                                   # Dependency vulnerabilities
+uv tool run autoflake --in-place --remove-all-unused-imports --recursive src/ banking/
+```
+
+**CI Quality Gates** (`.github/workflows/quality-gates.yml`):
+- Test coverage ≥85%
+- Docstring coverage ≥80%
+- Security scan (bandit)
+- Type checking (mypy)
+- Code linting (ruff)
+
+**Startup Validation** (`src/python/utils/startup_validation.py`):
+Rejects default passwords: `changeit`, `password`, `YOUR_*_HERE`, `PLACEHOLDER`
 
 ---
 
