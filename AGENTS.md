@@ -351,8 +351,61 @@ banking/
 │   ├── audit_logger.py        # Audit logging (30+ event types)
 │   └── compliance_reporter.py # Compliance reporting
 ├── aml/               # Anti-Money Laundering detection
-└── fraud/             # Fraud detection
+├── fraud/             # Fraud detection
+└── streaming/         # Pulsar event streaming
+    ├── events.py             # EntityEvent schema
+    ├── producer.py           # Event publisher
+    ├── graph_consumer.py     # JanusGraph consumer
+    ├── vector_consumer.py    # OpenSearch consumer
+    ├── dlq_handler.py        # Dead Letter Queue
+    └── metrics.py            # Prometheus metrics
 ```
+
+### Streaming Module
+
+**Streaming module in banking/streaming/** provides Pulsar-based event streaming:
+
+```python
+from banking.streaming import StreamingOrchestrator, StreamingConfig
+from banking.streaming import EntityProducer, create_person_event
+
+# Using StreamingOrchestrator (recommended)
+config = StreamingConfig(
+    seed=42,
+    person_count=100,
+    pulsar_url="pulsar://localhost:6650",
+    output_dir=Path("./output")
+)
+with StreamingOrchestrator(config) as orchestrator:
+    stats = orchestrator.generate_all()
+
+# Direct event publishing
+producer = EntityProducer(pulsar_url="pulsar://localhost:6650")
+event = create_person_event(person_id="p-123", name="John", payload={...})
+producer.send(event)
+producer.close()
+```
+
+**Key streaming patterns:**
+- `StreamingConfig` extends `GenerationConfig` - all generator options available
+- `use_mock_producer=True` for testing without Pulsar
+- Entity IDs are consistent across Pulsar, JanusGraph, and OpenSearch
+- Topics: `persons-events`, `accounts-events`, `transactions-events`, etc.
+
+**Environment variables:**
+- `PULSAR_URL`: Pulsar broker URL (default: `pulsar://localhost:6650`)
+- `OPENSEARCH_USE_SSL`: Set to `false` for local dev
+
+**Testing streaming:**
+```bash
+# Unit tests
+PYTHONPATH=. pytest banking/streaming/tests/ -v
+
+# E2E tests (requires services)
+PYTHONPATH=. OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_streaming.py -v
+```
+
+**Documentation:** See [`banking/streaming/README.md`](banking/streaming/README.md) for full details.
 
 ---
 

@@ -40,6 +40,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Banking Module
 - **[User Guide](banking/guides/USER_GUIDE.md)** - Banking module usage
+- **[Streaming Module](../banking/streaming/README.md)** - Event streaming with Pulsar (Producer, Consumer, DLQ, Metrics)
 - **[Advanced Analytics](banking/guides/ADVANCED_ANALYTICS_OLAP_GUIDE.md)** - OLAP and analytics
 - **[Gremlin OLAP](banking/guides/GREMLIN_OLAP_ADVANCED_SCENARIOS.md)** - Advanced graph queries
 
@@ -70,6 +71,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Architecture Decision Records (ADRs)
 - **[ADR Index](architecture/README.md)** - All architecture decisions
+- **[Streaming Architecture](architecture/streaming-architecture.md)** - Real-time streaming pipeline architecture with Pulsar
 - **[Event-Sourced Ingestion Architecture](architecture/EVENT_SOURCED_INGESTION_ARCHITECTURE.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
 - **[Pulsar Implementation Plan](architecture/PULSAR_IMPLEMENTATION_PLAN.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
 - **[ADR-005: JWT Authentication](architecture/ADR-005-jwt-authentication.md)**
