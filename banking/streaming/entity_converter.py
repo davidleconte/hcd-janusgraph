@@ -25,10 +25,9 @@ def entity_to_dict(entity: Any) -> Dict[str, Any]:
     Returns:
         Dictionary representation of the entity
     """
+    # Pydantic V2+ - use model_dump() directly (project requires pydantic>=2.0.0)
     if hasattr(entity, 'model_dump'):
         return entity.model_dump()
-    elif hasattr(entity, 'dict'):
-        return entity.dict()
     elif hasattr(entity, '__dict__'):
         return {k: v for k, v in entity.__dict__.items() if not k.startswith('_')}
     else:

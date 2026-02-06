@@ -113,7 +113,7 @@ class JanusGraphLoader:
         
         for i, person in enumerate(persons):
             # Extract person data
-            person_dict = person.model_dump() if hasattr(person, 'model_dump') else person.dict()
+            person_dict = person.model_dump()
             person_id = person_dict.get('person_id') or person_dict.get('id')
             
             # Check if person already exists
@@ -174,7 +174,7 @@ class JanusGraphLoader:
         company_id_map = {}
         
         for i, company in enumerate(companies):
-            company_dict = company.model_dump() if hasattr(company, 'model_dump') else company.dict()
+            company_dict = company.model_dump()
             company_id = company_dict.get('company_id') or company_dict.get('id')
             
             # Check if company already exists
@@ -236,7 +236,7 @@ class JanusGraphLoader:
         account_id_map = {}
         
         for i, account in enumerate(accounts):
-            account_dict = account.model_dump() if hasattr(account, 'model_dump') else account.dict()
+            account_dict = account.model_dump()
             account_id = account_dict.get('account_id') or account_dict.get('id')
             
             # Check if account already exists
@@ -331,7 +331,7 @@ class JanusGraphLoader:
         transaction_id_map = {}
         
         for i, tx in enumerate(transactions):
-            tx_dict = tx.model_dump() if hasattr(tx, 'model_dump') else tx.dict()
+            tx_dict = tx.model_dump()
             tx_id = tx_dict.get('transaction_id') or tx_dict.get('id')
             
             # Check if transaction already exists
@@ -431,7 +431,7 @@ class JanusGraphLoader:
         trades_loaded = 0
         
         for i, trade in enumerate(trades):
-            trade_dict = trade.model_dump() if hasattr(trade, 'model_dump') else trade.dict()
+            trade_dict = trade.model_dump()
             trade_id = trade_dict.get('trade_id') or trade_dict.get('id')
             
             # Check if trade already exists
@@ -526,7 +526,7 @@ class JanusGraphLoader:
         edges_created = 0
         
         for i, comm in enumerate(communications):
-            comm_dict = comm.model_dump() if hasattr(comm, 'model_dump') else comm.dict()
+            comm_dict = comm.model_dump()
             
             from_id = comm_dict.get('from_person_id') or comm_dict.get('sender_id')
             # Handle recipient_ids as array (take first recipient)

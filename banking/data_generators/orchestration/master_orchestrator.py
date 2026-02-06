@@ -565,15 +565,15 @@ class MasterOrchestrator:
         
         # Prepare data dictionary
         data = {
-            'persons': [p.model_dump() if hasattr(p, 'model_dump') else p.dict() for p in self.persons],
-            'companies': [c.model_dump() if hasattr(c, 'model_dump') else c.dict() for c in self.companies],
-            'accounts': [a.model_dump() if hasattr(a, 'model_dump') else a.dict() for a in self.accounts],
-            'transactions': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.transactions],
-            'communications': [c.model_dump() if hasattr(c, 'model_dump') else c.dict() for c in self.communications],
-            'trades': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.trades],
-            'travels': [t.model_dump() if hasattr(t, 'model_dump') else t.dict() for t in self.travels],
-            'documents': [d.model_dump() if hasattr(d, 'model_dump') else d.dict() for d in self.documents],
-            'patterns': [p.model_dump() if hasattr(p, 'model_dump') else p.dict() for p in self.patterns],
+            'persons': [p.model_dump() for p in self.persons],
+            'companies': [c.model_dump() for c in self.companies],
+            'accounts': [a.model_dump() for a in self.accounts],
+            'transactions': [t.model_dump() for t in self.transactions],
+            'communications': [c.model_dump() for c in self.communications],
+            'trades': [t.model_dump() for t in self.trades],
+            'travels': [t.model_dump() for t in self.travels],
+            'documents': [d.model_dump() for d in self.documents],
+            'patterns': [p.model_dump() for p in self.patterns],
             'statistics': {
                 'start_time': self.stats.start_time.isoformat() if self.stats.start_time else None,
                 'end_time': self.stats.end_time.isoformat() if self.stats.end_time else None,

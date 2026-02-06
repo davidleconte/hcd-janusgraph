@@ -109,10 +109,9 @@ class EntityEvent:
                 return obj.isoformat()
             if isinstance(obj, Decimal):
                 return float(obj)
+            # Pydantic V2+ - use model_dump() directly
             if hasattr(obj, 'model_dump'):
                 return obj.model_dump()
-            if hasattr(obj, 'dict'):
-                return obj.dict()
             if hasattr(obj, '__dict__'):
                 return obj.__dict__
             raise TypeError(f"Object of type {type(obj).__name__} is not JSON serializable")
