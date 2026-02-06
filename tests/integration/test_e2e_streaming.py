@@ -53,7 +53,8 @@ def check_janusgraph_available():
         from gremlin_python.process.anonymous_traversal import traversal
         conn = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
         g = traversal().withRemote(conn)
-        g.V().limit(1).toList()
+        # Use count().next() instead of toList() to avoid custom type deserialization issues
+        g.V().count().next()
         conn.close()
         return True
     except Exception:
@@ -63,10 +64,12 @@ def check_opensearch_available():
     """Check if OpenSearch is available."""
     try:
         from opensearchpy import OpenSearch
+        import os
+        use_ssl = os.getenv('OPENSEARCH_USE_SSL', 'true').lower() == 'true'
         client = OpenSearch(
             hosts=[{'host': 'localhost', 'port': 9200}],
             http_auth=('admin', 'admin'),
-            use_ssl=True,
+            use_ssl=use_ssl,
             verify_certs=False,
             ssl_show_warn=False
         )
@@ -265,15 +268,15 @@ class TestE2EJanusGraphIntegration:
             # Create a test vertex
             test_id = f"e2e-test-{int(time.time())}"
             
-            # Upsert pattern (idempotent)
+            # Upsert pattern (idempotent) - use iterate() to avoid custom type deserialization
             g.V().has('person', 'entity_id', test_id).fold().coalesce(
                 __.unfold(),
                 __.addV('person').property('entity_id', test_id).property('name', 'E2E Test')
-            ).next()
+            ).iterate()
             
-            # Verify vertex exists
-            vertices = g.V().has('person', 'entity_id', test_id).toList()
-            assert len(vertices) == 1
+            # Verify vertex exists (use count to avoid custom type deserialization)
+            vertex_count = g.V().has('person', 'entity_id', test_id).count().next()
+            assert vertex_count == 1
             
             # Cleanup
             g.V().has('person', 'entity_id', test_id).drop().iterate()
@@ -284,18 +287,24 @@ class TestE2EJanusGraphIntegration:
 class TestE2EOpenSearchIntegration:
     """E2E tests for OpenSearch integration."""
     
-    @skip_no_opensearch
-    def test_opensearch_connection(self):
-        """Test basic OpenSearch connectivity."""
+    def _get_opensearch_client(self):
+        """Create OpenSearch client with environment-based SSL config."""
         from opensearchpy import OpenSearch
         
-        client = OpenSearch(
+        use_ssl = os.environ.get('OPENSEARCH_USE_SSL', 'true').lower() == 'true'
+        
+        return OpenSearch(
             hosts=[{'host': 'localhost', 'port': 9200}],
             http_auth=('admin', 'admin'),
-            use_ssl=True,
+            use_ssl=use_ssl,
             verify_certs=False,
             ssl_show_warn=False
         )
+    
+    @skip_no_opensearch
+    def test_opensearch_connection(self):
+        """Test basic OpenSearch connectivity."""
+        client = self._get_opensearch_client()
         
         info = client.info()
         assert 'version' in info
@@ -303,15 +312,7 @@ class TestE2EOpenSearchIntegration:
     @skip_no_opensearch
     def test_opensearch_index_operations(self):
         """Test basic index operations in OpenSearch."""
-        from opensearchpy import OpenSearch
-        
-        client = OpenSearch(
-            hosts=[{'host': 'localhost', 'port': 9200}],
-            http_auth=('admin', 'admin'),
-            use_ssl=True,
-            verify_certs=False,
-            ssl_show_warn=False
-        )
+        client = self._get_opensearch_client()
         
         # Create test index
         test_index = "e2e-test-index"
