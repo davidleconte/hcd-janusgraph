@@ -341,8 +341,8 @@ Phase 8A focuses on implementing the foundational utilities and core entity gene
 
 ### Documentation
 - [PHASE8_IMPLEMENTATION_GUIDE.md](./PHASE8_IMPLEMENTATION_GUIDE.md)
-- [SYNTHETIC_DATA_GENERATOR_PLAN.md](./SYNTHETIC_DATA_GENERATOR_PLAN.md)
-- [ENTERPRISE_ADVANCED_PATTERNS_PLAN.md](./ENTERPRISE_ADVANCED_PATTERNS_PLAN.md)
+- Synthetic Data Generator Plan
+- Enterprise Advanced Patterns Plan
 
 ---
 

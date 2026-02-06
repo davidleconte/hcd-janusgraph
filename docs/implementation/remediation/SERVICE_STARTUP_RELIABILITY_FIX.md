@@ -367,9 +367,9 @@ depends_on:
 
 ## Related Documentation
 
-- [`AGENTS.md`](../../../AGENTS.md) - Updated deployment commands
-- [`docs/implementation/remediation/NETWORK_ISOLATION_ANALYSIS.md`](NETWORK_ISOLATION_ANALYSIS.md) - Network isolation requirements
-- [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml) - Service definitions
+- `AGENTS.md` (root) - Updated deployment commands
+- `docs/...` - Network isolation requirements
+- `config/...` - Service definitions
 
 ## Success Criteria
 

@@ -12,7 +12,7 @@ This document provides step-by-step remediation for the 4 critical and 7 major i
 
 **Related Documents:**
 - [Comprehensive Audit Report](./COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md)
-- [AGENTS.md](../../AGENTS.md)
+- `AGENTS.md`
 
 ---
 
@@ -581,7 +581,7 @@ Production-ready demonstrations of:
 
 ## Usage
 
-See [Banking User Guide](../guides/USER_GUIDE.md) for detailed instructions.
+See [Banking User Guide](../guides/user-guide.md) for detailed instructions.
 
 ```bash
 # Start Jupyter Lab with banking module

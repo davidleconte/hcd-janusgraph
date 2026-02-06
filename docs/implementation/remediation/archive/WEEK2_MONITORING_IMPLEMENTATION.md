@@ -17,30 +17,30 @@ Week 2 focuses on production-grade monitoring and observability:
 ### ✅ Completed (Day 1)
 
 1. **AlertManager Configuration**
-   - Created [`config/monitoring/alertmanager.yml`](../../../config/monitoring/alertmanager.yml) (189 lines)
+   - Created `config/...` (189 lines)
    - Configured alert routing by severity and category
    - Set up multiple receivers (team, critical, security, compliance, performance)
    - Implemented inhibition rules to prevent alert storms
    - Added email and Slack notification templates
 
 2. **Docker Compose Updates**
-   - Added AlertManager service to [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml)
+   - Added AlertManager service to `config/...`
    - Updated Prometheus service with alert rules mount
    - Added Grafana dashboard and datasource provisioning
    - Created `alertmanager-data` volume
 
 3. **Prometheus Configuration**
-   - Updated [`config/monitoring/prometheus.yml`](../../../config/monitoring/prometheus.yml)
+   - Updated `config/...`
    - Added AlertManager integration
    - Configured alert rule loading
 
 4. **Grafana Provisioning**
-   - Created [`config/grafana/datasources/prometheus.yml`](../../../config/grafana/datasources/prometheus.yml)
-   - Created [`config/grafana/dashboards/dashboards.yml`](../../../config/grafana/dashboards/dashboards.yml)
+   - Created `config/...`
+   - Created `config/...`
    - Configured automatic datasource and dashboard provisioning
 
 5. **JanusGraph Metrics Exporter**
-   - Created [`scripts/monitoring/janusgraph_exporter.py`](../../../scripts/monitoring/janusgraph_exporter.py) (238 lines)
+   - Created `scripts/monitoring/janusgraph_exporter.py` (238 lines)
    - Implements Prometheus metrics collection from JanusGraph
    - Collects vertex/edge counts, query latency, label distributions
    - Added `prometheus-client==0.19.0` to requirements.txt

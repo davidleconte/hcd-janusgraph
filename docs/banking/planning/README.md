@@ -10,7 +10,7 @@ This directory contains planning documents for the Banking module implementation
 ## Contents
 
 - **[gap-analysis.md](gap-analysis.md)** - Gap analysis and requirements
-- **[SYNTHETIC_DATA_GENERATOR_PLAN.md](SYNTHETIC_DATA_GENERATOR_PLAN.md)** - Data generation strategy
+- **Synthetic Data Generator Plan** - Data generation strategy
 - **[technical-spec.md](technical-spec.md)** - Technical specifications
 - **[technical-spec-complete.md](technical-spec-complete.md)** - Complete technical specifications
 

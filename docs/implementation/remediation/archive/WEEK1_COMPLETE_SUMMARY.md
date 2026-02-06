@@ -121,7 +121,7 @@ Week 1 security hardening is **100% complete**. All critical security vulnerabil
 - Environment-specific configuration
 
 ### 7. Authentication Guide ✅
-**File:** `docs/security/AUTHENTICATION_GUIDE.md` (207 lines)
+**File:** `docs/security/authentication-guide.md` (207 lines)
 
 **Contents:**
 - Quick start guide
@@ -211,7 +211,7 @@ Week 1 security hardening is **100% complete**. All critical security vulnerabil
 | vector_search.py | 90 | Modified | ✅ Complete |
 | .env.example | 105 | Config | ✅ Complete |
 | test_security.py | 339 | Tests | ✅ Complete |
-| AUTHENTICATION_GUIDE.md | 207 | Docs | ✅ Complete |
+| authentication-guide.md | 207 | Docs | ✅ Complete |
 | **Total** | **2,232** | | **100%** |
 
 ---

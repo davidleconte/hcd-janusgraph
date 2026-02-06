@@ -28,13 +28,13 @@ Created organized subdirectory structure:
 docs/banking/
 ├── README.md                          # Overview
 ├── guides/                            # 🆕 User and developer guides
-│   ├── USER_GUIDE.md
-│   ├── API_REFERENCE.md
-│   ├── ADVANCED_ANALYTICS_OLAP_GUIDE.md
-│   └── GREMLIN_OLAP_ADVANCED_SCENARIOS.md
+│   ├── user-guide.md
+│   ├── api-reference.md
+│   ├── advanced-analytics-olap-guide.md
+│   └── gremlin-olap-advanced-scenarios.md
 ├── architecture/                      # 🆕 Architecture documentation
-│   ├── ARCHITECTURE.md
-│   └── ENTERPRISE_ADVANCED_PATTERNS_PLAN.md
+│   ├── architecture.md
+│   └── enterprise-advanced-patterns-plan.md
 ├── implementation/                    # 🆕 Implementation tracking
 │   ├── phases/                       # Phase documentation
 │   │   ├── PHASE5_VECTOR_AI_FOUNDATION.md
@@ -59,7 +59,7 @@ docs/banking/
 │       ├── PRODUCTION_DEPLOYMENT_GUIDE.md
 │       └── PRODUCTION_SYSTEM_VERIFICATION.md
 ├── planning/                          # 🆕 Planning documents
-│   ├── SYNTHETIC_DATA_GENERATOR_PLAN.md
+│   ├── synthetic-data-generator-plan.md
 │   └── PHASE8_IMPLEMENTATION_GUIDE.md
 └── setup/                             # Setup guides (from Week 1)
     ├── README.md
@@ -70,14 +70,14 @@ docs/banking/
 ### 2. Files Relocated
 
 #### Guides → `docs/banking/guides/`
-- ✅ `USER_GUIDE.md`
-- ✅ `API_REFERENCE.md`
-- ✅ `ADVANCED_ANALYTICS_OLAP_GUIDE.md`
-- ✅ `GREMLIN_OLAP_ADVANCED_SCENARIOS.md`
+- ✅ `user-guide.md`
+- ✅ `api-reference.md`
+- ✅ `advanced-analytics-olap-guide.md`
+- ✅ `gremlin-olap-advanced-scenarios.md`
 
 #### Architecture → `docs/banking/architecture/`
-- ✅ `ARCHITECTURE.md`
-- ✅ `ENTERPRISE_ADVANCED_PATTERNS_PLAN.md`
+- ✅ `architecture.md`
+- ✅ `enterprise-advanced-patterns-plan.md`
 
 #### Implementation Phases → `docs/banking/implementation/phases/`
 - ✅ All PHASE5*.md files (2 files)
@@ -88,12 +88,12 @@ docs/banking/
 - ✅ `PRODUCTION_SYSTEM_VERIFICATION.md`
 
 #### Planning → `docs/banking/planning/`
-- ✅ `SYNTHETIC_DATA_GENERATOR_PLAN.md`
+- ✅ `synthetic-data-generator-plan.md`
 - ✅ `PHASE8_IMPLEMENTATION_GUIDE.md`
 
 ### 3. Central Documentation Index Created
 
-Created comprehensive [`docs/INDEX.md`](../INDEX.md) (329 lines) with:
+Created comprehensive `docs/...` (329 lines) with:
 
 **Features:**
 - Quick start section for new users
@@ -229,8 +229,8 @@ $ find docs/banking/planning -type f -name "*.md" | wc -l
 
 ### Central Index
 ```bash
-$ wc -l docs/INDEX.md
-     329 docs/INDEX.md
+$ wc -l docs/index.md
+     329 docs/index.md
 ```
 
 ### Code README Files
@@ -248,7 +248,7 @@ banking/notebooks/README.md
 
 ### Phase 2 Week 2 Deliverables
 
-1. **Central Documentation Index** - [`docs/INDEX.md`](../INDEX.md) (329 lines)
+1. **Central Documentation Index** - `docs/...` (329 lines)
    - Role-based navigation
    - Topic-based organization
    - Search tips and help
@@ -361,9 +361,9 @@ All tasks completed successfully without issues.
 
 ## References
 
-- **Structure Review:** [`../PROJECT_STRUCTURE_REVIEW.md`](../PROJECT_STRUCTURE_REVIEW.md)
+- **Structure Review:** [Project Structure Review](project-structure-review.md)
 - **Phase 1 Summary:** [`./PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md`](./PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md)
-- **Central Index:** [`../INDEX.md`](../INDEX.md)
+- **Central Index:** [`../index.md`](../index.md)
 - **Banking Docs:** [`../banking/`](../banking/)
 
 ---

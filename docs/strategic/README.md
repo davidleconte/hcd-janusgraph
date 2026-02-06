@@ -12,7 +12,7 @@ This directory contains strategic analysis and planning documents for the HCD + 
 Strategic planning and analysis documents have been moved to more specific locations:
 - Architecture analysis → [docs/architecture/](../architecture/)
 - Remediation planning → [docs/implementation/remediation/](../implementation/remediation/)
-- Audit reports → [docs/implementation/audits/](../implementation/audits/)
+- Audit reports → Audit Document
 
 ## Related Documentation
 

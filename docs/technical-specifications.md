@@ -21,10 +21,10 @@ This technical specifications document provides a complete architectural and imp
 
 ### Related Documents
 
-- [`docs/implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md`](implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md) - Current state audit
-- [`docs/implementation/audits/EXTENDED_AUDIT_FINDINGS_2026-01-30.md`](implementation/audits/EXTENDED_AUDIT_FINDINGS_2026-01-30.md) - Extended findings
-- [`.bob/rules-plan/PODMAN_ISOLATION.md`](../.bob/rules-plan/PODMAN_ISOLATION.md) - Container isolation rules
-- [`AGENTS.md`](../AGENTS.md) - Development guidelines
+- `docs/...` - Current state audit
+- `docs/...` - Extended findings
+- `.bob/rules-plan/PODMAN_ISOLATION.md` (internal planning doc) - Container isolation rules
+- `AGENTS.md` (root) - Development guidelines
 
 ---
 
@@ -393,7 +393,7 @@ result = client.execute(
 
 ## 4.1 Five Layers of Isolation
 
-**MANDATORY**: See [`.bob/rules-plan/PODMAN_ISOLATION.md`](../.bob/rules-plan/PODMAN_ISOLATION.md) for complete requirements.
+**MANDATORY**: See `.bob/rules-plan/PODMAN_ISOLATION.md` (internal planning doc) for complete requirements.
 
 ### 4.1.1 Network Isolation
 - Each pod has isolated network namespace
@@ -1134,17 +1134,17 @@ g.getManagement().printIndexes()
 ## Appendix C: Reference Architecture
 
 ### C.1 Audit Findings
-- See: [`docs/implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md`](implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md)
+- See: `docs/...`
 - Critical issues identified: 14
 - Production readiness: C+ (65/100)
 
 ### C.2 Isolation Rules
-- See: [`.bob/rules-plan/PODMAN_ISOLATION.md`](../.bob/rules-plan/PODMAN_ISOLATION.md)
+- See: `.bob/rules-plan/PODMAN_ISOLATION.md` (internal planning doc)
 - Five layers of isolation
 - Mandatory for all deployments
 
 ### C.3 Development Guidelines
-- See: [`AGENTS.md`](../AGENTS.md)
+- See: `AGENTS.md` (root)
 - Python environment setup
 - Testing requirements
 - Code style standards

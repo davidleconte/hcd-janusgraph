@@ -42,7 +42,7 @@ swagger-cli validate openapi.yaml
 
 ---
 
-### 2. [Gremlin API Reference](./GREMLIN_API.md)
+### 2. [Gremlin API Reference](./gremlin-api.md)
 **Format:** Markdown  
 **Purpose:** Comprehensive guide to Gremlin graph traversal language
 
@@ -76,7 +76,7 @@ swagger-cli validate openapi.yaml
 
 ---
 
-### 3. [Integration Guide](./INTEGRATION_GUIDE.md)
+### 3. [Integration Guide](./integration-guide.md)
 **Format:** Markdown  
 **Purpose:** Practical integration examples and patterns
 
@@ -298,7 +298,7 @@ Common status codes:
 ## Code Examples
 
 ### Python Examples
-See [Integration Guide](./INTEGRATION_GUIDE.md) for:
+See [Integration Guide](./integration-guide.md) for:
 - Social network implementation
 - Error handling patterns
 - Connection pooling
@@ -306,7 +306,7 @@ See [Integration Guide](./INTEGRATION_GUIDE.md) for:
 - Production best practices
 
 ### Gremlin Examples
-See [Gremlin API Reference](./GREMLIN_API.md) for:
+See [Gremlin API Reference](./gremlin-api.md) for:
 - Basic CRUD operations
 - Complex traversals
 - Graph algorithms
@@ -404,10 +404,10 @@ Structured logs include:
 ## Support and Resources
 
 ### Documentation
-- [Architecture Documentation](../ARCHITECTURE.md)
-- [Deployment Guide](../DEPLOYMENT.md)
-- [Troubleshooting Guide](../TROUBLESHOOTING.md)
-- [Security Guide](../../SECURITY.md)
+- [Architecture Documentation](../architecture/README.md)
+- Deployment Guide (see Getting Started)
+- Troubleshooting (see [Operations Runbook](../operations/operations-runbook.md))
+- `SECURITY.md` (root) - Security guidelines
 
 ### External Resources
 - [JanusGraph Documentation](https://docs.janusgraph.org/)

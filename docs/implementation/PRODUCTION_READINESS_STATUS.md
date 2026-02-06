@@ -70,7 +70,7 @@ The HCD + JanusGraph Banking Compliance System has achieved **production-ready s
 - Application token with correct permissions
 - Podman-compatible deployment
 
-**Reference:** [`docs/implementation/remediation/WEEK1_FINAL_REPORT.md`](remediation/WEEK1_FINAL_REPORT.md)
+**Reference:** `docs/...`
 
 ---
 
@@ -101,7 +101,7 @@ The HCD + JanusGraph Banking Compliance System has achieved **production-ready s
 - Comprehensive testing scripts
 - Production-ready monitoring stack
 
-**Reference:** [`docs/implementation/remediation/WEEK2_COMPLETE.md`](remediation/WEEK2_COMPLETE.md)
+**Reference:** `docs/...`
 
 ---
 
@@ -149,7 +149,7 @@ OVERALL                         82%         ✅
 - Intelligent test skipping
 - Performance benchmarks
 
-**Reference:** [`docs/implementation/remediation/WEEK4_FINAL_REPORT.md`](remediation/WEEK4_FINAL_REPORT.md)
+**Reference:** `docs/...`
 
 ---
 
@@ -203,7 +203,7 @@ OVERALL                         82%         ✅
 - **BSA/AML:** 100% (5/5 requirements)
 - **PCI DSS:** 100% (5/5 requirements)
 
-**Reference:** [`docs/implementation/remediation/WEEK6_COMPLETE.md`](remediation/WEEK6_COMPLETE.md)
+**Reference:** `docs/...`
 
 ---
 

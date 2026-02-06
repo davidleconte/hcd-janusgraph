@@ -81,7 +81,7 @@ All services with custom Dockerfiles were updated:
 
 ## File Modified
 
-**File**: [`config/compose/docker-compose.full.yml`](../../config/compose/docker-compose.full.yml)
+**File**: `config/...`
 
 **Lines Changed**:
 - Line 100: `context: .` → `context: ../..`
@@ -164,9 +164,9 @@ The fix aligns all three:
 
 ### Issue 1: Directory Requirement
 The requirement to run from `config/compose/` directory is now properly documented in:
-- [`README.md`](../../../README.md)
-- [`QUICKSTART.md`](../../../QUICKSTART.md)
-- [`AGENTS.md`](../../../AGENTS.md)
+- `README.md` (root)
+- `QUICKSTART.md` (root)
+- `AGENTS.md` (root)
 
 ### Issue 2: Build Context Understanding
 This fix clarifies the relationship between:

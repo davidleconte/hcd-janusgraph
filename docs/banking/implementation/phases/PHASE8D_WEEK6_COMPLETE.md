@@ -22,7 +22,7 @@ Week 6 implementation is **COMPLETE** with the Master Orchestrator system operat
 ## Delivered Components
 
 ### 1. Master Orchestrator (598 lines) ✅
-**File**: [`banking/data_generators/orchestration/master_orchestrator.py`](../../banking/data_generators/orchestration/master_orchestrator.py)
+**File**: `banking/data_generators/orchestration/master_orchestrator.py`
 
 **Core Features**:
 - **Generator Coordination**: Manages all 14 generators
@@ -118,7 +118,7 @@ class GenerationStats:
 ---
 
 ### 2. Orchestration Package Init (27 lines) ✅
-**File**: [`banking/data_generators/orchestration/__init__.py`](../../banking/data_generators/orchestration/__init__.py)
+**File**: `banking/data_generators/orchestration/__init__.py`
 
 **Exports**:
 - `MasterOrchestrator`: Main orchestration class
@@ -128,7 +128,7 @@ class GenerationStats:
 ---
 
 ### 3. Complete Banking Scenario Example (145 lines) ✅
-**File**: [`banking/data_generators/examples/complete_banking_scenario.py`](../../banking/data_generators/examples/complete_banking_scenario.py)
+**File**: `banking/data_generators/examples/complete_banking_scenario.py`
 
 **Demonstrates**:
 - Full ecosystem generation (1,000 persons, 200 companies, 2,000 accounts)

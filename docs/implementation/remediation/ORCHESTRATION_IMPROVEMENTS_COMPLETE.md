@@ -16,7 +16,7 @@ Implemented three recommended improvements to service startup orchestration base
 
 ### 1. ✅ Added Health Check Conditions to Application Services
 
-**File:** [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml)
+**File:** `config/...`
 
 **Services Updated:**
 - Jupyter Lab
@@ -54,7 +54,7 @@ healthcheck:
 
 ### 2. ✅ Added Health Checks to Application Services
 
-**File:** [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml)
+**File:** `config/...`
 
 **Health Checks Added:**
 
@@ -98,7 +98,7 @@ healthcheck:
 
 ### 3. ✅ Documented Expected Startup Times
 
-**File:** [`scripts/deployment/deploy_full_stack.sh`](../../../scripts/deployment/deploy_full_stack.sh)
+**File:** `scripts/...`
 
 **Added Documentation:**
 
@@ -253,8 +253,8 @@ Tier 5:
 ## Documentation Updates
 
 ### Files Updated
-1. ✅ [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml) - Health checks added
-2. ✅ [`scripts/deployment/deploy_full_stack.sh`](../../../scripts/deployment/deploy_full_stack.sh) - Startup times documented
+1. ✅ `config/...` - Health checks added
+2. ✅ `scripts/...` - Startup times documented
 
 ### Related Documentation
 - [`SERVICE_STARTUP_ORCHESTRATION_ANALYSIS.md`](SERVICE_STARTUP_ORCHESTRATION_ANALYSIS.md) - Original analysis

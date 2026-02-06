@@ -10,8 +10,8 @@
 ## Quick Reference
 
 **Related Documents:**
-- [Comprehensive Audit](docs/implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md) - Full analysis
-- [Detailed Remediation](docs/implementation/audits/REMEDIATION_PLAN_2026-01-30.md) - Complete instructions
+- [Comprehensive Audit](../implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md) - Full analysis
+- [Detailed Remediation](../implementation/audits/REMEDIATION_PLAN_2026-01-30.md) - Complete instructions
 
 **Issues Summary:**
 - 🔴 4 Critical (Python env, dependencies, Podman isolation, notebooks)
@@ -442,7 +442,7 @@ Production-ready demonstrations of:
 
 ## Usage
 
-See [Banking User Guide](../guides/USER_GUIDE.md) for detailed instructions.
+See Banking User Guide for detailed instructions.
 
 ```bash
 # Start Jupyter Lab with banking module
@@ -538,7 +538,7 @@ Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
 - [ ] **7. Fix Test Execution Scripts**
 - [ ] **8. Update Deployment Scripts**
 
-**See [Detailed Remediation Plan](docs/implementation/audits/REMEDIATION_PLAN_2026-01-30.md) for complete instructions.**
+**See [Detailed Remediation Plan](../implementation/audits/REMEDIATION_PLAN_2026-01-30.md) for complete instructions.**
 
 ---
 
@@ -655,8 +655,8 @@ git stash pop
 
 ## 📞 NEED HELP?
 
-- **Full Audit Report**: [docs/implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md](docs/implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md)
-- **Detailed Instructions**: [docs/implementation/audits/REMEDIATION_PLAN_2026-01-30.md](docs/implementation/audits/REMEDIATION_PLAN_2026-01-30.md)
+- **Full Audit Report**: Audit Document
+- **Detailed Instructions**: Audit Document
 - **AGENTS.md**: Project guidance (needs updates after Phase 1)
 
 ---

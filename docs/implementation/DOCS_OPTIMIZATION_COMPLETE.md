@@ -35,8 +35,8 @@ DEPLOYMENT.md → guides/deployment-guide.md
 ```bash
 BACKUP.md → operations/backup-procedures.md
 MONITORING.md → operations/monitoring-guide.md
-DISASTER_RECOVERY_PLAN.md → operations/disaster-recovery-plan.md
-INCIDENT_RESPONSE_PLAN.md → operations/incident-response-plan.md
+disaster-recovery-plan.md → operations/disaster-recovery-plan.md
+incident-response-plan.md → operations/incident-response-plan.md
 TLS_DEPLOYMENT_GUIDE.md → operations/tls-deployment-guide.md
 ```
 
@@ -50,7 +50,7 @@ BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md → banking/planning/technical-spec
 **To docs/implementation/ (3 files):**
 ```bash
 PROJECT_HANDOFF.md → implementation/project-handoff.md
-PROJECT_STRUCTURE_REVIEW.md → implementation/project-structure-review.md
+project-structure-review.md → implementation/project-structure-review.md
 P0_FIXES.md → implementation/p0-fixes.md
 ```
 
@@ -61,7 +61,7 @@ GEMINI_VS_IBM_BOB_ANALYSIS.md → archive/gemini-vs-ibm-bob-analysis.md
 
 **To docs/architecture/ (1 file):**
 ```bash
-ARCHITECTURE.md → architecture/system-architecture.md
+architecture.md → architecture/system-architecture.md
 ```
 
 ### 2. Directory Structure Created
@@ -77,7 +77,7 @@ ARCHITECTURE.md → architecture/system-architecture.md
 **Before Optimization:**
 ```
 docs/ (21 .md files)
-├── ARCHITECTURE.md
+├── architecture.md
 ├── BACKUP.md
 ├── BANKING_USE_CASES_GAP_ANALYSIS.md
 ├── BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md
@@ -85,15 +85,15 @@ docs/ (21 .md files)
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── DEPLOYMENT.md
-├── DISASTER_RECOVERY_PLAN.md
-├── DOCUMENTATION_STANDARDS.md
+├── disaster-recovery-plan.md
+├── documentation-standards.md
 ├── GEMINI_VS_IBM_BOB_ANALYSIS.md
-├── INCIDENT_RESPONSE_PLAN.md
-├── INDEX.md
+├── incident-response-plan.md
+├── index.md
 ├── MONITORING.md
 ├── P0_FIXES.md
 ├── PROJECT_HANDOFF.md
-├── PROJECT_STRUCTURE_REVIEW.md
+├── project-structure-review.md
 ├── SETUP.md
 ├── TESTING.md
 ├── TLS_DEPLOYMENT_GUIDE.md
@@ -103,8 +103,8 @@ docs/ (21 .md files)
 **After Optimization:**
 ```
 docs/ (5 .md files - 76% reduction!)
-├── INDEX.md                      # Central navigation
-├── DOCUMENTATION_STANDARDS.md    # Meta documentation
+├── index.md                      # Central navigation
+├── documentation-standards.md    # Meta documentation
 ├── CHANGELOG.md                  # Version history
 ├── CONTRIBUTING.md               # Contribution guide
 └── DOCS_OPTIMIZATION_PLAN.md    # This optimization plan
@@ -114,8 +114,8 @@ docs/ (5 .md files - 76% reduction!)
 
 ```
 docs/
-├── INDEX.md (keep)
-├── DOCUMENTATION_STANDARDS.md (keep)
+├── index.md (keep)
+├── documentation-standards.md (keep)
 ├── CHANGELOG.md (keep)
 ├── CONTRIBUTING.md (keep)
 ├── DOCS_OPTIMIZATION_PLAN.md (new)
@@ -128,7 +128,7 @@ docs/
 │   └── deployment-guide.md
 │
 ├── operations/ (5 files added)
-│   ├── OPERATIONS_RUNBOOK.md (existing)
+│   ├── operations-runbook.md (existing)
 │   ├── backup-procedures.md
 │   ├── monitoring-guide.md
 │   ├── disaster-recovery-plan.md
@@ -185,14 +185,14 @@ The following files contain links to moved documentation and need updates:
    - `AGENTS.md` - AI assistant guide
 
 2. **Documentation Files:**
-   - `docs/INDEX.md` - Central navigation (35 links)
+   - `docs/index.md` - Central navigation (35 links)
    - `docs/api/README.md`
    - `docs/api/CHANGELOG.md`
-   - `docs/api/INTEGRATION_GUIDE.md`
+   - `docs/api/integration-guide.md`
    - `docs/architecture/README.md`
-   - `docs/operations/OPERATIONS_RUNBOOK.md`
-   - `docs/compliance/GDPR_COMPLIANCE.md`
-   - `docs/compliance/SOC2_CONTROLS.md`
+   - `docs/operations/operations-runbook.md`
+   - `docs/compliance/gdpr-compliance.md`
+   - `docs/compliance/soc2-controls.md`
    - `docs/banking/README.md`
    - `docs/banking/setup/README.md`
    - `docs/implementation/README.md`
@@ -220,8 +220,8 @@ DEPLOYMENT.md → guides/deployment-guide.md
 
 BACKUP.md → operations/backup-procedures.md
 MONITORING.md → operations/monitoring-guide.md
-DISASTER_RECOVERY_PLAN.md → operations/disaster-recovery-plan.md
-INCIDENT_RESPONSE_PLAN.md → operations/incident-response-plan.md
+disaster-recovery-plan.md → operations/disaster-recovery-plan.md
+incident-response-plan.md → operations/incident-response-plan.md
 TLS_DEPLOYMENT_GUIDE.md → operations/tls-deployment-guide.md
 
 BANKING_USE_CASES_GAP_ANALYSIS.md → banking/planning/gap-analysis.md
@@ -229,11 +229,11 @@ BANKING_USE_CASES_TECHNICAL_SPEC.md → banking/planning/technical-spec.md
 BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md → banking/planning/technical-spec-complete.md
 
 PROJECT_HANDOFF.md → implementation/project-handoff.md
-PROJECT_STRUCTURE_REVIEW.md → implementation/project-structure-review.md
+project-structure-review.md → implementation/project-structure-review.md
 P0_FIXES.md → implementation/p0-fixes.md
 
 GEMINI_VS_IBM_BOB_ANALYSIS.md → archive/gemini-vs-ibm-bob-analysis.md
-ARCHITECTURE.md → architecture/system-architecture.md
+architecture.md → architecture/system-architecture.md
 ```
 
 ### Automated Link Update Script
@@ -318,14 +318,14 @@ echo "Link updates complete!"
 - [x] All implementation docs in docs/implementation/ (6 files total)
 - [ ] All links updated and validated (pending)
 - [x] README files created (guides/README.md)
-- [ ] INDEX.md updated with new structure (pending)
+- [ ] index.md updated with new structure (pending)
 - [ ] Zero broken links (pending validation)
 
 ## Next Steps
 
 ### Immediate (Required)
 1. **Update Documentation Links** - Run the link update script or manually update 94 links
-2. **Update INDEX.md** - Reflect new file locations
+2. **Update index.md** - Reflect new file locations
 3. **Validate Links** - Run link checker to verify all links work
 4. **Update AGENTS.md** - Add new structure patterns
 
@@ -343,9 +343,9 @@ echo "Link updates complete!"
 
 ## Related Documentation
 
-- [Documentation Standards](../DOCUMENTATION_STANDARDS.md)
+- [Documentation Standards](../documentation-standards.md)
 - [Optimization Plan](../DOCS_OPTIMIZATION_PLAN.md)
-- [Documentation Index](../INDEX.md)
+- [Documentation Index](../index.md)
 - [Phase 4 Summary](./PHASE4_WEEK4_ENHANCEMENT.md)
 
 ## Conclusion

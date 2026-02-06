@@ -9,10 +9,10 @@ This directory contains development guides and best practices for the HCD + Janu
 
 ## Contents
 
-- **[CODE_REFACTORING_GUIDE.md](CODE_REFACTORING_GUIDE.md)** - Refactoring best practices
-- **[COMMIT_NEW_FEATURES.md](COMMIT_NEW_FEATURES.md)** - Feature development workflow
-- **[DEPLOYMENT_VERIFICATION.md](DEPLOYMENT_VERIFICATION.md)** - Deployment verification procedures
-- **[GIT_COMMIT_GUIDE.md](GIT_COMMIT_GUIDE.md)** - Git commit conventions
+- **Code Refactoring Guide** - Refactoring best practices
+- **Commit New Features** - Feature development workflow
+- **Deployment Verification** - Deployment verification procedures
+- **Git Commit Guide** - Git commit conventions
 
 ## Related Documentation
 

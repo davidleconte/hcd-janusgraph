@@ -222,7 +222,7 @@ podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
 3. **Remove** `scripts/deployment/notebooks/` (empty)
 4. Add README.md to each notebooks directory explaining purpose
 5. Update all documentation referencing old paths
-6. Add to DOCUMENTATION_STANDARDS.md as example of clear naming
+6. Add to documentation-standards.md as example of clear naming
 
 ---
 

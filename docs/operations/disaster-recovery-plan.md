@@ -636,11 +636,11 @@ Grafana            Prometheus                      No
 
 ### C. Recovery Checklists
 
-See: [`RECOVERY_CHECKLISTS.md`](RECOVERY_CHECKLISTS.md)
+See: Recovery Checklists
 
 ### D. Runbook References
 
-See: [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md)
+See: [`operations-runbook.md`](operations-runbook.md)
 
 ---
 

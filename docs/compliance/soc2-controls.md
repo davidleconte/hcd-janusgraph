@@ -641,7 +641,7 @@ def deprovision_user(user_id, reason):
 
 **Testing Frequency:** Continuous
 
-**Reference:** See [MONITORING.md](../MONITORING.md)
+**Reference:** See `operations/operations-runbook.md`
 
 ---
 
@@ -741,7 +741,7 @@ python scripts/generate_vuln_report.py
 
 **Testing Frequency:** Daily (backups), Monthly (restore tests)
 
-**Reference:** See [BACKUP.md](../BACKUP.md)
+**Reference:** See `BACKUP.md` (see disaster-recovery)
 
 ---
 
@@ -879,7 +879,7 @@ RPO: 1 hour
 
 **Testing Frequency:** Quarterly
 
-**Reference:** See [DISASTER_RECOVERY_PLAN.md](../DISASTER_RECOVERY_PLAN.md)
+**Reference:** See [Disaster Recovery](../operations/disaster-recovery-plan.md)
 
 ---
 
@@ -1077,7 +1077,7 @@ def process_transaction(transaction):
 
 **Testing Frequency:** Annual
 
-**Reference:** See [GDPR_COMPLIANCE.md](./GDPR_COMPLIANCE.md)
+**Reference:** See [gdpr-compliance.md](./gdpr-compliance.md)
 
 ---
 

@@ -597,10 +597,10 @@ check_services()
 
 ## Related Documentation
 
-- [Docker Compose Configuration](../../config/compose/docker-compose.full.yml)
-- [Jupyter Dockerfile](../../docker/jupyter/Dockerfile)
-- [Banking Modules](../../banking/)
-- [Requirements](../../requirements.txt)
+- `config/compose/docker-compose.full.yml`
+- `docker/jupyter/Dockerfile`
+- `banking/`
+- `requirements.txt`
 
 ---
 

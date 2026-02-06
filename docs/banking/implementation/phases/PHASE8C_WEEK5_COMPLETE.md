@@ -22,7 +22,7 @@ Week 5 implementation is **COMPLETE** with all 5 sophisticated pattern generator
 ## Delivered Components
 
 ### 1. InsiderTradingPatternGenerator (478 lines) ✅
-**File**: [`banking/data_generators/patterns/insider_trading_pattern_generator.py`](../../banking/data_generators/patterns/insider_trading_pattern_generator.py)
+**File**: `banking/data_generators/patterns/insider_trading_pattern_generator.py`
 
 **Capabilities**:
 - **Pre-announcement Trading**: Trades before material announcements
@@ -50,7 +50,7 @@ Week 5 implementation is **COMPLETE** with all 5 sophisticated pattern generator
 ---
 
 ### 2. TBMLPatternGenerator (545 lines) ✅
-**File**: [`banking/data_generators/patterns/tbml_pattern_generator.py`](../../banking/data_generators/patterns/tbml_pattern_generator.py)
+**File**: `banking/data_generators/patterns/tbml_pattern_generator.py`
 
 **Capabilities**:
 - **Over/Under Invoicing**: Price manipulation in trade documents
@@ -78,7 +78,7 @@ Week 5 implementation is **COMPLETE** with all 5 sophisticated pattern generator
 ---
 
 ### 3. FraudRingPatternGenerator (418 lines) ✅
-**File**: [`banking/data_generators/patterns/fraud_ring_pattern_generator.py`](../../banking/data_generators/patterns/fraud_ring_pattern_generator.py)
+**File**: `banking/data_generators/patterns/fraud_ring_pattern_generator.py`
 
 **Capabilities**:
 - **Money Mule Networks**: Layered fund transfers
@@ -106,7 +106,7 @@ Week 5 implementation is **COMPLETE** with all 5 sophisticated pattern generator
 ---
 
 ### 4. StructuringPatternGenerator (219 lines) ✅
-**File**: [`banking/data_generators/patterns/structuring_pattern_generator.py`](../../banking/data_generators/patterns/structuring_pattern_generator.py)
+**File**: `banking/data_generators/patterns/structuring_pattern_generator.py`
 
 **Capabilities**:
 - **Just-Below-Threshold**: Transactions under reporting limits
@@ -134,7 +134,7 @@ Week 5 implementation is **COMPLETE** with all 5 sophisticated pattern generator
 ---
 
 ### 5. CATOPatternGenerator (618 lines) ✅
-**File**: [`banking/data_generators/patterns/cato_pattern_generator.py`](../../banking/data_generators/patterns/cato_pattern_generator.py)
+**File**: `banking/data_generators/patterns/cato_pattern_generator.py`
 
 **Capabilities**:
 - **Credential Stuffing**: Automated credential testing

@@ -558,7 +558,7 @@ docker-compose up -d
 ```
 
 **Point-in-Time Recovery:**
-See [DISASTER_RECOVERY_PLAN.md](../DISASTER_RECOVERY_PLAN.md) for detailed procedures.
+See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 
 ---
 
@@ -623,7 +623,7 @@ tail -100 /var/log/janusgraph/access.log
 
 ### 8.2 Security Incident Response
 
-See [INCIDENT_RESPONSE_PLAN.md](../INCIDENT_RESPONSE_PLAN.md) for detailed procedures.
+See [Incident Response](../operations/disaster-recovery-plan.md) for detailed procedures.
 
 ---
 
@@ -722,11 +722,11 @@ docker-compose up -d --scale janusgraph=3
 
 ### Appendix C: Related Documentation
 
-- [Architecture Documentation](../ARCHITECTURE.md)
-- [Disaster Recovery Plan](../DISASTER_RECOVERY_PLAN.md)
-- [Incident Response Plan](../INCIDENT_RESPONSE_PLAN.md)
-- [Monitoring Guide](../MONITORING.md)
-- [Security Guide](../../SECURITY.md)
+- [Architecture Documentation](../architecture/README.md)
+- [Disaster Recovery Plan](disaster-recovery-plan.md)
+- Incident Response (see Disaster Recovery Plan)
+- Monitoring Guide (see this runbook)
+- `SECURITY.md` (root) - Security guidelines
 
 ---
 

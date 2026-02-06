@@ -40,8 +40,8 @@ Remediation plans addressing identified issues and technical debt.
 
 ## Related Documentation
 
-- **Project Structure Review:** [`../PROJECT_STRUCTURE_REVIEW.md`](../PROJECT_STRUCTURE_REVIEW.md)
-- **Architecture Documentation:** [`../ARCHITECTURE.md`](../ARCHITECTURE.md)
+- **Project Structure Review:** [Project Structure Review](project-structure-review.md)
+- **Architecture Documentation:** [Architecture](../architecture/README.md)
 - **Banking Implementation:** [`../banking/`](../banking/)
 - **Historical Archive:** [`../archive/`](../archive/)
 

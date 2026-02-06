@@ -9,7 +9,7 @@
 ## Completed This Session
 
 ### ✅ InsiderTradingPatternGenerator (478 lines)
-**File**: [`banking/data_generators/patterns/insider_trading_pattern_generator.py`](../../banking/data_generators/patterns/insider_trading_pattern_generator.py)
+**File**: `banking/data_generators/patterns/insider_trading_pattern_generator.py`
 
 **Features**:
 - 30+ dimensional pattern analysis

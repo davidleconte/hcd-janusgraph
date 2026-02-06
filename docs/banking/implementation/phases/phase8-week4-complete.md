@@ -17,7 +17,7 @@ Week 4 successfully completed with **all remaining event generators** implemente
 ## Completed Deliverables
 
 ### ✅ CommunicationGenerator (542 lines)
-**File**: [`banking/data_generators/events/communication_generator.py`](../../banking/data_generators/events/communication_generator.py)
+**File**: `banking/data_generators/events/communication_generator.py`
 
 **Features**:
 - Multi-modal communications: email, SMS, phone, chat, video, social media
@@ -45,7 +45,7 @@ Week 4 successfully completed with **all remaining event generators** implemente
 ---
 
 ### ✅ TradeGenerator (378 lines)
-**File**: [`banking/data_generators/events/trade_generator.py`](../../banking/data_generators/events/trade_generator.py)
+**File**: `banking/data_generators/events/trade_generator.py`
 
 **Features**:
 - Multiple asset types: stocks, options, futures, bonds, ETFs
@@ -85,7 +85,7 @@ Week 4 successfully completed with **all remaining event generators** implemente
 ---
 
 ### ✅ TravelGenerator (330 lines)
-**File**: [`banking/data_generators/events/travel_generator.py`](../../banking/data_generators/events/travel_generator.py)
+**File**: `banking/data_generators/events/travel_generator.py`
 
 **Features**:
 - Multi-country travel patterns (70+ countries)
@@ -121,7 +121,7 @@ Week 4 successfully completed with **all remaining event generators** implemente
 ---
 
 ### ✅ DocumentGenerator (378 lines)
-**File**: [`banking/data_generators/events/document_generator.py`](../../banking/data_generators/events/document_generator.py)
+**File**: `banking/data_generators/events/document_generator.py`
 
 **Features**:
 - Multiple document types: invoice, purchase order, bill of lading, contract, customs declaration, certificate of origin, packing list
@@ -158,7 +158,7 @@ Week 4 successfully completed with **all remaining event generators** implemente
 ---
 
 ### ✅ Updated Package Exports (25 lines)
-**File**: [`banking/data_generators/events/__init__.py`](../../banking/data_generators/events/__init__.py)
+**File**: `banking/data_generators/events/__init__.py`
 
 Exports all event generators for easy import:
 ```python
@@ -174,7 +174,7 @@ from banking.data_generators.events import (
 ---
 
 ### ✅ Enhanced Data Models
-**File**: [`banking/data_generators/utils/data_models.py`](../../banking/data_generators/utils/data_models.py)
+**File**: `banking/data_generators/utils/data_models.py`
 
 Added new models:
 - `Trade` - Securities transaction entity (40 lines)

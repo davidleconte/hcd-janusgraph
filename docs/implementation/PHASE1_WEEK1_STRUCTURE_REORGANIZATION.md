@@ -206,7 +206,7 @@ $ find docs/banking/setup -type f -name "*.md" | wc -l
    - Create `docs/banking/architecture/`
    - Create `docs/banking/implementation/`
    - Create `docs/banking/planning/`
-2. Create central documentation index (`docs/INDEX.md`)
+2. Create central documentation index (`docs/index.md`)
 3. Add missing README files to code directories
 
 ### Phase 3 (Week 3) - Standardization
@@ -275,7 +275,7 @@ All tasks completed successfully without issues.
 
 ## References
 
-- **Structure Review:** [`../PROJECT_STRUCTURE_REVIEW.md`](../PROJECT_STRUCTURE_REVIEW.md)
+- **Structure Review:** [Project Structure Review](project-structure-review.md)
 - **Implementation Docs:** [`./README.md`](./README.md)
 - **Archive Docs:** [`../archive/README.md`](../archive/README.md)
 - **Banking Setup:** [`../banking/setup/README.md`](../banking/setup/README.md)

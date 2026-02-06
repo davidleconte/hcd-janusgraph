@@ -16,7 +16,7 @@ Week 1 of Phase 8A is **complete** with all foundational utilities and the Perso
 
 ### 1. ✅ Utilities Package (3 modules, 1,795 lines)
 
-#### [`banking/data_generators/utils/data_models.py`](../../banking/data_generators/utils/data_models.py) - 673 lines
+#### `banking/data_generators/utils/data_models.py` - 673 lines
 **Comprehensive Pydantic Data Models**
 
 - **8 Enumeration Types**: Gender, RiskLevel, AccountType, TransactionType, CommunicationType, CompanyType, IndustryType, RelationshipType
@@ -35,7 +35,7 @@ Week 1 of Phase 8A is **complete** with all foundational utilities and the Perso
 - ISO standard compliance (ISO 3166, ISO 4217, ISO 639)
 - Extensible metadata fields
 
-#### [`banking/data_generators/utils/constants.py`](../../banking/data_generators/utils/constants.py) - 524 lines
+#### `banking/data_generators/utils/constants.py` - 524 lines
 **Comprehensive Reference Data**
 
 - **70+ Countries**: ISO 3166-1 alpha-2 codes with full names
@@ -54,7 +54,7 @@ Week 1 of Phase 8A is **complete** with all foundational utilities and the Perso
 - **Sanctions Lists**: 7 major lists (OFAC, UN, EU, UK, etc.)
 - **PEP Categories**: 15 types of politically exposed persons
 
-#### [`banking/data_generators/utils/helpers.py`](../../banking/data_generators/utils/helpers.py) - 598 lines
+#### `banking/data_generators/utils/helpers.py` - 598 lines
 **Utility Functions & Algorithms**
 
 **Random Generation**:
@@ -95,7 +95,7 @@ Week 1 of Phase 8A is **complete** with all foundational utilities and the Perso
 
 ### 2. ✅ Core Generators (2 modules, 680 lines)
 
-#### [`banking/data_generators/core/base_generator.py`](../../banking/data_generators/core/base_generator.py) - 153 lines
+#### `banking/data_generators/core/base_generator.py` - 153 lines
 **Abstract Base Generator Class**
 
 **Features**:
@@ -115,7 +115,7 @@ Week 1 of Phase 8A is **complete** with all foundational utilities and the Perso
 - `set_seed()`: Update random seed
 - `update_config()`: Dynamic configuration
 
-#### [`banking/data_generators/core/person_generator.py`](../../banking/data_generators/core/person_generator.py) - 527 lines
+#### `banking/data_generators/core/person_generator.py` - 527 lines
 **Comprehensive Person Generator**
 
 **Features**:

@@ -31,7 +31,7 @@ Week 8 is the final week of Phase 8, focusing on comprehensive documentation, ad
 
 ### 1. API Reference Documentation (~600 lines)
 
-**File**: `docs/banking/API_REFERENCE.md`
+**File**: `docs/banking/api-reference.md`
 - Complete API documentation for all 14 generators
 - Method signatures and parameters
 - Return types and examples
@@ -47,7 +47,7 @@ Week 8 is the final week of Phase 8, focusing on comprehensive documentation, ad
 
 ### 2. Architecture Documentation (~400 lines)
 
-**File**: `docs/banking/ARCHITECTURE.md`
+**File**: `docs/banking/architecture.md`
 - System architecture overview
 - Component relationships
 - Data flow diagrams
@@ -128,7 +128,7 @@ Week 8 is the final week of Phase 8, focusing on comprehensive documentation, ad
 
 ### 7. User Guide (~400 lines)
 
-**File**: `docs/banking/USER_GUIDE.md`
+**File**: `docs/banking/user-guide.md`
 - Getting started tutorial
 - Basic usage examples
 - Common workflows
@@ -193,12 +193,12 @@ Week 8 is the final week of Phase 8, focusing on comprehensive documentation, ad
 
 ```
 docs/banking/
-├── API_REFERENCE.md              # Complete API documentation
-├── ARCHITECTURE.md               # System architecture
+├── api-reference.md              # Complete API documentation
+├── architecture.md               # System architecture
 ├── DEPLOYMENT_GUIDE.md           # Production deployment
 ├── PERFORMANCE_TUNING.md         # Optimization strategies
 ├── TROUBLESHOOTING.md            # Common issues
-├── USER_GUIDE.md                 # Getting started
+├── user-guide.md                 # Getting started
 └── PHASE8_COMPLETE.md            # Project handoff
 
 banking/data_generators/examples/

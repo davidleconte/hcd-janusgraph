@@ -739,7 +739,7 @@ set +e  # Disables error checking - dangerous
 |----------|--------------|----------|--------|
 | README.md | 90% | 95% | 🟢 Good |
 | QUICKSTART.md | 85% | 90% | 🟢 Good |
-| ARCHITECTURE.md | 70% | 85% | 🟡 Medium |
+| architecture.md | 70% | 85% | 🟡 Medium |
 | SECURITY.md | 40% | 80% | 🟡 Medium |
 | TESTING.md | 95% | 95% | 🟢 Excellent |
 | DEPLOYMENT.md | 75% | 85% | 🟢 Good |

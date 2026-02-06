@@ -205,9 +205,9 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 
 ## Related Documentation
 
-- [SSL/TLS Configuration Guide](SSL_TLS_GUIDE.md)
-- [Security Best Practices](SECURITY_BEST_PRACTICES.md)
-- [Deployment Guide](../DEPLOYMENT.md)
+- SSL/TLS Configuration (see this guide)
+- Security Best Practices (see `SECURITY.md` in root)
+- Deployment Guide (see Getting Started)
 
 ---
 

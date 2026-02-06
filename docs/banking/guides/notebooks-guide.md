@@ -226,9 +226,9 @@ Select "JanusGraph Analysis (Python 3.11)" from kernel dropdown.
 
 ## Related Documentation
 
-- [Banking User Guide](USER_GUIDE.md)
+- [Banking User Guide](user-guide.md)
 - [API Documentation](../../api/README.md)
-- [Deployment Guide](../../operations/OPERATIONS_RUNBOOK.md)
+- [Deployment Guide](../../operations/operations-runbook.md)
 
 ---
 

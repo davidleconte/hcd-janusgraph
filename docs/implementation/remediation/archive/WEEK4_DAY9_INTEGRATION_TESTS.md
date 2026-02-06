@@ -12,7 +12,7 @@ Week 4 Day 9 successfully created comprehensive integration tests for AML and fr
 
 ### Integration Test Suite
 
-**File:** [`banking/tests/test_integration_aml_fraud.py`](../../banking/tests/test_integration_aml_fraud.py)
+**File:** `banking/tests/test_integration_aml_fraud.py`
 
 #### Statistics
 - **Lines of Code:** 632

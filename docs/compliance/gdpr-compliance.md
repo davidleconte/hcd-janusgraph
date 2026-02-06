@@ -243,7 +243,7 @@ def enforce_data_retention():
 - ✅ Audit logging
 - ✅ Regular security assessments
 
-**Reference:** See [SECURITY.md](../../SECURITY.md)
+**Reference:** See `SECURITY.md`
 
 ---
 
@@ -545,7 +545,7 @@ def anonymize_for_analytics(data):
 - Large-scale processing of special categories
 - Systematic monitoring
 
-**DPIA Template:** See [DPIA_TEMPLATE.md](./DPIA_TEMPLATE.md)
+**DPIA Template:** See DPIA Template
 
 ### 6.4 Policies and Procedures
 
@@ -626,7 +626,7 @@ def anonymize_for_analytics(data):
 3. Document breach in register
 4. Implement remediation
 
-**Reference:** See [INCIDENT_RESPONSE_PLAN.md](../INCIDENT_RESPONSE_PLAN.md)
+**Reference:** See [Incident Response](../operations/disaster-recovery-plan.md)
 
 ### 8.3 Breach Register
 
@@ -696,7 +696,7 @@ def anonymize_for_analytics(data):
 - Deletion/return of data
 - Audit rights
 
-**Template:** See [DPA_TEMPLATE.md](./DPA_TEMPLATE.md)
+**Template:** See DPA Template
 
 ### 10.3 Current Processors
 

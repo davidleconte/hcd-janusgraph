@@ -20,7 +20,7 @@ All CRITICAL and HIGH severity issues identified in the shell script audit have 
 
 ### 1. ✅ CRITICAL: JMX Port Exposure (Security)
 
-**File:** [`scripts/deployment/deploy_full_stack.sh`](../../../scripts/deployment/deploy_full_stack.sh)  
+**File:** `scripts/...`  
 **Issue:** Line 108 exposed JMX port 7199 externally, creating security vulnerability  
 **Impact:** Remote attackers could access JMX interface without authentication
 
@@ -38,7 +38,7 @@ All CRITICAL and HIGH severity issues identified in the shell script audit have 
 
 ### 2. ✅ HIGH: Jupyter Script Syntax Error
 
-**File:** [`scripts/deployment/start_jupyter.sh`](../../../scripts/deployment/start_jupyter.sh)  
+**File:** `scripts/...`  
 **Issues:**
 - Line 45: Duplicate `fi` statement causing syntax error
 - Line 52: Incorrect Dockerfile path
@@ -66,8 +66,8 @@ dockerfile: $PROJECT_ROOT/docker/jupyter/Dockerfile
 ### 3. ✅ HIGH: Backup/Restore Naming Mismatch
 
 **Files:** 
-- [`scripts/backup/backup_volumes.sh`](../../../scripts/backup/backup_volumes.sh)
-- [`scripts/backup/restore_volumes.sh`](../../../scripts/backup/restore_volumes.sh)
+- `scripts/...`
+- `scripts/...`
 
 **Issue:** Backup creates timestamped files, restore expects non-timestamped files
 
@@ -104,7 +104,7 @@ JG_BACKUP="$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
 
 ### 4. ✅ HIGH: Undefined Variable in Python Script
 
-**File:** [`src/python/init/initialize_graph.py`](../../../src/python/init/initialize_graph.py)  
+**File:** `src/python/init/initialize_graph.py`  
 **Issue:** Line 100 referenced undefined `data_script` variable
 
 **Fix Applied:**
@@ -145,7 +145,7 @@ graph.tx().commit()
 
 ### 5. ✅ HIGH: Dangerous Cleanup Script
 
-**File:** [`scripts/utils/cleanup_podman.sh`](../../../scripts/utils/cleanup_podman.sh)  
+**File:** `scripts/...`  
 **Issues:**
 - Deleted ALL containers/volumes system-wide
 - No confirmation prompt
@@ -190,7 +190,7 @@ done
 
 ### 6. ✅ HIGH: Vault Token Logging to Stdout
 
-**File:** [`scripts/security/init_vault.sh`](../../../scripts/security/init_vault.sh)  
+**File:** `scripts/...`  
 **Issue:** Lines 225-231 printed sensitive tokens and passwords to stdout
 
 **Fix Applied:**
@@ -344,12 +344,12 @@ python -c "from src.python.init.initialize_graph import load_sample_data; print(
 
 ## Files Modified
 
-1. ✅ [`scripts/deployment/deploy_full_stack.sh`](../../../scripts/deployment/deploy_full_stack.sh) - Removed JMX port exposure
-2. ✅ [`scripts/deployment/start_jupyter.sh`](../../../scripts/deployment/start_jupyter.sh) - Fixed syntax and paths
-3. ✅ [`scripts/backup/restore_volumes.sh`](../../../scripts/backup/restore_volumes.sh) - Fixed naming convention
-4. ✅ [`src/python/init/initialize_graph.py`](../../../src/python/init/initialize_graph.py) - Added data_script
-5. ✅ [`scripts/utils/cleanup_podman.sh`](../../../scripts/utils/cleanup_podman.sh) - Added safety measures
-6. ✅ [`scripts/security/init_vault.sh`](../../../scripts/security/init_vault.sh) - Secured credential output
+1. ✅ `scripts/...` - Removed JMX port exposure
+2. ✅ `scripts/...` - Fixed syntax and paths
+3. ✅ `scripts/...` - Fixed naming convention
+4. ✅ `src/python/init/initialize_graph.py` - Added data_script
+5. ✅ `scripts/...` - Added safety measures
+6. ✅ `scripts/...` - Secured credential output
 
 ---
 

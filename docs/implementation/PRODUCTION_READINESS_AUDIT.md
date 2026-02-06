@@ -48,26 +48,26 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 
 #### Strengths
 
-1. **Excellent Input Validation** ([`src/python/utils/validation.py`](src/python/utils/validation.py:1))
+1. **Excellent Input Validation** (`src/python/...`)
    - Comprehensive `Validator` class with 15+ validation methods
    - Protection against SQL injection, XSS, path traversal
    - Proper Decimal handling for financial amounts
    - Strong password requirements (12+ chars, complexity)
 
-2. **Robust Authentication** ([`src/python/client/janusgraph_client.py`](src/python/client/janusgraph_client.py:52))
+2. **Robust Authentication** (`src/python/...`)
    - Mandatory authentication for all services
-   - Shared credential utilities ([`src/python/utils/auth.py`](src/python/utils/auth.py:17))
+   - Shared credential utilities (`src/python/...`)
    - Environment variable support with fallbacks
 
-3. **SSL/TLS Infrastructure** ([`scripts/security/generate_certificates.sh`](scripts/security/generate_certificates.sh:1))
+3. **SSL/TLS Infrastructure** (`scripts/...`)
    - Automated certificate generation script
    - Support for all services (JanusGraph, HCD, OpenSearch, Grafana)
    - Java keystore/truststore creation
    - 365-day validity with renewal procedures
 
 4. **Security Headers & Logging**
-   - Log sanitization enabled ([`.env.example`](.env.example:58))
-   - Security scanning in CI pipeline ([`.github/workflows/ci.yml`](.github/workflows/ci.yml:135))
+   - Log sanitization enabled (`.env.example`)
+   - Security scanning in CI pipeline (`.github/...`)
    - Trivy vulnerability scanning
 
 #### Critical Issues
@@ -87,7 +87,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
      ```
 
 2. **🔴 No Secrets Management Integration**
-   - **Files:** [`.env.example`](.env.example:1), deployment scripts
+   - **Files:** `.env.example`, deployment scripts
    - **Issue:** Credentials stored in environment files
    - **Impact:** Risk of credential exposure, no rotation automation
    - **Recommendation:** Integrate HashiCorp Vault or AWS Secrets Manager
@@ -105,7 +105,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - **Recommendation:** Enable with authentication and firewall rules
 
 4. **⚠️ Default Passwords in Examples**
-   - **File:** [`.env.example`](.env.example:21-22)
+   - **File:** `.env.example`
    - **Issue:** Placeholder passwords may be used in development
    - **Impact:** Weak credentials if not changed
    - **Recommendation:** Add validation script to check for default passwords
@@ -113,7 +113,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 #### Medium Priority Issues
 
 1. **Missing Rate Limiting Implementation**
-   - Configuration present ([`.env.example`](.env.example:66-68)) but no enforcement code
+   - Configuration present (`.env.example`) but no enforcement code
    - Add rate limiting middleware using `limits` library
 
 2. **No Security Audit Logging**
@@ -138,7 +138,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 
 1. **Excellent Architecture**
    - Clear separation of concerns
-   - Abstract base classes ([`banking/data_generators/core/base_generator.py`](banking/data_generators/core/base_generator.py:24))
+   - Abstract base classes (`banking/...`)
    - Generic type support with TypeVar
    - Consistent patterns across modules
 
@@ -148,7 +148,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - Proper use of Optional, Union, List types
 
 3. **Comprehensive Error Handling**
-   - Custom exception hierarchy ([`src/python/client/exceptions.py`](src/python/client/exceptions.py:1))
+   - Custom exception hierarchy (`src/python/...`)
    - Proper exception chaining with `from e`
    - Detailed error messages with context
 
@@ -165,7 +165,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - **Recommendation:** Run `mypy --strict` and fix all issues
 
 2. **⚠️ TODO Comments in Production Code**
-   - **File:** [`scripts/deployment/load_production_data.py`](scripts/deployment/load_production_data.py:243)
+   - **File:** `scripts/...`
    - **Line:** 243
    - **Issue:** `# TODO: Add JanusGraph verification when graph is loaded`
    - **Recommendation:** Complete implementation or create tracked issue
@@ -188,7 +188,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 1. **Well-Structured Test Suite**
    - Clear test organization ([`banking/data_generators/tests/`](banking/data_generators/tests/))
    - Smoke, functional, edge case, and performance tests
-   - Good use of pytest fixtures ([`banking/data_generators/tests/conftest.py`](banking/data_generators/tests/conftest.py:1))
+   - Good use of pytest fixtures (`banking/...`)
 
 2. **Comprehensive Test Categories**
    - Unit tests for core generators
@@ -197,7 +197,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - Performance benchmarks
 
 3. **CI Pipeline Configured**
-   - GitHub Actions workflow ([`.github/workflows/ci.yml`](.github/workflows/ci.yml:1))
+   - GitHub Actions workflow (`.github/...`)
    - Multiple Python versions (3.10, 3.11, 3.12)
    - Coverage reporting to Codecov
 
@@ -212,7 +212,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
      - Add coverage gates to CI pipeline
 
 2. **🔴 Test Scripts Not Executable**
-   - **File:** [`banking/data_generators/tests/run_tests.sh`](banking/data_generators/tests/run_tests.sh:1)
+   - **File:** `banking/data_generators/tests/run_tests.sh`
    - **Issue:** Missing execute permissions (644 instead of 755)
    - **Impact:** Cannot run test suite easily
    - **Fix:** `chmod +x banking/data_generators/tests/run_tests.sh`
@@ -262,12 +262,12 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 #### Strengths
 
 1. **Comprehensive Documentation Structure**
-   - Central index ([`docs/INDEX.md`](docs/INDEX.md:1))
+   - Central index (`docs/...`)
    - Role-based navigation (Developers, Operators, Architects)
-   - Clear documentation standards ([`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md:1))
+   - Clear documentation standards (`docs/...`)
 
 2. **Excellent User Guides**
-   - Banking user guide ([`docs/banking/guides/USER_GUIDE.md`](docs/banking/guides/USER_GUIDE.md:1))
+   - Banking user guide (`docs/...`)
    - Setup guides with step-by-step instructions
    - API reference documentation
 
@@ -277,7 +277,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - Clear module-level documentation
 
 4. **Operations Documentation**
-   - Operations runbook ([`docs/operations/OPERATIONS_RUNBOOK.md`](docs/operations/OPERATIONS_RUNBOOK.md:1))
+   - Operations runbook (`docs/...`)
    - Monitoring guide
    - Troubleshooting guide
 
@@ -289,7 +289,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - Missing rollback procedures
 
 2. **⚠️ Incomplete API Documentation**
-   - OpenAPI spec exists ([`docs/api/openapi.yaml`](docs/api/openapi.yaml:1))
+   - OpenAPI spec exists (`docs/...`)
    - Not all endpoints documented
    - Missing request/response examples
 
@@ -332,7 +332,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 #### Strengths
 
 1. **Caching Configuration**
-   - [`config/janusgraph/janusgraph-hcd.properties`](config/janusgraph/janusgraph-hcd.properties:25-29)
+   - `config/...`
    - DB cache enabled with 25% memory allocation
    - 180-second cache time
 
@@ -417,7 +417,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
    - Security-specific dependencies
 
 3. **Development Tools**
-   - Pre-commit hooks ([`.pre-commit-config.yaml`](.pre-commit-config.yaml:1))
+   - Pre-commit hooks (`.pre-commit-config.yaml`)
    - Makefile for common tasks ([`Makefile`](Makefile:1))
    - EditorConfig for consistency
 
@@ -475,7 +475,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 #### Strengths
 
 1. **Deployment Scripts**
-   - [`scripts/deployment/deploy_full_stack.sh`](scripts/deployment/deploy_full_stack.sh:1)
+   - `scripts/...`
    - Automated image building
    - Health checks configured
 
@@ -933,10 +933,10 @@ With the recommended improvements, this system will be **production-ready and en
 
 ### Security-Critical Files
 
-1. [`src/python/client/janusgraph_client.py`](src/python/client/janusgraph_client.py:1) - ✅ Excellent
-2. [`src/python/utils/validation.py`](src/python/utils/validation.py:1) - ✅ Excellent
-3. [`src/python/utils/auth.py`](src/python/utils/auth.py:1) - ✅ Good
-4. [`.env.example`](.env.example:1) - ⚠️ Needs SSL enabled by default
+1. `src/python/...` - ✅ Excellent
+2. `src/python/...` - ✅ Excellent
+3. `src/python/...` - ✅ Good
+4. `.env.example` - ⚠️ Needs SSL enabled by default
 5. [`docker-compose.yml`](docker-compose.yml:1) - ⚠️ Needs TLS configuration
 
 ### Test Coverage Gaps

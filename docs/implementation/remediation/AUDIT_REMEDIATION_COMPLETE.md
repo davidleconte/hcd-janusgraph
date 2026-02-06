@@ -396,9 +396,9 @@ git ls-files | grep -E "\.env|\.vault|\.pem|\.key"
 
 ## Related Documentation
 
-- [`AGENTS.md`](../../../AGENTS.md) - Updated with deployment requirements
-- [`README.md`](../../../README.md) - Updated Quick Start
-- [`QUICKSTART.md`](../../../QUICKSTART.md) - Updated deployment commands
+- `AGENTS.md` (root) - Updated with deployment requirements
+- `README.md` (root) - Updated Quick Start
+- `QUICKSTART.md` (root) - Updated deployment commands
 - [`DOCKER_COMPOSE_BUILD_CONTEXT_FIX.md`](DOCKER_COMPOSE_BUILD_CONTEXT_FIX.md) - Build context fix details
 - [`DEPLOYMENT_DOCUMENTATION_UPDATE.md`](DEPLOYMENT_DOCUMENTATION_UPDATE.md) - Documentation updates
 

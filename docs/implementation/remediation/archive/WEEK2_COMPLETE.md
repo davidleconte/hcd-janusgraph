@@ -37,41 +37,41 @@ Week 2 monitoring enhancement is complete. The system now has production-grade m
 ## Files Created (11)
 
 ### Configuration (4)
-1. [`config/monitoring/alertmanager.yml`](../../../config/monitoring/alertmanager.yml) - AlertManager config (189 lines)
-2. [`config/grafana/datasources/prometheus.yml`](../../../config/grafana/datasources/prometheus.yml) - Datasource provisioning
-3. [`config/grafana/dashboards/dashboards.yml`](../../../config/grafana/dashboards/dashboards.yml) - Dashboard provisioning
-4. [`.env.example`](../../../.env.example) - Added monitoring variables
+1. `config/...` - AlertManager config (189 lines)
+2. `config/...` - Datasource provisioning
+3. `config/...` - Dashboard provisioning
+4. `.env.example` - Added monitoring variables
 
 ### Code (2)
-5. [`scripts/monitoring/janusgraph_exporter.py`](../../../scripts/monitoring/janusgraph_exporter.py) - Metrics exporter (238 lines)
-6. [`docker/Dockerfile.exporter`](../../../docker/Dockerfile.exporter) - Exporter container
+5. `scripts/monitoring/janusgraph_exporter.py` - Metrics exporter (238 lines)
+6. `docker/Dockerfile.exporter` - Exporter container
 
 ### Scripts (3)
-7. [`scripts/monitoring/deploy_monitoring.sh`](../../../scripts/monitoring/deploy_monitoring.sh) - Deployment script (145 lines)
-8. [`scripts/monitoring/test_alerts.sh`](../../../scripts/monitoring/test_alerts.sh) - Alert testing (143 lines)
-9. [`scripts/monitoring/setup_alerts.sh`](../../../scripts/monitoring/setup_alerts.sh) - Existing, now integrated
+7. `scripts/...` - Deployment script (145 lines)
+8. `scripts/...` - Alert testing (143 lines)
+9. `scripts/...` - Existing, now integrated
 
 ### Documentation (2)
-10. [`docs/implementation/remediation/WEEK2_MONITORING_IMPLEMENTATION.md`](WEEK2_MONITORING_IMPLEMENTATION.md) - Implementation guide (396 lines)
-11. [`docs/implementation/remediation/WEEK2_COMPLETE.md`](WEEK2_COMPLETE.md) - This file
+10. `docs/...` - Implementation guide (396 lines)
+11. `docs/...` - This file
 
 ## Files Modified (4)
 
-1. [`config/compose/docker-compose.full.yml`](../../../config/compose/docker-compose.full.yml)
+1. `config/...`
    - Added AlertManager service
    - Added JanusGraph exporter service
    - Updated Grafana with provisioning
    - Updated Prometheus with alert rules
 
-2. [`config/monitoring/prometheus.yml`](../../../config/monitoring/prometheus.yml)
+2. `config/...`
    - Added AlertManager integration
    - Added alert rule loading
    - Added exporter scrape config
 
-3. [`requirements.txt`](../../../requirements.txt)
+3. `requirements.txt`
    - Added prometheus-client==0.19.0
 
-4. [`.env.example`](../../../.env.example)
+4. `.env.example`
    - Added SMTP_PASSWORD
    - Added SLACK_WEBHOOK_URL
    - Added GRAFANA_ADMIN_PASSWORD

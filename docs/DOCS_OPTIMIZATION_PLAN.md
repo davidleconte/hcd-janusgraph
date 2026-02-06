@@ -10,7 +10,7 @@
 
 ```
 docs/
-├── ARCHITECTURE.md                              # Should be in architecture/
+├── architecture.md                              # Should be in architecture/
 ├── BACKUP.md                                    # Should be in operations/
 ├── BANKING_USE_CASES_GAP_ANALYSIS.md           # Should be in banking/planning/
 ├── BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md # Should be in banking/planning/
@@ -18,15 +18,15 @@ docs/
 ├── CHANGELOG.md                                 # Keep at root (standard)
 ├── CONTRIBUTING.md                              # Keep at root (standard)
 ├── DEPLOYMENT.md                                # Should be in operations/
-├── DISASTER_RECOVERY_PLAN.md                   # Should be in operations/
-├── DOCUMENTATION_STANDARDS.md                  # Keep at root (meta)
+├── disaster-recovery-plan.md                   # Should be in operations/
+├── documentation-standards.md                  # Keep at root (meta)
 ├── GEMINI_VS_IBM_BOB_ANALYSIS.md               # Should be in archive/
-├── INCIDENT_RESPONSE_PLAN.md                   # Should be in operations/
-├── INDEX.md                                     # Keep at root (navigation)
+├── incident-response-plan.md                   # Should be in operations/
+├── index.md                                     # Keep at root (navigation)
 ├── MONITORING.md                                # Should be in operations/
 ├── P0_FIXES.md                                  # Should be in implementation/
 ├── PROJECT_HANDOFF.md                          # Should be in implementation/
-├── PROJECT_STRUCTURE_REVIEW.md                 # Should be in implementation/
+├── project-structure-review.md                 # Should be in implementation/
 ├── SETUP.md                                     # Should be in guides/
 ├── TESTING.md                                   # Should be in guides/
 ├── TLS_DEPLOYMENT_GUIDE.md                     # Should be in operations/
@@ -46,8 +46,8 @@ docs/
 
 ```
 docs/
-├── INDEX.md                          # Central navigation (KEEP)
-├── DOCUMENTATION_STANDARDS.md        # Meta documentation (KEEP)
+├── index.md                          # Central navigation (KEEP)
+├── documentation-standards.md        # Meta documentation (KEEP)
 ├── CHANGELOG.md                      # Version history (KEEP)
 ├── CONTRIBUTING.md                   # Contribution guide (KEEP)
 ├── README.md                         # Docs overview (NEW)
@@ -61,7 +61,7 @@ docs/
 │
 ├── architecture/                     # Architecture and design
 │   ├── README.md
-│   ├── system-architecture.md       # From ARCHITECTURE.md
+│   ├── system-architecture.md       # From architecture.md
 │   ├── ADR-001-*.md
 │   └── ...
 │
@@ -69,10 +69,10 @@ docs/
 │   ├── README.md
 │   ├── backup-procedures.md         # From BACKUP.md
 │   ├── monitoring-guide.md          # From MONITORING.md
-│   ├── disaster-recovery-plan.md    # From DISASTER_RECOVERY_PLAN.md
-│   ├── incident-response-plan.md    # From INCIDENT_RESPONSE_PLAN.md
+│   ├── disaster-recovery-plan.md    # From disaster-recovery-plan.md
+│   ├── incident-response-plan.md    # From incident-response-plan.md
 │   ├── tls-deployment-guide.md      # From TLS_DEPLOYMENT_GUIDE.md
-│   └── OPERATIONS_RUNBOOK.md
+│   └── operations-runbook.md
 │
 ├── banking/                          # Banking domain documentation
 │   ├── README.md
@@ -89,7 +89,7 @@ docs/
 ├── implementation/                   # Project implementation tracking
 │   ├── README.md
 │   ├── project-handoff.md           # From PROJECT_HANDOFF.md
-│   ├── project-structure-review.md  # From PROJECT_STRUCTURE_REVIEW.md
+│   ├── project-structure-review.md  # From project-structure-review.md
 │   ├── p0-fixes.md                  # From P0_FIXES.md
 │   ├── audits/
 │   ├── phases/
@@ -128,15 +128,15 @@ mv docs/DEPLOYMENT.md docs/guides/deployment-guide.md
 
 #### Move to architecture/
 ```bash
-mv docs/ARCHITECTURE.md docs/architecture/system-architecture.md
+mv docs/architecture.md docs/architecture/system-architecture.md
 ```
 
 #### Move to operations/
 ```bash
 mv docs/BACKUP.md docs/operations/backup-procedures.md
 mv docs/MONITORING.md docs/operations/monitoring-guide.md
-mv docs/DISASTER_RECOVERY_PLAN.md docs/operations/disaster-recovery-plan.md
-mv docs/INCIDENT_RESPONSE_PLAN.md docs/operations/incident-response-plan.md
+mv docs/disaster-recovery-plan.md docs/operations/disaster-recovery-plan.md
+mv docs/incident-response-plan.md docs/operations/incident-response-plan.md
 mv docs/TLS_DEPLOYMENT_GUIDE.md docs/operations/tls-deployment-guide.md
 ```
 
@@ -150,7 +150,7 @@ mv docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md docs/banking/planning/techn
 #### Move to implementation/
 ```bash
 mv docs/PROJECT_HANDOFF.md docs/implementation/project-handoff.md
-mv docs/PROJECT_STRUCTURE_REVIEW.md docs/implementation/project-structure-review.md
+mv docs/project-structure-review.md docs/implementation/project-structure-review.md
 mv docs/P0_FIXES.md docs/implementation/p0-fixes.md
 ```
 
@@ -163,7 +163,7 @@ mv docs/GEMINI_VS_IBM_BOB_ANALYSIS.md docs/archive/gemini-vs-ibm-bob-analysis.md
 
 Update links in all files that reference moved documents:
 - README.md
-- docs/INDEX.md
+- docs/index.md
 - All phase summaries
 - All README files
 - AGENTS.md
@@ -178,7 +178,7 @@ Create README files for new directories:
 
 ### Phase 5: Update Central Index
 
-Update `docs/INDEX.md` with new file locations and improved navigation.
+Update `docs/index.md` with new file locations and improved navigation.
 
 ## Benefits
 
@@ -213,7 +213,7 @@ Update `docs/INDEX.md` with new file locations and improved navigation.
 - **Phase 2:** 30 minutes (move files)
 - **Phase 3:** 45 minutes (update links)
 - **Phase 4:** 30 minutes (create/update READMEs)
-- **Phase 5:** 15 minutes (update INDEX.md)
+- **Phase 5:** 15 minutes (update index.md)
 - **Total:** ~2.5 hours
 
 ### Risk Assessment
@@ -230,7 +230,7 @@ Update `docs/INDEX.md` with new file locations and improved navigation.
 - [ ] All implementation docs in docs/implementation/
 - [ ] All links updated and validated
 - [ ] All README files created/updated
-- [ ] INDEX.md updated with new structure
+- [ ] index.md updated with new structure
 - [ ] Zero broken links
 
 ## Comparison: Before vs After
@@ -249,8 +249,8 @@ docs/ (21 .md files at root)
 ### After (Optimized)
 ```
 docs/ (4-5 .md files at root)
-├── INDEX.md
-├── DOCUMENTATION_STANDARDS.md
+├── index.md
+├── documentation-standards.md
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── guides/ (4 files)
@@ -283,10 +283,10 @@ Implement this optimization plan to:
 
 ## Related Documentation
 
-- [Documentation Standards](DOCUMENTATION_STANDARDS.md)
-- [Project Structure Review](PROJECT_STRUCTURE_REVIEW.md)
+- [Documentation Standards](documentation-standards.md)
+- [Project Structure Review](implementation/project-structure-review.md)
 - [Phase 1-4 Summaries](implementation/)
-- [Documentation Index](INDEX.md)
+- [Documentation Index](index.md)
 
 ---
 

@@ -326,9 +326,9 @@ def test_name_similarity(generator):
 
 **Documentation**:
 - `docs/DEPLOYMENT.md`
-- `docs/DISASTER_RECOVERY_PLAN.md`
-- `docs/INCIDENT_RESPONSE_PLAN.md`
-- `docs/OPERATIONS_RUNBOOK.md`
+- `docs/disaster-recovery-plan.md`
+- `docs/incident-response-plan.md`
+- `docs/operations-runbook.md`
 
 **Approach**:
 - Complete deployment procedures

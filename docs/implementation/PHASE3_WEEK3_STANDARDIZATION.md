@@ -22,7 +22,7 @@ Successfully completed Phase 3 Week 3 of the documentation structure reorganizat
 
 ### 1. Documentation Standards Guide Created
 
-Created [`docs/DOCUMENTATION_STANDARDS.md`](../DOCUMENTATION_STANDARDS.md) (598 lines) covering:
+Created `docs/...` (598 lines) covering:
 
 #### File Naming Conventions
 - **Standard:** kebab-case for all documentation files
@@ -69,7 +69,7 @@ Created [`docs/DOCUMENTATION_STANDARDS.md`](../DOCUMENTATION_STANDARDS.md) (598 
 
 ### 2. AGENTS.md Updated
 
-Added comprehensive documentation structure section to [`AGENTS.md`](../../AGENTS.md):
+Added comprehensive documentation structure section to `AGENTS.md` (root):
 
 **New Content Added:**
 - Documentation organization overview
@@ -107,7 +107,7 @@ Added comprehensive documentation structure section to [`AGENTS.md`](../../AGENT
 ✅ deployment-guide.md
 ✅ phase-8-complete.md
 
-❌ USER_GUIDE.md (UPPERCASE)
+❌ user-guide.md (UPPERCASE)
 ❌ ApiReference.md (PascalCase)
 ❌ user_guide.md (snake_case)
 ```
@@ -251,7 +251,7 @@ Brief overview...
 
 ### Phase 3 Week 3 Deliverables
 
-1. **Documentation Standards Guide** - [`docs/DOCUMENTATION_STANDARDS.md`](../DOCUMENTATION_STANDARDS.md) (598 lines)
+1. **Documentation Standards Guide** - `docs/...` (598 lines)
    - File naming conventions
    - Directory structure guidelines
    - Document structure standards
@@ -261,7 +261,7 @@ Brief overview...
    - Link and reference guidelines
    - Maintenance procedures
 
-2. **AGENTS.md Update** - [`AGENTS.md`](../../AGENTS.md)
+2. **AGENTS.md Update** - `AGENTS.md` (root)
    - Documentation structure section added
    - Quick reference for AI assistants
    - Integration with existing patterns
@@ -325,8 +325,8 @@ Brief overview...
 
 ### Standards Guide
 ```bash
-$ wc -l docs/DOCUMENTATION_STANDARDS.md
-     598 docs/DOCUMENTATION_STANDARDS.md
+$ wc -l docs/documentation-standards.md
+     598 docs/documentation-standards.md
 ```
 
 ### AGENTS.md Update
@@ -334,7 +334,7 @@ $ wc -l docs/DOCUMENTATION_STANDARDS.md
 $ grep -A 5 "Documentation Structure" AGENTS.md
 ## Documentation Structure and Standards
 
-**Documentation follows strict organization** - see [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) for complete standards
+**Documentation follows strict organization** - see [Documentation Standards](../documentation-standards.md) for complete standards
 ...
 ```
 
@@ -393,11 +393,11 @@ $ grep -A 5 "Documentation Structure" AGENTS.md
 
 ## References
 
-- **Structure Review:** [`../PROJECT_STRUCTURE_REVIEW.md`](../PROJECT_STRUCTURE_REVIEW.md)
+- **Structure Review:** [Project Structure Review](project-structure-review.md)
 - **Phase 1 Summary:** [`./PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md`](./PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md)
 - **Phase 2 Summary:** [`./PHASE2_WEEK2_STRUCTURE_ORGANIZATION.md`](./PHASE2_WEEK2_STRUCTURE_ORGANIZATION.md)
-- **Documentation Standards:** [`../DOCUMENTATION_STANDARDS.md`](../DOCUMENTATION_STANDARDS.md)
-- **AGENTS.md:** [`../../AGENTS.md`](../../AGENTS.md)
+- **Documentation Standards:** [`../documentation-standards.md`](../documentation-standards.md)
+- **AGENTS.md:** `AGENTS.md` (root)
 
 ---
 

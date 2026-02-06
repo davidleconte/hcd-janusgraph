@@ -13,9 +13,9 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
 ### 1. SSL/TLS Configuration ✅
 - **Status:** Complete
 - **Files Modified:**
-  - [`docker-compose.yml`](../../docker-compose.yml) - Enabled TLS by default
-  - [`.env.example`](../../.env.example) - Added TLS configuration
-  - [`.gitignore`](../../.gitignore) - Protected certificate files
+  - `docker-compose.yml` - Enabled TLS by default
+  - `.env.example` - Added TLS configuration
+  - `.gitignore` - Protected certificate files
 - **Deliverables:**
   - Self-signed certificates generated
   - Java keystores/truststores created
@@ -25,13 +25,13 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
 ### 2. HashiCorp Vault Integration ✅
 - **Status:** Complete (with minor fix needed)
 - **Files Created:**
-  - [`config/vault/config.hcl`](../../config/vault/config.hcl) - Vault configuration
-  - [`scripts/security/init_vault.sh`](../../scripts/security/init_vault.sh) - Initialization script
-  - [`scripts/security/vault_access.sh`](../../scripts/security/vault_access.sh) - Access helper
-  - [`scripts/security/fix_vault_policy.sh`](../../scripts/security/fix_vault_policy.sh) - Policy fix
+  - `config/...` - Vault configuration
+  - `scripts/...` - Initialization script
+  - `scripts/...` - Access helper
+  - `scripts/...` - Policy fix
 - **Files Modified:**
-  - [`config/compose/docker-compose.full.yml`](../../config/compose/docker-compose.full.yml) - Added Vault service
-  - [`requirements.txt`](../../requirements.txt) - Added hvac library
+  - `config/...` - Added Vault service
+  - `requirements.txt` - Added hvac library
 - **Deliverables:**
   - Vault container running and initialized
   - Secrets stored (admin, HCD, Grafana credentials)
@@ -41,14 +41,14 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
 ### 3. Documentation ✅
 - **Status:** Complete
 - **Files Created:**
-  - [`docs/implementation/remediation/WEEK1_SECURITY_IMPLEMENTATION.md`](WEEK1_SECURITY_IMPLEMENTATION.md) - Implementation guide (619 lines)
-  - [`docs/implementation/remediation/WEEK1_TROUBLESHOOTING.md`](WEEK1_TROUBLESHOOTING.md) - Troubleshooting guide (329 lines)
-  - [`docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md`](PRODUCTION_READINESS_ROADMAP.md) - 6-week roadmap (847 lines)
+  - `docs/...` - Implementation guide (619 lines)
+  - `docs/...` - Troubleshooting guide (329 lines)
+  - `docs/...` - 6-week roadmap (847 lines)
 
 ### 4. Utility Scripts ✅
 - **Status:** Complete
 - **Files Created:**
-  - [`scripts/utils/cleanup_podman.sh`](../../scripts/utils/cleanup_podman.sh) - Aggressive cleanup for Podman
+  - `scripts/...` - Aggressive cleanup for Podman
 
 ## Issues Encountered and Resolutions
 

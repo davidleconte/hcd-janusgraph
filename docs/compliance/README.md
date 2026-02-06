@@ -9,11 +9,11 @@ This directory contains compliance and regulatory documentation for the HCD + Ja
 
 ## Contents
 
-- **[DATA_RETENTION_POLICY.md](DATA_RETENTION_POLICY.md)** - Data retention policies and procedures
-- **[GDPR_COMPLIANCE.md](GDPR_COMPLIANCE.md)** - GDPR compliance documentation
-- **[SOC2_CONTROLS.md](SOC2_CONTROLS.md)** - SOC 2 control mappings
+- **[data-retention-policy.md](data-retention-policy.md)** - Data retention policies and procedures
+- **[gdpr-compliance.md](gdpr-compliance.md)** - GDPR compliance documentation
+- **[soc2-controls.md](soc2-controls.md)** - SOC 2 control mappings
 
 ## Related Documentation
 
-- [Audit Logger](../../banking/compliance/audit_logger.py)
-- [Security Policy](../../SECURITY.md)
+- `banking/compliance/audit_logger.py`
+- `SECURITY.md` (root)

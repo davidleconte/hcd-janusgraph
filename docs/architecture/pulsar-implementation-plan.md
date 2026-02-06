@@ -3,7 +3,7 @@
 **Date:** 2026-02-04  
 **Version:** 1.0  
 **Status:** Planning  
-**Reference:** [EVENT_SOURCED_INGESTION_ARCHITECTURE.md](EVENT_SOURCED_INGESTION_ARCHITECTURE.md)
+**Reference:** Event Sourced Ingestion Architecture
 
 ---
 

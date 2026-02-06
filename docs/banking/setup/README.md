@@ -19,14 +19,14 @@ This directory contains setup and configuration documentation for the banking co
 ## Related Documentation
 
 ### Main Banking Documentation
-- **User Guide:** [`../USER_GUIDE.md`](../USER_GUIDE.md)
-- **API Reference:** [`../API_REFERENCE.md`](../API_REFERENCE.md)
-- **Architecture:** [`../ARCHITECTURE.md`](../ARCHITECTURE.md)
+- **User Guide:** [`../user-guide.md`](../user-guide.md)
+- **API Reference:** [API Reference](../../api/README.md)
+- **Architecture:** [Architecture](../architecture/README.md)
 
 ### Implementation Documentation
-- **Phase 5:** [`../PHASE5_VECTOR_AI_FOUNDATION.md`](../PHASE5_VECTOR_AI_FOUNDATION.md)
-- **Phase 8:** [`../PHASE8_COMPLETE.md`](../PHASE8_COMPLETE.md)
-- **Production Deployment:** [`../PRODUCTION_DEPLOYMENT_GUIDE.md`](../PRODUCTION_DEPLOYMENT_GUIDE.md)
+- **Phase 5:** Phase 5 (Vector AI)
+- **Phase 8:** Phase 8 Complete
+- **Production Deployment:** Production Deployment Guide
 
 ### Code Modules
 - **AML Detection:** [`../../aml/`](../../aml/)
@@ -45,14 +45,14 @@ This directory contains setup and configuration documentation for the banking co
 - JanusGraph with HCD backend running
 - OpenSearch 3.4.0+ configured
 - Python 3.11+ environment
-- Required dependencies installed (see [`../../requirements.txt`](../../requirements.txt))
+- Required dependencies installed (see `requirements.txt`)
 
 ## Support
 
 For issues or questions:
 - Review troubleshooting sections in setup guides
-- Check main project [`TROUBLESHOOTING.md`](../../TROUBLESHOOTING.md)
-- Consult [`../USER_GUIDE.md`](../USER_GUIDE.md) for common scenarios
+- Check main project Troubleshooting Guide
+- Consult [`../user-guide.md`](../user-guide.md) for common scenarios
 
 ---
 

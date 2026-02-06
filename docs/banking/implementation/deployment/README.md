@@ -15,4 +15,4 @@ This directory contains deployment guides for the Banking module.
 ## Related Documentation
 
 - [General Deployment Guide](../../../guides/deployment-guide.md)
-- [Operations Runbook](../../../operations/OPERATIONS_RUNBOOK.md)
+- [Operations Runbook](../../../operations/operations-runbook.md)

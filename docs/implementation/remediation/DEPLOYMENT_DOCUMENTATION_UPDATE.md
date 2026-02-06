@@ -155,9 +155,9 @@ podman volume ls | grep janusgraph-demo
 
 ## Related Documentation
 
-- [`AGENTS.md`](../../../AGENTS.md) - Complete deployment requirements
-- [`docs/implementation/remediation/NETWORK_ISOLATION_ANALYSIS.md`](NETWORK_ISOLATION_ANALYSIS.md) - Network isolation analysis
-- [`docs/implementation/remediation/ORCHESTRATION_IMPROVEMENTS_COMPLETE.md`](ORCHESTRATION_IMPROVEMENTS_COMPLETE.md) - Service orchestration improvements
+- `AGENTS.md` (root) - Complete deployment requirements
+- `docs/...` - Network isolation analysis
+- `docs/...` - Service orchestration improvements
 
 ---
 

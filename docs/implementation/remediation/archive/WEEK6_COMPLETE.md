@@ -13,9 +13,9 @@ Week 6 successfully delivered a complete compliance infrastructure including aud
 ### Day 1: Audit Logging Infrastructure ✅
 
 **Files Created:**
-1. [`banking/compliance/audit_logger.py`](../../banking/compliance/audit_logger.py) - 449 lines
-2. [`banking/compliance/tests/test_audit_logger.py`](../../banking/compliance/tests/test_audit_logger.py) - 682 lines
-3. [`banking/compliance/__init__.py`](../../banking/compliance/__init__.py) - 12 lines
+1. `banking/compliance/audit_logger.py` - 449 lines
+2. `banking/compliance/tests/test_audit_logger.py` - 682 lines
+3. `banking/compliance/__init__.py` - 12 lines
 
 **Test Results:**
 - **Total Tests:** 28
@@ -35,7 +35,7 @@ Week 6 successfully delivered a complete compliance infrastructure including aud
 ### Day 2: Compliance Reporting System ✅
 
 **Files Created:**
-1. [`banking/compliance/compliance_reporter.py`](../../banking/compliance/compliance_reporter.py) - 682 lines
+1. `banking/compliance/compliance_reporter.py` - 682 lines
 
 **Key Features:**
 - GDPR Article 30 report generation

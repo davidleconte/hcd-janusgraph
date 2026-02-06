@@ -367,8 +367,8 @@ Email security@example.com with:
 
 - [API Documentation](README.md)
 - [OpenAPI Specification](openapi.yaml)
-- [Gremlin API Reference](GREMLIN_API.md)
-- [Integration Guide](INTEGRATION_GUIDE.md)
+- [Gremlin API Reference](gremlin-api.md)
+- [Integration Guide](integration-guide.md)
 - [Migration Guides](../migration/)
 
 ---

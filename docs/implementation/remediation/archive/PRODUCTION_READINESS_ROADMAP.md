@@ -685,9 +685,9 @@ echo "✅ DR test complete"
 **Owner:** Compliance Team
 
 **Existing Assets:**
-- ✅ GDPR compliance doc (`docs/compliance/GDPR_COMPLIANCE.md`)
-- ✅ SOC2 controls (`docs/compliance/SOC2_CONTROLS.md`)
-- ✅ Data retention policy (`docs/compliance/DATA_RETENTION_POLICY.md`)
+- ✅ GDPR compliance doc (`docs/compliance/gdpr-compliance.md`)
+- ✅ SOC2 controls (`docs/compliance/soc2-controls.md`)
+- ✅ Data retention policy (`docs/compliance/data-retention-policy.md`)
 
 **Tasks:**
 
@@ -912,10 +912,10 @@ Week 6: Compliance & Documentation
 - `scripts/utils/secrets_manager.py` - Vault integration
 
 ### C. Documentation References
-- [Production Readiness Audit](./PRODUCTION_READINESS_AUDIT.md)
+- Production Readiness Audit (see main implementation)
 - [Code Review Fixes Summary](./CODE_REVIEW_FIXES_SUMMARY.md)
-- [Security Guide](../../security/AUTHENTICATION_GUIDE.md)
-- [Operations Runbook](../../operations/OPERATIONS_RUNBOOK.md)
+- [Security Guide](../../../security/authentication-guide.md)
+- [Operations Runbook](../../../operations/operations-runbook.md)
 
 ---
 

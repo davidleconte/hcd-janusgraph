@@ -87,7 +87,7 @@ Common issues, solutions, and debugging procedures.
 **Operators:**
 - [Deployment Guide](deployment-guide.md) - Deploy to production
 - [Troubleshooting Guide](troubleshooting-guide.md) - Resolve operational issues
-- [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md) - Day-to-day operations
+- [Operations Runbook](../operations/operations-runbook.md) - Day-to-day operations
 
 **QA Engineers:**
 - [Testing Guide](testing-guide.md) - Testing procedures
@@ -102,26 +102,26 @@ Common issues, solutions, and debugging procedures.
 
 **Deploying to Production:**
 1. [Deployment Guide](deployment-guide.md) - Deployment procedures
-2. [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md) - Operational procedures
+2. [Operations Runbook](../operations/operations-runbook.md) - Operational procedures
 3. [Monitoring Guide](../operations/monitoring-guide.md) - Set up monitoring
 
 **Troubleshooting:**
 1. [Troubleshooting Guide](troubleshooting-guide.md) - Common issues
-2. [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md) - Operational issues
+2. [Operations Runbook](../operations/operations-runbook.md) - Operational issues
 3. [Testing Guide](testing-guide.md) - Test-related issues
 
 ## Related Documentation
 
 ### Operations
-- [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md)
+- [Operations Runbook](../operations/operations-runbook.md)
 - [Monitoring Guide](../operations/monitoring-guide.md)
 - [Backup Procedures](../operations/backup-procedures.md)
 - [Disaster Recovery](../operations/disaster-recovery-plan.md)
 
 ### Development
 - [Contributing Guidelines](../CONTRIBUTING.md)
-- [Code Refactoring Guide](../development/CODE_REFACTORING_GUIDE.md)
-- [API Reference](../banking/guides/API_REFERENCE.md)
+- Code Refactoring Guide
+- [API Reference](../banking/guides/api-reference.md)
 
 ### Architecture
 - [System Architecture](../architecture/system-architecture.md)
@@ -132,13 +132,13 @@ Common issues, solutions, and debugging procedures.
 For additional help:
 1. Check the relevant guide above
 2. Review [Troubleshooting Guide](troubleshooting-guide.md)
-3. Consult [Documentation Index](../INDEX.md)
-4. Check [Operations Runbook](../operations/OPERATIONS_RUNBOOK.md)
+3. Consult [Documentation Index](../index.md)
+4. Check [Operations Runbook](../operations/operations-runbook.md)
 
 ## Contributing
 
 To improve these guides:
-1. Follow [Documentation Standards](../DOCUMENTATION_STANDARDS.md)
+1. Follow [Documentation Standards](../documentation-standards.md)
 2. Use clear, concise language
 3. Include examples and screenshots
 4. Test all procedures

@@ -9,11 +9,11 @@ This directory contains operational runbooks and procedures for the HCD + JanusG
 
 ## Contents
 
-- **[OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)** - Day-to-day operations guide
+- **[operations-runbook.md](operations-runbook.md)** - Day-to-day operations guide
 - **[monitoring-guide.md](monitoring-guide.md)** - System monitoring and alerting
 - **[backup-procedures.md](backup-procedures.md)** - Backup and restore procedures
-- **[DISASTER_RECOVERY_PLAN.md](DISASTER_RECOVERY_PLAN.md)** - Disaster recovery planning
-- **[incident-response-plan.md](incident-response-plan.md)** - Security incident procedures
+- **[Disaster Recovery](disaster-recovery-plan.md)** - Disaster recovery planning
+- **[Incident Response](../operations/disaster-recovery-plan.md)** - Security incident procedures
 - **[tls-deployment-guide.md](tls-deployment-guide.md)** - TLS/SSL configuration
 
 ## Related Documentation

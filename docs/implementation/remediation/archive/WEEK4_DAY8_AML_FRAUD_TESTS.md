@@ -12,7 +12,7 @@ Week 4 Day 8 successfully created comprehensive test suites for both AML structu
 
 ### 1. AML Structuring Detection Tests
 
-**File:** [`banking/tests/test_aml_structuring.py`](../../banking/tests/test_aml_structuring.py)
+**File:** `banking/tests/test_aml_structuring.py`
 
 #### Statistics
 - **Lines of Code:** 632
@@ -95,7 +95,7 @@ Week 4 Day 8 successfully created comprehensive test suites for both AML structu
 
 ### 2. Fraud Detection Tests
 
-**File:** [`banking/tests/test_fraud_detection.py`](../../banking/tests/test_fraud_detection.py)
+**File:** `banking/tests/test_fraud_detection.py`
 
 #### Statistics
 - **Lines of Code:** 682

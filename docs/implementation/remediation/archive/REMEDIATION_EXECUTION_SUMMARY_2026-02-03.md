@@ -159,7 +159,7 @@ podman ps --filter "name=janusgraph-demo"
 
 ---
 
-## Compliance with PODMAN_ARCHITECTURE.md
+## Compliance with PODMAN_architecture.md
 
 This remediation ensures compliance with the Five Layers of Isolation:
 

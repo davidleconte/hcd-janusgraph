@@ -29,7 +29,7 @@ This document defines the standards and best practices for all project documenta
 - ✅ `user-guide.md`
 - ✅ `api-reference.md`
 - ✅ `phase-8-complete.md`
-- ❌ `USER_GUIDE.md` (UPPERCASE)
+- ❌ `user-guide.md` (UPPERCASE)
 - ❌ `ApiReference.md` (PascalCase)
 - ❌ `user_guide.md` (snake_case)
 
@@ -88,8 +88,8 @@ phase-8-implementation-guide.md
 ```
 docs/
 ├── README.md                   # Documentation overview
-├── INDEX.md                    # Central navigation
-├── DOCUMENTATION_STANDARDS.md  # This file
+├── index.md                    # Central navigation
+├── documentation-standards.md  # This file
 ├── [core-docs].md             # Core documentation files
 ├── api/                        # API documentation
 │   └── README.md
@@ -389,14 +389,14 @@ Confidence: 0.92
 
 **Use relative paths:**
 ```markdown
-[Setup Guide](SETUP.md)
+Setup Guide (see getting-started)
 [Banking Docs](banking/README.md)
 [API Reference](banking/guides/api-reference.md)
 ```
 
 **Link to specific sections:**
 ```markdown
-[Installation Section](SETUP.md#installation)
+Installation Section
 [Configuration](banking/guides/user-guide.md#configuration)
 ```
 
@@ -416,9 +416,9 @@ Always provide context for cross-references:
 For more information on deployment, see the [Deployment Guide](DEPLOYMENT.md).
 
 Related documentation:
-- [Architecture Overview](ARCHITECTURE.md)
+- [Architecture Overview](architecture.md)
 - [Security Guidelines](SECURITY.md)
-- [Monitoring Setup](MONITORING.md)
+- Monitoring Setup (see operations)
 ```
 
 ---
@@ -449,7 +449,7 @@ Compliance Docs | Quarterly | Compliance Team
 
 3. **Publish**
    - Commit changes with descriptive message
-   - Update INDEX.md if structure changed
+   - Update index.md if structure changed
    - Notify team of significant updates
 
 ### Deprecation
@@ -487,7 +487,7 @@ Before publishing new documentation, verify:
 - [ ] Spelling and grammar checked
 - [ ] Technical accuracy verified
 - [ ] Cross-references added
-- [ ] INDEX.md updated (if needed)
+- [ ] index.md updated (if needed)
 - [ ] README.md updated (if needed)
 
 ---
@@ -562,9 +562,9 @@ docker-compose logs -f
 
 ## References
 
-- [Setup Guide](SETUP.md)
-- [Monitoring Guide](MONITORING.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
+- Setup Guide (see Getting Started)
+- Monitoring Guide (see [Operations Runbook](operations/operations-runbook.md))
+- Troubleshooting (see [Operations Runbook](operations/operations-runbook.md))
 
 ---
 

@@ -17,7 +17,7 @@ Week 3 has begun with the **TransactionGenerator** fully implemented (442 lines)
 
 ### 1. TransactionGenerator (442 lines) - ✅ COMPLETE
 
-**File**: [`banking/data_generators/events/transaction_generator.py`](../../banking/data_generators/events/transaction_generator.py)
+**File**: `banking/data_generators/events/transaction_generator.py`
 
 **Features Implemented**:
 - ✅ Multi-currency transactions (50+ currencies)

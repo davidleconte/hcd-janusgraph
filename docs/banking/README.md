@@ -21,7 +21,7 @@ This directory contains complete technical specifications for implementing four 
 
 ### 📋 Master Documents
 
-1. **[GAP_ANALYSIS.md](../BANKING_USE_CASES_GAP_ANALYSIS.md)** - Strategic analysis and remediation plan
+1. **Banking Use Cases Gap Analysis** - Strategic analysis and remediation plan
    - Current state assessment
    - Gap identification
    - 6-week remediation roadmap
@@ -29,35 +29,35 @@ This directory contains complete technical specifications for implementing four 
 
 ### 🔧 Phase Specifications
 
-2. **[PHASE5_VECTOR_AI_FOUNDATION.md](PHASE5_VECTOR_AI_FOUNDATION.md)** - Weeks 13-14 (32 hours/week)
+2. **Phase 5 (Vector AI Foundation)** - Weeks 13-14 (32 hours/week)
    - ML/AI infrastructure setup
    - Embedding generation system
    - Vector search integration
    - JanusGraph schema updates
    - Performance benchmarking
 
-3. **[PHASE6_COMPLETE_AML.md](PHASE6_COMPLETE_AML.md)** - Week 15 (40 hours)
+3. **Phase 6 (AML Complete)** - Week 15 (40 hours)
    - Ultimate Beneficial Owner (UBO) discovery
    - Layering detection algorithms
    - Real-time OLTP alerting
    - Batch OLAP analytics
    - Compliance reporting
 
-4. **[PHASE7_FRAUD_CUSTOMER360.md](PHASE7_FRAUD_CUSTOMER360.md)** - Week 16 (40 hours)
+4. **Phase 7 (Fraud & Customer360)** - Week 16 (40 hours)
    - Fraud ring detection
    - Insider fraud patterns
    - 360° customer view
    - Personalization engine
    - Cross-sell recommendations
 
-5. **[PHASE8_TRADE_SURVEILLANCE.md](PHASE8_TRADE_SURVEILLANCE.md)** - Week 17 (40 hours)
+5. **Phase 8 (Trade Surveillance)** - Week 17 (40 hours)
    - Market manipulation detection
    - Insider trading patterns
    - Front-running detection
    - Demo application
    - Integration testing
 
-6. **[PHASE9_TESTING_OPTIMIZATION.md](PHASE9_TESTING_OPTIMIZATION.md)** - Week 18 (40 hours)
+6. **Phase 9 (Testing & Optimization)** - Week 18 (40 hours)
    - Comprehensive testing suite
    - Performance optimization
    - Production deployment
@@ -66,25 +66,24 @@ This directory contains complete technical specifications for implementing four 
 
 ### 📚 Reference Materials
 
-7. **[DATA_MODELS.md](DATA_MODELS.md)** - Complete data schemas
+7. **`data_models.py`** - Complete data schemas
    - Graph schema definitions
    - Vector index configurations
    - Property specifications
    - Relationship mappings
 
-8. **[API_REFERENCE.md](API_REFERENCE.md)** - API documentation
+8. **[API Reference](../api/README.md)** - API documentation
    - Python API reference
    - Gremlin query patterns
    - REST endpoints
    - Integration examples
-
-9. **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing strategies
+9. **Testing Guide** - Testing strategies
    - Unit test patterns
    - Integration test suites
    - Performance benchmarks
    - Test data generation
 
-10. **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Deployment procedures
+10. **Deployment Guide** - Deployment procedures
     - Environment setup
     - Configuration management
     - Deployment automation
@@ -387,9 +386,9 @@ graph LR
 
 ### Documentation
 
-- **Gap Analysis**: [`docs/BANKING_USE_CASES_GAP_ANALYSIS.md`](../BANKING_USE_CASES_GAP_ANALYSIS.md)
-- **Project Handoff**: [`docs/PROJECT_HANDOFF.md`](../PROJECT_HANDOFF.md)
-- **Architecture**: [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md)
+- **Gap Analysis**: `docs/...`
+- **Project Handoff**: `docs/...`
+- **Architecture**: `docs/...`
 
 ### Resources
 

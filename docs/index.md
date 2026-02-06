@@ -84,18 +84,18 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Planning & Strategy
 - **[Synthetic Data Generator Plan](banking/planning/synthetic-data-generator-plan.md)** - Data generation strategy
-- **[Phase 8 Implementation Guide](banking/planning/phase8-implementation-guide.md)** - Implementation roadmap
+- **Phase 8 Implementation Guide** - Implementation roadmap (see [Phase 8 Complete](banking/implementation/phases/PHASE8_COMPLETE_ROADMAP.md))
 
 ### 📊 For Project Managers
 
 #### Project Tracking
-- **[Changelog](CHANGELOG.md)** - Version history and changes
+- **Changelog** - Version history and changes (see root `CHANGELOG.md`)
 - **[Implementation Phases](implementation/phases/)** - Phase completion summaries
 - **[Project Backlog](implementation/BACKLOG.md)** - Remaining tasks and technical debt
 
 #### Audits & Reports
 - **[Audit Reports](implementation/audits/)** - Security and code audits
-- **[Executive Summary](implementation/audits/executive-summary.md)** - High-level findings
+- **Executive Summary** - High-level findings (see [Production Readiness Audit](implementation/PRODUCTION_READINESS_AUDIT_2026.md))
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
 
 #### Gap Analysis
@@ -178,7 +178,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 ```
 docs/
-├── INDEX.md                    # This file - central navigation
+├── index.md                    # This file - central navigation
 ├── CHANGELOG.md                # Version history
 ├── CONTRIBUTING.md             # Contribution guidelines
 ├── documentation-standards.md  # Documentation standards

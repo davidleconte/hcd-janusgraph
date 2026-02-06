@@ -507,7 +507,7 @@ if __name__ == '__main__':
 ## Additional Resources
 
 - [OpenAPI Specification](./openapi.yaml)
-- [Gremlin API Reference](./GREMLIN_API.md)
+- [Gremlin API Reference](./gremlin-api.md)
 - [JanusGraph Documentation](https://docs.janusgraph.org/)
 - [Apache TinkerPop](https://tinkerpop.apache.org/)
 

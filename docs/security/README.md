@@ -9,10 +9,10 @@ This directory contains security-related documentation for the HCD + JanusGraph 
 
 ## Contents
 
-- **[AUTHENTICATION_GUIDE.md](AUTHENTICATION_GUIDE.md)** - Authentication patterns and implementation
+- **[authentication-guide.md](authentication-guide.md)** - Authentication patterns and implementation
 
 ## Related Documentation
 
 - [TLS Deployment Guide](../operations/tls-deployment-guide.md)
-- [Security Policy](../../SECURITY.md)
+- `SECURITY.md` (root)
 - [Incident Response](../operations/incident-response-plan.md)

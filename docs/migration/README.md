@@ -13,5 +13,5 @@ This directory contains migration guides for upgrading between versions.
 
 ## Related Documentation
 
-- [Changelog](../api/CHANGELOG.md)
+- [Changelog](../api/changelog.md)
 - [Deployment Guide](../guides/deployment-guide.md)

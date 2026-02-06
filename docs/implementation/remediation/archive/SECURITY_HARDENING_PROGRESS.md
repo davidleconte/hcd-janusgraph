@@ -386,7 +386,7 @@ Security hardening is complete when:
 
 ### To Be Created:
 1. `.env.example`
-2. `docs/security/AUTHENTICATION_GUIDE.md`
+2. `docs/security/authentication-guide.md`
 3. `docs/security/SSL_TLS_SETUP.md`
 4. `docs/security/SECURITY_BEST_PRACTICES.md`
 

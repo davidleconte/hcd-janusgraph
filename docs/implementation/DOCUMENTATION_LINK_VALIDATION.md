@@ -44,9 +44,9 @@ Comprehensive validation of all internal documentation links across the project.
 
 | Link Type | Count | Examples |
 |-----------|-------|----------|
-| Cross-directory | 62 | `../SETUP.md`, `../../docs/INDEX.md` |
+| Cross-directory | 62 | `../SETUP.md`, `../../docs/index.md` |
 | Same directory | 18 | `SETUP.md`, `README.md` |
-| Subdirectory | 14 | `banking/README.md`, `api/GREMLIN_API.md` |
+| Subdirectory | 14 | `banking/README.md`, `api/gremlin-api.md` |
 
 ## Key Findings
 
@@ -78,20 +78,20 @@ Comprehensive validation of all internal documentation links across the project.
 ```markdown
 [QUICKSTART.md](QUICKSTART.md)
 [docs/SETUP.md](docs/SETUP.md)
-[SECURITY.md](SECURITY.md)
+`SECURITY.md`
 ```
 
 #### Cross-Directory Links
 ```markdown
-[../ARCHITECTURE.md](../ARCHITECTURE.md)
-[../../docs/INDEX.md](../../docs/INDEX.md)
+[Architecture](../architecture/README.md)
+[../../docs/index.md](../../docs/index.md)
 [../banking/README.md](../banking/README.md)
 ```
 
 #### API Documentation Links
 ```markdown
-[GREMLIN_API.md](./GREMLIN_API.md)
-[Integration Guide](./INTEGRATION_GUIDE.md)
+[gremlin-api.md](./gremlin-api.md)
+[Integration Guide](./integration-guide.md)
 [OpenAPI Specification](./openapi.yaml)
 ```
 
@@ -99,7 +99,7 @@ Comprehensive validation of all internal documentation links across the project.
 
 ### High-Traffic Documentation Hubs
 
-#### 1. docs/INDEX.md (Central Hub)
+#### 1. docs/index.md (Central Hub)
 - **Links:** 35 internal links
 - **Purpose:** Central navigation
 - **Coverage:** All major documentation areas
@@ -122,27 +122,27 @@ Comprehensive validation of all internal documentation links across the project.
 #### Setup & Getting Started
 - ✅ QUICKSTART.md → docs/SETUP.md
 - ✅ README.md → QUICKSTART.md
-- ✅ docs/INDEX.md → SETUP.md
+- ✅ docs/index.md → SETUP.md
 
 #### API Documentation
-- ✅ docs/api/README.md → GREMLIN_API.md
-- ✅ docs/api/README.md → INTEGRATION_GUIDE.md
+- ✅ docs/api/README.md → gremlin-api.md
+- ✅ docs/api/README.md → integration-guide.md
 - ✅ docs/api/CHANGELOG.md → ../migration/v1-to-v2.md
 
 #### Banking Module
 - ✅ docs/banking/README.md → ../BANKING_USE_CASES_GAP_ANALYSIS.md
-- ✅ banking/aml/README.md → ../docs/banking/guides/USER_GUIDE.md
-- ✅ banking/fraud/README.md → ../docs/banking/guides/API_REFERENCE.md
+- ✅ banking/aml/README.md → ../docs/banking/guides/user-guide.md
+- ✅ banking/fraud/README.md → ../docs/banking/guides/api-reference.md
 
 #### Implementation Tracking
-- ✅ docs/implementation/PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md → ../PROJECT_STRUCTURE_REVIEW.md
-- ✅ docs/implementation/PHASE2_WEEK2_STRUCTURE_ORGANIZATION.md → ../INDEX.md
-- ✅ docs/implementation/PHASE3_WEEK3_STANDARDIZATION.md → ../DOCUMENTATION_STANDARDS.md
+- ✅ docs/implementation/PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md → ../project-structure-review.md
+- ✅ docs/implementation/PHASE2_WEEK2_STRUCTURE_ORGANIZATION.md → ../index.md
+- ✅ docs/implementation/PHASE3_WEEK3_STANDARDIZATION.md → ../documentation-standards.md
 
 #### Operations & Compliance
-- ✅ docs/operations/OPERATIONS_RUNBOOK.md → ../DISASTER_RECOVERY_PLAN.md
-- ✅ docs/compliance/GDPR_COMPLIANCE.md → ../../SECURITY.md
-- ✅ docs/compliance/SOC2_CONTROLS.md → ../MONITORING.md
+- ✅ docs/operations/operations-runbook.md → ../disaster-recovery-plan.md
+- ✅ docs/compliance/gdpr-compliance.md → ../../SECURITY.md
+- ✅ docs/compliance/soc2-controls.md → ../MONITORING.md
 
 ## Link Health Metrics
 
@@ -184,7 +184,7 @@ Comprehensive validation of all internal documentation links across the project.
 2. **Follow Naming Conventions**
    - Keep using kebab-case for new documentation
    - Maintain consistency with existing patterns
-   - Follow DOCUMENTATION_STANDARDS.md guidelines
+   - Follow documentation-standards.md guidelines
 
 3. **Update Links During Reorganization**
    - When moving files, update all references
@@ -222,7 +222,7 @@ Comprehensive validation of all internal documentation links across the project.
    - Validated navigation paths
 
 3. **Standards Compliance:**
-   - Compared against DOCUMENTATION_STANDARDS.md
+   - Compared against documentation-standards.md
    - Verified kebab-case usage
    - Checked relative path conventions
 
@@ -240,9 +240,9 @@ No broken links or issues found. The documentation link structure is production-
 
 ## Related Documentation
 
-- [Documentation Standards](../DOCUMENTATION_STANDARDS.md)
-- [Project Structure Review](../PROJECT_STRUCTURE_REVIEW.md)
-- [Documentation Index](../INDEX.md)
+- [Documentation Standards](../documentation-standards.md)
+- [Project Structure Review](../project-structure-review.md)
+- [Documentation Index](../index.md)
 - [Phase 1 Summary](./PHASE1_WEEK1_STRUCTURE_REORGANIZATION.md)
 - [Phase 2 Summary](./PHASE2_WEEK2_STRUCTURE_ORGANIZATION.md)
 - [Phase 3 Summary](./PHASE3_WEEK3_STANDARDIZATION.md)
@@ -255,7 +255,7 @@ No broken links or issues found. The documentation link structure is production-
 ✅ [Setup Guide](SETUP.md)
 ✅ [Banking Docs](../banking/README.md)
 ✅ [API Reference](../../docs/api/README.md)
-✅ [Architecture](./ARCHITECTURE.md)
+✅ [Architecture](./architecture.md)
 ```
 
 ### Link Patterns to Follow

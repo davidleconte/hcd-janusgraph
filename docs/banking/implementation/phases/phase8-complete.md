@@ -178,9 +178,9 @@ Master Orchestrator
 - `docs/banking/PHASE8_COMPLETE_ROADMAP.md` (523 lines)
 - `docs/banking/PHASE8D_WEEK7_PLAN.md` (485 lines)
 - `docs/banking/PHASE8D_WEEK8_PLAN.md` (247 lines)
-- `docs/banking/API_REFERENCE.md` (847 lines)
-- `docs/banking/ARCHITECTURE.md` (598 lines)
-- `docs/banking/USER_GUIDE.md` (457 lines)
+- `docs/banking/api-reference.md` (847 lines)
+- `docs/banking/architecture.md` (598 lines)
+- `docs/banking/user-guide.md` (457 lines)
 - `docs/banking/PHASE8D_WEEK7_COMPLETE.md` (431 lines)
 - `docs/banking/PHASE8_COMPLETE.md` (508 lines - this file)
 

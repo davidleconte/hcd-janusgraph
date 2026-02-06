@@ -600,7 +600,7 @@ def __init__(
 
 ## Task 5: Security Documentation
 
-### File: `docs/security/AUTHENTICATION_GUIDE.md`
+### File: `docs/security/authentication-guide.md`
 
 ```markdown
 # Authentication Setup Guide

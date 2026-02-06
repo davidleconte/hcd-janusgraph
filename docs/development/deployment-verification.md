@@ -159,7 +159,7 @@ After successful verification:
 ## Next Steps
 
 1. **Verify deployment works** (run commands above)
-2. **Review production readiness**: [`docs/implementation/remediation/AUDIT_REMEDIATION_COMPLETE.md`](docs/implementation/remediation/AUDIT_REMEDIATION_COMPLETE.md)
+2. **Review production readiness**: `docs/...`
 3. **Consider remaining improvements**:
    - External security audit
    - MFA implementation

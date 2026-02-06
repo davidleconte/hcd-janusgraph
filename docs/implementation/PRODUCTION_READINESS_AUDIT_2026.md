@@ -63,7 +63,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 - ✅ Java keystore/truststore creation
 - ✅ Certificate bundle for all services
 - ✅ 365-day validity with renewal procedures
-- **Evidence:** [`scripts/security/generate_certificates.sh`](../../scripts/security/generate_certificates.sh)
+- **Evidence:** `scripts/...`
 
 **HashiCorp Vault Integration (95/100)**
 - ✅ Vault container running and initialized
@@ -71,7 +71,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 - ✅ Proper policy configuration
 - ✅ Application token with correct permissions
 - ✅ Secrets stored (admin, HCD, Grafana credentials)
-- **Evidence:** [`config/vault/config.hcl`](../../config/vault/config.hcl), [`scripts/security/init_vault.sh`](../../scripts/security/init_vault.sh)
+- **Evidence:** `config/...`, `scripts/...`
 
 **Audit Logging (98/100)**
 - ✅ 30+ audit event types
@@ -80,7 +80,7 @@ This comprehensive audit evaluates the production readiness of the HCD + JanusGr
 - ✅ Tamper-evident append-only logs
 - ✅ 365-day retention policy
 - ✅ 98% test coverage
-- **Evidence:** [`banking/compliance/audit_logger.py`](../../banking/compliance/audit_logger.py) (449 lines)
+- **Evidence:** `banking/compliance/audit_logger.py` (449 lines)
 
 **Input Validation (100/100)**
 - ✅ Comprehensive Validator class
@@ -205,7 +205,7 @@ OVERALL                         82%         170+     ✅
 - ✅ Intelligent test skipping
 - ✅ Session-scoped fixtures for efficiency
 - ✅ Automatic test data cleanup
-- **Evidence:** [`tests/integration/conftest.py`](../../tests/integration/conftest.py) (349 lines)
+- **Evidence:** `tests/integration/conftest.py` (349 lines)
 
 **Performance Benchmarks (85/100)**
 - ✅ Bulk insert throughput (target: >10 v/s, actual: 15-25 v/s)
@@ -251,14 +251,14 @@ Test Execution Time:      ~45 seconds (full suite)
 - ✅ Central index with role-based navigation
 - ✅ Clear documentation standards
 - ✅ Consistent formatting and structure
-- **Evidence:** [`docs/INDEX.md`](../../docs/INDEX.md), [`docs/DOCUMENTATION_STANDARDS.md`](../../docs/DOCUMENTATION_STANDARDS.md)
+- **Evidence:** `docs/...`, `docs/...`
 
 **Excellent User Guides (98/100)**
 - ✅ Banking user guide (comprehensive)
 - ✅ Setup guides with step-by-step instructions
 - ✅ API reference documentation
 - ✅ Troubleshooting guides
-- **Evidence:** [`docs/banking/guides/USER_GUIDE.md`](../../docs/banking/guides/USER_GUIDE.md)
+- **Evidence:** `docs/...`
 
 **Strong Operations Documentation (95/100)**
 - ✅ Operations runbook
@@ -266,7 +266,7 @@ Test Execution Time:      ~45 seconds (full suite)
 - ✅ Backup procedures
 - ✅ Disaster recovery plan
 - ✅ Incident response procedures
-- **Evidence:** [`docs/operations/OPERATIONS_RUNBOOK.md`](../../docs/operations/OPERATIONS_RUNBOOK.md)
+- **Evidence:** `docs/...`
 
 **Implementation Documentation (95/100)**
 - ✅ Week-by-week implementation reports
@@ -319,7 +319,7 @@ Accessibility:              High (clear navigation)
 - ✅ DB cache enabled with 25% memory allocation
 - ✅ 180-second cache time
 - ✅ Connection pooling configured
-- **Evidence:** [`config/janusgraph/janusgraph-hcd.properties`](../../config/janusgraph/janusgraph-hcd.properties)
+- **Evidence:** `config/...`
 
 **Resource Management (85/100)**
 - ✅ Resource limits defined in Docker Compose
@@ -430,7 +430,7 @@ Development Workflow:     Streamlined
 - ✅ Automated image building
 - ✅ Health checks configured
 - ✅ Graceful shutdown procedures
-- **Evidence:** [`scripts/deployment/deploy_full_stack.sh`](../../scripts/deployment/deploy_full_stack.sh)
+- **Evidence:** `scripts/...`
 
 **Monitoring Stack (95/100)**
 - ✅ Prometheus for metrics collection
@@ -438,7 +438,7 @@ Development Workflow:     Streamlined
 - ✅ AlertManager for notifications
 - ✅ JanusGraph metrics exporter
 - ✅ 31 alert rules across 6 categories
-- **Evidence:** [`config/monitoring/alertmanager.yml`](../../config/monitoring/alertmanager.yml), [`scripts/monitoring/janusgraph_exporter.py`](../../scripts/monitoring/janusgraph_exporter.py)
+- **Evidence:** `config/...`, `scripts/monitoring/janusgraph_exporter.py`
 
 **Configuration Management (95/100)**
 - ✅ Environment-specific configs
@@ -495,7 +495,7 @@ Development Workflow:     Streamlined
 - ✅ Tamper-evident append-only logs
 - ✅ 365-day retention policy
 - ✅ 98% test coverage (28 tests)
-- **Evidence:** [`banking/compliance/audit_logger.py`](../../banking/compliance/audit_logger.py) (449 lines)
+- **Evidence:** `banking/compliance/audit_logger.py` (449 lines)
 
 **Automated Compliance Reporting (100/100)**
 - ✅ GDPR Article 30 reports
@@ -503,7 +503,7 @@ Development Workflow:     Streamlined
 - ✅ BSA/AML suspicious activity reports
 - ✅ Comprehensive compliance dashboards
 - ✅ Multiple export formats (JSON, CSV, HTML)
-- **Evidence:** [`banking/compliance/compliance_reporter.py`](../../banking/compliance/compliance_reporter.py) (682 lines)
+- **Evidence:** `banking/compliance/compliance_reporter.py` (682 lines)
 
 **GDPR Compliance (100/100)**
 - ✅ Article 30 - Records of Processing Activities

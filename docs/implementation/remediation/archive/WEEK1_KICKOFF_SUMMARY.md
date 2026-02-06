@@ -37,13 +37,13 @@ Week 1 remediation has been initiated to address the 5 critical issues identifie
 ### 1. Code Review Reports (2 files, 1,445 lines)
 
 **Technical Report:**
-- [`docs/implementation/audits/COMPREHENSIVE_CODE_REVIEW_2026.md`](../audits/COMPREHENSIVE_CODE_REVIEW_2026.md)
+- `docs/...`
 - Complete analysis of architecture, security, performance, testing
 - 44 issues categorized by severity and type
 - Detailed remediation recommendations
 
 **Executive Summary:**
-- [`docs/implementation/audits/EXECUTIVE_SUMMARY_CODE_REVIEW_2026.md`](../audits/EXECUTIVE_SUMMARY_CODE_REVIEW_2026.md)
+- `docs/...`
 - Business impact analysis
 - Cost-benefit analysis ($365K investment prevents $5M+ losses)
 - Decision matrix with 4 deployment options
@@ -51,7 +51,7 @@ Week 1 remediation has been initiated to address the 5 critical issues identifie
 
 ### 2. Structuring Detection Module (598 lines)
 
-**File:** [`banking/aml/structuring_detection.py`](../../banking/aml/structuring_detection.py)
+**File:** `banking/aml/structuring_detection.py`
 
 **Features:**
 - Smurfing detection (multiple transactions below CTR threshold)
@@ -77,7 +77,7 @@ StructuringDetector     # Main detection engine
 
 ### 3. Implementation Plan (847 lines)
 
-**File:** [`docs/implementation/remediation/WEEK1_REMEDIATION_IMPLEMENTATION.md`](./WEEK1_REMEDIATION_IMPLEMENTATION.md)
+**File:** `docs/...`
 
 **Contents:**
 - Detailed task breakdown for all 4 major areas

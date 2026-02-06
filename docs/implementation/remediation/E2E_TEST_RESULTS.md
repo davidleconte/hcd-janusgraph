@@ -18,7 +18,7 @@ All 7 script fixes have been validated through static analysis and syntax checki
 
 ### 1. ✅ Deploy Full Stack Script
 
-**File:** [`scripts/deployment/deploy_full_stack.sh`](../../../scripts/deployment/deploy_full_stack.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation  
 **Command:** `bash -n scripts/deployment/deploy_full_stack.sh`  
 **Result:** ✅ PASS
@@ -45,7 +45,7 @@ Line 257: echo "   HCD JMX:              localhost:17199"
 
 ### 2. ✅ Start Jupyter Script
 
-**File:** [`scripts/deployment/start_jupyter.sh`](../../../scripts/deployment/start_jupyter.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation  
 **Command:** `bash -n scripts/deployment/start_jupyter.sh`  
 **Result:** ✅ PASS
@@ -65,7 +65,7 @@ Line 257: echo "   HCD JMX:              localhost:17199"
 
 ### 3. ✅ Cleanup Podman Script
 
-**File:** [`scripts/utils/cleanup_podman.sh`](../../../scripts/utils/cleanup_podman.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation  
 **Command:** `bash -n scripts/utils/cleanup_podman.sh`  
 **Result:** ✅ PASS
@@ -97,7 +97,7 @@ PROJECT_PREFIXES=("janusgraph" "hcd" "opensearch" "vault" "prometheus" "grafana"
 
 ### 4. ✅ Vault Initialization Script
 
-**File:** [`scripts/security/init_vault.sh`](../../../scripts/security/init_vault.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation  
 **Command:** `bash -n scripts/security/init_vault.sh`  
 **Result:** ✅ PASS
@@ -122,7 +122,7 @@ Line 272: echo -e "${RED}⚠️  CREDENTIALS NOT DISPLAYED FOR SECURITY${NC}"
 
 ### 5. ✅ Restore Volumes Script
 
-**File:** [`scripts/backup/restore_volumes.sh`](../../../scripts/backup/restore_volumes.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation  
 **Command:** `bash -n scripts/backup/restore_volumes.sh`  
 **Result:** ✅ PASS
@@ -142,7 +142,7 @@ Line 272: echo -e "${RED}⚠️  CREDENTIALS NOT DISPLAYED FOR SECURITY${NC}"
 
 ### 6. ✅ Initialize Graph Python Script
 
-**File:** [`src/python/init/initialize_graph.py`](../../../src/python/init/initialize_graph.py)  
+**File:** `src/python/init/initialize_graph.py`  
 **Test:** Python syntax validation  
 **Command:** `python3 -m py_compile src/python/init/initialize_graph.py`  
 **Result:** ✅ PASS
@@ -168,7 +168,7 @@ Line 129:         result = client.execute(data_script)
 
 ### 7. ✅ Backup Volumes Script
 
-**File:** [`scripts/backup/backup_volumes.sh`](../../../scripts/backup/backup_volumes.sh)  
+**File:** `scripts/...`  
 **Test:** Bash syntax validation (implicit - no changes made)  
 **Result:** ✅ PASS (No syntax errors reported)
 

@@ -249,9 +249,9 @@ After rebuilding Jupyter container:
 ## Related Documentation
 
 - [Full Audit Report](NOTEBOOKS_AUDIT_2026-01-29.md)
-- [Jupyter Dockerfile](../../docker/jupyter/Dockerfile)
-- [Environment Config](../../docker/jupyter/environment.yml)
-- [Banking Data Generators](../../banking/data/aml/)
+- `docker/jupyter/Dockerfile`
+- `docker/jupyter/environment.yml`
+- `banking/data/aml/`
 
 ---
 

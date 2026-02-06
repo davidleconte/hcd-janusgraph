@@ -46,29 +46,29 @@ hcd-tarball-janusgraph/
 docs/
 ├── api/                           # ✅ API documentation (good organization)
 │   ├── CHANGELOG.md
-│   ├── GREMLIN_API.md
-│   ├── INTEGRATION_GUIDE.md
+│   ├── gremlin-api.md
+│   ├── integration-guide.md
 │   ├── openapi.yaml
 │   └── README.md
 ├── architecture/                  # ✅ Architecture decisions (ADRs)
-│   ├── ADR-005-jwt-authentication.md
-│   ├── ADR-010-distributed-tracing.md
-│   ├── ADR-011-query-caching-strategy.md
-│   ├── ADR-TEMPLATE.md
+│   ├── adr-005-jwt-authentication.md
+│   ├── adr-010-distributed-tracing.md
+│   ├── adr-011-query-caching-strategy.md
+│   ├── adr-template.md
 │   └── README.md
 ├── banking/                       # ✅ Banking-specific docs (domain-driven)
 │   ├── [27 .md files]            # ⚠️ ISSUE: Too many files, needs sub-organization
 │   └── README.md
 ├── compliance/                    # ✅ Compliance documentation
-│   ├── DATA_RETENTION_POLICY.md
-│   ├── GDPR_COMPLIANCE.md
-│   └── SOC2_CONTROLS.md
+│   ├── data-retention-policy.md
+│   ├── gdpr-compliance.md
+│   └── soc2-controls.md
 ├── development/                   # ✅ Development guides
 │   └── CODE_REFACTORING_GUIDE.md
 ├── migration/                     # ✅ Migration guides
 │   └── v1-to-v2.md
 ├── operations/                    # ✅ Operations documentation
-│   └── OPERATIONS_RUNBOOK.md
+│   └── operations-runbook.md
 ├── performance/                   # ✅ Performance documentation
 │   └── INFRASTRUCTURE_OPTIMIZATION.md
 └── [18 .md files at root]        # ⚠️ ISSUE: Should be in subdirectories
@@ -191,7 +191,7 @@ Consolidate to single location:
 ❌ Inconsistent:
 - PHASE8_COMPLETE.md
 - phase8_implementation_guide.md (doesn't exist but would be inconsistent)
-- API_REFERENCE.md
+- api-reference.md
 - user_guide.md (doesn't exist)
 
 ✅ Should be:
@@ -204,9 +204,9 @@ Consolidate to single location:
 ```
 Standardize on kebab-case for all documentation files:
 - PHASE8_COMPLETE.md → phase8-complete.md
-- API_REFERENCE.md → api-reference.md
-- USER_GUIDE.md → user-guide.md
-- GREMLIN_OLAP_ADVANCED_SCENARIOS.md → gremlin-olap-advanced-scenarios.md
+- api-reference.md → api-reference.md
+- user-guide.md → user-guide.md
+- gremlin-olap-advanced-scenarios.md → gremlin-olap-advanced-scenarios.md
 ```
 
 **Impact:** Consistency, easier to remember, URL-friendly
@@ -223,11 +223,11 @@ Standardize on kebab-case for all documentation files:
 **Current State:**
 ```
 docs/banking/
-├── ADVANCED_ANALYTICS_OLAP_GUIDE.md
-├── API_REFERENCE.md
-├── ARCHITECTURE.md
-├── ENTERPRISE_ADVANCED_PATTERNS_PLAN.md
-├── GREMLIN_OLAP_ADVANCED_SCENARIOS.md
+├── advanced-analytics-olap-guide.md
+├── api-reference.md
+├── architecture.md
+├── enterprise-advanced-patterns-plan.md
+├── gremlin-olap-advanced-scenarios.md
 ├── PHASE5_IMPLEMENTATION_COMPLETE.md
 ├── PHASE5_VECTOR_AI_FOUNDATION.md
 ├── PHASE8_COMPLETE_ROADMAP.md
@@ -278,7 +278,7 @@ docs/banking/
 
 **Recommendation:**
 ```
-Create docs/INDEX.md with:
+Create docs/index.md with:
 1. Documentation map
 2. Quick links by role (developer, operator, architect)
 3. Getting started paths
@@ -303,10 +303,10 @@ Create docs/INDEX.md with:
 ### Operators
 - [Deployment](DEPLOYMENT.md)
 - [Monitoring](MONITORING.md)
-- [Operations Runbook](operations/OPERATIONS_RUNBOOK.md)
+- [Operations Runbook](operations/operations-runbook.md)
 
 ### Architects
-- [Architecture](ARCHITECTURE.md)
+- [Architecture](architecture.md)
 - [ADRs](architecture/)
 - [Banking Architecture](banking/architecture/architecture.md)
 ```
@@ -467,7 +467,7 @@ hcd-tarball-janusgraph/
 ├── data/                          # ✅ Data storage
 ├── docker/                        # ✅ Docker configs
 ├── docs/                          # ✅ Documentation hub
-│   ├── INDEX.md                  # 🆕 Central index
+│   ├── index.md                  # 🆕 Central index
 │   ├── README.md
 │   ├── api/
 │   ├── architecture/
@@ -574,7 +574,7 @@ hcd-tarball-janusgraph/
    ```
 
 2. **Create Documentation Index**
-   - Create `docs/INDEX.md`
+   - Create `docs/index.md`
    - Add role-based navigation
    - Include search tips
 
@@ -624,7 +624,7 @@ hcd-tarball-janusgraph/
    ```
 
 2. **Create Documentation Standards**
-   - Create `docs/DOCUMENTATION_STANDARDS.md`
+   - Create `docs/documentation-standards.md`
    - Define naming conventions
    - Define structure guidelines
    - Define content templates
@@ -691,7 +691,7 @@ hcd-tarball-janusgraph/
 ### Phase 2: Organization Improvements
 - [ ] Create banking documentation subdirectories
 - [ ] Move files to appropriate subdirectories
-- [ ] Create `docs/INDEX.md`
+- [ ] Create `docs/index.md`
 - [ ] Add README.md to all major directories
 - [ ] Update navigation in existing docs
 - [ ] Test documentation discoverability
@@ -700,7 +700,7 @@ hcd-tarball-janusgraph/
 ### Phase 3: Standardization
 - [ ] Rename files to kebab-case
 - [ ] Update all file references
-- [ ] Create `docs/DOCUMENTATION_STANDARDS.md`
+- [ ] Create `docs/documentation-standards.md`
 - [ ] Update `AGENTS.md` with documentation rules
 - [ ] Run tests to ensure no broken imports
 - [ ] Commit changes: "docs: standardize naming conventions"
@@ -781,7 +781,7 @@ hcd-tarball-janusgraph/
 2. **Naming:** Use kebab-case for all new files
 3. **READMEs:** Add README.md to new directories
 4. **Links:** Use relative links, test before committing
-5. **Index:** Update `docs/INDEX.md` for major additions
+5. **Index:** Update `docs/index.md` for major additions
 
 ### Quarterly Reviews
 - Review documentation structure
@@ -830,9 +830,9 @@ The proposed 4-phase remediation plan will:
 - [Divio Documentation System](https://documentation.divio.com/)
 
 ### Project-Specific Documents
-- [`AGENTS.md`](../AGENTS.md) - Project-specific patterns
-- [`docs/CONTRIBUTING.md`](CONTRIBUTING.md) - Contribution guidelines
-- [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) - System architecture
+- `AGENTS.md` (root) - Project-specific patterns
+- `docs/...` - Contribution guidelines
+- `docs/...` - System architecture
 
 ---
 

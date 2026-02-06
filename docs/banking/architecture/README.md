@@ -9,8 +9,8 @@ This directory contains architecture documentation for the Banking module.
 
 ## Contents
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Banking module architecture overview
-- **[ENTERPRISE_ADVANCED_PATTERNS_PLAN.md](ENTERPRISE_ADVANCED_PATTERNS_PLAN.md)** - Advanced design patterns
+- **[Architecture](../architecture/README.md)** - Banking module architecture overview
+- **Enterprise Advanced Patterns Plan** - Advanced design patterns
 
 ## Related Documentation
 

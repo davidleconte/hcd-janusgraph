@@ -387,7 +387,7 @@ stateDiagram-v2
 
 - [Streaming Architecture](streaming-architecture.md) - Detailed streaming design
 - [System Architecture](system-architecture.md) - Overall system design
-- [banking/streaming/README.md](../../banking/streaming/README.md) - Implementation guide
+- [banking/streaming/README.md](`banking/streaming/README.md`) - Implementation guide
 
 ---
 

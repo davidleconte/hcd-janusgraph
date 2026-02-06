@@ -456,7 +456,7 @@ cache.db-cache-clean-wait=20
 - **P3 (Low)**: Cosmetic issues
 
 **Response Procedures:**
-See [docs/INCIDENT_RESPONSE_PLAN.md](INCIDENT_RESPONSE_PLAN.md)
+See Incident Response (see Disaster Recovery)
 
 ---
 
@@ -804,52 +804,52 @@ curl https://api/metrics/cache/size
 
 ### Core Documentation
 
-- [README.md](../README.md) - Project overview
-- [QUICKSTART.md](../QUICKSTART.md) - Quick start guide
-- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
-- [SETUP.md](SETUP.md) - Setup instructions
+- `README.md` (root) - Project overview
+- `QUICKSTART.md` (root) - Quick start guide
+- [Architecture](../architecture/README.md) - System architecture
+- Setup Guide (see Getting Started)
 
 ### API Documentation
 
-- [API README](api/README.md) - API overview
-- [OpenAPI Spec](api/openapi.yaml) - API specification
-- [Gremlin API](api/GREMLIN_API.md) - Gremlin reference
-- [Integration Guide](api/INTEGRATION_GUIDE.md) - Integration guide
-- [API Changelog](api/CHANGELOG.md) - Version history
+- [API README](../api/README.md) - API overview
+- `api/openapi.yaml` - API specification
+- [Gremlin API](../api/gremlin-api.md) - Gremlin reference
+- [Integration Guide](../api/integration-guide.md) - Integration guide
+- [API Changelog](../api/changelog.md) - Version history
 
 ### Operations Documentation
 
-- [Operations Runbook](operations/OPERATIONS_RUNBOOK.md) - Daily operations
-- [Disaster Recovery](DISASTER_RECOVERY_PLAN.md) - DR procedures
-- [Incident Response](INCIDENT_RESPONSE_PLAN.md) - Incident handling
-- [Monitoring Guide](MONITORING.md) - Monitoring setup
-- [Backup Guide](BACKUP.md) - Backup procedures
+- [Operations Runbook](../operations/operations-runbook.md) - Daily operations
+- [Disaster Recovery](../operations/disaster-recovery-plan.md) - DR procedures
+- Incident Response (see Operations Runbook)
+- Monitoring Guide (see Operations Runbook)
+- Backup Guide (see Disaster Recovery)
 
 ### Security Documentation
 
-- [Security Policy](../SECURITY.md) - Security guidelines
-- [TLS Deployment](TLS_DEPLOYMENT_GUIDE.md) - TLS setup
-- [GDPR Compliance](compliance/GDPR_COMPLIANCE.md) - GDPR guide
-- [SOC 2 Controls](compliance/SOC2_CONTROLS.md) - SOC 2 mapping
-- [Data Retention](compliance/DATA_RETENTION_POLICY.md) - Retention policy
+- `SECURITY.md` (root) - Security guidelines
+- TLS Deployment (see [Authentication Guide](../security/authentication-guide.md))
+- [GDPR Compliance](../compliance/gdpr-compliance.md) - GDPR guide
+- [SOC 2 Controls](../compliance/soc2-controls.md) - SOC 2 mapping
+- [Data Retention](../compliance/data-retention-policy.md) - Retention policy
 
 ### Development Documentation
 
-- [Contributing Guide](../CONTRIBUTING.md) - Contribution guidelines
-- [Code Refactoring](development/CODE_REFACTORING_GUIDE.md) - Refactoring guide
-- [Testing Guide](../TESTING.md) - Testing procedures
-- [Deployment Guide](DEPLOYMENT.md) - Deployment procedures
+- `CONTRIBUTING.md` (root) - Contribution guidelines
+- Code Refactoring Guide (see development best practices)
+- Testing Guide (see `tests/README.md`)
+- Deployment Guide (see Getting Started)
 
 ### Architecture Documentation
 
-- [ADR Index](architecture/README.md) - Architecture decisions
-- [ADR-005: JWT Auth](architecture/ADR-005-jwt-authentication.md)
-- [ADR-010: Tracing](architecture/ADR-010-distributed-tracing.md)
-- [ADR-011: Caching](architecture/ADR-011-query-caching-strategy.md)
+- [ADR Index](../architecture/README.md) - Architecture decisions
+- [ADR-005: JWT Auth](../architecture/adr-005-jwt-authentication.md)
+- [ADR-010: Tracing](../architecture/adr-010-distributed-tracing.md)
+- [ADR-011: Caching](../architecture/adr-011-query-caching-strategy.md)
 
 ### Migration Documentation
 
-- [v1 to v2 Migration](migration/v1-to-v2.md) - Migration guide
+- Migration Guide (see architecture documentation)
 
 ---
 

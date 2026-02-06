@@ -16,4 +16,4 @@ This directory contains archived documents from Gemini-related analysis and scri
 
 ## Note
 
-These files are archived for historical reference. For current documentation, see [docs/INDEX.md](../../INDEX.md).
+These files are archived for historical reference. For current documentation, see [docs/index.md](../../index.md).

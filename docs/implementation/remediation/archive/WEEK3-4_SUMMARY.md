@@ -30,13 +30,13 @@ open htmlcov/index.html
    - Testing best practices and patterns
 
 ### Test Infrastructure (2 files)
-2. **[`tests/conftest.py`](../../../tests/conftest.py)** (149 lines)
+2. **`tests/conftest.py`** (149 lines)
    - Root test configuration
    - Shared fixtures (mock clients, sample data)
    - Environment setup
    - Pytest markers configuration
 
-3. **[`tests/unit/utils/test_validator.py`](../../../tests/unit/utils/test_validator.py)** (257 lines)
+3. **`tests/unit/utils/test_validator.py`** (257 lines)
    - Example test file demonstrating patterns
    - 50+ test cases for Validator class
    - Parametrized tests
@@ -213,8 +213,8 @@ pytest tests/unit/    # Run only unit tests
 - [Python unittest.mock](https://docs.python.org/3/library/unittest.mock.html)
 
 ### Example Tests
-- [`tests/unit/utils/test_validator.py`](../../../tests/unit/utils/test_validator.py) - Comprehensive example
-- [`banking/data_generators/tests/`](../../../banking/data_generators/tests/) - Existing tests
+- `tests/unit/utils/test_validator.py` - Comprehensive example
+- `banking/data_generators/tests/` - Existing tests
 
 ### Tools
 - pytest - Test framework
