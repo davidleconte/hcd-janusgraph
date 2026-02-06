@@ -409,6 +409,45 @@ Verify datasource URL: http://prometheus:9090
 
 ---
 
+## Pulsar Issues
+
+### Check Pulsar Health
+
+```bash
+# Check if Pulsar is running
+podman exec janusgraph-demo_pulsar_1 curl -s http://localhost:8080/admin/v2/clusters
+
+# List topics
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
+```
+
+### Pulsar Connection Timeout
+
+**Symptoms**: `pulsar-client` Python library times out connecting to Pulsar
+
+**Root Cause**: On macOS (especially Apple Silicon), Pulsar's advertised address resolution can return stale container IPs
+
+**Solution**: The compose file includes `--advertised-address localhost` fix. If issues persist:
+```bash
+# Restart Pulsar container
+podman restart janusgraph-demo_pulsar_1
+```
+
+### Debug Messages with Pulsar CLI
+
+```bash
+# Consume messages from a topic (for debugging)
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-client consume \
+  -s debug-subscription \
+  persistent://public/banking/persons-events -n 5
+
+# Check topic stats
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats \
+  persistent://public/banking/persons-events
+```
+
+---
+
 ## Notebook Issues
 
 ### UBO Discovery Notebook Timeout (Notebook 08)

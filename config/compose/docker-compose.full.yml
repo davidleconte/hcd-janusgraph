@@ -180,6 +180,20 @@ services:
       start_period: 90s
     restart: unless-stopped
 
+  pulsar-cli:
+    image: docker.io/apachepulsar/pulsar:3.2.0
+    hostname: pulsar-cli
+    networks:
+      - hcd-janusgraph-network
+    environment:
+      # Fix for Apple Silicon (M1/M2/M3/M4) - JDK-8345296
+      - _JAVA_OPTIONS=-XX:UseSVE=0
+    entrypoint: ["sleep", "infinity"]
+    depends_on:
+      pulsar:
+        condition: service_healthy
+    restart: unless-stopped
+
   # ============================================================================
   # VISUALIZATION & ANALYSIS
   # ============================================================================

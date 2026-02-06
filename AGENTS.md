@@ -70,6 +70,24 @@ uv pip install package-name
 # Fallback to pip if uv unavailable
 pip install package-name
 ```
+### Pulsar CLI Access
+
+Interactive Pulsar admin CLI is available via the `pulsar-cli` service:
+
+```bash
+# Access Pulsar admin CLI
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
+
+# List namespaces
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin namespaces list public
+
+# Check topic stats
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persistent://public/banking/persons-events
+
+# Consume messages (for debugging)
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-client consume -s test-sub persistent://public/banking/persons-events -n 5
+```
+
 ### Podman/Docker Deployment (REQUIRED)
 
 **CRITICAL:** Always use project name to ensure isolation from other projects on the same Podman machine:

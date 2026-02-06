@@ -33,6 +33,26 @@ This module provides Apache Pulsar-based event streaming that enables:
 
 ---
 
+## Pulsar CLI Access
+
+For debugging and administration, use the `pulsar-cli` container:
+
+```bash
+# List topics
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
+
+# Check topic stats
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persistent://public/banking/persons-events
+
+# Consume messages (debugging)
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-client consume -s debug-sub persistent://public/banking/persons-events -n 5
+
+# Peek at messages without consuming
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics peek-messages persistent://public/banking/persons-events -n 5 -s my-subscription
+```
+
+---
+
 ## Components
 
 | Component | File | Description |
