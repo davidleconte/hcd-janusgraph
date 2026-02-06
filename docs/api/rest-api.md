@@ -3,6 +3,8 @@
 **Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
 **Contact:** +33614126117
 
+> **Auto-generated docs:** Run `./scripts/docs/generate_api_docs.sh` for full Python API documentation.
+
 ## Overview
 
 FastAPI-based REST API for banking platform access.
