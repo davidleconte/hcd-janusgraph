@@ -409,6 +409,41 @@ Verify datasource URL: http://prometheus:9090
 
 ---
 
+## Notebook Issues
+
+### UBO Discovery Notebook Timeout (Notebook 08)
+
+**Symptoms**: Notebook 08 times out during automated execution (>300s)
+
+**Root Cause**: Complex graph traversals in `find_ubos_for_company()` combined with Jupyter kernel module caching
+
+**Solutions**:
+
+1. **Run interactively**: Execute notebook manually in JupyterLab with longer cell timeout
+   ```bash
+   conda activate janusgraph-analysis
+   jupyter lab banking/notebooks/08_UBO_Discovery_Demo.ipynb
+   ```
+
+2. **Reduce iterations**: Modify cells to analyze fewer companies (already optimized to 3)
+
+3. **Skip indirect ownership**: Set `include_indirect=False` in `find_ubos_for_company()` calls
+
+4. **Add graph indexes**: Improve performance with JanusGraph indexes:
+   ```groovy
+   mgmt = graph.openManagement()
+   mgmt.buildIndex('byCompanyId', Vertex.class).addKey(mgmt.getPropertyKey('company_id')).buildCompositeIndex()
+   mgmt.buildIndex('byPersonId', Vertex.class).addKey(mgmt.getPropertyKey('person_id')).buildCompositeIndex()
+   mgmt.commit()
+   ```
+
+**Known Fixes Applied**:
+- Fixed Python lambda serialization bug in `_find_direct_owners()` 
+- Optimized `find_shared_ubos()` with single aggregated Gremlin query
+- Created `beneficial_owner` edges for testing
+
+---
+
 ## Debug Commands
 
 ### System Info

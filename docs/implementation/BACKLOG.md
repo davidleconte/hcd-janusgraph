@@ -66,6 +66,12 @@ This document tracks remaining improvements and technical debt items for the HCD
 
 ## Completed Recently
 
+- 2026-02-06: **UBO Discovery Module Fixes**
+  - Fixed Python lambda bug in `_find_direct_owners()` (Line 248) - lambdas can't serialize to Gremlin server
+  - Optimized `find_shared_ubos()` - replaced O(n) individual queries with single aggregated Gremlin query (0.27s vs timeout)
+  - Created 48 `beneficial_owner` edges in JanusGraph (graph only had `owns_account` edges)
+  - **Remaining**: Notebook 08 automated execution times out (>300s) due to Jupyter kernel module caching
+  - Files modified: `src/python/analytics/ubo_discovery.py`, `banking/notebooks/08_UBO_Discovery_Demo.ipynb`
 - 2026-02-06: **Preflight validation passing** - All checks pass in audit-only mode
   - Python environment: conda, Python 3.11, uv package manager ✅
   - Environment config: .env, COMPOSE_PROJECT_NAME, PODMAN_CONNECTION ✅

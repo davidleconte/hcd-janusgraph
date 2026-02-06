@@ -143,6 +143,7 @@ PROJECT_ROOT = config['project_root']
 - **Techniques**: Ownership chain traversal, effective ownership calculation
 - **Business Value**: EU 5AMLD compliance, FATF recommendations
 - **Cross-Service**: OpenSearch fuzzy company name matching for entity resolution
+- **⚠️ Note**: Requires manual execution or longer timeout (>300s) for automated testing due to complex graph traversals. Run interactively for best experience.
 
 #### 09: API Integration Demo
 - **Objective**: Demonstrate FastAPI analytics service integration

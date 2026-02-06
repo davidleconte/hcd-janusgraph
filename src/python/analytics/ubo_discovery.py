@@ -236,23 +236,32 @@ class UBODiscovery:
         """Find persons who directly own the company"""
         try:
             # Traverse: Person -[beneficial_owner]-> Company
+            # Note: Avoid Python lambdas in Gremlin - they don't serialize to server
             results = self.g.V().has('company_id', company_id) \
                 .inE('beneficial_owner') \
-                .project('person_id', 'name', 'ownership_percentage', 'is_pep', 'is_sanctioned') \
+                .project('person_id', 'first_name', 'last_name', 'full_name', 'ownership_percentage', 'is_pep', 'is_sanctioned') \
                 .by(__.outV().values('person_id')) \
-                .by(__.outV().coalesce(
-                    __.values('full_name'),
-                    __.project('first', 'last')
-                        .by(__.values('first_name'))
-                        .by(__.values('last_name'))
-                        .select('first', 'last').map(lambda x: f"{x.get('first', '')} {x.get('last', '')}")
-                )) \
+                .by(__.outV().coalesce(__.values('first_name'), __.constant(''))) \
+                .by(__.outV().coalesce(__.values('last_name'), __.constant(''))) \
+                .by(__.outV().coalesce(__.values('full_name'), __.constant(''))) \
                 .by(__.coalesce(__.values('ownership_percentage'), __.constant(0.0))) \
                 .by(__.outV().coalesce(__.values('is_pep'), __.constant(False))) \
                 .by(__.outV().coalesce(__.values('is_sanctioned'), __.constant(False))) \
                 .toList()
             
-            return results
+            # Format names in Python (server-side lambdas not supported)
+            formatted_results = []
+            for r in results:
+                name = r.get('full_name') or f"{r.get('first_name', '')} {r.get('last_name', '')}".strip()
+                formatted_results.append({
+                    'person_id': r['person_id'],
+                    'name': name or 'Unknown',
+                    'ownership_percentage': r['ownership_percentage'],
+                    'is_pep': r['is_pep'],
+                    'is_sanctioned': r['is_sanctioned']
+                })
+            
+            return formatted_results
         except Exception as e:
             logger.error(f"Error finding direct owners: {e}")
             return []
@@ -419,16 +428,40 @@ class UBODiscovery:
         """
         shared = {}
         
-        for company_id in company_ids:
-            try:
-                result = self.find_ubos_for_company(company_id)
-                for ubo in result.ubos:
-                    person_id = ubo['person_id']
-                    if person_id not in shared:
-                        shared[person_id] = []
+        try:
+            # Optimized: Single aggregated query instead of O(n) calls
+            # Find all direct beneficial owners across all specified companies
+            results = self.g.V().has('company_id', P.within(company_ids)) \
+                .inE('beneficial_owner') \
+                .where(__.values('ownership_percentage').is_(P.gte(self.ownership_threshold))) \
+                .project('person_id', 'company_id') \
+                .by(__.outV().values('person_id')) \
+                .by(__.inV().values('company_id')) \
+                .toList()
+            
+            # Group by person
+            for r in results:
+                person_id = r['person_id']
+                company_id = r['company_id']
+                if person_id not in shared:
+                    shared[person_id] = []
+                if company_id not in shared[person_id]:
                     shared[person_id].append(company_id)
-            except Exception as e:
-                logger.warning(f"Error analyzing company {company_id}: {e}")
+                    
+        except Exception as e:
+            logger.warning(f"Error in optimized shared UBO query: {e}")
+            # Fallback to individual queries (slower but more robust)
+            for company_id in company_ids:
+                try:
+                    result = self.find_ubos_for_company(company_id)
+                    for ubo in result.ubos:
+                        person_id = ubo['person_id']
+                        if person_id not in shared:
+                            shared[person_id] = []
+                        if company_id not in shared[person_id]:
+                            shared[person_id].append(company_id)
+                except Exception as e2:
+                    logger.warning(f"Error analyzing company {company_id}: {e2}")
         
         # Filter to only those with multiple companies
         return {k: v for k, v in shared.items() if len(v) > 1}
