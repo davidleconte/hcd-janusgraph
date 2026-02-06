@@ -35,6 +35,8 @@ from .entity_converter import (
     get_text_for_embedding,
 )
 from .streaming_orchestrator import StreamingOrchestrator, StreamingConfig, StreamingStats
+from .dlq_handler import DLQHandler, DLQMessage, DLQStats, MockDLQHandler, get_dlq_handler
+from .metrics import StreamingMetrics, streaming_metrics, timed_publish, timed_consume, get_metrics_output
 
 __all__ = [
     # Events
@@ -62,4 +64,16 @@ __all__ = [
     'StreamingOrchestrator',
     'StreamingConfig',
     'StreamingStats',
+    # DLQ Handler
+    'DLQHandler',
+    'DLQMessage',
+    'DLQStats',
+    'MockDLQHandler',
+    'get_dlq_handler',
+    # Metrics
+    'StreamingMetrics',
+    'streaming_metrics',
+    'timed_publish',
+    'timed_consume',
+    'get_metrics_output',
 ]
