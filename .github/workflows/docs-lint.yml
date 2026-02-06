@@ -1,0 +1,55 @@
+name: Documentation Lint
+
+on:
+  push:
+    paths:
+      - '**.md'
+      - '.markdownlint.json'
+      - '.github/workflows/docs-lint.yml'
+  pull_request:
+    paths:
+      - '**.md'
+      - '.markdownlint.json'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v15
+        with:
+          globs: |
+            **/*.md
+            !node_modules/**
+            !**/archive/**
+            !hcd-1.2.3/**
+
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for broken links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.markdown-link-check.json'
+        continue-on-error: true
+
+  doc-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run doc coverage check
+        run: |
+          python scripts/docs/doc_coverage.py --report
+        continue-on-error: true

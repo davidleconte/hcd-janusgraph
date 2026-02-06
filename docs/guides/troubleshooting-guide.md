@@ -6,6 +6,44 @@
 
 ---
 
+## Troubleshooting Flow
+
+```mermaid
+flowchart TD
+    A[Issue Detected] --> B{Service Running?}
+    B -->|No| C[Check Container Logs]
+    B -->|Yes| D{Health Check OK?}
+    
+    C --> E{Port Conflict?}
+    E -->|Yes| F[Kill Process / Change Port]
+    E -->|No| G{Config Error?}
+    G -->|Yes| H[Fix Configuration]
+    G -->|No| I[Check Resources]
+    
+    D -->|No| J{Connection Error?}
+    D -->|Yes| K{Query Error?}
+    
+    J -->|Yes| L[Check Network/Firewall]
+    J -->|No| M[Check Service Logs]
+    
+    K -->|Yes| N[Check Query Syntax]
+    K -->|No| O[Performance Issue]
+    
+    F --> P[Restart Service]
+    H --> P
+    I --> P
+    L --> P
+    N --> Q[Fix Query]
+    O --> R[Optimize/Scale]
+    
+    style A fill:#f9f,stroke:#333
+    style P fill:#9f9,stroke:#333
+    style Q fill:#9f9,stroke:#333
+    style R fill:#9f9,stroke:#333
+```
+
+---
+
 ## Common Issues and Solutions
 
 ### Container Issues

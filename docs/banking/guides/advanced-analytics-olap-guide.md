@@ -28,6 +28,29 @@
 
 ### OLAP Operations
 
+```mermaid
+flowchart LR
+    subgraph "OLAP Cube"
+        DATA[(Raw Data)]
+    end
+    
+    DATA --> SLICE[SLICE<br/>Filter 1 dimension]
+    DATA --> DICE[DICE<br/>Filter N dimensions]
+    DATA --> DRILL[DRILL-DOWN<br/>Summary → Detail]
+    DATA --> ROLL[ROLL-UP<br/>Detail → Summary]
+    DATA --> PIVOT[PIVOT<br/>Rotate view]
+    
+    SLICE --> OS[(OpenSearch<br/>Aggregations)]
+    DICE --> OS
+    DRILL --> OS
+    ROLL --> OS
+    PIVOT --> PD[Pandas<br/>DataFrame]
+    
+    style DATA fill:#e3f2fd
+    style OS fill:#fff3e0
+    style PD fill:#e8f5e9
+```
+
 1. **SLICE** - Filter on one dimension
 2. **DICE** - Filter on multiple dimensions
 3. **DRILL-DOWN** - Navigate from summary to detail

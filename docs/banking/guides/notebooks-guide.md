@@ -10,6 +10,40 @@
 
 This guide covers the 10 Jupyter notebooks in `banking/notebooks/` that demonstrate the banking compliance platform's capabilities. Several notebooks now feature **cross-service integration**, demonstrating how JanusGraph, OpenSearch, and HCD work together for comprehensive compliance workflows.
 
+### Notebook Architecture
+
+```mermaid
+flowchart TB
+    subgraph "Jupyter Environment"
+        NB[Notebook]
+        CFG[notebook_config.py]
+    end
+    
+    subgraph "Service Layer"
+        JG[JanusGraph<br/>:18182]
+        OS[OpenSearch<br/>:9200]
+        API[FastAPI<br/>:8001]
+    end
+    
+    subgraph "Storage Layer"
+        HCD[(HCD/Cassandra)]
+        IDX[(Vector Index)]
+    end
+    
+    NB --> CFG
+    CFG --> JG
+    CFG --> OS
+    NB --> API
+    
+    JG --> HCD
+    OS --> IDX
+    
+    style NB fill:#fff3e0
+    style JG fill:#e3f2fd
+    style OS fill:#f3e5f5
+    style HCD fill:#e8f5e9
+```
+
 ## Prerequisites
 
 ### 1. Conda Environment

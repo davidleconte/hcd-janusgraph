@@ -1,6 +1,29 @@
 # Changelog
 
-## [Unreleased] - 2026-01-29
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Documentation Quality Improvements**
+  - FAQ.md with common questions and answers
+  - Markdownlint configuration (`.markdownlint.json`)
+  - CI workflow for documentation linting (`.github/workflows/docs-lint.yml`)
+  - Documentation coverage analyzer (`scripts/docs/doc_coverage.py`)
+  - AI-powered semantic search for docs (`scripts/docs/setup_doc_search.py`)
+  - Markdown link check configuration
+
+### Changed
+- OLAP guide enhanced with "Why OpenSearch vs Spark" section
+- Notebooks guide updated with OpenSearch aggregation details
+- System architecture updated with OLAP notes
+
+---
+
+## [1.0.0] - 2026-01-29
 
 ### Changed - Data Models (BREAKING CHANGES)
 - **BREAKING**: Entity models now use inherited `id` field from BaseEntity instead of entity-specific IDs
