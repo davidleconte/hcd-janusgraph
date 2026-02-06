@@ -68,7 +68,8 @@ def check_opensearch_available():
     """Check if OpenSearch is available."""
     try:
         from opensearchpy import OpenSearch
-        use_ssl = os.getenv('OPENSEARCH_USE_SSL', 'true').lower() == 'true'
+        # Default to false for local dev (matches conda env OPENSEARCH_USE_SSL=false)
+        use_ssl = os.getenv('OPENSEARCH_USE_SSL', 'false').lower() == 'true'
         client = OpenSearch(
             hosts=[{'host': 'localhost', 'port': 9200}],
             http_auth=('admin', 'admin'),
