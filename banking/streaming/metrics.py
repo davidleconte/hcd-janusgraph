@@ -39,107 +39,165 @@ def _init_metrics():
     if _metrics_initialized or not PROMETHEUS_AVAILABLE:
         return
     
+    from prometheus_client import REGISTRY
+    
+    def _get_existing(name):
+        """Get existing metric from registry by name."""
+        # Counters create multiple entries: name, name_total, name_created
+        # Check if any of these exist
+        check_names = [name, f"{name}_total", f"{name}_created"]
+        for check_name in check_names:
+            if check_name in REGISTRY._names_to_collectors:
+                collector = REGISTRY._names_to_collectors[check_name]
+                return collector
+        return None
+    
+    def _safe_counter(name, desc, labels):
+        """Create counter or return existing one from registry."""
+        existing = _get_existing(name)
+        if existing:
+            return existing
+        try:
+            return Counter(name, desc, labels)
+        except ValueError:
+            # Race condition - try to get it again
+            return _get_existing(name)
+    
+    def _safe_histogram(name, desc, labels, buckets):
+        """Create histogram or return existing one from registry."""
+        existing = _get_existing(name)
+        if existing:
+            return existing
+        try:
+            return Histogram(name, desc, labels, buckets=buckets)
+        except ValueError:
+            return _get_existing(name)
+    
+    def _safe_gauge(name, desc, labels):
+        """Create gauge or return existing one from registry."""
+        existing = _get_existing(name)
+        if existing:
+            return existing
+        try:
+            return Gauge(name, desc, labels)
+        except ValueError:
+            return _get_existing(name)
+    
+    def _safe_info(name, desc):
+        """Create info or return existing one from registry."""
+        existing = _get_existing(name)
+        if existing:
+            return existing
+        try:
+            return Info(name, desc)
+        except ValueError:
+            return _get_existing(name)
+    
     # Producer metrics
-    _metrics['events_published_total'] = Counter(
+    _metrics['events_published_total'] = _safe_counter(
         'streaming_events_published_total',
         'Total number of events published to Pulsar',
         ['entity_type', 'source']
     )
     
-    _metrics['events_publish_failed_total'] = Counter(
+    _metrics['events_publish_failed_total'] = _safe_counter(
         'streaming_events_publish_failed_total',
         'Total number of failed event publishes',
         ['entity_type', 'source', 'error_type']
     )
     
-    _metrics['publish_latency_seconds'] = Histogram(
+    _metrics['publish_latency_seconds'] = _safe_histogram(
         'streaming_publish_latency_seconds',
         'Event publish latency in seconds',
         ['entity_type'],
-        buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
+        (0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
     )
     
     # Consumer metrics
-    _metrics['events_consumed_total'] = Counter(
+    _metrics['events_consumed_total'] = _safe_counter(
         'streaming_events_consumed_total',
         'Total number of events consumed from Pulsar',
         ['entity_type', 'consumer_type']  # consumer_type: graph, vector
     )
     
-    _metrics['events_consume_failed_total'] = Counter(
+    _metrics['events_consume_failed_total'] = _safe_counter(
         'streaming_events_consume_failed_total',
         'Total number of failed event consumptions',
         ['entity_type', 'consumer_type', 'error_type']
     )
     
-    _metrics['consume_latency_seconds'] = Histogram(
+    _metrics['consume_latency_seconds'] = _safe_histogram(
         'streaming_consume_latency_seconds',
         'Event consume/process latency in seconds',
         ['entity_type', 'consumer_type'],
-        buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0)
+        (0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0)
     )
     
-    _metrics['consumer_lag'] = Gauge(
+    _metrics['consumer_lag'] = _safe_gauge(
         'streaming_consumer_lag',
         'Consumer lag (messages behind)',
         ['consumer_type', 'topic']
     )
     
     # DLQ metrics
-    _metrics['dlq_messages_total'] = Counter(
+    _metrics['dlq_messages_total'] = _safe_counter(
         'streaming_dlq_messages_total',
         'Total messages sent to DLQ',
         ['entity_type', 'failure_reason']
     )
     
-    _metrics['dlq_retries_total'] = Counter(
+    _metrics['dlq_retries_total'] = _safe_counter(
         'streaming_dlq_retries_total',
         'Total DLQ message retry attempts',
         ['entity_type', 'success']
     )
     
-    _metrics['dlq_archived_total'] = Counter(
+    _metrics['dlq_archived_total'] = _safe_counter(
         'streaming_dlq_archived_total',
         'Total DLQ messages archived (permanently failed)',
         ['entity_type']
     )
     
-    _metrics['dlq_queue_size'] = Gauge(
+    _metrics['dlq_queue_size'] = _safe_gauge(
         'streaming_dlq_queue_size',
         'Current DLQ queue size',
         []
     )
     
     # System health metrics
-    _metrics['producer_connected'] = Gauge(
+    _metrics['producer_connected'] = _safe_gauge(
         'streaming_producer_connected',
         'Producer connection status (1=connected, 0=disconnected)',
         ['producer_id']
     )
     
-    _metrics['consumer_connected'] = Gauge(
+    _metrics['consumer_connected'] = _safe_gauge(
         'streaming_consumer_connected',
         'Consumer connection status (1=connected, 0=disconnected)',
         ['consumer_type', 'subscription']
     )
     
     # Batch metrics
-    _metrics['batch_size'] = Histogram(
+    _metrics['batch_size'] = _safe_histogram(
         'streaming_batch_size',
         'Batch size for batch operations',
         ['operation'],
-        buckets=(1, 5, 10, 25, 50, 100, 250, 500, 1000)
+        (1, 5, 10, 25, 50, 100, 250, 500, 1000)
     )
     
     # Info metric
-    _metrics['streaming_info'] = Info(
+    _metrics['streaming_info'] = _safe_info(
         'streaming',
         'Streaming module information'
     )
-    _metrics['streaming_info'].info({
-        'version': '1.0.0',
-        'pulsar_namespace': 'public/banking'
-    })
+    if _metrics['streaming_info']:
+        try:
+            _metrics['streaming_info'].info({
+                'version': '1.0.0',
+                'pulsar_namespace': 'public/banking'
+            })
+        except Exception:
+            pass  # Info already set
     
     _metrics_initialized = True
     logger.info("Prometheus metrics initialized")
