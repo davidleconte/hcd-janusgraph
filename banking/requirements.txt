@@ -17,7 +17,7 @@ opensearch-py==2.4.0  # OpenSearch Python client
 # Visualization
 matplotlib==3.8.0     # Plotting
 seaborn==0.13.0       # Statistical visualizations
-networkx==3.2.0       # Graph visualization
+networkx==3.6.1       # Graph visualization
 pyvis==0.3.2          # Interactive network viz
 
 # Utilities
