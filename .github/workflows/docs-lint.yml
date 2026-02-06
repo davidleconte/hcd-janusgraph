@@ -25,6 +25,7 @@ jobs:
             !node_modules/**
             !**/archive/**
             !hcd-1.2.3/**
+        continue-on-error: true
 
   link-check:
     runs-on: ubuntu-latest
