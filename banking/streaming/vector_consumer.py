@@ -418,3 +418,28 @@ class VectorConsumer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
         return False
+
+
+def main():
+    """Entry point for running VectorConsumer as a service."""
+    import signal
+    
+    consumer = VectorConsumer()
+    
+    def signal_handler(sig, frame):
+        logger.info("Shutdown signal received")
+        consumer.stop()
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    try:
+        consumer.connect()
+        logger.info("VectorConsumer started - processing events from Pulsar to OpenSearch")
+        consumer.process_forever()
+    finally:
+        consumer.disconnect()
+
+
+if __name__ == "__main__":
+    main()

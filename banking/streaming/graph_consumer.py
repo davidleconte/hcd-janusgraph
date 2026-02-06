@@ -360,3 +360,28 @@ class GraphConsumer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
         return False
+
+
+def main():
+    """Entry point for running GraphConsumer as a service."""
+    import signal
+    
+    consumer = GraphConsumer()
+    
+    def signal_handler(sig, frame):
+        logger.info("Shutdown signal received")
+        consumer.stop()
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    try:
+        consumer.connect()
+        logger.info("GraphConsumer started - processing events from Pulsar to JanusGraph")
+        consumer.process_forever()
+    finally:
+        consumer.disconnect()
+
+
+if __name__ == "__main__":
+    main()
