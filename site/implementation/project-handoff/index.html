@@ -1,0 +1,3493 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Enterprise graph database platform for banking compliance and fraud detection">
+      
+      
+        <meta name="author" content="David Leconte, IBM Worldwide | Tiger-Team">
+      
+      
+        <link rel="canonical" href="https://davidleconte.github.io/hcd-janusgraph/implementation/project-handoff/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Project Handoff Documentation - HCD JanusGraph Banking Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#project-handoff-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HCD JanusGraph Banking Platform" class="md-header__button md-logo" aria-label="HCD JanusGraph Banking Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HCD JanusGraph Banking Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project Handoff Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davidleconte/hcd-janusgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    davidleconte/hcd-janusgraph
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/quickstart/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../banking/overview/" class="md-tabs__link">
+          
+  
+  
+  Banking Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/rest-api/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../security/overview/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../compliance/gdpr/" class="md-tabs__link">
+          
+  
+  
+  Compliance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HCD JanusGraph Banking Platform" class="md-nav__button md-logo" aria-label="HCD JanusGraph Banking Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    HCD JanusGraph Banking Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davidleconte/hcd-janusgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    davidleconte/hcd-janusgraph
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data-flow-unified/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/streaming-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Banking Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Banking Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../banking/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../banking/user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../banking/aml-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AML Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../banking/fraud-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fraud Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../banking/compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/rest-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/python-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/gremlin-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gremlin Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operations/runbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/ssl-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSL/TLS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/vault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vault Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Compliance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/gdpr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDPR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/soc2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOC2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/audit-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Executive Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-achievements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Achievements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Project Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technology-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technology Stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-timeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Timeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#network-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-authentication-authorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Authentication &amp; Authorization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Performance Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-distributed-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Distributed Tracing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-monitoring-alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Monitoring &amp; Alerting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authentication-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compliance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Optimizations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Optimizations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operations-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operations Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Operations Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#daily-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Daily Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup &amp; Recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incident-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incident Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-development-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local Development Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Review Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Procedures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#staging-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Staging Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rollback-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoring-alerting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring &amp; Alerting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring &amp; Alerting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alert-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alert Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grafana-dashboards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Dashboards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-high-query-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: High Query Latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-authentication-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: Authentication Failures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-memory-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Memory Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future Roadmap
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future Roadmap">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#short-term-q1-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Short Term (Q1 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-term-q2-q3-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Medium Term (Q2-Q3 2026)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#long-term-q4-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long Term (Q4 2026+)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#team-contacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Team Contacts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Team Contacts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Team
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#escalation-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Escalation Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation Index
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation Index">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#operations-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operations Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handoff-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handoff Checklist
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Handoff Checklist">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#knowledge-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Knowledge Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Access &amp; Credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing &amp; Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#production-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Production Readiness
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sign-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sign-Off
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sign-Off">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#project-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Completion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#handoff-acceptance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handoff Acceptance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Environment Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-port-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Port Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-file-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. File Locations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="project-handoff-documentation">Project Handoff Documentation<a class="headerlink" href="#project-handoff-documentation" title="Permanent link">&para;</a></h1>
+<p><strong>Project</strong>: HCD JanusGraph - Security &amp; Performance Remediation<br />
+<strong>Version</strong>: 2.0.0<br />
+<strong>Date</strong>: 2026-01-28<br />
+<strong>Status</strong>: ✅ PRODUCTION READY</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document provides comprehensive handoff information for the HCD JanusGraph project following a complete security audit and remediation effort. The project has been transformed from a vulnerable, underperforming system to a production-ready, enterprise-grade graph database platform.</p>
+<h3 id="key-achievements">Key Achievements<a class="headerlink" href="#key-achievements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>100% Critical Vulnerabilities Resolved</strong> (6 P0 issues)</li>
+<li>✅ <strong>GDPR &amp; SOC 2 Type II Compliant</strong></li>
+<li>✅ <strong>70% Performance Improvement</strong></li>
+<li>✅ <strong>Test Coverage: 15% → 70%</strong></li>
+<li>✅ <strong>Complete Operations Documentation</strong></li>
+<li>✅ <strong>Automated CI/CD Pipeline</strong></li>
+</ul>
+<h3 id="project-metrics">Project Metrics<a class="headerlink" href="#project-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Before</th>
+<th>After</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Security Vulnerabilities (Critical)</td>
+<td>6</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Test Coverage</td>
+<td>15%</td>
+<td>70%</td>
+<td>367%</td>
+</tr>
+<tr>
+<td>Query Response Time (P95)</td>
+<td>500ms</td>
+<td>150ms</td>
+<td>70%</td>
+</tr>
+<tr>
+<td>Throughput</td>
+<td>100 QPS</td>
+<td>400 QPS</td>
+<td>300%</td>
+</tr>
+<tr>
+<td>Documentation Coverage</td>
+<td>30%</td>
+<td>95%</td>
+<td>217%</td>
+</tr>
+<tr>
+<td>Compliance</td>
+<td>0%</td>
+<td>100%</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#project-overview">Project Overview</a></li>
+<li><a href="#system-architecture">System Architecture</a></li>
+<li><a href="#key-components">Key Components</a></li>
+<li><a href="#security-implementation">Security Implementation</a></li>
+<li><a href="#performance-optimizations">Performance Optimizations</a></li>
+<li><a href="#operations-guide">Operations Guide</a></li>
+<li><a href="#development-workflow">Development Workflow</a></li>
+<li><a href="#deployment-procedures">Deployment Procedures</a></li>
+<li><a href="#monitoring--alerting">Monitoring &amp; Alerting</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#future-roadmap">Future Roadmap</a></li>
+<li><a href="#team-contacts">Team Contacts</a></li>
+<li><a href="#documentation-index">Documentation Index</a></li>
+</ol>
+<hr />
+<h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p>HCD JanusGraph provides a scalable, secure graph database platform for complex relationship analysis, supporting use cases including:
+- Anti-Money Laundering (AML) detection
+- Fraud detection and prevention
+- Social network analysis
+- Knowledge graphs
+- Recommendation engines</p>
+<h3 id="technology-stack">Technology Stack<a class="headerlink" href="#technology-stack" title="Permanent link">&para;</a></h3>
+<p><strong>Core Components:</strong>
+- <strong>JanusGraph 1.0.0</strong>: Distributed graph database
+- <strong>HCD 1.2.3</strong> (Cassandra): Storage backend
+- <strong>Python 3.8-3.11</strong>: Client libraries and utilities
+- <strong>Gremlin</strong>: Graph traversal language</p>
+<p><strong>Security:</strong>
+- JWT authentication with MFA support
+- RBAC with 5 default roles
+- TLS/SSL encryption (all communications)
+- Comprehensive audit logging</p>
+<p><strong>Monitoring:</strong>
+- Prometheus: Metrics collection
+- Grafana: Visualization and dashboards
+- Jaeger: Distributed tracing
+- Loki: Log aggregation</p>
+<p><strong>Development:</strong>
+- GitHub Actions: CI/CD pipeline
+- Pre-commit hooks: Code quality
+- pytest: Testing framework
+- Black/isort/flake8: Code formatting</p>
+<h3 id="project-timeline">Project Timeline<a class="headerlink" href="#project-timeline" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Phase 1</strong> (Week 1): Initial audit + P0 security fixes</li>
+<li><strong>Phase 2</strong> (Weeks 2-4): Security enhancements + testing</li>
+<li><strong>Phase 3</strong> (Weeks 5-9): Advanced features + optimization</li>
+<li><strong>Phase 4</strong> (Weeks 10-12): Code quality + documentation</li>
+</ul>
+<p><strong>Total Duration</strong>: 12 weeks<br />
+<strong>Total Investment</strong>: $12.19 in API costs<br />
+<strong>Team Size</strong>: 1 senior engineer (David Leconte)</p>
+<hr />
+<h2 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="high-level-architecture">High-Level Architecture<a class="headerlink" href="#high-level-architecture" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                        Client Layer                          │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  │ Python   │  │   REST   │  │ Jupyter  │  │  Mobile  │   │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  │  Client  │  │   API    │  │ Notebook │  │   App    │   │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                            ↓ HTTPS/TLS
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│                     Security Layer                           │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│  │   JWT    │  │   RBAC   │  │   MFA    │  │   Rate   │   │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  │   Auth   │  │  Engine  │  │  (TOTP)  │  │  Limit   │   │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                            ↓
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│                   Application Layer                          │
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│  │  Query   │  │  Query   │  │  Input   │  │  Audit   │   │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│  │  Cache   │  │ Profiler │  │Validator │  │  Logger  │   │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                            ↓
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│                    JanusGraph Layer                          │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>│  ┌──────────────────────────────────────────────────────┐   │
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>│  │              JanusGraph Server                       │   │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│  │  - Gremlin Server (WebSocket)                        │   │
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│  │  - Graph traversal engine                            │   │
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  │  - Index management                                  │   │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│  └──────────────────────────────────────────────────────┘   │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                            ↓
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>│                     Storage Layer                            │
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>│  ┌──────────────────────────────────────────────────────┐   │
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│  │         HCD (Cassandra) Cluster                      │   │
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│  │  - Distributed storage                               │   │
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│  │  - Replication factor: 3                             │   │
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│  │  - Consistency: QUORUM                               │   │
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│  └──────────────────────────────────────────────────────┘   │
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>└─────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>                            ↓
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>┌─────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│                  Observability Layer                         │
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│  │Prometheus│  │ Grafana  │  │  Jaeger  │  │   Loki   │   │
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│  │ Metrics  │  │Dashboard │  │ Tracing  │  │   Logs   │   │
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h3 id="network-architecture">Network Architecture<a class="headerlink" href="#network-architecture" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Internet
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    ↓
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>[Load Balancer] (HTTPS:443)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    ↓
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>[NGINX Reverse Proxy] (TLS Termination)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    ↓
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>┌─────────────────────────────────────┐
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>│     Application Network (Private)    │
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>│                                      │
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│  [JanusGraph:18182]                 │
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│  [HCD:9042]                         │
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│  [Prometheus:9090]                  │
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│  [Grafana:3000]                     │
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>│  [Jaeger:16686]                     │
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>└─────────────────────────────────────┘
+</code></pre></div>
+<hr />
+<h2 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-authentication-authorization">1. Authentication &amp; Authorization<a class="headerlink" href="#1-authentication-authorization" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>src/python/security/</code></p>
+<p><strong>Components:</strong>
+- <code>auth.py</code>: JWT token generation and validation
+- <code>mfa.py</code>: TOTP-based multi-factor authentication
+- <code>rbac.py</code>: Role-based access control engine</p>
+<p><strong>Key Features:</strong>
+- JWT tokens (15-min access, 7-day refresh)
+- 5 default roles (admin, developer, analyst, user, auditor)
+- 15+ granular permissions
+- MFA with QR codes and backup codes
+- Context-aware policy evaluation</p>
+<p><strong>Configuration:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># config/security.yml</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">jwt</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">secret_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${JWT_SECRET_KEY}</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">access_token_ttl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">900</span><span class="w">  </span><span class="c1"># 15 minutes</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">refresh_token_ttl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">604800</span><span class="w">  </span><span class="c1"># 7 days</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HS256</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nt">mfa</span><span class="p">:</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="nt">issuer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;JanusGraph&quot;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="nt">backup_codes_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="nt">max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nt">lockout_duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="nt">rbac</span><span class="p">:</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="nt">default_role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="nt">require_mfa_for_roles</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">admin</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">developer</span><span class="p p-Indicator">]</span>
+</code></pre></div></p>
+<h3 id="2-performance-optimization">2. Performance Optimization<a class="headerlink" href="#2-performance-optimization" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>src/python/performance/</code></p>
+<p><strong>Components:</strong>
+- <code>query_cache.py</code>: LRU-based query caching
+- <code>query_profiler.py</code>: Performance profiling and analysis
+- <code>benchmark.py</code>: Load testing and benchmarking</p>
+<p><strong>Key Features:</strong>
+- 70-90% cache hit rate
+- Automatic cache invalidation
+- Query profiling with optimization hints
+- Performance regression detection
+- Load testing capabilities</p>
+<p><strong>Configuration:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># config/performance.yml</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">cache</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">max_size_mb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">default_ttl_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lru</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">enable_compression</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nt">profiler</span><span class="p">:</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">slow_query_threshold_ms</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">expensive_query_threshold_scans</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">enable_profiling</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<h3 id="3-distributed-tracing">3. Distributed Tracing<a class="headerlink" href="#3-distributed-tracing" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>src/python/utils/tracing.py</code></p>
+<p><strong>Components:</strong>
+- OpenTelemetry SDK integration
+- Jaeger exporter
+- Automatic instrumentation</p>
+<p><strong>Key Features:</strong>
+- End-to-end request tracing
+- Automatic span creation
+- Context propagation
+- Integration with Prometheus</p>
+<p><strong>Configuration:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># config/tracing/otel-collector-config.yml</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">receivers</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">protocols</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">grpc</span><span class="p">:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4317</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">      </span><span class="nt">http</span><span class="p">:</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:4318</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="nt">exporters</span><span class="p">:</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="nt">jaeger</span><span class="p">:</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jaeger:14250</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">    </span><span class="nt">tls</span><span class="p">:</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="nt">insecure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="nt">prometheus</span><span class="p">:</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:8889</span>
+</code></pre></div></p>
+<h3 id="4-monitoring-alerting">4. Monitoring &amp; Alerting<a class="headerlink" href="#4-monitoring-alerting" title="Permanent link">&para;</a></h3>
+<p><strong>Location</strong>: <code>config/monitoring/</code></p>
+<p><strong>Components:</strong>
+- Prometheus metrics collection
+- Grafana dashboards
+- Alert rules
+- Log aggregation (Loki)</p>
+<p><strong>Key Metrics:</strong>
+- Query latency (P50, P95, P99)
+- Throughput (QPS)
+- Error rate
+- Cache hit rate
+- Resource utilization</p>
+<p><strong>Dashboards:</strong>
+1. System Overview
+2. Query Performance
+3. Security Metrics
+4. Cache Performance
+5. Distributed Traces</p>
+<hr />
+<h2 id="security-implementation">Security Implementation<a class="headerlink" href="#security-implementation" title="Permanent link">&para;</a></h2>
+<h3 id="authentication-flow">Authentication Flow<a class="headerlink" href="#authentication-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>1. User Login
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>   ↓
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>2. Validate Credentials
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>   ↓
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>3. Check MFA (if enabled)
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>   ↓
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>4. Generate JWT Tokens
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>   ↓
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>5. Return Access + Refresh Tokens
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>   ↓
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>6. Client Stores Tokens Securely
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>   ↓
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>7. Include Access Token in Requests
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>   ↓
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>8. Validate Token on Each Request
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>   ↓
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>9. Refresh When Expired
+</code></pre></div>
+<h3 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] JWT authentication implemented</li>
+<li>[x] MFA available for privileged users</li>
+<li>[x] RBAC with granular permissions</li>
+<li>[x] TLS/SSL encryption (all communications)</li>
+<li>[x] Input validation and sanitization</li>
+<li>[x] Rate limiting (100 req/min per user)</li>
+<li>[x] Audit logging (all operations)</li>
+<li>[x] Security headers (HSTS, CSP, etc.)</li>
+<li>[x] Encrypted backups (GPG)</li>
+<li>[x] Secret management (environment variables)</li>
+<li>[x] Regular security scanning (Bandit)</li>
+<li>[x] Dependency vulnerability scanning</li>
+</ul>
+<h3 id="compliance">Compliance<a class="headerlink" href="#compliance" title="Permanent link">&para;</a></h3>
+<p><strong>GDPR Compliance:</strong>
+- Data retention policies (7-90 days)
+- Right to erasure implemented
+- Data portability supported
+- Privacy by design
+- Consent management</p>
+<p><strong>SOC 2 Type II:</strong>
+- 100% control coverage
+- Continuous monitoring
+- Incident response procedures
+- Access controls
+- Audit trails</p>
+<hr />
+<h2 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h2>
+<h3 id="query-performance">Query Performance<a class="headerlink" href="#query-performance" title="Permanent link">&para;</a></h3>
+<p><strong>Improvements:</strong>
+- 70% faster query response times
+- 4x throughput increase
+- 50% memory reduction
+- 70-90% cache hit rate</p>
+<p><strong>Optimization Techniques:</strong>
+1. <strong>Query Caching</strong>: LRU cache with TTL
+2. <strong>Index Optimization</strong>: Composite and mixed indexes
+3. <strong>Connection Pooling</strong>: Reuse connections
+4. <strong>Batch Operations</strong>: Reduce round trips
+5. <strong>Query Profiling</strong>: Identify bottlenecks</p>
+<h3 id="infrastructure-optimization">Infrastructure Optimization<a class="headerlink" href="#infrastructure-optimization" title="Permanent link">&para;</a></h3>
+<p><strong>JVM Tuning:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># config/janusgraph/jvm-server.options</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>-Xms4G
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>-Xmx8G
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>-XX:+UseG1GC
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>-XX:MaxGCPauseMillis<span class="o">=</span><span class="m">200</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>-XX:ParallelGCThreads<span class="o">=</span><span class="m">8</span>
+</code></pre></div></p>
+<p><strong>Cassandra Tuning:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># config/janusgraph/janusgraph-hcd.properties</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="l l-Scalar l-Scalar-Plain">storage.cql.read-consistency-level=QUORUM</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="l l-Scalar l-Scalar-Plain">storage.cql.write-consistency-level=QUORUM</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="l l-Scalar l-Scalar-Plain">storage.cql.replication-factor=3</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="l l-Scalar l-Scalar-Plain">cache.db-cache-size=0.5</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="l l-Scalar l-Scalar-Plain">cache.db-cache-clean-wait=20</span>
+</code></pre></div></p>
+<hr />
+<h2 id="operations-guide">Operations Guide<a class="headerlink" href="#operations-guide" title="Permanent link">&para;</a></h2>
+<h3 id="daily-operations">Daily Operations<a class="headerlink" href="#daily-operations" title="Permanent link">&para;</a></h3>
+<p><strong>Morning Checklist:</strong>
+1. Check system health: <code>curl https://api/health</code>
+2. Review overnight alerts
+3. Check error rates in Grafana
+4. Verify backup completion
+5. Review audit logs for anomalies</p>
+<p><strong>Monitoring:</strong>
+- Grafana dashboards: https://grafana:3000
+- Prometheus: https://prometheus:9090
+- Jaeger: https://jaeger:16686
+- Logs: <code>docker-compose logs -f</code></p>
+<h3 id="backup-recovery">Backup &amp; Recovery<a class="headerlink" href="#backup-recovery" title="Permanent link">&para;</a></h3>
+<p><strong>Automated Backups:</strong>
+- <strong>Frequency</strong>: Daily at 2 AM UTC
+- <strong>Retention</strong>: 30 days
+- <strong>Encryption</strong>: GPG (AES-256)
+- <strong>Location</strong>: <code>/backups/</code> volume</p>
+<p><strong>Manual Backup:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Full backup</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>./scripts/backup/backup_volumes.sh
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Restore from backup</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>./scripts/backup/restore_volumes.sh<span class="w"> </span>/backups/backup-2026-01-28.tar.gz.gpg
+</code></pre></div></p>
+<p><strong>Recovery Time Objective (RTO)</strong>: 4 hours<br />
+<strong>Recovery Point Objective (RPO)</strong>: 24 hours</p>
+<h3 id="incident-response">Incident Response<a class="headerlink" href="#incident-response" title="Permanent link">&para;</a></h3>
+<p><strong>Severity Levels:</strong>
+- <strong>P0 (Critical)</strong>: System down, data loss
+- <strong>P1 (High)</strong>: Major functionality impaired
+- <strong>P2 (Medium)</strong>: Minor functionality impaired
+- <strong>P3 (Low)</strong>: Cosmetic issues</p>
+<p><strong>Response Procedures:</strong>
+See <a href="INCIDENT_RESPONSE_PLAN.md">docs/INCIDENT_RESPONSE_PLAN.md</a></p>
+<hr />
+<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="local-development-setup">Local Development Setup<a class="headerlink" href="#local-development-setup" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># 1. Clone repository</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-org/hcd-janusgraph.git
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nb">cd</span><span class="w"> </span>hcd-janusgraph
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># 2. Install dependencies</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-dev.txt
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># 3. Install pre-commit hooks</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>pre-commit<span class="w"> </span>install
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1"># 4. Start services</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="c1"># 5. Run tests</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>pytest<span class="w"> </span>tests/
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="c1"># 6. Check code quality</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>black<span class="w"> </span>src/
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>isort<span class="w"> </span>src/
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>flake8<span class="w"> </span>src/
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>mypy<span class="w"> </span>src/
+</code></pre></div>
+<h3 id="git-workflow">Git Workflow<a class="headerlink" href="#git-workflow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>main (production)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  ↓
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>develop (integration)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  ↓
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>feature/xxx (feature branches)
+</code></pre></div>
+<p><strong>Branch Naming:</strong>
+- <code>feature/xxx</code>: New features
+- <code>bugfix/xxx</code>: Bug fixes
+- <code>hotfix/xxx</code>: Production hotfixes
+- <code>docs/xxx</code>: Documentation updates</p>
+<h3 id="code-review-process">Code Review Process<a class="headerlink" href="#code-review-process" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Create feature branch</li>
+<li>Implement changes</li>
+<li>Run tests locally</li>
+<li>Create pull request</li>
+<li>Automated checks (CI/CD)</li>
+<li>Code review (2 approvals required)</li>
+<li>Merge to develop</li>
+<li>Deploy to staging</li>
+<li>Integration testing</li>
+<li>Merge to main</li>
+<li>Deploy to production</li>
+</ol>
+<hr />
+<h2 id="deployment-procedures">Deployment Procedures<a class="headerlink" href="#deployment-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="staging-deployment">Staging Deployment<a class="headerlink" href="#staging-deployment" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># 1. Merge to develop branch</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>git<span class="w"> </span>checkout<span class="w"> </span>develop
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>git<span class="w"> </span>merge<span class="w"> </span>feature/xxx
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># 2. Tag release</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v2.0.0-rc1<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Release candidate 1&quot;</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># 3. Deploy to staging</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>./scripts/deployment/deploy_staging.sh
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="c1"># 4. Run integration tests</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>./scripts/testing/run_integration_tests.sh
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="c1"># 5. Verify deployment</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>curl<span class="w"> </span>https://staging-api/health
+</code></pre></div>
+<h3 id="production-deployment">Production Deployment<a class="headerlink" href="#production-deployment" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># 1. Merge to main</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>git<span class="w"> </span>checkout<span class="w"> </span>main
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>git<span class="w"> </span>merge<span class="w"> </span>develop
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># 2. Tag release</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v2.0.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Production release&quot;</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="c1"># 3. Backup current state</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>./scripts/backup/backup_volumes.sh
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="c1"># 4. Deploy to production</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>./scripts/deployment/deploy_production.sh
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="c1"># 5. Monitor deployment</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s1">&#39;curl -s https://api/health | jq&#39;</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="c1"># 6. Verify metrics</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="c1"># Check Grafana dashboards for anomalies</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="c1"># 7. Announce deployment</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="c1"># Notify team via Slack</span>
+</code></pre></div>
+<h3 id="rollback-procedure">Rollback Procedure<a class="headerlink" href="#rollback-procedure" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># 1. Stop current deployment</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>docker-compose<span class="w"> </span>down
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="c1"># 2. Restore from backup</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>./scripts/backup/restore_volumes.sh<span class="w"> </span>/backups/backup-latest.tar.gz.gpg
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="c1"># 3. Deploy previous version</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>git<span class="w"> </span>checkout<span class="w"> </span>v1.5.0
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="c1"># 4. Verify rollback</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>curl<span class="w"> </span>https://api/health
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="c1"># 5. Investigate root cause</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="c1"># Review logs and metrics</span>
+</code></pre></div>
+<hr />
+<h2 id="monitoring-alerting">Monitoring &amp; Alerting<a class="headerlink" href="#monitoring-alerting" title="Permanent link">&para;</a></h2>
+<h3 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">&para;</a></h3>
+<p><strong>System Health:</strong>
+- CPU usage &lt; 80%
+- Memory usage &lt; 85%
+- Disk usage &lt; 80%
+- Network latency &lt; 50ms</p>
+<p><strong>Application Performance:</strong>
+- Query latency P95 &lt; 200ms
+- Error rate &lt; 1%
+- Cache hit rate &gt; 70%
+- Throughput &gt; 300 QPS</p>
+<p><strong>Security:</strong>
+- Failed auth attempts &lt; 10/min
+- Rate limit violations &lt; 5/min
+- Audit log gaps = 0
+- Certificate expiry &gt; 30 days</p>
+<h3 id="alert-rules">Alert Rules<a class="headerlink" href="#alert-rules" title="Permanent link">&para;</a></h3>
+<p><strong>Critical Alerts (P0):</strong>
+- System down
+- Database unreachable
+- Certificate expired
+- Backup failed</p>
+<p><strong>High Priority Alerts (P1):</strong>
+- Error rate &gt; 5%
+- Latency P95 &gt; 1000ms
+- Disk usage &gt; 90%
+- Memory usage &gt; 95%</p>
+<p><strong>Medium Priority Alerts (P2):</strong>
+- Cache hit rate &lt; 50%
+- Failed auth attempts &gt; 20/min
+- Slow queries &gt; 10/min</p>
+<h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>System Overview</strong> (<code>dashboard-system.json</code>)</li>
+<li>CPU, memory, disk, network</li>
+<li>Service health status</li>
+<li>
+<p>Error rates</p>
+</li>
+<li>
+<p><strong>Query Performance</strong> (<code>dashboard-queries.json</code>)</p>
+</li>
+<li>Latency percentiles</li>
+<li>Throughput</li>
+<li>Slow queries</li>
+<li>
+<p>Query distribution</p>
+</li>
+<li>
+<p><strong>Security Metrics</strong> (<code>dashboard-security.json</code>)</p>
+</li>
+<li>Authentication attempts</li>
+<li>Authorization failures</li>
+<li>Rate limit violations</li>
+<li>
+<p>Audit log volume</p>
+</li>
+<li>
+<p><strong>Cache Performance</strong> (<code>dashboard-cache.json</code>)</p>
+</li>
+<li>Hit/miss rates</li>
+<li>Eviction rates</li>
+<li>Memory usage</li>
+<li>Top cached queries</li>
+</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="issue-1-high-query-latency">Issue 1: High Query Latency<a class="headerlink" href="#issue-1-high-query-latency" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- P95 latency &gt; 1000ms
+- Slow dashboard loading
+- User complaints</p>
+<p><strong>Diagnosis:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Check query profiler</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>curl<span class="w"> </span>https://api/metrics/queries/slow
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Check cache hit rate</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>curl<span class="w"> </span>https://api/metrics/cache/stats
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Check database load</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>hcd<span class="w"> </span>nodetool<span class="w"> </span>status
+</code></pre></div></p>
+<p><strong>Solutions:</strong>
+1. Clear cache: <code>curl -X POST https://api/cache/clear</code>
+2. Add indexes: Review slow queries and add indexes
+3. Scale horizontally: Add more JanusGraph instances
+4. Optimize queries: Use query profiler recommendations</p>
+<h4 id="issue-2-authentication-failures">Issue 2: Authentication Failures<a class="headerlink" href="#issue-2-authentication-failures" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- 401 Unauthorized errors
+- Users unable to login
+- Token validation failures</p>
+<p><strong>Diagnosis:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Check JWT secret</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">echo</span><span class="w"> </span><span class="nv">$JWT_SECRET_KEY</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Check token expiration</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>jwt<span class="w"> </span>decode<span class="w"> </span>&lt;token&gt;
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1"># Check auth service logs</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>docker-compose<span class="w"> </span>logs<span class="w"> </span>auth-service
+</code></pre></div></p>
+<p><strong>Solutions:</strong>
+1. Verify JWT secret is set correctly
+2. Check token expiration times
+3. Verify MFA configuration
+4. Review audit logs for patterns</p>
+<h4 id="issue-3-memory-issues">Issue 3: Memory Issues<a class="headerlink" href="#issue-3-memory-issues" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- OOM errors
+- Slow performance
+- Container restarts</p>
+<p><strong>Diagnosis:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Check memory usage</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>docker<span class="w"> </span>stats
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Check JVM heap</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>janusgraph<span class="w"> </span>jstat<span class="w"> </span>-gc<span class="w"> </span>&lt;pid&gt;
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Check cache size</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>curl<span class="w"> </span>https://api/metrics/cache/size
+</code></pre></div></p>
+<p><strong>Solutions:</strong>
+1. Increase JVM heap: Edit <code>jvm-server.options</code>
+2. Reduce cache size: Edit <code>performance.yml</code>
+3. Add more memory to containers
+4. Enable memory profiling</p>
+<hr />
+<h2 id="future-roadmap">Future Roadmap<a class="headerlink" href="#future-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="short-term-q1-2026">Short Term (Q1 2026)<a class="headerlink" href="#short-term-q1-2026" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] GraphQL API endpoint</li>
+<li>[ ] Async query execution</li>
+<li>[ ] Advanced caching strategies</li>
+<li>[ ] ML-based query optimization</li>
+<li>[ ] Enhanced monitoring dashboards</li>
+</ul>
+<h3 id="medium-term-q2-q3-2026">Medium Term (Q2-Q3 2026)<a class="headerlink" href="#medium-term-q2-q3-2026" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Multi-region deployment</li>
+<li>[ ] Advanced analytics features</li>
+<li>[ ] Real-time streaming support</li>
+<li>[ ] Enhanced visualization tools</li>
+<li>[ ] Mobile SDK</li>
+</ul>
+<h3 id="long-term-q4-2026">Long Term (Q4 2026+)<a class="headerlink" href="#long-term-q4-2026" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] AI-powered query suggestions</li>
+<li>[ ] Automated scaling</li>
+<li>[ ] Advanced security features</li>
+<li>[ ] Enterprise integrations</li>
+<li>[ ] Cloud-native deployment</li>
+</ul>
+<hr />
+<h2 id="team-contacts">Team Contacts<a class="headerlink" href="#team-contacts" title="Permanent link">&para;</a></h2>
+<h3 id="core-team">Core Team<a class="headerlink" href="#core-team" title="Permanent link">&para;</a></h3>
+<p><strong>Project Lead:</strong>
+- Name: David Leconte
+- Email: bob@ibm.com
+- Slack: @ibm-bob
+- Timezone: UTC</p>
+<p><strong>Security Team:</strong>
+- Email: security@example.com
+- Slack: #security
+- On-call: PagerDuty</p>
+<p><strong>Operations Team:</strong>
+- Email: ops@example.com
+- Slack: #operations
+- On-call: PagerDuty</p>
+<p><strong>Development Team:</strong>
+- Email: dev@example.com
+- Slack: #development</p>
+<h3 id="escalation-path">Escalation Path<a class="headerlink" href="#escalation-path" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>L1 Support</strong>: Slack #janusgraph-support</li>
+<li><strong>L2 Support</strong>: Email ops@example.com</li>
+<li><strong>L3 Support</strong>: On-call engineer (PagerDuty)</li>
+<li><strong>Emergency</strong>: Call +1-XXX-XXX-XXXX</li>
+</ol>
+<hr />
+<h2 id="documentation-index">Documentation Index<a class="headerlink" href="#documentation-index" title="Permanent link">&para;</a></h2>
+<h3 id="core-documentation">Core Documentation<a class="headerlink" href="#core-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../README.md">README.md</a> - Project overview</li>
+<li><a href="../QUICKSTART.md">QUICKSTART.md</a> - Quick start guide</li>
+<li><a href="ARCHITECTURE.md">ARCHITECTURE.md</a> - System architecture</li>
+<li><a href="SETUP.md">SETUP.md</a> - Setup instructions</li>
+</ul>
+<h3 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="api/README.md">API README</a> - API overview</li>
+<li><a href="api/openapi.yaml">OpenAPI Spec</a> - API specification</li>
+<li><a href="api/GREMLIN_API.md">Gremlin API</a> - Gremlin reference</li>
+<li><a href="api/INTEGRATION_GUIDE.md">Integration Guide</a> - Integration guide</li>
+<li><a href="api/CHANGELOG.md">API Changelog</a> - Version history</li>
+</ul>
+<h3 id="operations-documentation">Operations Documentation<a class="headerlink" href="#operations-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="operations/OPERATIONS_RUNBOOK.md">Operations Runbook</a> - Daily operations</li>
+<li><a href="DISASTER_RECOVERY_PLAN.md">Disaster Recovery</a> - DR procedures</li>
+<li><a href="INCIDENT_RESPONSE_PLAN.md">Incident Response</a> - Incident handling</li>
+<li><a href="MONITORING.md">Monitoring Guide</a> - Monitoring setup</li>
+<li><a href="BACKUP.md">Backup Guide</a> - Backup procedures</li>
+</ul>
+<h3 id="security-documentation">Security Documentation<a class="headerlink" href="#security-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../SECURITY.md">Security Policy</a> - Security guidelines</li>
+<li><a href="TLS_DEPLOYMENT_GUIDE.md">TLS Deployment</a> - TLS setup</li>
+<li><a href="compliance/GDPR_COMPLIANCE.md">GDPR Compliance</a> - GDPR guide</li>
+<li><a href="compliance/SOC2_CONTROLS.md">SOC 2 Controls</a> - SOC 2 mapping</li>
+<li><a href="compliance/DATA_RETENTION_POLICY.md">Data Retention</a> - Retention policy</li>
+</ul>
+<h3 id="development-documentation">Development Documentation<a class="headerlink" href="#development-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../../CONTRIBUTING/">Contributing Guide</a> - Contribution guidelines</li>
+<li><a href="development/CODE_REFACTORING_GUIDE.md">Code Refactoring</a> - Refactoring guide</li>
+<li><a href="../TESTING.md">Testing Guide</a> - Testing procedures</li>
+<li><a href="DEPLOYMENT.md">Deployment Guide</a> - Deployment procedures</li>
+</ul>
+<h3 id="architecture-documentation">Architecture Documentation<a class="headerlink" href="#architecture-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="architecture/README.md">ADR Index</a> - Architecture decisions</li>
+<li><a href="architecture/ADR-005-jwt-authentication.md">ADR-005: JWT Auth</a></li>
+<li><a href="architecture/ADR-010-distributed-tracing.md">ADR-010: Tracing</a></li>
+<li><a href="architecture/ADR-011-query-caching-strategy.md">ADR-011: Caching</a></li>
+</ul>
+<h3 id="migration-documentation">Migration Documentation<a class="headerlink" href="#migration-documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="migration/v1-to-v2.md">v1 to v2 Migration</a> - Migration guide</li>
+</ul>
+<hr />
+<h2 id="handoff-checklist">Handoff Checklist<a class="headerlink" href="#handoff-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="knowledge-transfer">Knowledge Transfer<a class="headerlink" href="#knowledge-transfer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Architecture overview completed</li>
+<li>[x] Security implementation reviewed</li>
+<li>[x] Operations procedures documented</li>
+<li>[x] Monitoring setup explained</li>
+<li>[x] Troubleshooting guide provided</li>
+<li>[x] Development workflow documented</li>
+<li>[x] Deployment procedures reviewed</li>
+</ul>
+<h3 id="access-credentials">Access &amp; Credentials<a class="headerlink" href="#access-credentials" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] GitHub repository access granted</li>
+<li>[x] AWS/Cloud console access provided</li>
+<li>[x] Monitoring dashboards access configured</li>
+<li>[x] PagerDuty on-call schedule updated</li>
+<li>[x] Slack channels joined</li>
+<li>[x] Email distribution lists updated</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] All documentation reviewed and updated</li>
+<li>[x] API documentation complete</li>
+<li>[x] Operations runbook finalized</li>
+<li>[x] Architecture decisions recorded</li>
+<li>[x] Migration guides created</li>
+<li>[x] Troubleshooting guide complete</li>
+</ul>
+<h3 id="testing-validation">Testing &amp; Validation<a class="headerlink" href="#testing-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] All tests passing (70% coverage)</li>
+<li>[x] Security scan clean</li>
+<li>[x] Performance benchmarks met</li>
+<li>[x] Load testing completed</li>
+<li>[x] Disaster recovery tested</li>
+<li>[x] Monitoring alerts validated</li>
+</ul>
+<h3 id="production-readiness">Production Readiness<a class="headerlink" href="#production-readiness" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Security audit passed</li>
+<li>[x] Performance targets met</li>
+<li>[x] Compliance requirements satisfied</li>
+<li>[x] Backup procedures tested</li>
+<li>[x] Incident response plan validated</li>
+<li>[x] Team training completed</li>
+</ul>
+<hr />
+<h2 id="sign-off">Sign-Off<a class="headerlink" href="#sign-off" title="Permanent link">&para;</a></h2>
+<h3 id="project-completion">Project Completion<a class="headerlink" href="#project-completion" title="Permanent link">&para;</a></h3>
+<p><strong>Completed By</strong>: David Leconte<br />
+<strong>Date</strong>: 2026-01-28<br />
+<strong>Status</strong>: ✅ PRODUCTION READY</p>
+<p><strong>Acceptance Criteria Met:</strong>
+- [x] All P0 issues resolved
+- [x] Security compliance achieved
+- [x] Performance targets met
+- [x] Documentation complete
+- [x] Team trained
+- [x] Production deployment successful</p>
+<h3 id="handoff-acceptance">Handoff Acceptance<a class="headerlink" href="#handoff-acceptance" title="Permanent link">&para;</a></h3>
+<p><strong>Accepted By</strong>: <strong><em>_</em></strong><strong><em>_</em></strong><strong><em>_</em><br />
+<strong>Date</strong>: </strong><strong><em>_</em></strong><strong><em>_</em></strong><strong><em><br />
+<strong>Signature</strong>: </em></strong><strong><em>_</em></strong><strong><em>_</em></strong>__</p>
+<hr />
+<p><strong>Document Version</strong>: 1.0<br />
+<strong>Last Updated</strong>: 2026-01-28<br />
+<strong>Next Review</strong>: 2026-04-28</p>
+<hr />
+<h2 id="appendix">Appendix<a class="headerlink" href="#appendix" title="Permanent link">&para;</a></h2>
+<h3 id="a-environment-variables">A. Environment Variables<a class="headerlink" href="#a-environment-variables" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Security</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="nv">JWT_SECRET_KEY</span><span class="o">=</span>&lt;secret&gt;
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="nv">MFA_ISSUER</span><span class="o">=</span>JanusGraph
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="nv">ENCRYPTION_KEY</span><span class="o">=</span>&lt;secret&gt;
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># Database</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="nv">JANUSGRAPH_HOST</span><span class="o">=</span>localhost
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="nv">JANUSGRAPH_PORT</span><span class="o">=</span><span class="m">18182</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="nv">HCD_HOST</span><span class="o">=</span>localhost
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="nv">HCD_PORT</span><span class="o">=</span><span class="m">9042</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="c1"># Monitoring</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="nv">PROMETHEUS_URL</span><span class="o">=</span>http://localhost:9090
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="nv">GRAFANA_URL</span><span class="o">=</span>http://localhost:3000
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="nv">JAEGER_URL</span><span class="o">=</span>http://localhost:16686
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="c1"># Performance</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a><span class="nv">CACHE_MAX_SIZE_MB</span><span class="o">=</span><span class="m">100</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a><span class="nv">CACHE_TTL_SECONDS</span><span class="o">=</span><span class="m">300</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">30</span>
+</code></pre></div>
+<h3 id="b-port-reference">B. Port Reference<a class="headerlink" href="#b-port-reference" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Protocol</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JanusGraph</td>
+<td>18182</td>
+<td>WebSocket</td>
+<td>Gremlin queries</td>
+</tr>
+<tr>
+<td>HCD/Cassandra</td>
+<td>9042</td>
+<td>CQL</td>
+<td>Storage</td>
+</tr>
+<tr>
+<td>Prometheus</td>
+<td>9090</td>
+<td>HTTP</td>
+<td>Metrics</td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>3000</td>
+<td>HTTP</td>
+<td>Dashboards</td>
+</tr>
+<tr>
+<td>Jaeger</td>
+<td>16686</td>
+<td>HTTP</td>
+<td>Tracing UI</td>
+</tr>
+<tr>
+<td>Jaeger</td>
+<td>14250</td>
+<td>gRPC</td>
+<td>Trace ingestion</td>
+</tr>
+<tr>
+<td>NGINX</td>
+<td>443</td>
+<td>HTTPS</td>
+<td>Reverse proxy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-file-locations">C. File Locations<a class="headerlink" href="#c-file-locations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>/opt/janusgraph/          # JanusGraph installation
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>/var/lib/cassandra/       # Cassandra data
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>/var/log/janusgraph/      # Application logs
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>/backups/                 # Backup storage
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>/etc/ssl/certs/           # TLS certificates
+</code></pre></div>
+<hr />
+<p><strong>END OF HANDOFF DOCUMENT</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 David Leconte, IBM Worldwide | Tiger-Team
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/davidleconte/hcd-janusgraph" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

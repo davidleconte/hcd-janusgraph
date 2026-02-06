@@ -1,0 +1,3076 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Enterprise graph database platform for banking compliance and fraud detection">
+      
+      
+        <meta name="author" content="David Leconte, IBM Worldwide | Tiger-Team">
+      
+      
+        <link rel="canonical" href="https://davidleconte.github.io/hcd-janusgraph/banking/planning/gap-analysis/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Banking Use Cases: Comprehensive Gap Analysis & Enhanced Remediation Plan - HCD JanusGraph Banking Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#banking-use-cases-comprehensive-gap-analysis-enhanced-remediation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="HCD JanusGraph Banking Platform" class="md-header__button md-logo" aria-label="HCD JanusGraph Banking Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HCD JanusGraph Banking Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Banking Use Cases: Comprehensive Gap Analysis &amp; Enhanced Remediation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/davidleconte/hcd-janusgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    davidleconte/hcd-janusgraph
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/quickstart/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../overview/" class="md-tabs__link">
+          
+  
+  
+  Banking Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/rest-api/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../operations/deployment/" class="md-tabs__link">
+          
+  
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../security/overview/" class="md-tabs__link">
+          
+  
+  
+  Security
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../compliance/gdpr/" class="md-tabs__link">
+          
+  
+  
+  Compliance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="HCD JanusGraph Banking Platform" class="md-nav__button md-logo" aria-label="HCD JanusGraph Banking Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    HCD JanusGraph Banking Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/davidleconte/hcd-janusgraph" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    davidleconte/hcd-janusgraph
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/data-flow-unified/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/streaming-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/system-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Banking Platform
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Banking Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aml-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AML Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../fraud-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fraud Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compliance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/rest-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/python-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/gremlin-queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gremlin Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/monitoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../operations/runbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/ssl-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSL/TLS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../security/vault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vault Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Compliance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../compliance/gdpr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDPR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../compliance/soc2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SOC2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../compliance/audit-logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Executive Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State Assessment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategic-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Impact
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-gap-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Gap Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed Gap Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-anti-money-laundering-aml-30-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Anti-Money Laundering (AML) - 30% Complete
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Anti-Money Laundering (AML) - 30% Complete">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whats-implemented" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Implemented ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical Gaps 🔴
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-fraud-rings-detection-0-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Fraud Rings Detection - 0% Complete
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Fraud Rings Detection - 0% Complete">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memorandum-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memorandum Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Impact
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-customer-360-insights-0-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Customer 360 Insights - 0% Complete
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Customer 360 Insights - 0% Complete">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memorandum-requirements_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memorandum Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-state_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-impact_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Impact
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-trade-surveillance-0-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Trade Surveillance - 0% Complete
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Trade Surveillance - 0% Complete">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memorandum-requirements_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memorandum Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-state_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-impact_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Impact
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-vectorai-integration-is-missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Vector/AI Integration is Missing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-use-cases-2-4-are-missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Use Cases 2-4 Are Missing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enhanced-remediation-finalization-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enhanced Remediation &amp; Finalization Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enhanced Remediation &amp; Finalization Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-vectorai-foundation-weeks-13-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Vector/AI Foundation (Weeks 13-14)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 5: Vector/AI Foundation (Weeks 13-14)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-13-ml-infrastructure-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 13: ML Infrastructure Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-14-vector-search-proof-of-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 14: Vector Search Proof of Concept
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-complete-aml-use-case-week-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Complete AML Use Case (Week 15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 6: Complete AML Use Case (Week 15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-15-advanced-aml-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 15: Advanced AML Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7-fraud-rings-customer-360-week-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7: Fraud Rings &amp; Customer 360 (Week 16)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 7: Fraud Rings &amp; Customer 360 (Week 16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-16a-fraud-rings-detection-20-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 16A: Fraud Rings Detection (20 hours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-16b-customer-360-insights-20-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 16B: Customer 360 Insights (20 hours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-8-trade-surveillance-integration-week-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 8: Trade Surveillance &amp; Integration (Week 17)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 8: Trade Surveillance &amp; Integration (Week 17)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-17a-trade-surveillance-20-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 17A: Trade Surveillance (20 hours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#week-17b-unified-demo-20-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 17B: Unified Demo (20 hours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-9-testing-optimization-week-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 9: Testing &amp; Optimization (Week 18)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 9: Testing &amp; Optimization (Week 18)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#week-18-quality-assurance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Week 18: Quality Assurance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-gemini-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison with Gemini Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Gemini Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gemini-plan-strengths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gemini Plan Strengths ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#david-leconte-enhanced-plan-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        David Leconte Enhanced Plan Improvements 🚀
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resource Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#team-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Team Composition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Budget
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#roi-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ROI Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risk-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk Assessment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Risk Assessment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Risks 🔴
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Medium Risks 🟡
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low Risks 🟢
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Success Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#technical-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Business Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stakeholder-satisfaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stakeholder Satisfaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conclusion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-path-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Path Forward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategic-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Recommendation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="banking-use-cases-comprehensive-gap-analysis-enhanced-remediation-plan">Banking Use Cases: Comprehensive Gap Analysis &amp; Enhanced Remediation Plan<a class="headerlink" href="#banking-use-cases-comprehensive-gap-analysis-enhanced-remediation-plan" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-01-28<br />
+<strong>Author:</strong> David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Senior Technical Leader)<br />
+<strong>Context:</strong> Analysis of IBM HCD + JanusGraph + OpenSearch (JVector) Banking Use Cases Implementation</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="current-state-assessment">Current State Assessment<a class="headerlink" href="#current-state-assessment" title="Permanent link">&para;</a></h3>
+<p>The project has successfully completed <strong>Phase 1-4 of infrastructure and security remediation</strong> (12 weeks, 100% complete), establishing a production-ready foundation with:
+- ✅ Enterprise-grade security (JWT, MFA, RBAC, TLS/SSL)
+- ✅ High-performance architecture (70% faster queries, 4x throughput)
+- ✅ Comprehensive monitoring (Prometheus, Grafana, Jaeger, Loki)
+- ✅ 70% test coverage and automated CI/CD</p>
+<p>However, <strong>functional banking use case implementation is significantly incomplete</strong>:
+- 🟡 <strong>AML (Anti-Money Laundering)</strong>: 30% complete (basic schema + structuring detection)
+- 🔴 <strong>Fraud Rings Detection</strong>: 0% complete
+- 🔴 <strong>Customer 360 Insights</strong>: 0% complete
+- 🔴 <strong>Trade Surveillance</strong>: 0% complete
+- 🔴 <strong>Vector/AI Integration</strong>: 0% complete (CRITICAL GAP)</p>
+<h3 id="strategic-impact">Strategic Impact<a class="headerlink" href="#strategic-impact" title="Permanent link">&para;</a></h3>
+<p>The memorandum describes <strong>four mission-critical banking use cases</strong> that require the unique combination of:
+1. <strong>Graph Database</strong> (JanusGraph) - for highly connected data and relationship traversal
+2. <strong>Vector Search</strong> (OpenSearch JVector) - for semantic matching and AI-driven pattern detection
+3. <strong>Hybrid Processing</strong> (OLTP + OLAP) - for real-time alerts and batch analytics</p>
+<p><strong>Without vector/AI integration, the solution delivers only 40% of its potential value.</strong></p>
+<hr />
+<h2 id="detailed-gap-analysis">Detailed Gap Analysis<a class="headerlink" href="#detailed-gap-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="1-anti-money-laundering-aml-30-complete">1. Anti-Money Laundering (AML) - 30% Complete<a class="headerlink" href="#1-anti-money-laundering-aml-30-complete" title="Permanent link">&para;</a></h3>
+<h4 id="whats-implemented">What's Implemented ✅<a class="headerlink" href="#whats-implemented" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Basic graph schema (<code>aml_schema.groovy</code>): Person, Account, Transaction, Address, Phone, Company</li>
+<li>Data generator for structuring patterns (<code>generate_structuring_data.py</code>)</li>
+<li>10 basic Gremlin queries for structuring detection</li>
+<li>Jupyter notebook for analysis</li>
+</ul>
+<h4 id="critical-gaps">Critical Gaps 🔴<a class="headerlink" href="#critical-gaps" title="Permanent link">&para;</a></h4>
+<p><strong>A. Vector Search Integration (0%)</strong>
+- <strong>Memorandum Requirement</strong>: "Semantic Entity Matching using vector embeddings for names, addresses, adverse media"
+- <strong>Current State</strong>: Mixed indices commented out, no embedding generation
+- <strong>Impact</strong>: Cannot detect:
+  - Name variations/misspellings (e.g., "John Smith" vs "Jon Smyth")
+  - Fuzzy address matching
+  - Semantic similarity in adverse media screening
+  - Hidden relationships through unstructured data</p>
+<p><strong>B. Advanced AML Patterns (20%)</strong>
+- <strong>Memorandum Requirement</strong>: Detect layering, round-tripping, UBO discovery, circular flows
+- <strong>Current State</strong>: Only basic structuring/smurfing implemented
+- <strong>Missing Patterns</strong>:
+  - Multi-hop ownership chains (UBO discovery)
+  - Circular money flows (round-tripping)
+  - Complex layering schemes
+  - Temporal pattern analysis</p>
+<p><strong>C. Real-Time OLTP + Batch OLAP (30%)</strong>
+- <strong>Memorandum Requirement</strong>: "Real-time alerts with graph OLTP + periodic OLAP analytics"
+- <strong>Current State</strong>: Only batch queries, no real-time alerting
+- <strong>Missing</strong>:
+  - Real-time transaction screening
+  - Streaming event processing
+  - Risk score computation (PageRank, centrality)
+  - Community detection for fraud rings</p>
+<p><strong>D. ML Dependencies (0%)</strong>
+- <strong>Required</strong>: <code>sentence-transformers</code>, <code>torch</code>, <code>transformers</code>, <code>scikit-learn</code>
+- <strong>Current</strong>: Only basic data science libraries (pandas, numpy)
+- <strong>Impact</strong>: Cannot generate embeddings for semantic search</p>
+<hr />
+<h3 id="2-fraud-rings-detection-0-complete">2. Fraud Rings Detection - 0% Complete<a class="headerlink" href="#2-fraud-rings-detection-0-complete" title="Permanent link">&para;</a></h3>
+<h4 id="memorandum-requirements">Memorandum Requirements<a class="headerlink" href="#memorandum-requirements" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Graph Patterns</strong>: Shared devices, IP addresses, coordinated transactions</li>
+<li><strong>Vector AI</strong>: Behavioral profile embeddings for anomaly detection</li>
+<li><strong>Real-Time</strong>: Instant fraud checks on transactions</li>
+<li><strong>Analytics</strong>: Community detection, bust-out pattern recognition</li>
+</ul>
+<h4 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🔴 No schema definition</li>
+<li>🔴 No data generator</li>
+<li>🔴 No queries or detection logic</li>
+<li>🔴 No vector integration</li>
+<li>🔴 Empty directory: <code>banking/data/fraud/</code></li>
+</ul>
+<h4 id="business-impact">Business Impact<a class="headerlink" href="#business-impact" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>$1.6 trillion</strong> laundered annually (2.7% global GDP)</li>
+<li><strong>$835 million</strong> in AML fines (2023)</li>
+<li><strong>Reputational damage</strong> from fraud incidents</li>
+<li><strong>Customer churn</strong> from false positives</li>
+</ul>
+<hr />
+<h3 id="3-customer-360-insights-0-complete">3. Customer 360 Insights - 0% Complete<a class="headerlink" href="#3-customer-360-insights-0-complete" title="Permanent link">&para;</a></h3>
+<h4 id="memorandum-requirements_1">Memorandum Requirements<a class="headerlink" href="#memorandum-requirements_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Knowledge Graph</strong>: Unified view of customer relationships, interactions, preferences</li>
+<li><strong>Vector Search</strong>: Semantic search through support tickets, feedback, communications</li>
+<li><strong>Hybrid Recommendations</strong>: Graph context + behavioral similarity</li>
+<li><strong>NLP Integration</strong>: Topic modeling, sentiment analysis</li>
+</ul>
+<h4 id="current-state_1">Current State<a class="headerlink" href="#current-state_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🔴 No schema definition</li>
+<li>🔴 No data generator</li>
+<li>🔴 No recommendation engine</li>
+<li>🔴 No NLP/vector integration</li>
+<li>🔴 Empty directory: <code>banking/data/customer360/</code></li>
+</ul>
+<h4 id="business-impact_1">Business Impact<a class="headerlink" href="#business-impact_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Lost revenue</strong> from poor targeting</li>
+<li><strong>Customer churn</strong> from irrelevant offers</li>
+<li><strong>Competitive disadvantage</strong> in personalization</li>
+<li><strong>Missed cross-sell/up-sell opportunities</strong></li>
+</ul>
+<hr />
+<h3 id="4-trade-surveillance-0-complete">4. Trade Surveillance - 0% Complete<a class="headerlink" href="#4-trade-surveillance-0-complete" title="Permanent link">&para;</a></h3>
+<h4 id="memorandum-requirements_2">Memorandum Requirements<a class="headerlink" href="#memorandum-requirements_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Graph Model</strong>: Traders, orders, communications, instruments, organizations</li>
+<li><strong>Vector AI</strong>: Semantic analysis of emails/chats for collusion detection</li>
+<li><strong>Temporal Analysis</strong>: Order sequences, front-running patterns</li>
+<li><strong>Pattern Detection</strong>: Pump-and-dump, spoofing, insider trading</li>
+</ul>
+<h4 id="current-state_2">Current State<a class="headerlink" href="#current-state_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🔴 No schema definition</li>
+<li>🔴 No data generator</li>
+<li>🔴 No surveillance queries</li>
+<li>🔴 No communication analysis</li>
+<li>🔴 Empty directory: <code>banking/data/trade_surveillance/</code></li>
+</ul>
+<h4 id="business-impact_2">Business Impact<a class="headerlink" href="#business-impact_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Regulatory fines</strong> for failed surveillance</li>
+<li><strong>Market manipulation</strong> goes undetected</li>
+<li><strong>Reputational damage</strong> from scandals</li>
+<li><strong>License revocation risk</strong></li>
+</ul>
+<hr />
+<h2 id="root-cause-analysis">Root Cause Analysis<a class="headerlink" href="#root-cause-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="why-vectorai-integration-is-missing">Why Vector/AI Integration is Missing<a class="headerlink" href="#why-vectorai-integration-is-missing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Infrastructure Focus</strong>: Phases 1-4 prioritized security, performance, and operations (correctly)</li>
+<li><strong>Scope Creep Prevention</strong>: Avoided adding ML complexity during security remediation</li>
+<li><strong>Dependency Management</strong>: ML libraries (PyTorch, Transformers) are large and complex</li>
+<li><strong>Expertise Gap</strong>: Vector search and embedding generation require specialized knowledge</li>
+<li><strong>Integration Complexity</strong>: Connecting JanusGraph + OpenSearch + ML pipeline is non-trivial</li>
+</ol>
+<h3 id="why-use-cases-2-4-are-missing">Why Use Cases 2-4 Are Missing<a class="headerlink" href="#why-use-cases-2-4-are-missing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Sequential Development</strong>: Focused on AML as proof-of-concept first</li>
+<li><strong>Resource Constraints</strong>: Single engineer (12-week sprint)</li>
+<li><strong>Prioritization</strong>: Security and infrastructure were P0, use cases were P1</li>
+<li><strong>Complexity</strong>: Each use case requires domain expertise and data modeling</li>
+</ol>
+<hr />
+<h2 id="enhanced-remediation-finalization-plan">Enhanced Remediation &amp; Finalization Plan<a class="headerlink" href="#enhanced-remediation-finalization-plan" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>This plan <strong>extends</strong> the completed 12-week infrastructure work with <strong>6 additional weeks</strong> focused on functional banking use cases and vector/AI integration.</p>
+<p><strong>Total Timeline</strong>: 18 weeks (12 complete + 6 new)<br />
+<strong>Estimated Effort</strong>: 240 hours (6 weeks × 40 hours)<br />
+<strong>Priority</strong>: HIGH (unlocks 60% of business value)</p>
+<hr />
+<h3 id="phase-5-vectorai-foundation-weeks-13-14">Phase 5: Vector/AI Foundation (Weeks 13-14)<a class="headerlink" href="#phase-5-vectorai-foundation-weeks-13-14" title="Permanent link">&para;</a></h3>
+<p><strong>Objective</strong>: Enable semantic search and AI-driven pattern detection across all use cases</p>
+<h4 id="week-13-ml-infrastructure-setup">Week 13: ML Infrastructure Setup<a class="headerlink" href="#week-13-ml-infrastructure-setup" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Update Dependencies</strong> (4 hours)
+   - Add to <code>banking/requirements.txt</code>:
+     <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">sentence</span><span class="o">-</span><span class="n">transformers</span><span class="o">==</span><span class="mf">2.3.1</span>  <span class="c1"># Text embeddings</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">torch</span><span class="o">==</span><span class="mf">2.1.0</span>                  <span class="c1"># Deep learning</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">transformers</span><span class="o">==</span><span class="mf">4.36.0</span>          <span class="c1"># NLP models</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">scikit</span><span class="o">-</span><span class="n">learn</span><span class="o">==</span><span class="mf">1.4.0</span>           <span class="c1"># ML utilities</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">faiss</span><span class="o">-</span><span class="n">cpu</span><span class="o">==</span><span class="mf">1.7.4</span>              <span class="c1"># Vector similarity search</span>
+</code></pre></div>
+   - Update <code>docker/jupyter/environment.yml</code>
+   - Rebuild Docker images</p>
+<ol>
+<li><strong>Create Embedding Utilities</strong> (8 hours)</li>
+<li>File: <code>src/python/utils/embedding_generator.py</code></li>
+<li>Functions:<ul>
+<li><code>generate_text_embedding(text)</code> - using sentence-transformers</li>
+<li><code>generate_behavioral_embedding(features)</code> - for transaction patterns</li>
+<li><code>batch_embed(texts)</code> - efficient batch processing</li>
+</ul>
+</li>
+<li>
+<p>Support models:</p>
+<ul>
+<li><code>all-MiniLM-L6-v2</code> (fast, 384 dimensions)</li>
+<li><code>all-mpnet-base-v2</code> (accurate, 768 dimensions)</li>
+</ul>
+</li>
+<li>
+<p><strong>OpenSearch JVector Integration</strong> (12 hours)</p>
+</li>
+<li>Enable JVector plugin in OpenSearch</li>
+<li>Create vector index templates</li>
+<li>Test k-NN search performance</li>
+<li>
+<p>Document: <code>docs/VECTOR_SEARCH_GUIDE.md</code></p>
+</li>
+<li>
+<p><strong>JanusGraph Mixed Index Configuration</strong> (8 hours)</p>
+</li>
+<li>Uncomment and fix <code>aml_schema.groovy</code> mixed indices</li>
+<li>Configure OpenSearch backend for text search</li>
+<li>Add vector property support</li>
+<li>Test full-text + vector search</li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ ML dependencies installed
+- ✅ Embedding generation utilities
+- ✅ OpenSearch JVector configured
+- ✅ JanusGraph mixed indices working
+- ✅ Integration tests passing</p>
+<h4 id="week-14-vector-search-proof-of-concept">Week 14: Vector Search Proof of Concept<a class="headerlink" href="#week-14-vector-search-proof-of-concept" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>AML Semantic Matching</strong> (12 hours)
+   - Add vector properties to AML schema:
+     - <code>name_embedding</code> (768-dim vector)
+     - <code>address_embedding</code> (768-dim vector)
+   - Generate embeddings for existing data
+   - Implement fuzzy name matching query
+   - Notebook: <code>02_AML_Semantic_Matching.ipynb</code></p>
+<ol>
+<li><strong>Adverse Media Screening</strong> (8 hours)</li>
+<li>Create sample adverse media corpus (100 articles)</li>
+<li>Generate article embeddings</li>
+<li>Index in OpenSearch</li>
+<li>
+<p>Query: "Find entities similar to known bad actors"</p>
+</li>
+<li>
+<p><strong>Performance Benchmarking</strong> (8 hours)</p>
+</li>
+<li>Measure embedding generation speed</li>
+<li>Measure k-NN search latency</li>
+<li>Optimize batch sizes</li>
+<li>
+<p>Document performance characteristics</p>
+</li>
+<li>
+<p><strong>Documentation</strong> (4 hours)</p>
+</li>
+<li>Update <code>banking/docs/00_OVERVIEW.md</code></li>
+<li>Create <code>banking/docs/02_VECTOR_SEARCH.md</code></li>
+<li>Add examples to API documentation</li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ Semantic name matching working
+- ✅ Adverse media screening demo
+- ✅ Performance benchmarks documented
+- ✅ Integration with existing AML queries</p>
+<hr />
+<h3 id="phase-6-complete-aml-use-case-week-15">Phase 6: Complete AML Use Case (Week 15)<a class="headerlink" href="#phase-6-complete-aml-use-case-week-15" title="Permanent link">&para;</a></h3>
+<p><strong>Objective</strong>: Implement all AML patterns from memorandum</p>
+<h4 id="week-15-advanced-aml-patterns">Week 15: Advanced AML Patterns<a class="headerlink" href="#week-15-advanced-aml-patterns" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>UBO Discovery</strong> (8 hours)
+   - Multi-hop ownership traversal
+   - Gremlin query: Find ultimate beneficial owners
+   - Handle circular ownership
+   - Visualization in notebook</p>
+<ol>
+<li><strong>Layering Detection</strong> (8 hours)</li>
+<li>Complex transaction chains</li>
+<li>Multiple intermediary accounts</li>
+<li>Time-window analysis</li>
+<li>
+<p>Pattern: Split → Route → Recombine</p>
+</li>
+<li>
+<p><strong>Round-Tripping Detection</strong> (8 hours)</p>
+</li>
+<li>Cycle detection in transaction graph</li>
+<li>Temporal constraints</li>
+<li>Amount correlation</li>
+<li>
+<p>Graph algorithm: Find cycles</p>
+</li>
+<li>
+<p><strong>Real-Time Alerting</strong> (8 hours)</p>
+</li>
+<li>OLTP traversal for transaction screening</li>
+<li>Integration with streaming events</li>
+<li>Alert generation and routing</li>
+<li>
+<p>Dashboard: Real-time risk scores</p>
+</li>
+<li>
+<p><strong>OLAP Analytics</strong> (8 hours)</p>
+</li>
+<li>PageRank for entity risk scoring</li>
+<li>Community detection for fraud rings</li>
+<li>Centrality measures</li>
+<li>Batch job: Nightly risk computation</li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ All AML patterns implemented
+- ✅ Real-time + batch processing
+- ✅ Complete notebook: <code>03_AML_Complete_Analysis.ipynb</code>
+- ✅ 90% AML use case coverage</p>
+<hr />
+<h3 id="phase-7-fraud-rings-customer-360-week-16">Phase 7: Fraud Rings &amp; Customer 360 (Week 16)<a class="headerlink" href="#phase-7-fraud-rings-customer-360-week-16" title="Permanent link">&para;</a></h3>
+<p><strong>Objective</strong>: Implement use cases 2 and 3</p>
+<h4 id="week-16a-fraud-rings-detection-20-hours">Week 16A: Fraud Rings Detection (20 hours)<a class="headerlink" href="#week-16a-fraud-rings-detection-20-hours" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Schema Design</strong> (4 hours)
+   - File: <code>banking/schema/graph/fraud_schema.groovy</code>
+   - Entities: Device, IP, Login, Card, Merchant
+   - Relationships: used_device, from_ip, made_purchase</p>
+<ol>
+<li><strong>Data Generator</strong> (6 hours)</li>
+<li>File: <code>banking/data/fraud/generate_fraud_data.py</code></li>
+<li>Patterns:<ul>
+<li>Bust-out fraud (coordinated maxing out)</li>
+<li>Shared device rings</li>
+<li>Synthetic identity fraud</li>
+</ul>
+</li>
+<li>
+<p>1000 accounts, 50 fraud rings</p>
+</li>
+<li>
+<p><strong>Detection Queries</strong> (6 hours)</p>
+</li>
+<li>Shared device detection</li>
+<li>Coordinated transaction patterns</li>
+<li>Behavioral anomaly (vector similarity)</li>
+<li>
+<p>Community detection</p>
+</li>
+<li>
+<p><strong>Notebook</strong> (4 hours)</p>
+</li>
+<li>File: <code>banking/notebooks/05_Fraud_Detection.ipynb</code></li>
+<li>Visualizations</li>
+<li>Case studies</li>
+<li>Performance metrics</li>
+</ol>
+<h4 id="week-16b-customer-360-insights-20-hours">Week 16B: Customer 360 Insights (20 hours)<a class="headerlink" href="#week-16b-customer-360-insights-20-hours" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Schema Design</strong> (4 hours)
+   - File: <code>banking/schema/graph/customer360_schema.groovy</code>
+   - Entities: Interaction, Ticket, Product, WebSession
+   - Relationships: purchased, contacted_about, browsed</p>
+<ol>
+<li><strong>Data Generator</strong> (6 hours)</li>
+<li>File: <code>banking/data/customer360/generate_customer_data.py</code></li>
+<li>Customer journeys</li>
+<li>Support tickets (with text)</li>
+<li>Product holdings</li>
+<li>
+<p>Web clickstream</p>
+</li>
+<li>
+<p><strong>Recommendation Engine</strong> (6 hours)</p>
+</li>
+<li>Hybrid: Graph + Vector</li>
+<li>Query: Similar customers who bought X</li>
+<li>Personalization logic</li>
+<li>
+<p>Explainability</p>
+</li>
+<li>
+<p><strong>Semantic Search</strong> (4 hours)</p>
+</li>
+<li>Embed support tickets</li>
+<li>Query: Find similar complaints</li>
+<li>Topic clustering</li>
+<li>Sentiment analysis</li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ Fraud detection fully implemented
+- ✅ Customer 360 fully implemented
+- ✅ 2 complete notebooks
+- ✅ Vector + Graph integration proven</p>
+<hr />
+<h3 id="phase-8-trade-surveillance-integration-week-17">Phase 8: Trade Surveillance &amp; Integration (Week 17)<a class="headerlink" href="#phase-8-trade-surveillance-integration-week-17" title="Permanent link">&para;</a></h3>
+<p><strong>Objective</strong>: Complete use case 4 and create unified demo</p>
+<h4 id="week-17a-trade-surveillance-20-hours">Week 17A: Trade Surveillance (20 hours)<a class="headerlink" href="#week-17a-trade-surveillance-20-hours" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Schema Design</strong> (4 hours)
+   - File: <code>banking/schema/graph/trade_schema.groovy</code>
+   - Entities: Trader, Order, Instrument, Communication, Organization
+   - Relationships: executed, sent_to, works_at</p>
+<ol>
+<li><strong>Data Generator</strong> (6 hours)</li>
+<li>File: <code>banking/data/trade_surveillance/generate_trade_data.py</code></li>
+<li>Patterns:<ul>
+<li>Front-running</li>
+<li>Pump-and-dump</li>
+<li>Insider trading (communication → trade)</li>
+</ul>
+</li>
+<li>
+<p>100 traders, 10,000 orders, 5,000 communications</p>
+</li>
+<li>
+<p><strong>Detection Queries</strong> (6 hours)</p>
+</li>
+<li>Temporal traversals (communication before trade)</li>
+<li>Spoofing patterns</li>
+<li>Collusion detection (graph clustering)</li>
+<li>
+<p>Semantic communication analysis</p>
+</li>
+<li>
+<p><strong>Notebook</strong> (4 hours)</p>
+</li>
+<li>File: <code>banking/notebooks/06_Trade_Surveillance.ipynb</code></li>
+<li>Case studies</li>
+<li>Regulatory compliance checks</li>
+</ol>
+<h4 id="week-17b-unified-demo-20-hours">Week 17B: Unified Demo (20 hours)<a class="headerlink" href="#week-17b-unified-demo-20-hours" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Master Notebook</strong> (8 hours)
+   - File: <code>banking/notebooks/00_Banking_Use_Cases_Demo.ipynb</code>
+   - Executive summary
+   - All 4 use cases
+   - Performance metrics
+   - Business impact</p>
+<ol>
+<li><strong>Interactive Dashboard</strong> (8 hours)</li>
+<li>Streamlit app: <code>banking/dashboard/app.py</code></li>
+<li>Visualizations for each use case</li>
+<li>Real-time alerts</li>
+<li>
+<p>Risk scoring</p>
+</li>
+<li>
+<p><strong>Documentation</strong> (4 hours)</p>
+</li>
+<li>Complete <code>banking/docs/00_OVERVIEW.md</code></li>
+<li>Update <code>docs/PROJECT_HANDOFF.md</code></li>
+<li>Create <code>banking/docs/DEPLOYMENT_GUIDE.md</code></li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ Trade surveillance complete
+- ✅ Unified demo notebook
+- ✅ Interactive dashboard
+- ✅ Complete documentation</p>
+<hr />
+<h3 id="phase-9-testing-optimization-week-18">Phase 9: Testing &amp; Optimization (Week 18)<a class="headerlink" href="#phase-9-testing-optimization-week-18" title="Permanent link">&para;</a></h3>
+<p><strong>Objective</strong>: Production readiness for banking use cases</p>
+<h4 id="week-18-quality-assurance">Week 18: Quality Assurance<a class="headerlink" href="#week-18-quality-assurance" title="Permanent link">&para;</a></h4>
+<p><strong>Tasks:</strong>
+1. <strong>Integration Testing</strong> (8 hours)
+   - End-to-end tests for each use case
+   - Vector search performance tests
+   - Graph traversal benchmarks
+   - Data pipeline validation</p>
+<ol>
+<li><strong>Performance Optimization</strong> (8 hours)</li>
+<li>Query optimization</li>
+<li>Embedding batch processing</li>
+<li>Index tuning</li>
+<li>
+<p>Caching strategies</p>
+</li>
+<li>
+<p><strong>Security Review</strong> (8 hours)</p>
+</li>
+<li>PII handling in embeddings</li>
+<li>Access control for sensitive data</li>
+<li>Audit logging for ML operations</li>
+<li>
+<p>Compliance validation</p>
+</li>
+<li>
+<p><strong>Documentation Finalization</strong> (8 hours)</p>
+</li>
+<li>API documentation updates</li>
+<li>Deployment procedures</li>
+<li>Troubleshooting guides</li>
+<li>
+<p>Training materials</p>
+</li>
+<li>
+<p><strong>Stakeholder Demo</strong> (8 hours)</p>
+</li>
+<li>Executive presentation</li>
+<li>Technical deep-dive</li>
+<li>ROI analysis</li>
+<li>Roadmap discussion</li>
+</ol>
+<p><strong>Deliverables:</strong>
+- ✅ All tests passing
+- ✅ Performance targets met
+- ✅ Security validated
+- ✅ Documentation complete
+- ✅ Stakeholder approval</p>
+<hr />
+<h2 id="comparison-with-gemini-plan">Comparison with Gemini Plan<a class="headerlink" href="#comparison-with-gemini-plan" title="Permanent link">&para;</a></h2>
+<h3 id="gemini-plan-strengths">Gemini Plan Strengths ✅<a class="headerlink" href="#gemini-plan-strengths" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Accurate gap identification</strong>: Correctly identified vector/AI as critical missing piece</li>
+<li><strong>Phased approach</strong>: Logical progression from foundation to use cases</li>
+<li><strong>Immediate actions</strong>: Clear 48-hour priorities</li>
+<li><strong>Realistic timeline</strong>: 3-week estimate for core functionality</li>
+</ol>
+<h3 id="david-leconte-enhanced-plan-improvements">David Leconte Enhanced Plan Improvements 🚀<a class="headerlink" href="#david-leconte-enhanced-plan-improvements" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Extended Timeline</strong>: 6 weeks vs 3 weeks</li>
+<li><strong>Rationale</strong>: More realistic for production-quality implementation</li>
+<li>
+<p><strong>Benefit</strong>: Proper testing, optimization, documentation</p>
+</li>
+<li>
+<p><strong>Integration with Completed Work</strong>: Builds on 12-week infrastructure</p>
+</li>
+<li><strong>Gemini</strong>: Treats as separate effort</li>
+<li>
+<p><strong>David Leconte</strong>: Phases 5-9 extend Phases 1-4</p>
+</li>
+<li>
+<p><strong>Real-Time + Batch Processing</strong>: Explicit OLTP/OLAP implementation</p>
+</li>
+<li><strong>Gemini</strong>: Mentions but doesn't detail</li>
+<li>
+<p><strong>David Leconte</strong>: Dedicated tasks for both modes</p>
+</li>
+<li>
+<p><strong>Interactive Dashboard</strong>: Added Streamlit app</p>
+</li>
+<li><strong>Gemini</strong>: Optional</li>
+<li>
+<p><strong>David Leconte</strong>: Core deliverable for stakeholder engagement</p>
+</li>
+<li>
+<p><strong>Security &amp; Compliance</strong>: Dedicated review phase</p>
+</li>
+<li><strong>Gemini</strong>: Not explicitly covered</li>
+<li>
+<p><strong>David Leconte</strong>: Week 18 security review</p>
+</li>
+<li>
+<p><strong>Performance Benchmarking</strong>: Explicit optimization phase</p>
+</li>
+<li><strong>Gemini</strong>: Implicit</li>
+<li>
+<p><strong>David Leconte</strong>: Dedicated tasks with metrics</p>
+</li>
+<li>
+<p><strong>Documentation Depth</strong>: More comprehensive</p>
+</li>
+<li><strong>Gemini</strong>: Basic docs</li>
+<li><strong>David Leconte</strong>: Complete handoff materials</li>
+</ol>
+<hr />
+<h2 id="resource-requirements">Resource Requirements<a class="headerlink" href="#resource-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="team-composition">Team Composition<a class="headerlink" href="#team-composition" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Lead Engineer</strong> (David Leconte): 40 hours/week × 6 weeks = 240 hours</li>
+<li><strong>ML Engineer</strong> (Optional): 20 hours/week × 3 weeks = 60 hours (for vector optimization)</li>
+<li><strong>Domain Expert</strong> (Banking): 10 hours/week × 6 weeks = 60 hours (for validation)</li>
+</ul>
+<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Compute</strong>: GPU instance for embedding generation (optional, CPU works)</li>
+<li><strong>Storage</strong>: +50GB for vector indices</li>
+<li><strong>Memory</strong>: +16GB for ML models in memory</li>
+</ul>
+<h3 id="budget">Budget<a class="headerlink" href="#budget" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Engineering</strong>: $240/hour × 240 hours = $57,600</li>
+<li><strong>Infrastructure</strong>: $500/month × 2 months = $1,000</li>
+<li><strong>ML Models</strong>: $0 (using open-source)</li>
+<li><strong>Total</strong>: ~$58,600</li>
+</ul>
+<h3 id="roi-analysis">ROI Analysis<a class="headerlink" href="#roi-analysis" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AML Fines Avoided</strong>: $10M+ (single major violation)</li>
+<li><strong>Fraud Losses Prevented</strong>: $5M+ annually</li>
+<li><strong>Customer Retention</strong>: $2M+ (improved personalization)</li>
+<li><strong>Regulatory Compliance</strong>: Priceless</li>
+<li><strong>ROI</strong>: 100x+ in first year</li>
+</ul>
+<hr />
+<h2 id="risk-assessment">Risk Assessment<a class="headerlink" href="#risk-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="high-risks">High Risks 🔴<a class="headerlink" href="#high-risks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>ML Model Performance</strong>: Embeddings may not capture domain nuances</li>
+<li><strong>Mitigation</strong>: Use domain-specific fine-tuning, multiple models</li>
+<li><strong>Vector Search Scalability</strong>: Billion-scale k-NN can be slow</li>
+<li><strong>Mitigation</strong>: Use HNSW indices, GPU acceleration, caching</li>
+<li><strong>Data Quality</strong>: Synthetic data may not reflect real patterns</li>
+<li><strong>Mitigation</strong>: Validate with domain experts, use real anonymized data</li>
+</ol>
+<h3 id="medium-risks">Medium Risks 🟡<a class="headerlink" href="#medium-risks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Integration Complexity</strong>: JanusGraph + OpenSearch + ML pipeline</li>
+<li><strong>Mitigation</strong>: Incremental integration, extensive testing</li>
+<li><strong>Performance Degradation</strong>: Vector operations add latency</li>
+<li><strong>Mitigation</strong>: Async processing, caching, optimization</li>
+<li><strong>Maintenance Burden</strong>: ML models need retraining</li>
+<li><strong>Mitigation</strong>: MLOps pipeline, automated retraining</li>
+</ol>
+<h3 id="low-risks">Low Risks 🟢<a class="headerlink" href="#low-risks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Technology Maturity</strong>: All components are production-ready</li>
+<li><strong>Team Expertise</strong>: Strong foundation from Phases 1-4</li>
+<li><strong>Infrastructure</strong>: Solid base already established</li>
+</ol>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="technical-metrics">Technical Metrics<a class="headerlink" href="#technical-metrics" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ All 4 use cases implemented (100%)</li>
+<li>✅ Vector search operational (&lt;100ms latency)</li>
+<li>✅ Real-time alerting (&lt;1s response)</li>
+<li>✅ Batch analytics complete (&lt;1 hour)</li>
+<li>✅ 80%+ test coverage</li>
+<li>✅ All security scans passing</li>
+</ul>
+<h3 id="business-metrics">Business Metrics<a class="headerlink" href="#business-metrics" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ AML detection rate: 90%+ (vs 60% baseline)</li>
+<li>✅ Fraud false positive rate: &lt;5% (vs 20% baseline)</li>
+<li>✅ Customer recommendation acceptance: 30%+ (vs 10% baseline)</li>
+<li>✅ Trade surveillance alert quality: 80%+ (vs 50% baseline)</li>
+</ul>
+<h3 id="stakeholder-satisfaction">Stakeholder Satisfaction<a class="headerlink" href="#stakeholder-satisfaction" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Executive demo approved</li>
+<li>✅ Compliance team validated</li>
+<li>✅ Operations team trained</li>
+<li>✅ Development team confident</li>
+</ul>
+<hr />
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="current-state_3">Current State<a class="headerlink" href="#current-state_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Infrastructure</strong>: ✅ Production-ready (Phases 1-4 complete)</li>
+<li><strong>Banking Use Cases</strong>: 🟡 10% complete (only basic AML)</li>
+<li><strong>Vector/AI Integration</strong>: 🔴 0% complete (critical gap)</li>
+</ul>
+<h3 id="recommended-path-forward">Recommended Path Forward<a class="headerlink" href="#recommended-path-forward" title="Permanent link">&para;</a></h3>
+<p><strong>Option 1: Full Implementation (Recommended)</strong>
+- <strong>Timeline</strong>: 6 weeks (Phases 5-9)
+- <strong>Effort</strong>: 240 hours
+- <strong>Outcome</strong>: Complete solution, all 4 use cases, production-ready
+- <strong>Business Value</strong>: 100% of memorandum vision</p>
+<p><strong>Option 2: MVP Approach</strong>
+- <strong>Timeline</strong>: 3 weeks (Phases 5-6 only)
+- <strong>Effort</strong>: 120 hours
+- <strong>Outcome</strong>: Vector/AI foundation + complete AML
+- <strong>Business Value</strong>: 40% of memorandum vision</p>
+<p><strong>Option 3: Defer</strong>
+- <strong>Timeline</strong>: N/A
+- <strong>Effort</strong>: 0 hours
+- <strong>Outcome</strong>: Infrastructure only, no banking use cases
+- <strong>Business Value</strong>: 20% of memorandum vision (infrastructure value only)</p>
+<h3 id="strategic-recommendation">Strategic Recommendation<a class="headerlink" href="#strategic-recommendation" title="Permanent link">&para;</a></h3>
+<p><strong>Proceed with Option 1 (Full Implementation)</strong> because:</p>
+<ol>
+<li><strong>Infrastructure Investment</strong>: 12 weeks already invested, 6 more weeks completes the vision</li>
+<li><strong>Business Impact</strong>: Unlocks $10M+ in value (fraud prevention, compliance, revenue)</li>
+<li><strong>Competitive Advantage</strong>: Unique graph + vector + AI solution</li>
+<li><strong>Proof of Concept</strong>: Demonstrates IBM HCD + JanusGraph + OpenSearch capabilities</li>
+<li><strong>Market Differentiation</strong>: Few banks have this level of sophistication</li>
+</ol>
+<p><strong>The infrastructure is ready. Now it's time to deliver the business value.</strong></p>
+<hr />
+<p><strong>Document Owner:</strong> David Leconte<br />
+<strong>Approved By:</strong> [Pending]<br />
+<strong>Next Review:</strong> 2026-02-04<br />
+<strong>Status:</strong> READY FOR APPROVAL</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 David Leconte, IBM Worldwide | Tiger-Team
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/davidleconte/hcd-janusgraph" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
