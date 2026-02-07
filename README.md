@@ -32,22 +32,23 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 - **8GB+ RAM** recommended
 - **20GB+ disk space**
 
-### ⚠️ CRITICAL: HCD Tarball (Required)
+### HCD Distribution (Git LFS)
 
-The HCD (HyperConverged Database) distribution is **NOT included** in this repository due to licensing. You must obtain it separately:
+The HCD (HyperConverged Database) distribution is included via **Git LFS** in the `vendor/` directory.
 
-1. **Download HCD 1.2.3** from [DataStax Downloads](https://downloads.datastax.com/#hcd) (requires DataStax account)
-2. **Extract** the tarball in the project root:
-   ```bash
-   tar -xzf hcd-1.2.3-bin.tar.gz
-   # Should create: hcd-1.2.3/ directory
-   ```
-3. **Verify** the directory structure:
-   ```bash
-   ls hcd-1.2.3/bin/cassandra  # Should exist
-   ```
+After cloning, create a symlink so Docker can find it:
+```bash
+# Pull LFS files (if not done automatically)
+git lfs pull
 
-> **Note**: Without `hcd-1.2.3/` directory, the HCD Docker image cannot be built and deployment will fail.
+# Create symlink at project root
+ln -sf vendor/hcd-1.2.3 hcd-1.2.3
+
+# Verify
+ls hcd-1.2.3/bin/hcd  # Should show the HCD binary
+```
+
+> **Note**: If `git lfs` is not installed, see [Git LFS Installation](https://git-lfs.github.com/).
 
 ### Verify Prerequisites
 ```bash
@@ -57,7 +58,7 @@ The HCD (HyperConverged Database) distribution is **NOT included** in this repos
 # Or verify manually
 podman --version      # 4.9+
 python3 --version     # 3.11+
-ls hcd-1.2.3/         # Should list HCD files
+ls hcd-1.2.3/bin/hcd  # Should show HCD binary
 ```
 
 ---
@@ -69,8 +70,9 @@ ls hcd-1.2.3/         # Should list HCD files
 git clone https://github.com/davidleconte/hcd-janusgraph.git
 cd hcd-janusgraph
 
-# 2. Download and extract HCD tarball (see Prerequisites above)
-# Extract hcd-1.2.3-bin.tar.gz to create hcd-1.2.3/ directory
+# 2. Set up HCD symlink (included via Git LFS)
+git lfs pull
+ln -sf vendor/hcd-1.2.3 hcd-1.2.3
 
 # 3. Copy environment template
 cp .env.example .env

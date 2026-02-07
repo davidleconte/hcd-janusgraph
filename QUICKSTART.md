@@ -26,26 +26,22 @@
 - **8GB+ RAM** recommended
 - **20GB+ disk space**
 
-### ⚠️ CRITICAL: HCD Tarball (Required)
+### HCD Distribution (Git LFS)
 
-The HCD (HyperConverged Database) distribution is **NOT included** in this repository. You must obtain it separately:
+The HCD distribution is included via **Git LFS** in `vendor/`. After cloning:
 
-1. **Download HCD 1.2.3** from [DataStax Downloads](https://downloads.datastax.com/#hcd)
-   - Requires free DataStax account
-   - Download the tarball (e.g., `hcd-1.2.3-bin.tar.gz`)
+```bash
+# 1. Pull LFS files (usually automatic, but verify)
+git lfs pull
 
-2. **Extract** in project root:
-   ```bash
-   cd hcd-tarball-janusgraph
-   tar -xzf /path/to/hcd-1.2.3-bin.tar.gz
-   ```
+# 2. Create symlink at project root
+ln -sf vendor/hcd-1.2.3 hcd-1.2.3
 
-3. **Verify** directory exists:
-   ```bash
-   ls hcd-1.2.3/bin/cassandra  # Must exist
-   ```
+# 3. Verify
+ls hcd-1.2.3/bin/hcd  # Should show the HCD binary
+```
 
-> **⛔ Without `hcd-1.2.3/` directory, deployment will FAIL** - the HCD Docker image cannot be built.
+> **Note**: If `git lfs` is not installed, install it from [git-lfs.github.com](https://git-lfs.github.com/)
 
 ### Verify Installation
 ```bash
@@ -55,8 +51,7 @@ The HCD (HyperConverged Database) distribution is **NOT included** in this repos
 # Or manual verification
 podman --version      # Should show 4.9+
 python3 --version     # Should show 3.11+
-git --version
-ls hcd-1.2.3/         # Should list HCD files
+ls hcd-1.2.3/bin/hcd  # Should show HCD binary
 ```
 
 ### Environment Setup

@@ -326,21 +326,27 @@ check_build_prerequisites() {
     log_subsection "Checking HCD tarball"
     local hcd_dir="$PROJECT_ROOT/hcd-1.2.3"
     
-    if [[ -d "$hcd_dir" ]]; then
-        # Verify key files exist
-        if [[ -f "$hcd_dir/bin/cassandra" ]]; then
-            log_success "HCD tarball directory exists with correct structure"
+    if [[ -d "$hcd_dir" ]] || [[ -L "$hcd_dir" ]]; then
+        # Verify key files exist (follow symlinks)
+        if [[ -f "$hcd_dir/bin/hcd" ]]; then
+            log_success "HCD directory exists with correct structure"
         else
-            log_error "HCD directory exists but missing bin/cassandra"
-            log_info "Re-extract the HCD tarball: tar -xzf hcd-1.2.3-bin.tar.gz"
+            log_error "HCD directory exists but missing bin/hcd"
+            log_info "Verify vendor/hcd-1.2.3 is complete or re-extract"
             ((ERRORS++))
         fi
     else
-        log_error "HCD tarball directory NOT FOUND: $hcd_dir"
-        log_info "Download HCD 1.2.3 from: https://downloads.datastax.com/#hcd"
-        log_info "Extract: tar -xzf hcd-1.2.3-bin.tar.gz"
-        log_info "The HCD image cannot be built without this directory!"
-        ((ERRORS++))
+        # Check if vendor has HCD
+        if [[ -d "$PROJECT_ROOT/vendor/hcd-1.2.3" ]]; then
+            log_error "HCD not found at project root"
+            log_info "Create symlink: ln -sf vendor/hcd-1.2.3 hcd-1.2.3"
+            ((ERRORS++))
+        else
+            log_error "HCD not found in vendor/ directory"
+            log_info "Run: git lfs pull"
+            log_info "Then: ln -sf vendor/hcd-1.2.3 hcd-1.2.3"
+            ((ERRORS++))
+        fi
     fi
     
     # Check Dockerfiles exist
