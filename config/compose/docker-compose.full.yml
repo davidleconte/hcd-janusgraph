@@ -249,8 +249,9 @@ services:
       - "8888:8888"    # Jupyter Lab
     volumes:
       - jupyter-notebooks:/workspace/notebooks
-      - ./banking:/workspace/banking
-      - ./exports:/workspace/exports
+      - ../../banking:/workspace/banking
+      - ../../src/python:/workspace/src/python
+      - ../../exports:/workspace/exports
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - GREMLIN_URL=ws://janusgraph-server:8182/gremlin

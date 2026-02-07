@@ -37,7 +37,7 @@ Each ADR follows this structure:
 When creating a new ADR:
 
 1. Copy the [ADR template](adr-template.md)
-2. Number it sequentially (ADR-XXX)
+2. Number it sequentially (ADR-{NUMBER})
 3. Fill in all sections
 4. Submit for review
 5. Update this index

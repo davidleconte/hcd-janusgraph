@@ -519,7 +519,7 @@ def anonymize_for_analytics(data):
 **Contact Information:**
 - Name: [DPO Name]
 - Email: dpo@example.com
-- Phone: +XX XXX XXX XXXX
+- Phone: +{PHONE-NUMBER}
 
 **Responsibilities:**
 - Monitor GDPR compliance
@@ -776,7 +776,7 @@ def anonymize_for_analytics(data):
 
 **Data Protection Officer:**
 - Email: dpo@example.com
-- Phone: +XX XXX XXX XXXX
+- Phone: +{PHONE-NUMBER}
 
 **Supervisory Authority:**
 - [National DPA Name]

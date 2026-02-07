@@ -339,7 +339,7 @@ Each notebook includes validation sections that verify:
 ```python
 # Example: Add custom sanctions screening test
 test_cases = [
-    {"name": "Your Name", "customer_id": "CUST_XXX", "description": "Your test"},
+    {"name": "Your Name", "customer_id": "CUST_{ID}", "description": "Your test"},
     # ... existing test cases
 ]
 ```

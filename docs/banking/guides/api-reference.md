@@ -67,7 +67,7 @@ print(f"Age: {person.age}, Risk Level: {person.risk_level}")
 ```
 
 **Person Attributes**:
-- `person_id` (str): Unique identifier (format: PER-XXXXXXXXXXXX)
+- `person_id` (str): Unique identifier (format: PER-{12-CHAR-ID})
 - `first_name` (str): First name
 - `last_name` (str): Last name
 - `date_of_birth` (date): Date of birth
@@ -125,7 +125,7 @@ print(f"Industry: {company.industry}, Revenue: ${company.annual_revenue:,.2f}")
 ```
 
 **Company Attributes**:
-- `company_id` (str): Unique identifier (format: COM-XXXXXXXXXXXX)
+- `company_id` (str): Unique identifier (format: COM-{12-CHAR-ID})
 - `name` (str): Company name
 - `legal_name` (str): Legal entity name
 - `industry` (str): Industry classification
@@ -189,7 +189,7 @@ print(f"Type: {account.account_type}, Balance: ${account.balance:,.2f}")
 ```
 
 **Account Attributes**:
-- `account_id` (str): Unique identifier (format: ACC-XXXXXXXXXXXX)
+- `account_id` (str): Unique identifier (format: ACC-{12-CHAR-ID})
 - `account_number` (str): Account number
 - `account_type` (str): Account type (checking, savings, investment, etc.)
 - `currency` (str): Currency code
@@ -259,7 +259,7 @@ print(f"Type: {transaction.transaction_type}")
 ```
 
 **Transaction Attributes**:
-- `transaction_id` (str): Unique identifier (format: TXN-XXXXXXXXXXXXXXXX)
+- `transaction_id` (str): Unique identifier (format: TXN-{16-CHAR-ID})
 - `from_account_id` (str): Source account ID
 - `to_account_id` (str): Destination account ID
 - `amount` (float): Transaction amount

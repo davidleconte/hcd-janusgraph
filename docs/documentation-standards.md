@@ -586,6 +586,43 @@ These standards are enforced through:
 
 ---
 
+## Placeholder Patterns and Code Auditing
+
+### Intentional Placeholder Patterns
+
+Documentation uses curly-brace placeholders that are **intentional template markers**, not TODOs:
+
+| Pattern | Purpose | Example |
+|---------|---------|---------|
+| `{NUMBER}` | Sequential numbering | ADR-{NUMBER} |
+| `{12-CHAR-ID}` | ID format specification | PER-{12-CHAR-ID} |
+| `{PHONE-NUMBER}` | Redacted contact info | +1-{PHONE-NUMBER} |
+| `{PLACEHOLDER}` | Generic template field | `name: {PLACEHOLDER}` |
+
+**Why this matters**: Grep searches for `TODO|FIXME|XXX` will no longer match these intentional markers.
+
+### Archive Directory Exclusion
+
+When searching for actual TODOs in the codebase, **exclude archive directories**:
+
+```bash
+# Recommended: Exclude archive directories from TODO searches
+grep -r "TODO\|FIXME" --include="*.py" --include="*.md" \
+  --exclude-dir="archive" --exclude-dir="vendor" .
+
+# Or use ripgrep (faster)
+rg "TODO|FIXME" --type py --type md \
+  --glob '!**/archive/**' --glob '!**/vendor/**'
+```
+
+**Directories to exclude from audits:**
+- `docs/archive/` - Historical documents
+- `docs/implementation/remediation/archive/` - Completed remediation records
+- `docs/implementation/audits/archive/` - Past audit reports
+- `vendor/` - Third-party code
+
+---
+
 ## Questions?
 
 For questions about documentation standards:

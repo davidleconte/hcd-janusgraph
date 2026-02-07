@@ -796,7 +796,7 @@ curl https://api/metrics/cache/size
 1. **L1 Support**: Slack #janusgraph-support
 2. **L2 Support**: Email ops@example.com
 3. **L3 Support**: On-call engineer (PagerDuty)
-4. **Emergency**: Call +1-XXX-XXX-XXXX
+4. **Emergency**: Call +1-{PHONE-NUMBER}
 
 ---
 

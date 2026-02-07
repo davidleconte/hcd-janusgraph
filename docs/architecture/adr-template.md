@@ -1,4 +1,6 @@
-# ADR-XXX: [Title]
+# ADR-{NUMBER}: [Title]
+
+<!-- Note: {NUMBER}, {PLACEHOLDER} patterns are intentional template markers -->
 
 **Status**: [Proposed | Accepted | Deprecated | Superseded by ADR-YYY]  
 **Date**: YYYY-MM-DD  
