@@ -148,8 +148,11 @@ data/vault/
 config/certs/
 config/ssl/
 
-# Vendor code (download on setup)
-vendor/
+# HCD distribution tracked via Git LFS
+# Exception to *.tar.gz rule above - HCD tarball is tracked via LFS
+!vendor/hcd-1.2.3-bin.tar.gz
+
+# Symlink created by user after clone
 hcd-1.2.3/
 
 # Build artifacts
