@@ -210,7 +210,7 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 
 ### Project Status
 - **Production Readiness:** A+ (99/100) ✅
-- **Test Coverage:** 82% (170+ tests)
+- **Test Coverage:** 82% (670+ tests)
 - **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging, Startup Validation)
 - **Compliance:** GDPR, SOC 2, BSA/AML, PCI DSS ready
 - **CI Quality Gates:** 8 workflows (coverage, docstrings, security, types, lint)
@@ -539,7 +539,7 @@ Fraud Detection                 80%         35+
 Integration Workflows           80%         25+
 Audit Logger                    98%         28
 ──────────────────────────────────────────────────
-OVERALL                         82%         170+
+OVERALL                         82%         670+
 ```
 
 ---
