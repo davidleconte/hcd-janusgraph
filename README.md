@@ -16,7 +16,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 ✅ **Security Hardened**: SSL/TLS encryption, HashiCorp Vault integration, secrets management
 ✅ **Advanced Monitoring**: Prometheus + Grafana + AlertManager + JanusGraph metrics exporter
 ✅ **Automated CI/CD**: GitHub Actions workflows for testing and deployment
-✅ **Comprehensive Testing**: 610+ tests with 82% coverage, unit/integration/E2E/performance suites
+✅ **Comprehensive Testing**: 670+ tests with 82% coverage, unit/integration/E2E/performance suites
 ✅ **Backup & Restore**: Automated backup scripts with encryption support
 ✅ **Multi-Environment**: Separate configs for dev/staging/prod
 ✅ **Complete Documentation**: Setup, testing, operations, and production readiness guides
@@ -157,6 +157,22 @@ Total: **8 directories + 11 core files** (vs 43 files at root before restructuri
 | **Vault** | Secrets management | 8200 |
 | **Visualizer** | Graph visualization | 3000 |
 | **Graphexp** | Graph explorer | 8080 |
+| **OpenSearch** | Full-text search & vector DB | 9200 |
+| **OpenSearch Dashboards** | OpenSearch Web UI | 5601 |
+| **Pulsar** | Message streaming | 6650, 8081 |
+| **Graph Consumer** | JanusGraph ingestion service | - |
+| **Vector Consumer** | OpenSearch ingestion service | - |
+
+### CLI Tools & Consoles
+
+| Tool | Container | Access |
+|------|-----------|--------|
+| **CQLSH** | cqlsh-client | `podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server` |
+| **Gremlin Console** | gremlin-console | `podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh` |
+| **Pulsar CLI** | pulsar-cli | `podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin ...` |
+| **OpenSearch Dashboards** | opensearch-dashboards | http://localhost:5601 |
+
+📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed CLI usage examples**
 
 ### Analytics API
 
@@ -305,8 +321,8 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 **Version**: 2.0.0
 **Status**: ✅ Production-ready (Grade: A+, 99/100)
-**Last Updated**: 2026-02-06
-**Production Readiness**: All phases complete - 610+ tests, 82% coverage
+**Last Updated**: 2026-02-07
+**Production Readiness**: All phases complete - 670+ tests, 82% coverage
 
 ---
 

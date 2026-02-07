@@ -2,7 +2,7 @@
 
 **File**: QUICKSTART.md
 **Created**: 2026-01-28T10:35:00.123
-**Last Updated**: 2026-02-06
+**Last Updated**: 2026-02-07
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
 **Production Readiness**: Grade A+ (99/100) - All phases complete
 
@@ -110,6 +110,44 @@ bash scripts/testing/run_tests.sh
 |---------|-----|-------------|
 | **Visualizer** | http://localhost:3000 | Graph visualization |
 | **Graphexp** | http://localhost:8080 | Graph explorer |
+| **OpenSearch Dashboards** | http://localhost:5601 | OpenSearch Web UI |
+
+### CLI Tools & Consoles
+
+| Tool | Container | Access Command |
+|------|-----------|----------------|
+| **CQLSH** | cqlsh-client | `podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server` |
+| **Gremlin Console** | gremlin-console | `podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh` |
+| **Pulsar CLI** | pulsar-cli | `podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin ...` |
+
+#### CQLSH (Cassandra Query Language Shell)
+```bash
+# Interactive CQL session
+podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server
+
+# Run CQL command directly
+podman exec janusgraph-demo_cqlsh-client_1 cqlsh hcd-server -e "DESCRIBE KEYSPACES"
+```
+
+#### Gremlin Console (JanusGraph Graph Queries)
+```bash
+# Start interactive Gremlin console
+podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh
+
+# Inside Gremlin console:
+:remote connect tinkerpop.server conf/remote-connect.properties
+:remote console
+g.V().count()
+```
+
+#### Pulsar CLI (Message Streaming)
+```bash
+# List topics
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
+
+# Check topic stats
+podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persistent://public/banking/persons-events
+```
 
 ### GitHub (when configured)
 | Item | URL |
@@ -177,8 +215,8 @@ print(f"People: {people}")
 
 ### 5. Run CQL Query
 ```bash
-# Connect to HCD
-podman exec -it hcd-server cqlsh
+# Connect to HCD via CQLSH client container
+podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server
 
 # List keyspaces
 DESCRIBE KEYSPACES;
@@ -549,7 +587,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - **Documentation:** [WEEK2_COMPLETE.md](docs/implementation/remediation/WEEK2_COMPLETE.md)
 
 #### ✅ Week 3-4: Test Coverage (92/100)
-- **Achieved:** 82% coverage, 610+ tests
+- **Achieved:** 82% coverage, 670+ tests
 - Unit tests, integration tests, E2E pipeline tests
 - Fraud/AML detection with real JanusGraph integration
 - Pattern injection tests with known fraud patterns
@@ -587,6 +625,6 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ---
 
-**Last Updated**: 2026-02-06  
+**Last Updated**: 2026-02-07  
 **Status**: All phases complete  
 **Contact**: david.leconte1@ibm.com
