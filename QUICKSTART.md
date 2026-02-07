@@ -23,12 +23,40 @@
 - **Podman** 4.9+ ([Install](https://podman.io/getting-started/installation))
 - **Python** 3.11+ ([Install](https://www.python.org/downloads/))
 - **Git** ([Install](https://git-scm.com/downloads))
+- **8GB+ RAM** recommended
+- **20GB+ disk space**
+
+### ⚠️ CRITICAL: HCD Tarball (Required)
+
+The HCD (HyperConverged Database) distribution is **NOT included** in this repository. You must obtain it separately:
+
+1. **Download HCD 1.2.3** from [DataStax Downloads](https://downloads.datastax.com/#hcd)
+   - Requires free DataStax account
+   - Download the tarball (e.g., `hcd-1.2.3-bin.tar.gz`)
+
+2. **Extract** in project root:
+   ```bash
+   cd hcd-tarball-janusgraph
+   tar -xzf /path/to/hcd-1.2.3-bin.tar.gz
+   ```
+
+3. **Verify** directory exists:
+   ```bash
+   ls hcd-1.2.3/bin/cassandra  # Must exist
+   ```
+
+> **⛔ Without `hcd-1.2.3/` directory, deployment will FAIL** - the HCD Docker image cannot be built.
 
 ### Verify Installation
 ```bash
-podman --version
-python3 --version
+# Full preflight check (recommended)
+./scripts/validation/preflight_check.sh
+
+# Or manual verification
+podman --version      # Should show 4.9+
+python3 --version     # Should show 3.11+
 git --version
+ls hcd-1.2.3/         # Should list HCD files
 ```
 
 ### Environment Setup

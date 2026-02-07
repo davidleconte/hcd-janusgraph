@@ -23,6 +23,45 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 
 ---
 
+## Prerequisites
+
+### Required Software
+- **Podman** 4.9+ ([Install](https://podman.io/getting-started/installation))
+- **Python** 3.11+ ([Install](https://www.python.org/downloads/))
+- **Git** ([Install](https://git-scm.com/downloads))
+- **8GB+ RAM** recommended
+- **20GB+ disk space**
+
+### ⚠️ CRITICAL: HCD Tarball (Required)
+
+The HCD (HyperConverged Database) distribution is **NOT included** in this repository due to licensing. You must obtain it separately:
+
+1. **Download HCD 1.2.3** from [DataStax Downloads](https://downloads.datastax.com/#hcd) (requires DataStax account)
+2. **Extract** the tarball in the project root:
+   ```bash
+   tar -xzf hcd-1.2.3-bin.tar.gz
+   # Should create: hcd-1.2.3/ directory
+   ```
+3. **Verify** the directory structure:
+   ```bash
+   ls hcd-1.2.3/bin/cassandra  # Should exist
+   ```
+
+> **Note**: Without `hcd-1.2.3/` directory, the HCD Docker image cannot be built and deployment will fail.
+
+### Verify Prerequisites
+```bash
+# Run preflight check (recommended)
+./scripts/validation/preflight_check.sh
+
+# Or verify manually
+podman --version      # 4.9+
+python3 --version     # 3.11+
+ls hcd-1.2.3/         # Should list HCD files
+```
+
+---
+
 ## Quick Start
 
 ```bash
@@ -30,10 +69,13 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 git clone https://github.com/davidleconte/hcd-janusgraph.git
 cd hcd-janusgraph
 
-# 2. Copy environment template
+# 2. Download and extract HCD tarball (see Prerequisites above)
+# Extract hcd-1.2.3-bin.tar.gz to create hcd-1.2.3/ directory
+
+# 3. Copy environment template
 cp .env.example .env
 
-# 3. Deploy stack (MUST run from config/compose directory)
+# 4. Deploy stack (MUST run from config/compose directory)
 cd config/compose
 bash ../../scripts/deployment/deploy_full_stack.sh
 

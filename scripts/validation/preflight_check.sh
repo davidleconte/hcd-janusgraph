@@ -15,8 +15,9 @@
 #   2. Podman isolation (project name, container names, networks)
 #   3. Environment configuration (.env file)
 #   4. Dependencies (requirements files)
-#   5. Security (placeholder passwords, certificates)
-#   6. Port availability
+#   5. Build prerequisites (HCD tarball, Dockerfiles)
+#   6. Security (placeholder passwords, certificates)
+#   7. Port availability
 #
 # Co-Authored-By: David Leconte <david.leconte1@ibm.com>
 # =============================================================================
@@ -315,11 +316,59 @@ check_podman_config() {
 }
 
 # =============================================================================
-# Section 4: Dependencies
+# Section 4: Build Prerequisites
+# =============================================================================
+
+check_build_prerequisites() {
+    log_section "4. Build Prerequisites"
+    
+    # Check HCD tarball exists
+    log_subsection "Checking HCD tarball"
+    local hcd_dir="$PROJECT_ROOT/hcd-1.2.3"
+    
+    if [[ -d "$hcd_dir" ]]; then
+        # Verify key files exist
+        if [[ -f "$hcd_dir/bin/cassandra" ]]; then
+            log_success "HCD tarball directory exists with correct structure"
+        else
+            log_error "HCD directory exists but missing bin/cassandra"
+            log_info "Re-extract the HCD tarball: tar -xzf hcd-1.2.3-bin.tar.gz"
+            ((ERRORS++))
+        fi
+    else
+        log_error "HCD tarball directory NOT FOUND: $hcd_dir"
+        log_info "Download HCD 1.2.3 from: https://downloads.datastax.com/#hcd"
+        log_info "Extract: tar -xzf hcd-1.2.3-bin.tar.gz"
+        log_info "The HCD image cannot be built without this directory!"
+        ((ERRORS++))
+    fi
+    
+    # Check Dockerfiles exist
+    log_subsection "Checking Dockerfiles"
+    local dockerfiles=(
+        "docker/hcd/Dockerfile"
+        "docker/api/Dockerfile"
+        "docker/consumers/Dockerfile"
+        "docker/jupyter/Dockerfile"
+        "docker/opensearch/Dockerfile"
+    )
+    
+    for df in "${dockerfiles[@]}"; do
+        if [[ -f "$PROJECT_ROOT/$df" ]]; then
+            log_success "$df exists"
+        else
+            log_error "$df MISSING"
+            ((ERRORS++))
+        fi
+    done
+}
+
+# =============================================================================
+# Section 5: Dependencies
 # =============================================================================
 
 check_dependencies() {
-    log_section "4. Dependencies"
+    log_section "5. Dependencies"
     
     # Check requirements files exist
     log_subsection "Checking requirements files"
@@ -354,11 +403,11 @@ check_dependencies() {
 }
 
 # =============================================================================
-# Section 5: Security
+# Section 6: Security
 # =============================================================================
 
 check_security() {
-    log_section "5. Security"
+    log_section "6. Security"
     
     # Check SSL certificates
     log_subsection "Checking SSL certificates"
@@ -397,11 +446,11 @@ check_security() {
 }
 
 # =============================================================================
-# Section 6: Port Availability
+# Section 7: Port Availability
 # =============================================================================
 
 check_ports() {
-    log_section "6. Port Availability"
+    log_section "7. Port Availability"
     
     local ports=(
         "19042:HCD CQL"
@@ -495,6 +544,7 @@ main() {
     check_python_environment
     check_environment_config
     check_podman_config
+    check_build_prerequisites
     check_dependencies
     check_security
     check_ports
