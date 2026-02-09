@@ -17,7 +17,7 @@ Week 4: Vector Consumer (Leg 2)
 import logging
 import os
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 try:
@@ -148,11 +148,11 @@ class VectorConsumer:
     def connect(self):
         """Establish connections to Pulsar, OpenSearch, and load embedding model."""
         # Connect to Pulsar
-        logger.info(f"Connecting to Pulsar at {self.pulsar_url}")
+        logger.info("Connecting to Pulsar at %s", self.pulsar_url)
         self.pulsar_client = pulsar.Client(self.pulsar_url)
         
         # Subscribe to topics with Key_Shared
-        logger.info(f"Subscribing to topics: {self.topics}")
+        logger.info("Subscribing to topics: %s", self.topics)
         self.consumer = self.pulsar_client.subscribe(
             self.topics,
             subscription_name=self.subscription_name,
@@ -164,22 +164,23 @@ class VectorConsumer:
         self.dlq_producer = self.pulsar_client.create_producer(self.dlq_topic)
         
         # Connect to OpenSearch
-        logger.info(f"Connecting to OpenSearch at {self.opensearch_host}:{self.opensearch_port}")
+        logger.info("Connecting to OpenSearch at %s:%s", self.opensearch_host, self.opensearch_port)
+        use_ssl = os.getenv('OPENSEARCH_USE_SSL', 'false').lower() == 'true'
         self.opensearch = OpenSearch(
             hosts=[{'host': self.opensearch_host, 'port': self.opensearch_port}],
-            use_ssl=False,
-            verify_certs=False
+            use_ssl=use_ssl,
+            verify_certs=use_ssl
         )
         
         # Verify OpenSearch connection
         info = self.opensearch.info()
-        logger.info(f"Connected to OpenSearch {info['version']['number']}")
+        logger.info("Connected to OpenSearch %s", info['version']['number'])
         
         # Load embedding model
         if EMBEDDING_AVAILABLE:
-            logger.info(f"Loading embedding model: {self.embedding_model_name}")
+            logger.info("Loading embedding model: %s", self.embedding_model_name)
             self.embedding_model = SentenceTransformer(self.embedding_model_name)
-            logger.info(f"Model loaded, dimension: {self.embedding_model.get_sentence_embedding_dimension()}")
+            logger.info("Model loaded, dimension: %s", self.embedding_model.get_sentence_embedding_dimension())
         else:
             logger.warning("sentence-transformers not available, using placeholder embeddings")
         
@@ -225,7 +226,7 @@ class VectorConsumer:
         
         for entity_type, index_name in self.INDEX_MAPPING.items():
             if not self.opensearch.indices.exists(index=index_name):
-                logger.info(f"Creating index: {index_name}")
+                logger.info("Creating index: %s", index_name)
                 self.opensearch.indices.create(index=index_name, body=index_body)
     
     def disconnect(self):
@@ -316,7 +317,7 @@ class VectorConsumer:
             embeddings = self._generate_batch_embeddings(texts)
             self.metrics['embeddings_generated'] += len(embeddings)
         except Exception as e:
-            logger.error(f"Failed to generate embeddings: {e}")
+            logger.error("Failed to generate embeddings: %s", e)
             for i, event in embeddable:
                 self.consumer.negative_acknowledge(messages[i])
             return 0
@@ -362,12 +363,12 @@ class VectorConsumer:
             self.metrics['events_processed'] += success
             if errors:
                 self.metrics['events_failed'] += len(errors)
-                logger.warning(f"Bulk index errors: {errors}")
+                logger.warning("Bulk index errors: %s", errors)
             
-            logger.info(f"Indexed {success} documents")
+            logger.info("Indexed %d documents", success)
             
         except Exception as e:
-            logger.error(f"Bulk index failed: {e}")
+            logger.error("Bulk index failed: %s", e)
             for idx in processed_indices:
                 self.consumer.negative_acknowledge(messages[idx])
             self.metrics['events_failed'] += len(processed_indices)
@@ -375,7 +376,7 @@ class VectorConsumer:
         
         # Update metrics
         self.metrics['batches_processed'] += 1
-        self.metrics['last_batch_time'] = datetime.utcnow().isoformat()
+        self.metrics['last_batch_time'] = datetime.now(timezone.utc).isoformat()
         
         return success
     
@@ -398,7 +399,7 @@ class VectorConsumer:
                 logger.info("Received shutdown signal")
                 break
             except Exception as e:
-                logger.error(f"Error in processing loop: {e}")
+                logger.error("Error in processing loop: %s", e)
                 time.sleep(1)
         
         logger.info("Stopped processing")

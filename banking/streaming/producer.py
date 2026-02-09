@@ -118,7 +118,7 @@ class EntityProducer:
     def _connect(self):
         """Establish connection to Pulsar broker."""
         try:
-            logger.info(f"Connecting to Pulsar at {self.pulsar_url}")
+            logger.info("Connecting to Pulsar at %s", self.pulsar_url)
             self.client = pulsar.Client(
                 self.pulsar_url,
                 operation_timeout_seconds=30,
@@ -127,7 +127,7 @@ class EntityProducer:
             self._connected = True
             logger.info("Connected to Pulsar successfully")
         except Exception as e:
-            logger.error(f"Failed to connect to Pulsar: {e}")
+            logger.error("Failed to connect to Pulsar: %s", e)
             raise RuntimeError(f"Failed to connect to Pulsar at {self.pulsar_url}: {e}")
     
     def _get_topic(self, entity_type: str) -> str:
@@ -143,7 +143,7 @@ class EntityProducer:
         topic = self._get_topic(entity_type)
         
         if topic not in self.producers:
-            logger.info(f"Creating producer for topic: {topic}")
+            logger.info("Creating producer for topic: %s", topic)
             
             producer_config = {
                 'topic': topic,
@@ -158,7 +158,7 @@ class EntityProducer:
                 producer_config['compression_type'] = CompressionType.ZSTD
             
             self.producers[topic] = self.client.create_producer(**producer_config)
-            logger.info(f"Created producer for topic: {topic}")
+            logger.info("Created producer for topic: %s", topic)
         
         return self.producers[topic]
     
@@ -198,10 +198,10 @@ class EntityProducer:
                     sequence_id=msg['sequence_id']
                 )
             
-            logger.debug(f"Sent event {event.event_id} to topic {event.get_topic()}")
+            logger.debug("Sent event %s to topic %s", event.event_id, event.get_topic())
             
         except Exception as e:
-            logger.error(f"Failed to send event {event.event_id}: {e}")
+            logger.error("Failed to send event %s: %s", event.event_id, e)
             raise
     
     def send_batch(self, events: List[EntityEvent]) -> Dict[str, int]:
@@ -234,10 +234,10 @@ class EntityProducer:
                     )
                     count += 1
                 except Exception as e:
-                    logger.error(f"Failed to send event {event.event_id}: {e}")
+                    logger.error("Failed to send event %s: %s", event.event_id, e)
             
             results[topic] = count
-            logger.info(f"Sent {count} events to {topic}")
+            logger.info("Sent %d events to %s", count, topic)
         
         return results
     
@@ -255,9 +255,9 @@ class EntityProducer:
             try:
                 producer.flush()
                 producer.close()
-                logger.debug(f"Closed producer for {topic}")
+                logger.debug("Closed producer for %s", topic)
             except Exception as e:
-                logger.warning(f"Error closing producer for {topic}: {e}")
+                logger.warning("Error closing producer for %s: %s", topic, e)
         
         self.producers.clear()
         
@@ -266,7 +266,7 @@ class EntityProducer:
                 self.client.close()
                 logger.info("Closed Pulsar client")
             except Exception as e:
-                logger.warning(f"Error closing Pulsar client: {e}")
+                logger.warning("Error closing Pulsar client: %s", e)
         
         self._connected = False
     
@@ -323,7 +323,7 @@ class MockEntityProducer:
             self.events_by_topic[topic] = []
         self.events_by_topic[topic].append(event)
         
-        logger.debug(f"MockProducer: Stored event {event.event_id}")
+        logger.debug("MockProducer: Stored event %s", event.event_id)
         
         if callback:
             callback(None, None)  # Simulate successful send

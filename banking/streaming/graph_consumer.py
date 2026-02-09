@@ -17,7 +17,7 @@ Week 3: Graph Consumer (Leg 1)
 import logging
 import os
 from typing import Dict, List, Optional, Any, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 try:
@@ -31,7 +31,7 @@ except ImportError:
 try:
     from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
     from gremlin_python.process.anonymous_traversal import traversal
-    from gremlin_python.process.graph_traversal import GraphTraversalSource
+    from gremlin_python.process.graph_traversal import GraphTraversalSource, __
     GREMLIN_AVAILABLE = True
 except ImportError:
     GREMLIN_AVAILABLE = False
@@ -133,27 +133,23 @@ class GraphConsumer:
     
     def connect(self):
         """Establish connections to Pulsar and JanusGraph."""
-        # Connect to Pulsar
-        logger.info(f"Connecting to Pulsar at {self.pulsar_url}")
+        logger.info("Connecting to Pulsar at %s", self.pulsar_url)
         self.pulsar_client = pulsar.Client(self.pulsar_url)
-        
-        # Subscribe to topics with Key_Shared
-        logger.info(f"Subscribing to topics: {self.topics}")
+
+        logger.info("Subscribing to topics: %s", self.topics)
         self.consumer = self.pulsar_client.subscribe(
             self.topics,
             subscription_name=self.subscription_name,
             consumer_type=ConsumerType.KeyShared,
             receiver_queue_size=self.batch_size * 2
         )
-        
-        # Create DLQ producer
+
         self.dlq_producer = self.pulsar_client.create_producer(self.dlq_topic)
-        
-        # Connect to JanusGraph
-        logger.info(f"Connecting to JanusGraph at {self.janusgraph_url}")
+
+        logger.info("Connecting to JanusGraph at %s", self.janusgraph_url)
         self.connection = DriverRemoteConnection(self.janusgraph_url, 'g')
         self.g = traversal().withRemote(self.connection)
-        
+
         logger.info("GraphConsumer connected successfully")
     
     def disconnect(self):
@@ -174,15 +170,15 @@ class GraphConsumer:
     def process_event(self, event: EntityEvent) -> bool:
         """
         Process a single event - create, update, or delete in JanusGraph.
-        
+
         Uses idempotent patterns:
         - Create: fold().coalesce() - creates if not exists
         - Update: checks version before updating
         - Delete: drops vertex if exists
-        
+
         Args:
             event: EntityEvent to process
-        
+
         Returns:
             True if successful, False otherwise
         """
@@ -191,62 +187,64 @@ class GraphConsumer:
             entity_type = event.entity_type
             payload = event.payload
             version = event.version
-            
+
             if event.event_type == 'create':
-                # Idempotent create using fold/coalesce
-                self.g.V().has(entity_type, 'entity_id', entity_id) \
+                # Idempotent create using fold/coalesce with anonymous traversal
+                t = self.g.V().has(entity_type, 'entity_id', entity_id) \
                     .fold() \
                     .coalesce(
-                        self.g.unfold(),
-                        self.g.addV(entity_type).property('entity_id', entity_id)
+                        __.unfold(),
+                        __.addV(entity_type).property('entity_id', entity_id)
                     ) \
                     .property('version', version) \
                     .property('created_at', event.timestamp.isoformat()) \
-                    .property('source', event.source or 'unknown') \
-                    .next()
-                
-                # Add payload properties
+                    .property('source', event.source or 'unknown')
+
+                # Chain all payload properties into the same traversal
                 for key, value in payload.items():
                     if value is not None:
-                        self.g.V().has(entity_type, 'entity_id', entity_id) \
-                            .property(key, str(value) if not isinstance(value, (int, float, bool)) else value) \
-                            .iterate()
-                
-                logger.debug(f"Created/updated vertex: {entity_type}:{entity_id}")
-                
+                        prop_val = value if isinstance(value, (int, float, bool)) else str(value)
+                        t = t.property(key, prop_val)
+
+                t.iterate()
+
+                logger.debug("Created/updated vertex: %s:%s", entity_type, entity_id)
+
             elif event.event_type == 'update':
                 # Check version for optimistic concurrency
                 existing = self.g.V().has(entity_type, 'entity_id', entity_id).valueMap('version').toList()
-                
+
                 if existing:
                     current_version = existing[0].get('version', [0])[0]
                     if current_version >= version:
-                        logger.warning(f"Skipping stale update for {entity_id}: current={current_version}, event={version}")
-                        return True  # Not an error, just stale
-                
-                # Update properties
-                self.g.V().has(entity_type, 'entity_id', entity_id) \
+                        logger.warning(
+                            "Skipping stale update for %s: current=%s, event=%s",
+                            entity_id, current_version, version
+                        )
+                        return True
+
+                # Update all properties in a single traversal
+                t = self.g.V().has(entity_type, 'entity_id', entity_id) \
                     .property('version', version) \
-                    .property('updated_at', event.timestamp.isoformat()) \
-                    .next()
-                
+                    .property('updated_at', event.timestamp.isoformat())
+
                 for key, value in payload.items():
                     if value is not None:
-                        self.g.V().has(entity_type, 'entity_id', entity_id) \
-                            .property(key, str(value) if not isinstance(value, (int, float, bool)) else value) \
-                            .iterate()
-                
-                logger.debug(f"Updated vertex: {entity_type}:{entity_id}")
-                
+                        prop_val = value if isinstance(value, (int, float, bool)) else str(value)
+                        t = t.property(key, prop_val)
+
+                t.iterate()
+
+                logger.debug("Updated vertex: %s:%s", entity_type, entity_id)
+
             elif event.event_type == 'delete':
-                # Drop vertex if exists
                 self.g.V().has(entity_type, 'entity_id', entity_id).drop().iterate()
-                logger.debug(f"Deleted vertex: {entity_type}:{entity_id}")
-            
+                logger.debug("Deleted vertex: %s:%s", entity_type, entity_id)
+
             return True
-            
+
         except Exception as e:
-            logger.error(f"Failed to process event {event.event_id}: {e}")
+            logger.error("Failed to process event %s: %s", event.event_id, e)
             return False
     
     def process_batch(self, timeout_ms: int = None) -> int:
@@ -296,7 +294,7 @@ class GraphConsumer:
                 else:
                     failed.append((messages[i], event))
             except Exception as e:
-                logger.error(f"Error processing event {event.event_id}: {e}")
+                logger.error("Error processing event %s: %s", event.event_id, e)
                 failed.append((messages[i], event))
         
         # Handle failures
@@ -309,16 +307,16 @@ class GraphConsumer:
                 )
                 self.consumer.acknowledge(msg)  # ACK after DLQ
             except Exception as e:
-                logger.error(f"Failed to send to DLQ: {e}")
+                logger.error("Failed to send to DLQ: %s", e)
                 self.consumer.negative_acknowledge(msg)  # NACK for retry
         
         # Update metrics
         self.metrics['events_processed'] += processed
         self.metrics['events_failed'] += len(failed)
         self.metrics['batches_processed'] += 1
-        self.metrics['last_batch_time'] = datetime.utcnow().isoformat()
+        self.metrics['last_batch_time'] = datetime.now(timezone.utc).isoformat()
         
-        logger.info(f"Processed batch: {processed} success, {len(failed)} failed")
+        logger.info("Processed batch: %d success, %d failed", processed, len(failed))
         return processed
     
     def process_forever(self, on_batch: Callable[[int], None] = None):
@@ -340,7 +338,7 @@ class GraphConsumer:
                 logger.info("Received shutdown signal")
                 break
             except Exception as e:
-                logger.error(f"Error in processing loop: {e}")
+                logger.error("Error in processing loop: %s", e)
                 time.sleep(1)  # Back off on error
         
         logger.info("Stopped processing")

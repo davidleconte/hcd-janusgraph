@@ -11,7 +11,7 @@ Week 2: Event Schema & Producers
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 import uuid
 import json
@@ -60,7 +60,7 @@ class EntityEvent:
     
     # Metadata
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     version: int = 1
     source: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
@@ -154,7 +154,7 @@ class EntityEvent:
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
         elif timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
         
         return cls(
             entity_id=data['entity_id'],
@@ -192,7 +192,7 @@ class EntityEventBatch:
     """
     events: List[EntityEvent]
     batch_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def __len__(self) -> int:
         return len(self.events)

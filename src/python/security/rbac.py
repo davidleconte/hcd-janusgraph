@@ -9,7 +9,7 @@ import logging
 from typing import List, Dict, Set, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 logger = logging.getLogger(__name__)
@@ -79,18 +79,18 @@ class Role:
     inherits_from: List[str] = field(default_factory=list)
     resource_restrictions: Dict[ResourceType, List[str]] = field(default_factory=dict)
     conditions: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def add_permission(self, permission: Permission):
         """Add permission to role."""
         self.permissions.add(permission)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
     
     def remove_permission(self, permission: Permission):
         """Remove permission from role."""
         self.permissions.discard(permission)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
     
     def has_permission(self, permission: Permission) -> bool:
         """Check if role has permission."""
@@ -106,7 +106,7 @@ class User:
     roles: List[str] = field(default_factory=list)
     attributes: Dict[str, Any] = field(default_factory=dict)
     mfa_enabled: bool = False
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_login: Optional[datetime] = None
     
     def add_role(self, role_name: str):
@@ -132,7 +132,7 @@ class AccessRequest:
     resource_id: Optional[str]
     action: Permission
     context: Dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -141,7 +141,7 @@ class AccessDecision:
     allowed: bool
     reason: str
     evaluated_policies: List[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class RBACManager:
@@ -527,7 +527,7 @@ class RBACManager:
         
         # Check time-based restrictions
         if 'allowed_hours' in request.context:
-            current_hour = datetime.utcnow().hour
+            current_hour = datetime.now(timezone.utc).hour
             allowed_hours = request.context['allowed_hours']
             if current_hour not in allowed_hours:
                 logger.warning(f"Access denied: outside allowed hours")

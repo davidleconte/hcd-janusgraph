@@ -11,7 +11,7 @@ import secrets
 import hashlib
 import logging
 from io import BytesIO
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
@@ -229,11 +229,11 @@ class MFAManager:
         if user_id not in self.failed_attempts:
             self.failed_attempts[user_id] = {
                 'count': 0,
-                'first_attempt': datetime.utcnow()
+                'first_attempt': datetime.now(timezone.utc)
             }
         
         self.failed_attempts[user_id]['count'] += 1
-        self.failed_attempts[user_id]['last_attempt'] = datetime.utcnow()
+        self.failed_attempts[user_id]['last_attempt'] = datetime.now(timezone.utc)
         
         if self.failed_attempts[user_id]['count'] >= self.config.max_attempts:
             logger.warning(f"User {user_id} locked out after {self.config.max_attempts} failed MFA attempts")
@@ -271,7 +271,7 @@ class MFAManager:
             seconds=self.config.lockout_duration
         )
         
-        if datetime.utcnow() > lockout_end:
+        if datetime.now(timezone.utc) > lockout_end:
             # Lockout expired, reset
             self._reset_failed_attempts(user_id)
             return False
@@ -296,7 +296,7 @@ class MFAManager:
             seconds=self.config.lockout_duration
         )
         
-        remaining = (lockout_end - datetime.utcnow()).total_seconds()
+        remaining = (lockout_end - datetime.now(timezone.utc)).total_seconds()
         return max(0, int(remaining))
     
     def is_mfa_required(self, user_roles: List[str]) -> bool:
@@ -356,7 +356,7 @@ class MFAEnrollment:
                 'qr_code': qr_code,
                 'backup_codes': backup_codes,
                 'hashed_backup_codes': hashed_codes,
-                'enrolled_at': datetime.utcnow().isoformat(),
+                'enrolled_at': datetime.now(timezone.utc).isoformat(),
                 'status': 'pending_verification'
             }
             

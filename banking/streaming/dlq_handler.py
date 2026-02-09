@@ -16,7 +16,7 @@ import logging
 import json
 import os
 from typing import Optional, Callable, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -148,7 +148,7 @@ class DLQHandler:
     
     def connect(self):
         """Connect to Pulsar and create consumer."""
-        logger.info(f"Connecting DLQ handler to {self.pulsar_url}")
+        logger.info("Connecting DLQ handler to %s", self.pulsar_url)
         
         self.client = pulsar.Client(
             self.pulsar_url,
@@ -162,7 +162,7 @@ class DLQHandler:
             initial_position=pulsar.InitialPosition.Earliest
         )
         
-        logger.info(f"Connected to DLQ topic: {self.dlq_topic}")
+        logger.info("Connected to DLQ topic: %s", self.dlq_topic)
     
     def _parse_dlq_message(self, msg) -> DLQMessage:
         """Parse a Pulsar message into DLQMessage."""
@@ -183,15 +183,15 @@ class DLQHandler:
                 failure_reason=properties.get('failure_reason', 'unknown'),
                 failure_count=int(properties.get('failure_count', 1)),
                 first_failure_time=datetime.fromisoformat(
-                    properties.get('first_failure_time', datetime.utcnow().isoformat())
+                    properties.get('first_failure_time', datetime.now(timezone.utc).isoformat())
                 ),
-                last_failure_time=datetime.utcnow(),
+                last_failure_time=datetime.now(timezone.utc),
                 message_id=str(msg.message_id()),
                 raw_data=data,
                 metadata=dict(properties)
             )
         except Exception as e:
-            logger.error(f"Failed to parse DLQ message: {e}")
+            logger.error("Failed to parse DLQ message: %s", e)
             raise
     
     def _should_retry(self, dlq_msg: DLQMessage) -> bool:
@@ -205,16 +205,16 @@ class DLQHandler:
                 success = self.retry_handler(dlq_msg.original_event)
                 if success:
                     self.stats.messages_retried += 1
-                    logger.info(f"Successfully retried message: {dlq_msg.message_id}")
+                    logger.info("Successfully retried message: %s", dlq_msg.message_id)
                 return success
             except Exception as e:
-                logger.error(f"Retry failed: {e}")
+                logger.error("Retry failed: %s", e)
                 return False
         return False
     
     def _archive_message(self, dlq_msg: DLQMessage):
         """Archive a permanently failed message."""
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"dlq_{timestamp}_{dlq_msg.message_id[-8:]}.json"
         filepath = self.archive_dir / filename
         
@@ -223,9 +223,9 @@ class DLQHandler:
                 f.write(dlq_msg.to_json())
             
             self.stats.messages_archived += 1
-            logger.info(f"Archived failed message to: {filepath}")
+            logger.info("Archived failed message to: %s", filepath)
         except Exception as e:
-            logger.error(f"Failed to archive message: {e}")
+            logger.error("Failed to archive message: %s", e)
             self.stats.errors.append(str(e))
     
     def _handle_permanent_failure(self, dlq_msg: DLQMessage):
@@ -240,7 +240,7 @@ class DLQHandler:
             try:
                 self.failure_handler(dlq_msg)
             except Exception as e:
-                logger.error(f"Custom failure handler error: {e}")
+                logger.error("Custom failure handler error: %s", e)
     
     def process_message(self, msg) -> bool:
         """
@@ -254,8 +254,8 @@ class DLQHandler:
             self.stats.messages_processed += 1
             
             logger.info(
-                f"Processing DLQ message: {dlq_msg.message_id} "
-                f"(attempt {dlq_msg.failure_count}, reason: {dlq_msg.failure_reason})"
+                "Processing DLQ message: %s (attempt %d, reason: %s)",
+                dlq_msg.message_id, dlq_msg.failure_count, dlq_msg.failure_reason
             )
             
             if self._should_retry(dlq_msg):
@@ -263,14 +263,14 @@ class DLQHandler:
                     return True
                 else:
                     # Retry failed, update failure count and try again later
-                    logger.warning(f"Retry attempt failed for message: {dlq_msg.message_id}")
+                    logger.warning("Retry attempt failed for message: %s", dlq_msg.message_id)
             
             # Max retries reached or no retry handler
             self._handle_permanent_failure(dlq_msg)
             return True
             
         except Exception as e:
-            logger.error(f"Error processing DLQ message: {e}")
+            logger.error("Error processing DLQ message: %s", e)
             self.stats.errors.append(str(e))
             return False
     
@@ -303,7 +303,7 @@ class DLQHandler:
                 
             except Exception as e:
                 if "timeout" not in str(e).lower():
-                    logger.error(f"Error receiving message: {e}")
+                    logger.error("Error receiving message: %s", e)
                 break
         
         return processed
@@ -327,7 +327,7 @@ class DLQHandler:
                     
             except Exception as e:
                 if "timeout" not in str(e).lower():
-                    logger.error(f"Error in DLQ processing loop: {e}")
+                    logger.error("Error in DLQ processing loop: %s", e)
     
     def stop(self):
         """Stop DLQ processing."""
