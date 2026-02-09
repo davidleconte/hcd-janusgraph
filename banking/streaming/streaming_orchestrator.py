@@ -119,9 +119,9 @@ class StreamingOrchestrator(MasterOrchestrator):
                 namespace=self.config.pulsar_namespace
             )
             self._owns_producer = True
-            logger.info(f"Initialized producer: {type(self.producer).__name__}")
+            logger.info("Initialized producer: %s", type(self.producer).__name__)
         except Exception as e:
-            logger.warning(f"Failed to initialize Pulsar producer: {e}")
+            logger.warning("Failed to initialize Pulsar producer: %s", e)
             logger.warning("Falling back to MockEntityProducer")
             self.producer = MockEntityProducer()
             self._owns_producer = True
@@ -144,7 +144,7 @@ class StreamingOrchestrator(MasterOrchestrator):
             event = convert_entity_to_event(
                 entity,
                 event_type=event_type,
-                source=f"StreamingOrchestrator"
+                source="StreamingOrchestrator"
             )
             self.producer.send(event)
             
@@ -157,7 +157,7 @@ class StreamingOrchestrator(MasterOrchestrator):
             return True
             
         except Exception as e:
-            logger.error(f"Failed to publish entity: {e}")
+            logger.error("Failed to publish entity: %s", e)
             self.stats.events_failed += 1
             self.stats.streaming_errors.append(str(e))
             return False
@@ -190,33 +190,33 @@ class StreamingOrchestrator(MasterOrchestrator):
         logger.info("=" * 80)
         
         # Generate persons
-        logger.info(f"Generating {self.config.person_count} persons...")
+        logger.info("Generating %d persons...", self.config.person_count)
         for i in range(self.config.person_count):
             person = self.person_gen.generate()
             self.persons.append(person)
             self._publish_entity(person)
             
             if (i + 1) % 100 == 0:
-                logger.info(f"  Generated and published {i + 1}/{self.config.person_count} persons")
+                logger.info("  Generated and published %d/%d persons", i + 1, self.config.person_count)
         
         self.stats.persons_generated = len(self.persons)
-        logger.info(f"✓ Generated {self.stats.persons_generated} persons")
+        logger.info("✓ Generated %d persons", self.stats.persons_generated)
         
         # Generate companies
-        logger.info(f"\nGenerating {self.config.company_count} companies...")
+        logger.info("\nGenerating %d companies...", self.config.company_count)
         for i in range(self.config.company_count):
             company = self.company_gen.generate()
             self.companies.append(company)
             self._publish_entity(company)
             
             if (i + 1) % 10 == 0:
-                logger.info(f"  Generated and published {i + 1}/{self.config.company_count} companies")
+                logger.info("  Generated and published %d/%d companies", i + 1, self.config.company_count)
         
         self.stats.companies_generated = len(self.companies)
-        logger.info(f"✓ Generated {self.stats.companies_generated} companies")
+        logger.info("✓ Generated %d companies", self.stats.companies_generated)
         
         # Generate accounts
-        logger.info(f"\nGenerating {self.config.account_count} accounts...")
+        logger.info("\nGenerating %d accounts...", self.config.account_count)
         import random
         for i in range(self.config.account_count):
             if random.random() < 0.8:  # 80% person accounts
@@ -235,10 +235,10 @@ class StreamingOrchestrator(MasterOrchestrator):
             self._publish_entity(account)
             
             if (i + 1) % 100 == 0:
-                logger.info(f"  Generated and published {i + 1}/{self.config.account_count} accounts")
+                logger.info("  Generated and published %d/%d accounts", i + 1, self.config.account_count)
         
         self.stats.accounts_generated = len(self.accounts)
-        logger.info(f"✓ Generated {self.stats.accounts_generated} accounts")
+        logger.info("✓ Generated %d accounts", self.stats.accounts_generated)
         
         # Flush after phase
         if self.config.flush_after_phase and self.producer:
@@ -255,7 +255,7 @@ class StreamingOrchestrator(MasterOrchestrator):
         
         # Generate transactions
         if self.config.transaction_count > 0:
-            logger.info(f"Generating {self.config.transaction_count} transactions...")
+            logger.info("Generating %d transactions...", self.config.transaction_count)
             for i in range(self.config.transaction_count):
                 from_account = random.choice(self.accounts)
                 to_account = random.choice(self.accounts)
@@ -268,14 +268,14 @@ class StreamingOrchestrator(MasterOrchestrator):
                 self._publish_entity(transaction)
                 
                 if (i + 1) % 1000 == 0:
-                    logger.info(f"  Generated and published {i + 1}/{self.config.transaction_count} transactions")
+                    logger.info("  Generated and published %d/%d transactions", i + 1, self.config.transaction_count)
             
             self.stats.transactions_generated = len(self.transactions)
-            logger.info(f"✓ Generated {self.stats.transactions_generated} transactions")
+            logger.info("✓ Generated %d transactions", self.stats.transactions_generated)
         
         # Generate communications
         if self.config.communication_count > 0:
-            logger.info(f"\nGenerating {self.config.communication_count} communications...")
+            logger.info("\nGenerating %d communications...", self.config.communication_count)
             for i in range(self.config.communication_count):
                 sender = random.choice(self.persons)
                 recipient = random.choice(self.persons)
@@ -290,28 +290,28 @@ class StreamingOrchestrator(MasterOrchestrator):
                 self._publish_entity(communication)
                 
                 if (i + 1) % 1000 == 0:
-                    logger.info(f"  Generated and published {i + 1}/{self.config.communication_count} communications")
+                    logger.info("  Generated and published %d/%d communications", i + 1, self.config.communication_count)
             
             self.stats.communications_generated = len(self.communications)
-            logger.info(f"✓ Generated {self.stats.communications_generated} communications")
+            logger.info("✓ Generated %d communications", self.stats.communications_generated)
         
         # Generate trades
         if self.config.trade_count > 0:
-            logger.info(f"\nGenerating {self.config.trade_count} trades...")
+            logger.info("\nGenerating %d trades...", self.config.trade_count)
             for i in range(self.config.trade_count):
                 trade = self.trade_gen.generate()
                 self.trades.append(trade)
                 self._publish_entity(trade)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated and published {i + 1}/{self.config.trade_count} trades")
+                    logger.info("  Generated and published %d/%d trades", i + 1, self.config.trade_count)
             
             self.stats.trades_generated = len(self.trades)
-            logger.info(f"✓ Generated {self.stats.trades_generated} trades")
+            logger.info("✓ Generated %d trades", self.stats.trades_generated)
         
         # Generate travel records
         if self.config.travel_count > 0:
-            logger.info(f"\nGenerating {self.config.travel_count} travel records...")
+            logger.info("\nGenerating %d travel records...", self.config.travel_count)
             for i in range(self.config.travel_count):
                 traveler = random.choice(self.persons)
                 travel = self.travel_gen.generate(traveler_id=traveler.person_id)
@@ -319,24 +319,24 @@ class StreamingOrchestrator(MasterOrchestrator):
                 self._publish_entity(travel)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated and published {i + 1}/{self.config.travel_count} travel records")
+                    logger.info("  Generated and published %d/%d travel records", i + 1, self.config.travel_count)
             
             self.stats.travels_generated = len(self.travels)
-            logger.info(f"✓ Generated {self.stats.travels_generated} travel records")
+            logger.info("✓ Generated %d travel records", self.stats.travels_generated)
         
         # Generate documents
         if self.config.document_count > 0:
-            logger.info(f"\nGenerating {self.config.document_count} documents...")
+            logger.info("\nGenerating %d documents...", self.config.document_count)
             for i in range(self.config.document_count):
                 document = self.document_gen.generate()
                 self.documents.append(document)
                 self._publish_entity(document)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated and published {i + 1}/{self.config.document_count} documents")
+                    logger.info("  Generated and published %d/%d documents", i + 1, self.config.document_count)
             
             self.stats.documents_generated = len(self.documents)
-            logger.info(f"✓ Generated {self.stats.documents_generated} documents")
+            logger.info("✓ Generated %d documents", self.stats.documents_generated)
         
         # Flush after phase
         if self.config.flush_after_phase and self.producer:
@@ -352,8 +352,8 @@ class StreamingOrchestrator(MasterOrchestrator):
         """
         logger.info("=" * 80)
         logger.info("Starting Streaming Data Generation")
-        logger.info(f"Streaming enabled: {self.config.enable_streaming}")
-        logger.info(f"Producer type: {type(self.producer).__name__ if self.producer else 'None'}")
+        logger.info("Streaming enabled: %s", self.config.enable_streaming)
+        logger.info("Producer type: %s", type(self.producer).__name__ if self.producer else 'None')
         logger.info("=" * 80)
         
         try:
@@ -378,14 +378,14 @@ class StreamingOrchestrator(MasterOrchestrator):
             
             logger.info("=" * 80)
             logger.info("Streaming Data Generation Complete")
-            logger.info(f"Total records: {self.stats.total_records:,}")
-            logger.info(f"Events published: {self.stats.events_published:,}")
-            logger.info(f"Events failed: {self.stats.events_failed:,}")
-            logger.info(f"Generation time: {self.stats.generation_time_seconds:.2f}s")
+            logger.info("Total records: %s", f"{self.stats.total_records:,}")
+            logger.info("Events published: %s", f"{self.stats.events_published:,}")
+            logger.info("Events failed: %s", f"{self.stats.events_failed:,}")
+            logger.info("Generation time: %.2fs", self.stats.generation_time_seconds)
             logger.info("=" * 80)
             
         except Exception as e:
-            logger.error(f"Error during streaming generation: {e}")
+            logger.error("Error during streaming generation: %s", e)
             self.stats.errors.append(str(e))
             raise
         

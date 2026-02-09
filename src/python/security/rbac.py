@@ -248,7 +248,7 @@ class RBACManager:
             role: Role to register
         """
         self.roles[role.name] = role
-        logger.info(f"Role registered: {role.name}")
+        logger.info("Role registered: %s", role.name)
     
     def get_role(self, role_name: str) -> Optional[Role]:
         """
@@ -270,7 +270,7 @@ class RBACManager:
             user: User to register
         """
         self.users[user.user_id] = user
-        logger.info(f"User registered: {user.user_id}")
+        logger.info("User registered: %s", user.user_id)
     
     def get_user(self, user_id: str) -> Optional[User]:
         """
@@ -301,7 +301,7 @@ class RBACManager:
             raise ValueError(f"Role not found: {role_name}")
         
         user.add_role(role_name)
-        logger.info(f"Role {role_name} assigned to user {user_id}")
+        logger.info("Role %s assigned to user %s", role_name, user_id)
     
     def revoke_role(self, user_id: str, role_name: str):
         """
@@ -316,7 +316,7 @@ class RBACManager:
             raise ValueError(f"User not found: {user_id}")
         
         user.remove_role(role_name)
-        logger.info(f"Role {role_name} revoked from user {user_id}")
+        logger.info("Role %s revoked from user %s", role_name, user_id)
     
     def get_user_permissions(self, user_id: str) -> Set[Permission]:
         """
@@ -386,23 +386,23 @@ class RBACManager:
         """
         user = self.get_user(user_id)
         if not user:
-            logger.warning(f"Permission check failed: user not found {user_id}")
+            logger.warning("Permission check failed: user not found %s", user_id)
             return False
         
         user_permissions = self.get_user_permissions(user_id)
         
         # Check if user has the permission
         if permission not in user_permissions:
-            logger.debug(f"User {user_id} does not have permission {permission.value}")
+            logger.debug("User %s does not have permission %s", user_id, permission.value)
             return False
         
         # Check resource-level restrictions
         if resource_type and resource_id:
             if not self._check_resource_access(user, resource_type, resource_id):
-                logger.debug(f"User {user_id} denied access to resource {resource_type.value}:{resource_id}")
+                logger.debug("User %s denied access to resource %s:%s", user_id, resource_type.value, resource_id)
                 return False
         
-        logger.debug(f"User {user_id} granted permission {permission.value}")
+        logger.debug("User %s granted permission %s", user_id, permission.value)
         return True
     
     def _check_resource_access(
@@ -518,11 +518,11 @@ class RBACManager:
         
         if request.action in sensitive_permissions:
             if not request.user.mfa_enabled:
-                logger.warning(f"MFA required for {request.action.value}")
+                logger.warning("MFA required for %s", request.action.value)
                 return False
             
             if not request.context.get('mfa_verified', False):
-                logger.warning(f"MFA not verified for {request.action.value}")
+                logger.warning("MFA not verified for %s", request.action.value)
                 return False
         
         # Check time-based restrictions
@@ -530,7 +530,7 @@ class RBACManager:
             current_hour = datetime.now(timezone.utc).hour
             allowed_hours = request.context['allowed_hours']
             if current_hour not in allowed_hours:
-                logger.warning(f"Access denied: outside allowed hours")
+                logger.warning("Access denied: outside allowed hours")
                 return False
         
         # Check IP-based restrictions
@@ -538,7 +538,7 @@ class RBACManager:
             client_ip = request.context.get('client_ip')
             allowed_ips = request.context['allowed_ips']
             if client_ip not in allowed_ips:
-                logger.warning(f"Access denied: IP not allowed {client_ip}")
+                logger.warning("Access denied: IP not allowed %s", client_ip)
                 return False
         
         return True

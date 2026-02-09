@@ -104,12 +104,12 @@ class MFAManager:
             img.save(img_buffer, format='PNG')
             img_bytes = img_buffer.getvalue()
             
-            logger.info(f"TOTP setup completed for user: {user_id}")
+            logger.info("TOTP setup completed for user: %s", user_id)
             
             return secret, img_bytes
             
         except Exception as e:
-            logger.error(f"Failed to setup TOTP for user {user_id}: {e}")
+            logger.error("Failed to setup TOTP for user %s: %s", user_id, e)
             raise
     
     def verify_totp(self, secret: str, token: str, user_id: str = None) -> bool:
@@ -127,7 +127,7 @@ class MFAManager:
         try:
             # Check if user is locked out
             if user_id and self._is_locked_out(user_id):
-                logger.warning(f"MFA verification blocked - user locked out: {user_id}")
+                logger.warning("MFA verification blocked - user locked out: %s", user_id)
                 return False
             
             # Verify token
@@ -135,16 +135,16 @@ class MFAManager:
             is_valid = totp.verify(token, valid_window=1)
             
             if is_valid:
-                logger.info(f"TOTP verification successful for user: {user_id}")
+                logger.info("TOTP verification successful for user: %s", user_id)
                 self._reset_failed_attempts(user_id)
             else:
-                logger.warning(f"TOTP verification failed for user: {user_id}")
+                logger.warning("TOTP verification failed for user: %s", user_id)
                 self._record_failed_attempt(user_id)
             
             return is_valid
             
         except Exception as e:
-            logger.error(f"Error verifying TOTP: {e}")
+            logger.error("Error verifying TOTP: %s", e)
             return False
     
     def generate_backup_codes(self, count: int = None) -> List[str]:
@@ -164,7 +164,7 @@ class MFAManager:
             code = self._generate_backup_code()
             codes.append(code)
         
-        logger.info(f"Generated {count} backup codes")
+        logger.info("Generated %d backup codes", count)
         return codes
     
     def _generate_backup_code(self) -> str:
@@ -236,7 +236,7 @@ class MFAManager:
         self.failed_attempts[user_id]['last_attempt'] = datetime.now(timezone.utc)
         
         if self.failed_attempts[user_id]['count'] >= self.config.max_attempts:
-            logger.warning(f"User {user_id} locked out after {self.config.max_attempts} failed MFA attempts")
+            logger.warning("User %s locked out after %d failed MFA attempts", user_id, self.config.max_attempts)
     
     def _reset_failed_attempts(self, user_id: str):
         """
@@ -360,7 +360,7 @@ class MFAEnrollment:
                 'status': 'pending_verification'
             }
             
-            logger.info(f"User {user_id} enrolled in MFA (TOTP)")
+            logger.info("User %s enrolled in MFA (TOTP)", user_id)
             return enrollment_data
         
         else:
@@ -381,9 +381,9 @@ class MFAEnrollment:
         is_valid = self.mfa_manager.verify_totp(secret, token, user_id)
         
         if is_valid:
-            logger.info(f"MFA enrollment verified for user: {user_id}")
+            logger.info("MFA enrollment verified for user: %s", user_id)
         else:
-            logger.warning(f"MFA enrollment verification failed for user: {user_id}")
+            logger.warning("MFA enrollment verification failed for user: %s", user_id)
         
         return is_valid
     
@@ -395,7 +395,7 @@ class MFAEnrollment:
             user_id: User identifier
             reason: Optional reason for unenrollment
         """
-        logger.info(f"User {user_id} unenrolled from MFA. Reason: {reason}")
+        logger.info("User %s unenrolled from MFA. Reason: %s", user_id, reason)
         # Implementation would remove MFA data from storage
 
 
@@ -429,7 +429,7 @@ class MFAMiddleware:
         
         # MFA is required - check if verified
         if not mfa_verified:
-            logger.warning(f"MFA required but not verified for user: {user_id}")
+            logger.warning("MFA required but not verified for user: %s", user_id)
             return False
         
         return True
