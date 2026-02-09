@@ -13,7 +13,7 @@ Date: 2026-02-04
 """
 
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from banking.analytics.detect_insider_trading import (
     InsiderTradingDetector, InsiderTradingAlert, TradeCluster, CorporateEvent
 )
@@ -357,7 +357,7 @@ class TestReportGeneration:
                 total_value=500000.0,
                 risk_score=0.8,
                 indicators=['Test'],
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 details={}
             ),
             InsiderTradingAlert(
@@ -370,7 +370,7 @@ class TestReportGeneration:
                 total_value=100000.0,
                 risk_score=0.6,
                 indicators=['Test'],
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 details={}
             )
         ]
@@ -398,7 +398,7 @@ class TestDataclasses:
             total_value=100000.0,
             risk_score=0.8,
             indicators=['Pre-announcement trading'],
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details={}
         )
         

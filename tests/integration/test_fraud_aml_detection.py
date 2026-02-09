@@ -12,7 +12,7 @@ Created: 2026-02-06
 import os
 import sys
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import uuid
 
@@ -169,7 +169,7 @@ class TestFraudDetectorIntegration:
             fraud_score=0.85,
             risk_factors=["high_velocity", "unusual_amount"],
             similar_cases=[],
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             metadata={"source": "integration_test"}
         )
         assert alert.alert_type == "velocity"
@@ -241,7 +241,7 @@ class TestStructuringDetectorIntegration:
             confidence_score=0.92,
             risk_level="high",
             indicators=["just_below_threshold", "regular_timing"],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={"source": "integration_test"}
         )
         assert pattern.pattern_type == "smurfing"
@@ -261,7 +261,7 @@ class TestStructuringDetectorIntegration:
             confidence_score=0.85,
             risk_level="high",
             indicators=["threshold_proximity"],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={}
         )
         
@@ -273,7 +273,7 @@ class TestStructuringDetectorIntegration:
             accounts_involved=["acc-001"],
             total_amount=Decimal('18000.00'),
             recommendation="investigate",
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
         assert alert.alert_type == "smurfing_detected"
         assert len(alert.patterns) == 1

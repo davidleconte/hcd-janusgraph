@@ -13,7 +13,7 @@ Comprehensive test suite covering:
 - Alert generation
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 from banking.fraud.fraud_detection import (
     FraudDetector,
@@ -212,7 +212,7 @@ class TestVelocityChecks:
         detector = FraudDetector()
         
         # Should return 0.0 on error, not raise exception
-        score = detector._check_velocity('ACC-123', 100.0, datetime.utcnow())
+        score = detector._check_velocity('ACC-123', 100.0, datetime.now(timezone.utc))
         
         assert score == 0.0
 
@@ -287,10 +287,10 @@ class TestAccountTakeoverDetection:
         detector = FraudDetector()
         
         transactions = [
-            {'amount': 100.0, 'timestamp': datetime.utcnow()},
-            {'amount': 100.0, 'timestamp': datetime.utcnow()},
-            {'amount': 100.0, 'timestamp': datetime.utcnow()},
-            {'amount': 5000.0, 'timestamp': datetime.utcnow()}  # Unusual
+            {'amount': 100.0, 'timestamp': datetime.now(timezone.utc)},
+            {'amount': 100.0, 'timestamp': datetime.now(timezone.utc)},
+            {'amount': 100.0, 'timestamp': datetime.now(timezone.utc)},
+            {'amount': 5000.0, 'timestamp': datetime.now(timezone.utc)}  # Unusual
         ]
         
         is_takeover, confidence, indicators = detector.detect_account_takeover(
@@ -309,9 +309,9 @@ class TestAccountTakeoverDetection:
         detector = FraudDetector()
         
         transactions = [
-            {'amount': 100.0, 'timestamp': datetime.utcnow()},
-            {'amount': 110.0, 'timestamp': datetime.utcnow()},
-            {'amount': 105.0, 'timestamp': datetime.utcnow()}
+            {'amount': 100.0, 'timestamp': datetime.now(timezone.utc)},
+            {'amount': 110.0, 'timestamp': datetime.now(timezone.utc)},
+            {'amount': 105.0, 'timestamp': datetime.now(timezone.utc)}
         ]
         
         is_takeover, confidence, indicators = detector.detect_account_takeover(

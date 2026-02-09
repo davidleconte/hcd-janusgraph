@@ -17,7 +17,7 @@ Reports are generated from audit logs and provide:
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from collections import defaultdict, Counter
@@ -346,7 +346,7 @@ class ComplianceReporter:
             "report_type": "GDPR Article 30 - Records of Processing Activities",
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "summary": {
                 "total_processing_activities": len(gdpr_events),
                 "total_data_subjects": len(by_subject),
@@ -428,7 +428,7 @@ class ComplianceReporter:
             "report_type": "SOC 2 Type II - Access Control and Monitoring",
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "summary": {
                 "total_access_events": len(access_events),
                 "successful_logins": total_logins,
@@ -480,7 +480,7 @@ class ComplianceReporter:
             "report_type": "BSA/AML - Suspicious Activity Monitoring",
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "summary": {
                 "total_aml_alerts": len(aml_events),
                 "critical_alerts": len(by_severity.get("critical", [])),
@@ -516,7 +516,7 @@ class ComplianceReporter:
             "report_type": "Comprehensive Compliance Report",
             "period_start": start_date.isoformat(),
             "period_end": end_date.isoformat(),
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "metrics": metrics.to_dict(),
             "violations": [asdict(v) for v in violations],
             "gdpr_summary": self.generate_gdpr_report(start_date, end_date, log_file),

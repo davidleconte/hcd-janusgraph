@@ -52,9 +52,9 @@ class EmbeddingGenerator:
         self.model_config = self.MODELS[model_name]
         self.model_name = model_name
         
-        logger.info(f"Loading embedding model: {self.model_config['name']}")
+        logger.info("Loading embedding model: %s", self.model_config['name'])
         self.model = SentenceTransformer(self.model_config['name'], device=device)
-        logger.info(f"Model loaded. Dimensions: {self.model_config['dimensions']}")
+        logger.info("Model loaded. Dimensions: %s", self.model_config['dimensions'])
     
     @property
     def dimensions(self) -> int:
@@ -83,7 +83,7 @@ class EmbeddingGenerator:
         if isinstance(texts, str):
             texts = [texts]
         
-        logger.debug(f"Encoding {len(texts)} texts with batch_size={batch_size}")
+        logger.debug("Encoding %s texts with batch_size=%s", len(texts), batch_size)
         
         embeddings = self.model.encode(
             texts,

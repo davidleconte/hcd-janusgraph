@@ -15,7 +15,7 @@ Date: 2026-02-04
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Dict
 
 from fastapi import FastAPI, HTTPException, Query
@@ -165,9 +165,9 @@ def get_graph_connection():
             )
             _traversal = traversal().withRemote(_connection)
             ssl_status = "with TLS" if JANUSGRAPH_USE_SSL else "without TLS"
-            logger.info(f"Connected to JanusGraph at {JANUSGRAPH_HOST}:{JANUSGRAPH_PORT} ({ssl_status})")
+            logger.info("Connected to JanusGraph at %s:%s (%s)", JANUSGRAPH_HOST, JANUSGRAPH_PORT, ssl_status)
         except Exception as e:
-            logger.error(f"Failed to connect to JanusGraph: {e}")
+            logger.error("Failed to connect to JanusGraph: %s", e)
             raise HTTPException(status_code=503, detail="Graph database unavailable")
     
     return _traversal
@@ -227,14 +227,14 @@ def health_check():
         count = g.V().limit(1).count().next()
         services['janusgraph'] = True
     except Exception as e:
-        logger.error(f"JanusGraph health check failed: {e}")
+        logger.error("JanusGraph health check failed: %s", e)
         services['janusgraph'] = False
     
     status = "healthy" if all(services.values()) else "degraded"
     
     return HealthResponse(
         status=status,
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         services=services
     )
 
@@ -259,10 +259,10 @@ def graph_stats():
         
         return GraphStatsResponse(
             **stats,
-            last_updated=datetime.utcnow().isoformat()
+            last_updated=datetime.now(timezone.utc).isoformat()
         )
     except Exception as e:
-        logger.error(f"Error getting graph stats: {e}")
+        logger.error("Error getting graph stats: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -339,7 +339,7 @@ def discover_ubo(request: UBORequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"UBO discovery error: {e}")
+        logger.error("UBO discovery error: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -407,7 +407,7 @@ def get_ownership_network(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Network query error: {e}")
+        logger.error("Network query error: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -436,7 +436,7 @@ def detect_structuring(request: StructuringAlertRequest):
         
         # Time window calculation
         from datetime import timedelta
-        end_date = datetime.utcnow()
+        end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=request.time_window_days)
         
         alerts = []
@@ -487,7 +487,7 @@ def detect_structuring(request: StructuringAlertRequest):
         )
         
     except Exception as e:
-        logger.error(f"Structuring detection error: {e}")
+        logger.error("Structuring detection error: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -537,7 +537,7 @@ def detect_fraud_rings(
         }
         
     except Exception as e:
-        logger.error(f"Fraud ring detection error: {e}")
+        logger.error("Fraud ring detection error: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

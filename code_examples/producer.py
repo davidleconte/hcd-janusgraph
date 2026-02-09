@@ -127,10 +127,10 @@ class TransactionProducer:
                 }
             )
             
-            logger.debug(f"Sent event: {transaction['event_id']}")
+            logger.debug("Sent event: %s", transaction['event_id'])
             
         except Exception as e:
-            logger.error(f"Failed to send event {transaction['event_id']}: {e}")
+            logger.error("Failed to send event %s: %s", transaction['event_id'], e)
             raise
     
     def close(self):

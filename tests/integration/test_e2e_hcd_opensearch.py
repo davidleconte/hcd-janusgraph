@@ -28,7 +28,7 @@ import shutil
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 # Add paths
@@ -53,7 +53,7 @@ def check_hcd_available():
         cluster.shutdown()
         return True
     except Exception as e:
-        logger.debug(f"HCD not available: {e}")
+        logger.debug("HCD not available: %s", e)
         return False
 
 
@@ -69,7 +69,7 @@ def check_janusgraph_available():
         c.close()
         return True
     except Exception as e:
-        logger.debug(f"JanusGraph not available: {e}")
+        logger.debug("JanusGraph not available: %s", e)
         return False
 
 
@@ -88,7 +88,7 @@ def check_opensearch_available():
         client.info()
         return True
     except Exception as e:
-        logger.debug(f"OpenSearch not available: {e}")
+        logger.debug("OpenSearch not available: %s", e)
         return False
 
 
@@ -100,7 +100,7 @@ def check_pulsar_available():
         client.close()
         return True
     except Exception as e:
-        logger.debug(f"Pulsar not available: {e}")
+        logger.debug("Pulsar not available: %s", e)
         return False
 
 
@@ -217,12 +217,12 @@ class TestHCDKeyspaceVerification:
             'txlog'
         ]
         
-        logger.info(f"Found tables in janusgraph keyspace: {tables}")
+        logger.info("Found tables in janusgraph keyspace: %s", tables)
         
         # At minimum, edgestore should exist (core JanusGraph table)
         assert 'edgestore' in tables, "edgestore table should exist"
         assert len(tables) >= 3, f"Expected at least 3 JanusGraph tables, found {len(tables)}"
-        logger.info(f"✅ JanusGraph tables exist: {tables}")
+        logger.info("✅ JanusGraph tables exist: %s", tables)
     
     @skip_no_hcd
     def test_keyspace_replication_strategy(self, cassandra_session):
@@ -234,7 +234,7 @@ class TestHCDKeyspaceVerification:
         
         assert len(rows) == 1
         replication = rows[0].replication
-        logger.info(f"janusgraph keyspace replication: {replication}")
+        logger.info("janusgraph keyspace replication: %s", replication)
         
         # Should have a replication strategy configured
         assert 'class' in replication
@@ -248,7 +248,7 @@ class TestHCDKeyspaceVerification:
             "SELECT COUNT(*) FROM janusgraph.edgestore LIMIT 1"
         )
         count = list(result)[0].count
-        logger.info(f"edgestore row count (limited): {count}")
+        logger.info("edgestore row count (limited): %s", count)
         
         # If JanusGraph has been used at all, there should be some data
         # Even an empty graph has system data
@@ -269,7 +269,7 @@ class TestOpenSearchVectorIndexes:
         indices = opensearch_client.indices.get_alias(index="*")
         index_names = list(indices.keys())
         
-        logger.info(f"Current OpenSearch indexes: {index_names}")
+        logger.info("Current OpenSearch indexes: %s", index_names)
         assert isinstance(index_names, list)
     
     @skip_no_opensearch
@@ -315,7 +315,7 @@ class TestOpenSearchVectorIndexes:
         
         result = opensearch_client.indices.create(index=index_name, body=index_body)
         assert result.get('acknowledged') == True
-        logger.info(f"✅ Created {index_name} index with KNN mapping")
+        logger.info("✅ Created %s index with KNN mapping", index_name)
         
         # Verify index exists
         assert opensearch_client.indices.exists(index=index_name)
@@ -362,7 +362,7 @@ class TestOpenSearchVectorIndexes:
         
         result = opensearch_client.indices.create(index=index_name, body=index_body)
         assert result.get('acknowledged') == True
-        logger.info(f"✅ Created {index_name} index with KNN mapping")
+        logger.info("✅ Created %s index with KNN mapping", index_name)
     
     @skip_no_opensearch
     def test_index_document_with_embedding(self, opensearch_client):
@@ -382,7 +382,7 @@ class TestOpenSearchVectorIndexes:
             "embedding": embedding,
             "text_for_embedding": "John Doe Software Engineer at TechCorp",
             "version": 1,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "source": "e2e_test",
             "first_name": "John",
             "last_name": "Doe",
@@ -397,7 +397,7 @@ class TestOpenSearchVectorIndexes:
         )
         
         assert result['result'] in ['created', 'updated']
-        logger.info(f"✅ Indexed document {test_id} with embedding")
+        logger.info("✅ Indexed document %s with embedding", test_id)
         
         # Verify document exists
         get_result = opensearch_client.get(index=index_name, id=test_id)
@@ -426,7 +426,7 @@ class TestOpenSearchVectorIndexes:
                 "embedding": embedding,
                 "text_for_embedding": f"Test Person {i}",
                 "version": 1,
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
                 "source": "knn_test"
             }
             
@@ -453,11 +453,11 @@ class TestOpenSearchVectorIndexes:
         try:
             result = opensearch_client.search(index=index_name, body=search_body)
             hits = result['hits']['hits']
-            logger.info(f"KNN search returned {len(hits)} results")
+            logger.info("KNN search returned %s results", len(hits))
             assert len(hits) <= 3
             logger.info("✅ KNN search working")
         except Exception as e:
-            logger.warning(f"KNN search failed (may need ML plugin): {e}")
+            logger.warning("KNN search failed (may need ML plugin): %s", e)
         
         # Cleanup
         for doc_id in test_docs:
@@ -571,10 +571,10 @@ class TestFullE2EPipeline:
         with StreamingOrchestrator(config) as orchestrator:
             stats = orchestrator.generate_all()
             
-            logger.info(f"Generated: {stats.persons_generated} persons, "
-                       f"{stats.accounts_generated} accounts, "
-                       f"{stats.transactions_generated} transactions")
-            logger.info(f"Published {stats.events_published} events to Pulsar")
+            logger.info("Generated: %s persons, "
+                       f"%s accounts, "
+                       f"%s transactions", stats.persons_generated, stats.accounts_generated, stats.transactions_generated)
+            logger.info("Published %s events to Pulsar", stats.events_published)
             
             assert stats.events_published > 0
             assert stats.events_failed == 0
@@ -588,17 +588,17 @@ class TestFullE2EPipeline:
         """Get and verify JanusGraph statistics."""
         # Vertex counts
         vertex_result = gremlin_client.submit("g.V().groupCount().by(label)").all().result()
-        logger.info(f"Vertex counts by label: {vertex_result}")
+        logger.info("Vertex counts by label: %s", vertex_result)
         
         # Edge counts
         edge_result = gremlin_client.submit("g.E().groupCount().by(label)").all().result()
-        logger.info(f"Edge counts by label: {edge_result}")
+        logger.info("Edge counts by label: %s", edge_result)
         
         # Total counts
         total_v = gremlin_client.submit("g.V().count()").all().result()[0]
         total_e = gremlin_client.submit("g.E().count()").all().result()[0]
         
-        logger.info(f"Total: {total_v} vertices, {total_e} edges")
+        logger.info("Total: %s vertices, %s edges", total_v, total_e)
         
         assert total_v >= 0
         assert total_e >= 0
@@ -624,15 +624,15 @@ class TestFullE2EPipeline:
             logger.info("No persons in JanusGraph yet")
             return
         
-        logger.info(f"Sample JanusGraph person IDs: {jg_persons}")
+        logger.info("Sample JanusGraph person IDs: %s", jg_persons)
         
         # Check if same IDs exist in OpenSearch
         for entity_id in jg_persons:
             try:
                 result = opensearch_client.get(index='person_vectors', id=entity_id)
-                logger.info(f"✅ Entity {entity_id} found in both JanusGraph and OpenSearch")
+                logger.info("✅ Entity %s found in both JanusGraph and OpenSearch", entity_id)
             except Exception:
-                logger.info(f"Entity {entity_id} not yet in OpenSearch (consumer pending)")
+                logger.info("Entity %s not yet in OpenSearch (consumer pending)", entity_id)
 
 
 # =============================================================================
@@ -655,7 +655,7 @@ class TestDataConsistencyValidation:
         )
         hcd_count = list(hcd_result)[0].count
         
-        logger.info(f"JanusGraph vertices: {jg_count}, HCD edgestore rows: {hcd_count}")
+        logger.info("JanusGraph vertices: %s, HCD edgestore rows: %s", jg_count, hcd_count)
         
         # If JanusGraph has vertices, HCD should have data
         if jg_count > 0:
@@ -671,11 +671,11 @@ class TestDataConsistencyValidation:
         total_docs = indices_stats['_all']['primaries']['docs']['count']
         total_size = indices_stats['_all']['primaries']['store']['size_in_bytes']
         
-        logger.info(f"OpenSearch total docs: {total_docs}, size: {total_size} bytes")
+        logger.info("OpenSearch total docs: %s, size: %s bytes", total_docs, total_size)
         
         # Check cluster health
         health = opensearch_client.cluster.health()
-        logger.info(f"OpenSearch cluster health: {health['status']}")
+        logger.info("OpenSearch cluster health: %s", health['status'])
         
         assert health['status'] in ['green', 'yellow'], \
             f"OpenSearch cluster unhealthy: {health['status']}"

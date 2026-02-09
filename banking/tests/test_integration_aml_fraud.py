@@ -11,7 +11,7 @@ End-to-end testing of:
 
 import pytest
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch, MagicMock
 from banking.aml.structuring_detection import StructuringDetector, StructuringPattern
 from banking.fraud.fraud_detection import FraudDetector, FraudScore
@@ -74,7 +74,7 @@ class TestAMLDetectionPipeline:
                 confidence_score=0.85,
                 risk_level='critical',
                 indicators=['Multiple transactions below threshold'],
-                detected_at=datetime.utcnow().isoformat(),
+                detected_at=datetime.now(timezone.utc).isoformat(),
                 metadata={}
             )
         ]
@@ -211,7 +211,7 @@ class TestCrossModuleIntegration:
             confidence_score=0.75,
             risk_level='high',
             indicators=['Test'],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={}
         )
         
@@ -504,7 +504,7 @@ class TestAlertAggregation:
                 confidence_score=0.75,
                 risk_level='high',
                 indicators=['Test'],
-                detected_at=datetime.utcnow().isoformat(),
+                detected_at=datetime.now(timezone.utc).isoformat(),
                 metadata={}
             )
             for i in range(3)

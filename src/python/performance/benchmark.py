@@ -100,15 +100,15 @@ class PerformanceBenchmark:
         Returns:
             Benchmark result
         """
-        logger.info(f"Running benchmark: {name} ({iterations} iterations)")
+        logger.info("Running benchmark: %s (%s iterations)", name, iterations)
         
         # Warmup
-        logger.debug(f"Warmup: {warmup_iterations} iterations")
+        logger.debug("Warmup: %s iterations", warmup_iterations)
         for _ in range(warmup_iterations):
             try:
                 func(*args, **kwargs)
             except Exception as e:
-                logger.warning(f"Warmup error: {e}")
+                logger.warning("Warmup error: %s", e)
         
         # Benchmark
         execution_times = []
@@ -125,7 +125,7 @@ class PerformanceBenchmark:
                 execution_times.append((iter_end - iter_start) * 1000)  # ms
                 success_count += 1
             except Exception as e:
-                logger.error(f"Iteration {i} failed: {e}")
+                logger.error("Iteration %s failed: %s", i, e)
                 error_count += 1
         
         end_time = time.perf_counter()
@@ -231,9 +231,9 @@ class PerformanceBenchmark:
         }
         
         if is_regression:
-            logger.warning(f"Performance regression detected for {current.name}")
+            logger.warning("Performance regression detected for %s", current.name)
         else:
-            logger.info(f"No regression detected for {current.name}")
+            logger.info("No regression detected for %s", current.name)
         
         return comparison
     
@@ -257,7 +257,7 @@ class PerformanceBenchmark:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        logger.info(f"Results exported to {filepath}")
+        logger.info("Results exported to %s", filepath)
 
 
 class LoadTester:
@@ -271,7 +271,7 @@ class LoadTester:
             max_workers: Maximum concurrent workers
         """
         self.max_workers = max_workers
-        logger.info(f"Load Tester initialized with {max_workers} workers")
+        logger.info("Load Tester initialized with %s workers", max_workers)
     
     def run_load_test(
         self,
@@ -319,7 +319,7 @@ class LoadTester:
                 response_times.append((req_end - req_start) * 1000)
                 successful_requests += 1
             except Exception as e:
-                logger.debug(f"Request failed: {e}")
+                logger.debug("Request failed: %s", e)
                 failed_requests += 1
         
         # Execute concurrent requests
@@ -407,7 +407,7 @@ class QueryBenchmarkSuite:
             func: Query function
         """
         self.test_queries[name] = func
-        logger.info(f"Registered query: {name}")
+        logger.info("Registered query: %s", name)
     
     def run_all_benchmarks(self, iterations: int = 100) -> List[BenchmarkResult]:
         """

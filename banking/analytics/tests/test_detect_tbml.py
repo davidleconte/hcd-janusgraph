@@ -13,7 +13,7 @@ Date: 2026-02-04
 
 import pytest
 from unittest.mock import Mock
-from datetime import datetime
+from datetime import datetime, timezone
 from banking.analytics.detect_tbml import (
     TBMLDetector, TBMLAlert, PriceAnomaly
 )
@@ -332,7 +332,7 @@ class TestReportGeneration:
                 total_value=500000.0,
                 risk_score=0.8,
                 indicators=['Test indicator'],
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 details={}
             ),
             TBMLAlert(
@@ -344,7 +344,7 @@ class TestReportGeneration:
                 total_value=100000.0,
                 risk_score=0.6,
                 indicators=['Test indicator'],
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 details={}
             )
         ]
@@ -371,7 +371,7 @@ class TestDataclasses:
             total_value=100000.0,
             risk_score=0.8,
             indicators=['Test'],
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             details={}
         )
         

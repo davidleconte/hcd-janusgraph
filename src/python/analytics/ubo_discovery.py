@@ -109,10 +109,10 @@ class UBODiscovery:
                 message_serializer=serializer.GraphSONSerializersV3d0()
             )
             self.g = traversal().withRemote(self.connection)
-            logger.info(f"Connected to JanusGraph at {self.host}:{self.port}")
+            logger.info("Connected to JanusGraph at %s:%s", self.host, self.port)
             return True
         except Exception as e:
-            logger.error(f"Failed to connect to JanusGraph: {e}")
+            logger.error("Failed to connect to JanusGraph: %s", e)
             return False
     
     def close(self):
@@ -229,7 +229,7 @@ class UBODiscovery:
                 return self._flatten_value_map(result[0])
             return None
         except Exception as e:
-            logger.error(f"Error getting company info: {e}")
+            logger.error("Error getting company info: %s", e)
             return None
     
     def _find_direct_owners(self, company_id: str) -> List[Dict[str, Any]]:
@@ -263,7 +263,7 @@ class UBODiscovery:
             
             return formatted_results
         except Exception as e:
-            logger.error(f"Error finding direct owners: {e}")
+            logger.error("Error finding direct owners: %s", e)
             return []
     
     def _find_indirect_owners(
@@ -304,7 +304,7 @@ class UBODiscovery:
                     chains.append(chain)
                     
         except Exception as e:
-            logger.error(f"Error finding indirect owners: {e}")
+            logger.error("Error finding indirect owners: %s", e)
             
         return chains
     
@@ -449,7 +449,7 @@ class UBODiscovery:
                     shared[person_id].append(company_id)
                     
         except Exception as e:
-            logger.warning(f"Error in optimized shared UBO query: {e}")
+            logger.warning("Error in optimized shared UBO query: %s", e)
             # Fallback to individual queries (slower but more robust)
             for company_id in company_ids:
                 try:
@@ -461,7 +461,7 @@ class UBODiscovery:
                         if company_id not in shared[person_id]:
                             shared[person_id].append(company_id)
                 except Exception as e2:
-                    logger.warning(f"Error analyzing company {company_id}: {e2}")
+                    logger.warning("Error analyzing company %s: %s", company_id, e2)
         
         # Filter to only those with multiple companies
         return {k: v for k, v in shared.items() if len(v) > 1}
@@ -541,7 +541,7 @@ class UBODiscovery:
                         continue
                         
         except Exception as e:
-            logger.error(f"Error getting ownership network: {e}")
+            logger.error("Error getting ownership network: %s", e)
         
         return {
             'nodes': nodes,

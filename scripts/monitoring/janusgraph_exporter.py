@@ -88,7 +88,7 @@ class JanusGraphExporter:
     def _connect(self) -> None:
         """Connect to JanusGraph"""
         try:
-            logger.info(f"Connecting to JanusGraph at {self.gremlin_url}")
+            logger.info("Connecting to JanusGraph at %s", self.gremlin_url)
             self.client = client.Client(
                 self.gremlin_url,
                 'g',
@@ -97,7 +97,7 @@ class JanusGraphExporter:
             janusgraph_connection_status.set(1)
             logger.info("Successfully connected to JanusGraph")
         except Exception as e:
-            logger.error(f"Failed to connect to JanusGraph: {e}")
+            logger.error("Failed to connect to JanusGraph: %s", e)
             janusgraph_connection_status.set(0)
             janusgraph_errors_total.labels(error_type='connection').inc()
             self.client = None
@@ -114,11 +114,11 @@ class JanusGraphExporter:
                 result = self.client.submit(query).all().result()
             return result
         except GremlinServerError as e:
-            logger.error(f"Gremlin server error: {e}")
+            logger.error("Gremlin server error: %s", e)
             janusgraph_errors_total.labels(error_type='gremlin_server').inc()
             raise
         except Exception as e:
-            logger.error(f"Query execution error: {e}")
+            logger.error("Query execution error: %s", e)
             janusgraph_errors_total.labels(error_type='query_execution').inc()
             raise
     
@@ -128,15 +128,15 @@ class JanusGraphExporter:
             # Count vertices
             vertex_count = self._execute_query('g.V().count()')[0]
             janusgraph_vertices_total.set(vertex_count)
-            logger.debug(f"Vertices: {vertex_count}")
+            logger.debug("Vertices: %s", vertex_count)
             
             # Count edges
             edge_count = self._execute_query('g.E().count()')[0]
             janusgraph_edges_total.set(edge_count)
-            logger.debug(f"Edges: {edge_count}")
+            logger.debug("Edges: %s", edge_count)
             
         except Exception as e:
-            logger.error(f"Error collecting basic metrics: {e}")
+            logger.error("Error collecting basic metrics: %s", e)
             janusgraph_errors_total.labels(error_type='metrics_collection').inc()
     
     def collect_label_metrics(self) -> None:
@@ -149,7 +149,7 @@ class JanusGraphExporter:
             
             for label, count in vertex_labels.items():
                 janusgraph_vertex_labels.labels(label=label).set(count)
-                logger.debug(f"Vertex label {label}: {count}")
+                logger.debug("Vertex label %s: %s", label, count)
             
             # Count edges by label
             edge_labels = self._execute_query(
@@ -158,10 +158,10 @@ class JanusGraphExporter:
             
             for label, count in edge_labels.items():
                 janusgraph_edge_labels.labels(label=label).set(count)
-                logger.debug(f"Edge label {label}: {count}")
+                logger.debug("Edge label %s: %s", label, count)
                 
         except Exception as e:
-            logger.error(f"Error collecting label metrics: {e}")
+            logger.error("Error collecting label metrics: %s", e)
             janusgraph_errors_total.labels(error_type='label_metrics').inc()
     
     def collect_info(self) -> None:
@@ -172,7 +172,7 @@ class JanusGraphExporter:
                 'exporter_version': '1.0.0'
             })
         except Exception as e:
-            logger.error(f"Error collecting info: {e}")
+            logger.error("Error collecting info: %s", e)
     
     def collect_all_metrics(self) -> None:
         """Collect all metrics"""
@@ -184,7 +184,7 @@ class JanusGraphExporter:
             self.collect_info()
             logger.info("Metrics collection complete")
         except Exception as e:
-            logger.error(f"Error during metrics collection: {e}")
+            logger.error("Error during metrics collection: %s", e)
             janusgraph_connection_status.set(0)
     
     def close(self) -> None:
@@ -194,18 +194,18 @@ class JanusGraphExporter:
                 self.client.close()
                 logger.info("Connection closed")
             except Exception as e:
-                logger.error(f"Error closing connection: {e}")
+                logger.error("Error closing connection: %s", e)
 
 
 def main():
     """Main entry point"""
-    logger.info(f"Starting JanusGraph Exporter on port {EXPORTER_PORT}")
-    logger.info(f"Connecting to JanusGraph at {GREMLIN_URL}")
-    logger.info(f"Scrape interval: {SCRAPE_INTERVAL} seconds")
+    logger.info("Starting JanusGraph Exporter on port %s", EXPORTER_PORT)
+    logger.info("Connecting to JanusGraph at %s", GREMLIN_URL)
+    logger.info("Scrape interval: %s seconds", SCRAPE_INTERVAL)
     
     # Start Prometheus HTTP server
     start_http_server(EXPORTER_PORT)
-    logger.info(f"Metrics available at http://localhost:{EXPORTER_PORT}/metrics")
+    logger.info("Metrics available at http://localhost:%s/metrics", EXPORTER_PORT)
     
     # Create exporter instance
     exporter = JanusGraphExporter(GREMLIN_URL)
@@ -218,7 +218,7 @@ def main():
     except KeyboardInterrupt:
         logger.info("Received shutdown signal")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error("Unexpected error: %s", e)
         sys.exit(1)
     finally:
         exporter.close()

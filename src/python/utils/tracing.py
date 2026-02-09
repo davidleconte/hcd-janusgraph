@@ -98,7 +98,7 @@ class TracingManager:
                     BatchSpanProcessor(otlp_exporter)
                 )
             except Exception as e:
-                logger.warning(f"Failed to initialize OTLP exporter: {e}")
+                logger.warning("Failed to initialize OTLP exporter: %s", e)
             
             # Set global tracer provider
             trace.set_tracer_provider(self.tracer_provider)
@@ -109,10 +109,10 @@ class TracingManager:
             # Instrument HTTP requests
             RequestsInstrumentor().instrument()
             
-            logger.info(f"Tracing initialized for service: {self.config.service_name}")
+            logger.info("Tracing initialized for service: %s", self.config.service_name)
             
         except Exception as e:
-            logger.error(f"Failed to initialize tracing: {e}")
+            logger.error("Failed to initialize tracing: %s", e)
             self.config.enabled = False
     
     def get_tracer(self) -> trace.Tracer:

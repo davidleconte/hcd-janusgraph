@@ -242,7 +242,7 @@ class TestE2EJanusGraphDataVerification:
         result = gremlin_client.execute("g.V().hasLabel('Person').count()")
         assert isinstance(result, list)
         person_count = result[0]
-        logger.info(f"Persons in graph: {person_count}")
+        logger.info("Persons in graph: %s", person_count)
         assert isinstance(person_count, int)
     
     @skip_no_janusgraph
@@ -250,7 +250,7 @@ class TestE2EJanusGraphDataVerification:
         """Verify accounts exist in JanusGraph."""
         result = gremlin_client.execute("g.V().hasLabel('Account').count()")
         account_count = result[0]
-        logger.info(f"Accounts in graph: {account_count}")
+        logger.info("Accounts in graph: %s", account_count)
         assert isinstance(account_count, int)
     
     @skip_no_janusgraph
@@ -258,7 +258,7 @@ class TestE2EJanusGraphDataVerification:
         """Verify transactions exist in JanusGraph."""
         result = gremlin_client.execute("g.E().hasLabel('MADE_TRANSACTION').count()")
         txn_count = result[0]
-        logger.info(f"Transactions in graph: {txn_count}")
+        logger.info("Transactions in graph: %s", txn_count)
         assert isinstance(txn_count, int)
     
     @skip_no_janusgraph
@@ -267,7 +267,7 @@ class TestE2EJanusGraphDataVerification:
         result = gremlin_client.execute(
             "g.E().hasLabel('MADE_TRANSACTION').has('amount').values('amount').limit(50)"
         )
-        logger.info(f"Sample transaction amounts: {result[:10] if result else 'None'}")
+        logger.info("Sample transaction amounts: %s", result[:10] if result else 'None')
         assert isinstance(result, list)
 
 
@@ -336,7 +336,7 @@ class TestE2EAMLStructuringDetection:
             )
             if result:
                 account_id = result[0]
-                logger.info(f"Testing smurfing detection for account: {account_id}")
+                logger.info("Testing smurfing detection for account: %s", account_id)
                 
                 # Run detection - may or may not find patterns depending on data
                 patterns = detector.detect_smurfing(
@@ -345,7 +345,7 @@ class TestE2EAMLStructuringDetection:
                     min_transactions=3
                 )
                 assert isinstance(patterns, list)
-                logger.info(f"Smurfing patterns found: {len(patterns)}")
+                logger.info("Smurfing patterns found: %s", len(patterns))
             else:
                 logger.info("No accounts in graph - skipping smurfing test")
         finally:
@@ -362,7 +362,7 @@ class TestE2EAMLStructuringDetection:
              .has('amount', lt(10000.0))
              .limit(20)
         """)
-        logger.info(f"Suspicious range transactions: {len(result)}")
+        logger.info("Suspicious range transactions: %s", len(result))
         assert isinstance(result, list)
 
 
@@ -396,10 +396,10 @@ class TestE2EFullPipelineValidation:
             stats = orchestrator.generate_all()
             
             # Log what was generated
-            logger.info(f"Generated - Persons: {stats.persons_generated}, "
-                       f"Accounts: {stats.accounts_generated}, "
-                       f"Transactions: {stats.transactions_generated}")
-            logger.info(f"Events published: {stats.events_published}")
+            logger.info("Generated - Persons: %s, "
+                       f"Accounts: %s, "
+                       f"Transactions: %s", stats.persons_generated, stats.accounts_generated, stats.transactions_generated)
+            logger.info("Events published: %s", stats.events_published)
             
             assert stats.events_published > 0
             
@@ -411,16 +411,16 @@ class TestE2EFullPipelineValidation:
         """Get summary statistics of what's in the graph."""
         # Vertex counts by label
         vertex_result = gremlin_client.execute("g.V().groupCount().by(label)")
-        logger.info(f"Vertex counts: {vertex_result}")
+        logger.info("Vertex counts: %s", vertex_result)
         
         # Edge counts by label
         edge_result = gremlin_client.execute("g.E().groupCount().by(label)")
-        logger.info(f"Edge counts: {edge_result}")
+        logger.info("Edge counts: %s", edge_result)
         
         # Total counts
         total_v = gremlin_client.execute("g.V().count()")[0]
         total_e = gremlin_client.execute("g.E().count()")[0]
-        logger.info(f"Total vertices: {total_v}, Total edges: {total_e}")
+        logger.info("Total vertices: %s, Total edges: %s", total_v, total_e)
         
         assert total_v >= 0
         assert total_e >= 0
@@ -452,8 +452,8 @@ class TestE2EPatternInjection:
         with StreamingOrchestrator(config) as orchestrator:
             stats = orchestrator.generate_all()
             
-            logger.info(f"Generated {stats.transactions_generated} transactions")
-            logger.info(f"Published {stats.events_published} events to Pulsar")
+            logger.info("Generated %s transactions", stats.transactions_generated)
+            logger.info("Published %s events to Pulsar", stats.events_published)
             
             assert stats.transactions_generated == 100
             assert stats.events_published > 0

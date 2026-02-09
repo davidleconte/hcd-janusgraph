@@ -21,7 +21,7 @@ import sys
 import pytest
 from pathlib import Path
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import logging
 import uuid
@@ -135,7 +135,7 @@ class TestFraudDetectorMethods:
                 amount=50.0,  # Normal small amount
                 merchant="Regular Store",
                 description="Grocery purchase",
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             
             assert isinstance(score, self.FraudScore)
@@ -144,7 +144,7 @@ class TestFraudDetectorMethods:
             assert score.recommendation in ['approve', 'review', 'block']
             
             # A small transaction at a normal merchant should be low risk
-            logger.info(f"Low risk transaction score: {score.overall_score}, level: {score.risk_level}")
+            logger.info("Low risk transaction score: %s, level: %s", score.overall_score, score.risk_level)
             
         except Exception as e:
             pytest.skip(f"FraudDetector init failed: {e}")
@@ -167,12 +167,12 @@ class TestFraudDetectorMethods:
                 amount=5000.0,  # High amount
                 merchant="Bitcoin Exchange Crypto Trading",  # High-risk merchant
                 description="Cryptocurrency purchase",
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             
             assert isinstance(score, self.FraudScore)
             assert score.merchant_score > 0  # Should detect high-risk merchant
-            logger.info(f"High-risk merchant score: {score.merchant_score}, overall: {score.overall_score}")
+            logger.info("High-risk merchant score: %s, overall: %s", score.merchant_score, score.overall_score)
             
         except Exception as e:
             pytest.skip(f"FraudDetector init failed: {e}")
@@ -198,7 +198,7 @@ class TestFraudDetectorMethods:
             
             for merchant, min_expected in high_risk_merchants:
                 score = detector._check_merchant(merchant)
-                logger.info(f"Merchant '{merchant}': score={score}")
+                logger.info("Merchant '%s': score=%s", merchant, score)
                 assert score >= min_expected * 0.5, f"Expected '{merchant}' to have score >= {min_expected * 0.5}"
                 
         except Exception as e:
@@ -225,7 +225,7 @@ class TestFraudDetectorMethods:
             
             for merchant in normal_merchants:
                 score = detector._check_merchant(merchant)
-                logger.info(f"Normal merchant '{merchant}': score={score}")
+                logger.info("Normal merchant '%s': score=%s", merchant, score)
                 # Normal merchants should have low risk scores
                 assert score < 0.5, f"Expected '{merchant}' to have low risk score"
                 
@@ -254,7 +254,7 @@ class TestFraudDetectorWithRealData:
             pytest.skip("No accounts in graph")
         
         account_id = result[0]
-        logger.info(f"Testing velocity for account: {account_id}")
+        logger.info("Testing velocity for account: %s", account_id)
         
         try:
             detector = self.FraudDetector(
@@ -268,11 +268,11 @@ class TestFraudDetectorWithRealData:
             velocity_score = detector._check_velocity(
                 account_id=account_id,
                 amount=100.0,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             
             assert 0 <= velocity_score <= 1
-            logger.info(f"Velocity score for {account_id}: {velocity_score}")
+            logger.info("Velocity score for %s: %s", account_id, velocity_score)
             
         except Exception as e:
             pytest.skip(f"FraudDetector init failed: {e}")
@@ -289,7 +289,7 @@ class TestFraudDetectorWithRealData:
             pytest.skip("No accounts in graph")
         
         account_id = result[0]
-        logger.info(f"Testing network for account: {account_id}")
+        logger.info("Testing network for account: %s", account_id)
         
         try:
             detector = self.FraudDetector(
@@ -303,7 +303,7 @@ class TestFraudDetectorWithRealData:
             network_score = detector._check_network(account_id=account_id)
             
             assert 0 <= network_score <= 1
-            logger.info(f"Network score for {account_id}: {network_score}")
+            logger.info("Network score for %s: %s", account_id, network_score)
             
         except Exception as e:
             pytest.skip(f"FraudDetector init failed: {e}")
@@ -334,13 +334,13 @@ class TestPatternInjectionFraudDetection:
         if not result:
             pytest.skip("No accounts with multiple transactions found")
         
-        logger.info(f"Found accounts with transactions: {result}")
+        logger.info("Found accounts with transactions: %s", result)
         
         # Accounts with many transactions might trigger velocity alerts
         for account_data in result:
             account_id = account_data.get('account_id')
             txn_count = account_data.get('txn_count', 0)
-            logger.info(f"Account {account_id} has {txn_count} transactions")
+            logger.info("Account %s has %s transactions", account_id, txn_count)
     
     @skip_no_full_stack
     def test_detect_large_amount_transactions(self, gremlin_client):
@@ -356,9 +356,9 @@ class TestPatternInjectionFraudDetection:
              .limit(10)
         """)
         
-        logger.info(f"Large transactions found: {len(result)}")
+        logger.info("Large transactions found: %s", len(result))
         for txn in result[:5]:
-            logger.info(f"  Amount: {txn.get('amount')}, From: {txn.get('from')}")
+            logger.info("  Amount: %s, From: %s", txn.get('amount'), txn.get('from'))
         
         # Large transactions should be flagged for review
         assert isinstance(result, list)
@@ -395,11 +395,11 @@ class TestPatternInjectionFraudDetection:
                 amount=500.0,
                 merchant="Test Merchant",
                 description="Test purchase",
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             
-            logger.info(f"Score for account {account_id}: {score.overall_score}, "
-                       f"velocity={score.velocity_score}, network={score.network_score}")
+            logger.info("Score for account %s: %s, "
+                       f"velocity=%s, network=%s", account_id, score.overall_score, score.velocity_score, score.network_score)
             
             assert 0 <= score.overall_score <= 1
             

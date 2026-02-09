@@ -9,7 +9,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
 
@@ -131,8 +131,8 @@ class DocumentGenerator(BaseGenerator[Document]):
             
         # Generate issue date
         issue_date = random_datetime_between(
-            datetime.utcnow() - timedelta(days=180),
-            datetime.utcnow()
+            datetime.now(timezone.utc) - timedelta(days=180),
+            datetime.now(timezone.utc)
         )
         
         # Generate document number
@@ -395,7 +395,7 @@ class DocumentGenerator(BaseGenerator[Document]):
             List of Document objects with TBML indicators
         """
         documents = []
-        base_date = datetime.utcnow() - timedelta(days=random.randint(30, 180))
+        base_date = datetime.now(timezone.utc) - timedelta(days=random.randint(30, 180))
         
         for i in range(document_count):
             # Generate document with TBML indicators

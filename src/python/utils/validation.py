@@ -336,7 +336,6 @@ class Validator:
             (r'\beval\s*\(', 'eval'),
             (r'\bscript\s*\(', 'script'),
             (r'\binject\s*\(', 'inject'),
-            (r'__', 'double underscore (internal methods)'),
             (r';.*drop\s+table', 'SQL injection attempt'),
             (r'\bor\s+1\s*=\s*1', 'SQL injection pattern'),
             (r'\bunion\s+select', 'SQL injection pattern'),

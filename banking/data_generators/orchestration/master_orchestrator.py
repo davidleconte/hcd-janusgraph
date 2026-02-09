@@ -235,13 +235,13 @@ class MasterOrchestrator:
             
             logger.info("=" * 80)
             logger.info("Data generation completed successfully")
-            logger.info(f"Total records: {self.stats.total_records:,}")
-            logger.info(f"Generation time: {self.stats.generation_time_seconds:.2f}s")
-            logger.info(f"Records/second: {self.stats.records_per_second:.2f}")
+            logger.info("Total records: %s", self.stats.total_records)
+            logger.info("Generation time: %.2fs", self.stats.generation_time_seconds)
+            logger.info("Records/second: %.2f", self.stats.records_per_second)
             logger.info("=" * 80)
             
         except Exception as e:
-            logger.error(f"Error during data generation: {e}")
+            logger.error("Error during data generation: %s", e)
             self.stats.errors.append(str(e))
             raise
         
@@ -254,27 +254,27 @@ class MasterOrchestrator:
         logger.info("=" * 80)
         
         # Generate persons
-        logger.info(f"Generating {self.config.person_count} persons...")
+        logger.info("Generating %s persons...", self.config.person_count)
         for i in range(self.config.person_count):
             person = self.person_gen.generate()
             self.persons.append(person)
             if (i + 1) % 100 == 0:
-                logger.info(f"  Generated {i + 1}/{self.config.person_count} persons")
+                logger.info("  Generated %s/%s persons", i + 1, self.config.person_count)
         self.stats.persons_generated = len(self.persons)
-        logger.info(f"✓ Generated {self.stats.persons_generated} persons")
+        logger.info("✓ Generated %s persons", self.stats.persons_generated)
         
         # Generate companies
-        logger.info(f"\nGenerating {self.config.company_count} companies...")
+        logger.info("\nGenerating %s companies...", self.config.company_count)
         for i in range(self.config.company_count):
             company = self.company_gen.generate()
             self.companies.append(company)
             if (i + 1) % 10 == 0:
-                logger.info(f"  Generated {i + 1}/{self.config.company_count} companies")
+                logger.info("  Generated %s/%s companies", i + 1, self.config.company_count)
         self.stats.companies_generated = len(self.companies)
-        logger.info(f"✓ Generated {self.stats.companies_generated} companies")
+        logger.info("✓ Generated %s companies", self.stats.companies_generated)
         
         # Generate accounts
-        logger.info(f"\nGenerating {self.config.account_count} accounts...")
+        logger.info("\nGenerating %s accounts...", self.config.account_count)
         for i in range(self.config.account_count):
             # Randomly assign to person or company
             if random.random() < 0.8:  # 80% person accounts
@@ -291,9 +291,9 @@ class MasterOrchestrator:
                 )
             self.accounts.append(account)
             if (i + 1) % 100 == 0:
-                logger.info(f"  Generated {i + 1}/{self.config.account_count} accounts")
+                logger.info("  Generated %s/%s accounts", i + 1, self.config.account_count)
         self.stats.accounts_generated = len(self.accounts)
-        logger.info(f"✓ Generated {self.stats.accounts_generated} accounts")
+        logger.info("✓ Generated %s accounts", self.stats.accounts_generated)
     
     def _generate_events(self):
         """Generate events (transactions, communications, etc.)"""
@@ -303,7 +303,7 @@ class MasterOrchestrator:
         
         # Generate transactions
         if self.config.transaction_count > 0:
-            logger.info(f"Generating {self.config.transaction_count} transactions...")
+            logger.info("Generating %s transactions...", self.config.transaction_count)
             for i in range(self.config.transaction_count):
                 # Select random accounts
                 from_account = random.choice(self.accounts)
@@ -316,13 +316,13 @@ class MasterOrchestrator:
                 self.transactions.append(transaction)
                 
                 if (i + 1) % 1000 == 0:
-                    logger.info(f"  Generated {i + 1}/{self.config.transaction_count} transactions")
+                    logger.info("  Generated %s/%s transactions", i + 1, self.config.transaction_count)
             self.stats.transactions_generated = len(self.transactions)
-            logger.info(f"✓ Generated {self.stats.transactions_generated} transactions")
+            logger.info("✓ Generated %s transactions", self.stats.transactions_generated)
         
         # Generate communications
         if self.config.communication_count > 0:
-            logger.info(f"\nGenerating {self.config.communication_count} communications...")
+            logger.info("\nGenerating %s communications...", self.config.communication_count)
             for i in range(self.config.communication_count):
                 # Select random sender and recipient from generated persons
                 sender = random.choice(self.persons)
@@ -338,46 +338,46 @@ class MasterOrchestrator:
                 self.communications.append(communication)
                 
                 if (i + 1) % 1000 == 0:
-                    logger.info(f"  Generated {i + 1}/{self.config.communication_count} communications")
+                    logger.info("  Generated %s/%s communications", i + 1, self.config.communication_count)
             self.stats.communications_generated = len(self.communications)
-            logger.info(f"✓ Generated {self.stats.communications_generated} communications")
+            logger.info("✓ Generated %s communications", self.stats.communications_generated)
         
         # Generate trades
         if self.config.trade_count > 0:
-            logger.info(f"\nGenerating {self.config.trade_count} trades...")
+            logger.info("\nGenerating %s trades...", self.config.trade_count)
             for i in range(self.config.trade_count):
                 trade = self.trade_gen.generate()
                 self.trades.append(trade)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated {i + 1}/{self.config.trade_count} trades")
+                    logger.info("  Generated %s/%s trades", i + 1, self.config.trade_count)
             self.stats.trades_generated = len(self.trades)
-            logger.info(f"✓ Generated {self.stats.trades_generated} trades")
+            logger.info("✓ Generated %s trades", self.stats.trades_generated)
         
         # Generate travel records
         if self.config.travel_count > 0:
-            logger.info(f"\nGenerating {self.config.travel_count} travel records...")
+            logger.info("\nGenerating %s travel records...", self.config.travel_count)
             for i in range(self.config.travel_count):
                 traveler = random.choice(self.persons)
                 travel = self.travel_gen.generate(traveler_id=traveler.person_id)
                 self.travels.append(travel)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated {i + 1}/{self.config.travel_count} travel records")
+                    logger.info("  Generated %s/%s travel records", i + 1, self.config.travel_count)
             self.stats.travels_generated = len(self.travels)
-            logger.info(f"✓ Generated {self.stats.travels_generated} travel records")
+            logger.info("✓ Generated %s travel records", self.stats.travels_generated)
         
         # Generate documents
         if self.config.document_count > 0:
-            logger.info(f"\nGenerating {self.config.document_count} documents...")
+            logger.info("\nGenerating %s documents...", self.config.document_count)
             for i in range(self.config.document_count):
                 document = self.document_gen.generate()
                 self.documents.append(document)
                 
                 if (i + 1) % 100 == 0:
-                    logger.info(f"  Generated {i + 1}/{self.config.document_count} documents")
+                    logger.info("  Generated %s/%s documents", i + 1, self.config.document_count)
             self.stats.documents_generated = len(self.documents)
-            logger.info(f"✓ Generated {self.stats.documents_generated} documents")
+            logger.info("✓ Generated %s documents", self.stats.documents_generated)
     
     def _generate_patterns(self):
         """Generate financial crime patterns"""
@@ -403,7 +403,7 @@ class MasterOrchestrator:
 
         # Generate insider trading patterns
         if self.config.insider_trading_patterns > 0:
-            logger.info(f"Generating {self.config.insider_trading_patterns} insider trading patterns...")
+            logger.info("Generating %s insider trading patterns...", self.config.insider_trading_patterns)
             for i in range(self.config.insider_trading_patterns):
                 pattern, trades, communications = self.insider_trading_gen.generate(
                     pattern_type="pre_announcement",
@@ -413,11 +413,11 @@ class MasterOrchestrator:
                 self.patterns.append(pattern)
                 self.trades.extend(trades)
                 self.communications.extend(communications)
-            logger.info(f"✓ Generated {self.config.insider_trading_patterns} insider trading patterns")
+            logger.info("✓ Generated %s insider trading patterns", self.config.insider_trading_patterns)
         
         # Generate TBML patterns
         if self.config.tbml_patterns > 0:
-            logger.info(f"\nGenerating {self.config.tbml_patterns} TBML patterns...")
+            logger.info("\nGenerating %s TBML patterns...", self.config.tbml_patterns)
             for i in range(self.config.tbml_patterns):
                 pattern, transactions, documents = self.tbml_gen.generate(
                     pattern_type="over_invoicing",
@@ -427,43 +427,43 @@ class MasterOrchestrator:
                 self.patterns.append(pattern)
                 self.transactions.extend(transactions)
                 self.documents.extend(documents)
-            logger.info(f"✓ Generated {self.config.tbml_patterns} TBML patterns")
+            logger.info("✓ Generated %s TBML patterns", self.config.tbml_patterns)
         
         # Generate fraud ring patterns
         if self.config.fraud_ring_patterns > 0:
-            logger.info(f"\nGenerating {self.config.fraud_ring_patterns} fraud ring patterns...")
+            logger.info("\nGenerating %s fraud ring patterns...", self.config.fraud_ring_patterns)
             for i in range(self.config.fraud_ring_patterns):
                 pattern = self.fraud_ring_gen.generate(
                     pattern_type="money_mule_network",
                     ring_size=random.randint(5, 10)
                 )
                 self.patterns.append(pattern)
-            logger.info(f"✓ Generated {self.config.fraud_ring_patterns} fraud ring patterns")
+            logger.info("✓ Generated %s fraud ring patterns", self.config.fraud_ring_patterns)
         
         # Generate structuring patterns
         if self.config.structuring_patterns > 0:
-            logger.info(f"\nGenerating {self.config.structuring_patterns} structuring patterns...")
+            logger.info("\nGenerating %s structuring patterns...", self.config.structuring_patterns)
             for i in range(self.config.structuring_patterns):
                 pattern = self.structuring_gen.generate(
                     pattern_type="smurfing",
                     smurf_count=random.randint(5, 15)
                 )
                 self.patterns.append(pattern)
-            logger.info(f"✓ Generated {self.config.structuring_patterns} structuring patterns")
+            logger.info("✓ Generated %s structuring patterns", self.config.structuring_patterns)
         
         # Generate CATO patterns
         if self.config.cato_patterns > 0:
-            logger.info(f"\nGenerating {self.config.cato_patterns} CATO patterns...")
+            logger.info("\nGenerating %s CATO patterns...", self.config.cato_patterns)
             for i in range(self.config.cato_patterns):
                 pattern = self.cato_gen.generate(
                     pattern_type="credential_stuffing",
                     victim_count=random.randint(5, 15)
                 )
                 self.patterns.append(pattern)
-            logger.info(f"✓ Generated {self.config.cato_patterns} CATO patterns")
+            logger.info("✓ Generated %s CATO patterns", self.config.cato_patterns)
         
         self.stats.patterns_generated = len(self.patterns)
-        logger.info(f"\n✓ Total patterns generated: {self.stats.patterns_generated}")
+        logger.info("\n✓ Total patterns generated: %s", self.stats.patterns_generated)
     
     def _export_data(self):
         """Export generated data to files"""
@@ -473,12 +473,12 @@ class MasterOrchestrator:
         
         # Create output directory
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Output directory: {self.config.output_dir}")
+        logger.info("Output directory: %s", self.config.output_dir)
         
         if self.config.output_format == "json":
             self._export_json()
         else:
-            logger.warning(f"Export format '{self.config.output_format}' not yet implemented")
+            logger.warning("Export format '%s' not yet implemented", self.config.output_format)
     
     def _export_json(self):
         """Export data as JSON files"""
@@ -487,42 +487,42 @@ class MasterOrchestrator:
             path = self.config.output_dir / "persons.json"
             with open(path, 'w') as f:
                 json.dump([p.model_dump() for p in self.persons], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.persons)} persons to {path}")
+            logger.info("✓ Exported %s persons to %s", len(self.persons), path)
         
         # Export companies
         if self.companies:
             path = self.config.output_dir / "companies.json"
             with open(path, 'w') as f:
                 json.dump([c.model_dump() for c in self.companies], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.companies)} companies to {path}")
+            logger.info("✓ Exported %s companies to %s", len(self.companies), path)
         
         # Export accounts
         if self.accounts:
             path = self.config.output_dir / "accounts.json"
             with open(path, 'w') as f:
                 json.dump([a.model_dump() for a in self.accounts], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.accounts)} accounts to {path}")
+            logger.info("✓ Exported %s accounts to %s", len(self.accounts), path)
         
         # Export transactions
         if self.transactions:
             path = self.config.output_dir / "transactions.json"
             with open(path, 'w') as f:
                 json.dump([t.model_dump() for t in self.transactions], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.transactions)} transactions to {path}")
+            logger.info("✓ Exported %s transactions to %s", len(self.transactions), path)
         
         # Export communications
         if self.communications:
             path = self.config.output_dir / "communications.json"
             with open(path, 'w') as f:
                 json.dump([c.model_dump() for c in self.communications], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.communications)} communications to {path}")
+            logger.info("✓ Exported %s communications to %s", len(self.communications), path)
         
         # Export patterns
         if self.patterns:
             path = self.config.output_dir / "patterns.json"
             with open(path, 'w') as f:
                 json.dump([p.model_dump() for p in self.patterns], f, indent=2, default=str)
-            logger.info(f"✓ Exported {len(self.patterns)} patterns to {path}")
+            logger.info("✓ Exported %s patterns to %s", len(self.patterns), path)
         
         # Export statistics
         stats_path = self.config.output_dir / "generation_stats.json"
@@ -545,7 +545,7 @@ class MasterOrchestrator:
                 'errors': self.stats.errors,
                 'warnings': self.stats.warnings
             }, f, indent=2)
-        logger.info(f"✓ Exported generation statistics to {stats_path}")
+        logger.info("✓ Exported generation statistics to %s", stats_path)
     
     def export_to_json(self, output_path: str) -> Dict[str, Any]:
         """
@@ -597,7 +597,7 @@ class MasterOrchestrator:
         with open(output_file, 'w') as f:
             json.dump(data, f, indent=2, default=str)
         
-        logger.info(f"✓ Exported all data to {output_path}")
+        logger.info("✓ Exported all data to %s", output_path)
         return data
 
 

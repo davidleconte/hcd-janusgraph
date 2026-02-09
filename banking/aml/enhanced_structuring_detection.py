@@ -11,7 +11,7 @@ import sys
 import os
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 # Add src to path
@@ -82,15 +82,15 @@ class EnhancedStructuringDetector:
             embedding_model: Embedding model for semantic analysis
         """
         # Initialize JanusGraph connection
-        logger.info(f"Connecting to JanusGraph: {janusgraph_host}:{janusgraph_port}")
+        logger.info("Connecting to JanusGraph: %s:%s", janusgraph_host, janusgraph_port)
         self.graph_url = f"ws://{janusgraph_host}:{janusgraph_port}/gremlin"
         
         # Initialize embedding generator for semantic analysis
-        logger.info(f"Initializing embedding generator: {embedding_model}")
+        logger.info("Initializing embedding generator: %s", embedding_model)
         self.generator = EmbeddingGenerator(model_name=embedding_model)
         
         # Initialize vector search client
-        logger.info(f"Connecting to OpenSearch: {opensearch_host}:{opensearch_port}")
+        logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
         self.search_client = VectorSearchClient(
             host=opensearch_host,
             port=opensearch_port
@@ -102,7 +102,7 @@ class EnhancedStructuringDetector:
     def _ensure_transaction_index(self):
         """Create transaction index if not exists."""
         if not self.search_client.client.indices.exists(index=self.tx_index):
-            logger.info(f"Creating transaction index: {self.tx_index}")
+            logger.info("Creating transaction index: %s", self.tx_index)
             
             additional_fields = {
                 'transaction_id': {'type': 'keyword'},
@@ -151,7 +151,7 @@ class EnhancedStructuringDetector:
             # Pattern: Multiple transactions < $10k within 24 hours, total > $10k
             
             # Get current time (simulate with a recent timestamp)
-            cutoff_time = datetime.utcnow() - timedelta(hours=time_window_hours)
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=time_window_hours)
             cutoff_ms = int(cutoff_time.timestamp() * 1000)
             
             # Gremlin query to find suspicious patterns
@@ -215,7 +215,7 @@ class EnhancedStructuringDetector:
                         )
                         
                         pattern = StructuringPattern(
-                            pattern_id=f"GRAPH_{account_id}_{int(datetime.utcnow().timestamp())}",
+                            pattern_id=f"GRAPH_{account_id}_{int(datetime.now(timezone.utc).timestamp())}",
                             pattern_type='rapid_sequence',
                             account_id=str(account_id),
                             person_id=str(person_data.get(T.id)),
@@ -226,18 +226,18 @@ class EnhancedStructuringDetector:
                             time_window_hours=time_window_hours,
                             risk_score=risk_score,
                             detection_method='graph',
-                            timestamp=datetime.utcnow().isoformat()
+                            timestamp=datetime.now(timezone.utc).isoformat()
                         )
                         patterns.append(pattern)
             
             connection.close()
             
         except Exception as e:
-            logger.error(f"Error detecting graph patterns: {e}")
+            logger.error("Error detecting graph patterns: %s", e)
             import traceback
             traceback.print_exc()
         
-        logger.info(f"Found {len(patterns)} graph-based patterns")
+        logger.info("Found %s graph-based patterns", len(patterns))
         return patterns
     
     def detect_semantic_patterns(
@@ -265,7 +265,7 @@ class EnhancedStructuringDetector:
         Returns:
             List of detected patterns
         """
-        logger.info(f"Detecting semantic structuring patterns (similarity>={min_similarity}, window={time_window_hours}h)...")
+        logger.info("Detecting semantic structuring patterns (similarity>=%s, window=%sh)...", min_similarity, time_window_hours)
         
         patterns = []
         processed_clusters = set()  # Track processed transaction clusters
@@ -275,7 +275,7 @@ class EnhancedStructuringDetector:
             connection = DriverRemoteConnection(self.graph_url, 'g')
             g = traversal().withRemote(connection)
             
-            cutoff_time = datetime.utcnow() - timedelta(hours=time_window_hours)
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=time_window_hours)
             cutoff_ms = int(cutoff_time.timestamp() * 1000)
             
             # Get recent transactions below reporting threshold
@@ -300,10 +300,10 @@ class EnhancedStructuringDetector:
             connection.close()
             
             if len(recent_txns) < min_cluster_size:
-                logger.info(f"Only {len(recent_txns)} recent transactions found - insufficient for pattern detection")
+                logger.info("Only %s recent transactions found - insufficient for pattern detection", len(recent_txns))
                 return patterns
             
-            logger.info(f"Analyzing {len(recent_txns)} transactions for semantic patterns")
+            logger.info("Analyzing %s transactions for semantic patterns", len(recent_txns))
             
             # Build transaction descriptions for embedding
             tx_texts = []
@@ -319,7 +319,7 @@ class EnhancedStructuringDetector:
                 tx_data.append(txn)
             
             # Generate embeddings for all transactions
-            logger.debug(f"Generating embeddings for {len(tx_texts)} transactions")
+            logger.debug("Generating embeddings for %s transactions", len(tx_texts))
             embeddings = self.generator.encode(tx_texts)
             
             # Find semantic clusters using pairwise similarity
@@ -357,7 +357,7 @@ class EnhancedStructuringDetector:
                 
                 # Only flag if total exceeds threshold (structuring indicator)
                 if total_amount >= self.STRUCTURING_THRESHOLD:
-                    pattern_id = f"SEM-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{len(patterns)}"
+                    pattern_id = f"SEM-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{len(patterns)}"
                     
                     # Get primary person info
                     primary_person_id = list(person_ids)[0] if person_ids else 'UNKNOWN'
@@ -394,7 +394,7 @@ class EnhancedStructuringDetector:
                         time_window_hours=float(time_window_hours),
                         risk_score=risk_score,
                         detection_method='vector',
-                        timestamp=datetime.utcnow().isoformat()
+                        timestamp=datetime.now(timezone.utc).isoformat()
                     )
                     
                     patterns.append(pattern)
@@ -411,11 +411,11 @@ class EnhancedStructuringDetector:
                     )
             
         except Exception as e:
-            logger.error(f"Error detecting semantic patterns: {e}")
+            logger.error("Error detecting semantic patterns: %s", e)
             import traceback
             traceback.print_exc()
         
-        logger.info(f"Found {len(patterns)} semantic structuring patterns")
+        logger.info("Found %s semantic structuring patterns", len(patterns))
         return patterns
     
     def detect_hybrid_patterns(
@@ -453,7 +453,7 @@ class EnhancedStructuringDetector:
         # Sort by risk score
         all_patterns.sort(key=lambda p: p.risk_score, reverse=True)
         
-        logger.info(f"Found {len(all_patterns)} total patterns (hybrid)")
+        logger.info("Found %s total patterns (hybrid)", len(all_patterns))
         return all_patterns
     
     def _calculate_risk_score(
@@ -783,7 +783,7 @@ class EnhancedStructuringDetector:
         report.append("="*80)
         report.append("AML STRUCTURING DETECTION REPORT")
         report.append("="*80)
-        report.append(f"Generated: {datetime.utcnow().isoformat()}")
+        report.append(f"Generated: {datetime.now(timezone.utc).isoformat()}")
         report.append(f"Total Patterns Detected: {len(patterns)}")
         report.append("")
         

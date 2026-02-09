@@ -40,7 +40,7 @@ class SecretsManager:
         elif self.backend != "env":
             raise ValueError(f"Unsupported backend: {backend}")
         
-        logger.info(f"Secrets manager initialized with backend: {self.backend}")
+        logger.info("Secrets manager initialized with backend: %s", self.backend)
 
     def _init_vault(self) -> None:
         """Initialize HashiCorp Vault client"""
@@ -58,13 +58,13 @@ class SecretsManager:
             if not self._client.is_authenticated():
                 raise ValueError("Vault authentication failed")
             
-            logger.info(f"Connected to Vault at {vault_addr}")
+            logger.info("Connected to Vault at %s", vault_addr)
             
         except ImportError:
             logger.error("hvac library not installed. Install with: pip install hvac")
             raise
         except Exception as e:
-            logger.error(f"Failed to initialize Vault: {e}")
+            logger.error("Failed to initialize Vault: %s", e)
             raise
 
     def _init_aws(self) -> None:
@@ -76,13 +76,13 @@ class SecretsManager:
             region = os.getenv("AWS_REGION", "us-east-1")
             self._client = boto3.client("secretsmanager", region_name=region)
             
-            logger.info(f"Connected to AWS Secrets Manager in {region}")
+            logger.info("Connected to AWS Secrets Manager in %s", region)
             
         except ImportError:
             logger.error("boto3 library not installed. Install with: pip install boto3")
             raise
         except Exception as e:
-            logger.error(f"Failed to initialize AWS Secrets Manager: {e}")
+            logger.error("Failed to initialize AWS Secrets Manager: %s", e)
             raise
 
     def get_secret(self, secret_name: str, default: Optional[str] = None) -> Optional[str]:
@@ -107,9 +107,9 @@ class SecretsManager:
             elif self.backend == "aws":
                 return self._get_from_aws(secret_name, default)
         except Exception as e:
-            logger.error(f"Failed to retrieve secret '{secret_name}': {e}")
+            logger.error("Failed to retrieve secret '%s': %s", secret_name, e)
             if default is not None:
-                logger.warning(f"Using default value for '{secret_name}'")
+                logger.warning("Using default value for '%s'", secret_name)
                 return default
             raise
 
@@ -136,7 +136,7 @@ class SecretsManager:
             return data.get("value") or str(data)
             
         except Exception as e:
-            logger.error(f"Failed to read from Vault: {e}")
+            logger.error("Failed to read from Vault: %s", e)
             if default is not None:
                 return default
             raise ValueError(f"Secret '{secret_path}' not found in Vault")
@@ -158,9 +158,9 @@ class SecretsManager:
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
             if error_code == "ResourceNotFoundException":
-                logger.error(f"Secret '{secret_name}' not found in AWS Secrets Manager")
+                logger.error("Secret '%s' not found in AWS Secrets Manager", secret_name)
             else:
-                logger.error(f"AWS Secrets Manager error: {e}")
+                logger.error("AWS Secrets Manager error: %s", e)
             
             if default is not None:
                 return default
@@ -189,7 +189,7 @@ class SecretsManager:
             elif self.backend == "aws":
                 return self._set_in_aws(secret_name, secret_value)
         except Exception as e:
-            logger.error(f"Failed to store secret '{secret_name}': {e}")
+            logger.error("Failed to store secret '%s': %s", secret_name, e)
             raise
 
     def _set_in_vault(self, secret_path: str, secret_value: str) -> bool:
@@ -199,10 +199,10 @@ class SecretsManager:
                 path=secret_path,
                 secret={"value": secret_value}
             )
-            logger.info(f"Secret '{secret_path}' stored in Vault")
+            logger.info("Secret '%s' stored in Vault", secret_path)
             return True
         except Exception as e:
-            logger.error(f"Failed to store in Vault: {e}")
+            logger.error("Failed to store in Vault: %s", e)
             raise
 
     def _set_in_aws(self, secret_name: str, secret_value: str) -> bool:
@@ -216,7 +216,7 @@ class SecretsManager:
                     SecretId=secret_name,
                     SecretString=secret_value
                 )
-                logger.info(f"Secret '{secret_name}' updated in AWS Secrets Manager")
+                logger.info("Secret '%s' updated in AWS Secrets Manager", secret_name)
             except ClientError as e:
                 if e.response["Error"]["Code"] == "ResourceNotFoundException":
                     # Create new secret
@@ -224,14 +224,14 @@ class SecretsManager:
                         Name=secret_name,
                         SecretString=secret_value
                     )
-                    logger.info(f"Secret '{secret_name}' created in AWS Secrets Manager")
+                    logger.info("Secret '%s' created in AWS Secrets Manager", secret_name)
                 else:
                     raise
             
             return True
             
         except Exception as e:
-            logger.error(f"Failed to store in AWS Secrets Manager: {e}")
+            logger.error("Failed to store in AWS Secrets Manager: %s", e)
             raise
 
     def get_all_secrets(self, prefix: str = "") -> Dict[str, str]:
@@ -260,7 +260,7 @@ class SecretsManager:
                     secrets[key] = self.get_secret(full_path)
                 return secrets
             except Exception as e:
-                logger.error(f"Failed to list Vault secrets: {e}")
+                logger.error("Failed to list Vault secrets: %s", e)
                 return {}
         elif self.backend == "aws":
             # List and retrieve all secrets
@@ -274,7 +274,7 @@ class SecretsManager:
                             secrets[name] = self.get_secret(name)
                 return secrets
             except Exception as e:
-                logger.error(f"Failed to list AWS secrets: {e}")
+                logger.error("Failed to list AWS secrets: %s", e)
                 return {}
 
 
@@ -311,7 +311,7 @@ def main():
             parser.print_help()
             
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.error("Error: %s", e)
         sys.exit(1)
 
 

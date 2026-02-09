@@ -14,7 +14,7 @@ Date: 2026-02-06
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class TestTransactionGeneratorSmoke:
@@ -86,7 +86,7 @@ class TestTransactionGeneratorFunctional:
     
     def test_timestamp_reasonable(self, sample_transactions):
         """Test timestamps are within reasonable range"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         one_year_ago = now - timedelta(days=365)
         
         for txn in sample_transactions:

@@ -177,7 +177,7 @@ class QueryProfiler:
             return result, metrics
             
         except Exception as e:
-            logger.error(f"Query execution failed: {e}")
+            logger.error("Query execution failed: %s", e)
             raise
     
     def _hash_query(self, query_text: str) -> str:
@@ -541,7 +541,7 @@ class QueryProfiler:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        logger.info(f"Metrics exported to {filepath}")
+        logger.info("Metrics exported to %s", filepath)
 
 
 # Example usage

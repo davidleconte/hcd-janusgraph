@@ -17,7 +17,7 @@ import sys
 import json
 import logging
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 
 # Add src to path
@@ -70,10 +70,10 @@ class ProductionDataLoader:
         Returns:
             Number of sanctions loaded
         """
-        logger.info(f"Loading sanctions list from {sanctions_file}...")
+        logger.info("Loading sanctions list from %s...", sanctions_file)
         
         if not sanctions_file.exists():
-            logger.warning(f"Sanctions file not found: {sanctions_file}")
+            logger.warning("Sanctions file not found: %s", sanctions_file)
             logger.info("Creating sample sanctions list...")
             sanctions_data = self._create_sample_sanctions()
         else:
@@ -92,7 +92,7 @@ class ProductionDataLoader:
                 'aliases': entity.get('aliases', []),
                 'country': entity.get('country', 'Unknown'),
                 'list_type': entity.get('list_type', 'OFAC'),
-                'added_date': entity.get('added_date', datetime.utcnow().isoformat()),
+                'added_date': entity.get('added_date', datetime.now(timezone.utc).isoformat()),
                 'embedding': embedding
             }
             documents.append(doc)
@@ -105,9 +105,9 @@ class ProductionDataLoader:
             id_field='id'
         )
         
-        logger.info(f"✅ Loaded {success} sanctions entities")
+        logger.info("✅ Loaded %s sanctions entities", success)
         if errors:
-            logger.warning(f"⚠️  {len(errors)} errors occurred")
+            logger.warning("⚠️  %s errors occurred", len(errors))
         
         return success
     
@@ -121,10 +121,10 @@ class ProductionDataLoader:
         Returns:
             Number of transactions loaded
         """
-        logger.info(f"Loading transaction data from {transaction_file}...")
+        logger.info("Loading transaction data from %s...", transaction_file)
         
         if not transaction_file.exists():
-            logger.warning(f"Transaction file not found: {transaction_file}")
+            logger.warning("Transaction file not found: %s", transaction_file)
             logger.info("Using existing AML data...")
             transaction_file = Path('banking/data/aml/aml_data_transactions.csv')
         
@@ -132,7 +132,7 @@ class ProductionDataLoader:
         import pandas as pd
         df = pd.read_csv(transaction_file)
         
-        logger.info(f"Loaded {len(df)} transactions from file")
+        logger.info("Loaded %s transactions from file", len(df))
         
         # Generate embeddings for transaction descriptions
         documents = []
@@ -158,13 +158,13 @@ class ProductionDataLoader:
                     'from_account': row.get('from_account', ''),
                     'to_account': row.get('to_account', ''),
                     'amount': float(row.get('amount', 0)),
-                    'timestamp': row.get('timestamp', datetime.utcnow().isoformat()),
+                    'timestamp': row.get('timestamp', datetime.now(timezone.utc).isoformat()),
                     'description': descriptions[j],
                     'embedding': embeddings[j]
                 }
                 documents.append(doc)
             
-            logger.info(f"Processed {len(documents)} transactions...")
+            logger.info("Processed %s transactions...", len(documents))
         
         # Bulk index to OpenSearch
         success, errors = self.vector_client.bulk_index_documents(
@@ -174,9 +174,9 @@ class ProductionDataLoader:
             id_field='id'
         )
         
-        logger.info(f"✅ Loaded {success} transactions")
+        logger.info("✅ Loaded %s transactions", success)
         if errors:
-            logger.warning(f"⚠️  {len(errors)} errors occurred")
+            logger.warning("⚠️  %s errors occurred", len(errors))
         
         return success
     
@@ -234,9 +234,9 @@ class ProductionDataLoader:
             results['transactions_count'] = txn_count['count']
             
             results['opensearch_healthy'] = True
-            logger.info(f"✅ OpenSearch: {results['sanctions_count']} sanctions, {results['transactions_count']} transactions")
+            logger.info("✅ OpenSearch: %s sanctions, %s transactions", results['sanctions_count'], results['transactions_count'])
         except Exception as e:
-            logger.error(f"❌ OpenSearch verification failed: {e}")
+            logger.error("❌ OpenSearch verification failed: %s", e)
         
         # Check JanusGraph (basic connectivity)
         try:
@@ -244,7 +244,7 @@ class ProductionDataLoader:
             results['janusgraph_healthy'] = True
             logger.info("✅ JanusGraph: Connected")
         except Exception as e:
-            logger.error(f"❌ JanusGraph verification failed: {e}")
+            logger.error("❌ JanusGraph verification failed: %s", e)
         
         return results
 

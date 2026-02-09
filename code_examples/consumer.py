@@ -94,7 +94,7 @@ class GraphLoaderConsumer:
         self.batches_flushed = 0
         self.errors = 0
         
-        logger.info(f"Worker {worker_id} initialized")
+        logger.info("Worker %s initialized", worker_id)
     
     def process_messages(self):
         """
@@ -105,7 +105,7 @@ class GraphLoaderConsumer:
         3. Flush batch to JanusGraph when full
         4. Acknowledge messages after successful write
         """
-        logger.info(f"Worker {self.worker_id} started processing")
+        logger.info("Worker %s started processing", self.worker_id)
         
         while True:
             try:
@@ -114,7 +114,7 @@ class GraphLoaderConsumer:
                 
                 # Parse event
                 event = json.loads(msg.data().decode('utf-8'))
-                logger.debug(f"Received event: {event['event_id']}")
+                logger.debug("Received event: %s", event['event_id'])
                 
                 # Add to batch buffer
                 self.batch_buffer.append({
@@ -127,7 +127,7 @@ class GraphLoaderConsumer:
                     self._flush_batch()
                 
             except Exception as e:
-                logger.error(f"Error processing message: {e}")
+                logger.error("Error processing message: %s", e)
                 if msg:
                     # Negative acknowledge -> message will be redelivered
                     self.consumer.negative_acknowledge(msg)
@@ -140,7 +140,7 @@ class GraphLoaderConsumer:
         if not self.batch_buffer:
             return
         
-        logger.info(f"Flushing batch of {len(self.batch_buffer)} events")
+        logger.info("Flushing batch of %s events", len(self.batch_buffer))
         
         # Extract events and messages
         events = [item['event'] for item in self.batch_buffer]
@@ -152,7 +152,7 @@ class GraphLoaderConsumer:
         try:
             # Execute batch transaction
             result = self.gremlin_client.submit(script).all().result()
-            logger.info(f"Batch loaded successfully: {len(events)} events")
+            logger.info("Batch loaded successfully: %s events", len(events))
             
             # Acknowledge ALL messages after successful commit
             for msg in messages:
@@ -166,7 +166,7 @@ class GraphLoaderConsumer:
             self.batch_buffer = []
             
         except Exception as e:
-            logger.error(f"Batch load failed: {e}")
+            logger.error("Batch load failed: %s", e)
             
             # Negative acknowledge ALL messages -> redelivery
             for msg in messages:
@@ -236,7 +236,7 @@ class GraphLoaderConsumer:
         self.consumer.close()
         self.gremlin_client.close()
         self.pulsar_client.close()
-        logger.info(f"Worker {self.worker_id} closed")
+        logger.info("Worker %s closed", self.worker_id)
 
 
 # Example usage

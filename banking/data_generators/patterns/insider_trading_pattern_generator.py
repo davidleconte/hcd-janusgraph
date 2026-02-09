@@ -9,7 +9,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any, Tuple
 from decimal import Decimal
 
@@ -136,7 +136,7 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             days_before_announcement = random.randint(1, 90)
             
         # Generate announcement date (future or recent past)
-        announcement_date = datetime.utcnow() - timedelta(days=random.randint(0, 30))
+        announcement_date = datetime.now(timezone.utc) - timedelta(days=random.randint(0, 30))
         
         # Generate pattern start date
         start_date = announcement_date - timedelta(days=days_before_announcement)
@@ -214,7 +214,7 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
         pattern = Pattern(
             pattern_id=f"PTN-IT-{self.faker.uuid4()[:12]}",
             pattern_type="insider_trading",
-            detection_date=datetime.utcnow(),
+            detection_date=datetime.now(timezone.utc),
             detection_method=f"multi_dimensional_analysis_{pattern_type}",
             confidence_score=confidence_score,
             entity_ids=entity_ids,

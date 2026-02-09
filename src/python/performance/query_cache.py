@@ -11,7 +11,7 @@ import hashlib
 import pickle
 from typing import Any, Optional, Callable, Dict, List, Set
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import json
 
@@ -43,12 +43,12 @@ class CacheEntry:
         if self.ttl_seconds is None:
             return False
         
-        age = (datetime.utcnow() - self.created_at).total_seconds()
+        age = (datetime.now(timezone.utc) - self.created_at).total_seconds()
         return age > self.ttl_seconds
     
     def touch(self):
         """Update access metadata."""
-        self.last_accessed = datetime.utcnow()
+        self.last_accessed = datetime.now(timezone.utc)
         self.access_count += 1
 
 
@@ -121,7 +121,7 @@ class QueryCache:
         """
         if key not in self.cache:
             self.stats.misses += 1
-            logger.debug(f"Cache miss: {key}")
+            logger.debug("Cache miss: %s", key)
             return None
         
         entry = self.cache[key]
@@ -130,13 +130,13 @@ class QueryCache:
         if entry.is_expired():
             self._remove_entry(key)
             self.stats.misses += 1
-            logger.debug(f"Cache miss (expired): {key}")
+            logger.debug("Cache miss (expired): %s", key)
             return None
         
         # Update access metadata
         entry.touch()
         self.stats.hits += 1
-        logger.debug(f"Cache hit: {key}")
+        logger.debug("Cache hit: %s", key)
         
         return entry.value
     
@@ -183,7 +183,7 @@ class QueryCache:
                     self.dependencies[dep] = set()
                 self.dependencies[dep].add(key)
         
-        logger.debug(f"Cache set: {key} ({size_bytes} bytes)")
+        logger.debug("Cache set: %s (%s bytes)", key, size_bytes)
     
     def delete(self, key: str):
         """
@@ -195,7 +195,7 @@ class QueryCache:
         if key in self.cache:
             self._remove_entry(key)
             self.stats.invalidations += 1
-            logger.debug(f"Cache invalidated: {key}")
+            logger.debug("Cache invalidated: %s", key)
     
     def invalidate_by_dependency(self, resource: str):
         """
@@ -212,7 +212,7 @@ class QueryCache:
             self.delete(key)
         
         del self.dependencies[resource]
-        logger.info(f"Invalidated {len(keys_to_invalidate)} entries for resource: {resource}")
+        logger.info("Invalidated %s entries for resource: %s", len(keys_to_invalidate), resource)
     
     def clear(self):
         """Clear all cache entries."""
@@ -221,7 +221,7 @@ class QueryCache:
         self.dependencies.clear()
         self.stats.entry_count = 0
         self.stats.total_size_bytes = 0
-        logger.info(f"Cache cleared: {count} entries removed")
+        logger.info("Cache cleared: %s entries removed", count)
     
     def _should_evict(self, new_entry_size: int) -> bool:
         """
@@ -261,7 +261,7 @@ class QueryCache:
         
         self._remove_entry(key_to_evict)
         self.stats.evictions += 1
-        logger.debug(f"Cache evicted: {key_to_evict}")
+        logger.debug("Cache evicted: %s", key_to_evict)
     
     def _remove_entry(self, key: str):
         """
@@ -363,11 +363,11 @@ class CachedQueryExecutor:
         if not force_refresh:
             cached_result = self.cache.get(cache_key)
             if cached_result is not None:
-                logger.debug(f"Returning cached result for: {cache_key}")
+                logger.debug("Returning cached result for: %s", cache_key)
                 return cached_result
         
         # Execute query
-        logger.debug(f"Executing query: {cache_key}")
+        logger.debug("Executing query: %s", cache_key)
         result = execution_func(*args, **kwargs)
         
         # Cache result
@@ -449,11 +449,11 @@ class CacheWarmer:
             'kwargs': kwargs or {},
             'ttl_seconds': ttl_seconds
         })
-        logger.info(f"Registered query for warming: {query[:50]}...")
+        logger.info("Registered query for warming: %s...", query[:50])
     
     def warm_cache(self):
         """Execute all registered queries to warm cache."""
-        logger.info(f"Warming cache with {len(self.warm_queries)} queries...")
+        logger.info("Warming cache with %s queries...", len(self.warm_queries))
         
         for query_config in self.warm_queries:
             try:
@@ -465,9 +465,9 @@ class CacheWarmer:
                     force_refresh=True,
                     **query_config['kwargs']
                 )
-                logger.debug(f"Warmed: {query_config['query'][:50]}...")
+                logger.debug("Warmed: %s...", query_config['query'][:50])
             except Exception as e:
-                logger.error(f"Failed to warm query: {e}")
+                logger.error("Failed to warm query: %s", e)
         
         logger.info("Cache warming complete")
 

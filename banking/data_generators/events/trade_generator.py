@@ -9,7 +9,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
 
@@ -140,8 +140,8 @@ class TradeGenerator(BaseGenerator[Trade]):
         
         # Generate timestamp (within last 90 days)
         trade_date = random_datetime_between(
-            datetime.utcnow() - timedelta(days=90),
-            datetime.utcnow()
+            datetime.now(timezone.utc) - timedelta(days=90),
+            datetime.now(timezone.utc)
         )
         
         # Determine if insider trade
@@ -364,7 +364,7 @@ class TradeGenerator(BaseGenerator[Trade]):
             List of Trade objects forming insider pattern
         """
         trades = []
-        announcement_date = datetime.utcnow()
+        announcement_date = datetime.now(timezone.utc)
         
         for i in range(trade_count):
             # Trades get closer to announcement date

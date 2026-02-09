@@ -13,7 +13,7 @@ Comprehensive test suite covering:
 """
 
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 from banking.aml.structuring_detection import (
     StructuringDetector,
     StructuringPattern
@@ -272,7 +272,7 @@ class TestAlertGeneration:
             confidence_score=0.85,
             risk_level='critical',
             indicators=['Multiple transactions below threshold'],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={}
         )
         
@@ -302,7 +302,7 @@ class TestAlertGeneration:
                 confidence_score=0.75,
                 risk_level='high',
                 indicators=['Test indicator'],
-                detected_at=datetime.utcnow().isoformat(),
+                detected_at=datetime.now(timezone.utc).isoformat(),
                 metadata={}
             )
             for i in range(3)
@@ -331,7 +331,7 @@ class TestAlertGeneration:
             confidence_score=0.90,  # High confidence
             risk_level='critical',
             indicators=['Test'],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={}
         )
         
@@ -347,7 +347,7 @@ class TestAlertGeneration:
             confidence_score=0.75,  # Medium confidence
             risk_level='high',
             indicators=['Test'],
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={}
         )
         

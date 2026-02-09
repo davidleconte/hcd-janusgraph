@@ -59,7 +59,7 @@ class JanusGraphLoader:
         
     def connect(self):
         """Establish connection to JanusGraph."""
-        logger.info(f"Connecting to JanusGraph at {self.url}...")
+        logger.info("Connecting to JanusGraph at %s...", self.url)
         self.client = client.Client(
             self.url,
             self.traversal_source,
@@ -67,7 +67,7 @@ class JanusGraphLoader:
         )
         # Test connection
         result = self.client.submit("g.V().count()").all().result()
-        logger.info(f"Connected. Current vertex count: {result[0]}")
+        logger.info("Connected. Current vertex count: %s", result[0])
         
     def close(self):
         """Close connection to JanusGraph."""
@@ -84,7 +84,7 @@ class JanusGraphLoader:
                 result = self.client.submit(query).all().result()
             return result
         except Exception as e:
-            logger.error(f"Query failed: {query[:100]}... Error: {e}")
+            logger.error("Query failed: %s... Error: %s", query[:100], e)
             self.stats["errors"].append(str(e))
             raise
             
@@ -104,7 +104,7 @@ class JanusGraphLoader:
         Returns:
             Mapping of person_id to JanusGraph vertex ID
         """
-        logger.info(f"Loading {len(persons)} persons...")
+        logger.info("Loading %s persons...", len(persons))
         person_id_map = {}
         
         for i, person in enumerate(persons):
@@ -151,9 +151,9 @@ class JanusGraphLoader:
                 self.stats["vertices_created"] += 1
                 
             if (i + 1) % 50 == 0:
-                logger.info(f"  Loaded {i + 1}/{len(persons)} persons")
+                logger.info("  Loaded %s/%s persons", i + 1, len(persons))
                 
-        logger.info(f"✓ Loaded {len(person_id_map)} persons")
+        logger.info("✓ Loaded %s persons", len(person_id_map))
         return person_id_map
         
     def load_companies(self, companies: List[Any]) -> Dict[str, int]:
@@ -166,7 +166,7 @@ class JanusGraphLoader:
         Returns:
             Mapping of company_id to JanusGraph vertex ID
         """
-        logger.info(f"Loading {len(companies)} companies...")
+        logger.info("Loading %s companies...", len(companies))
         company_id_map = {}
         
         for i, company in enumerate(companies):
@@ -208,7 +208,7 @@ class JanusGraphLoader:
                 company_id_map[company_id] = result[0]
                 self.stats["vertices_created"] += 1
                 
-        logger.info(f"✓ Loaded {len(company_id_map)} companies")
+        logger.info("✓ Loaded %s companies", len(company_id_map))
         return company_id_map
         
     def load_accounts(
@@ -228,7 +228,7 @@ class JanusGraphLoader:
         Returns:
             Mapping of account_id to JanusGraph vertex ID
         """
-        logger.info(f"Loading {len(accounts)} accounts...")
+        logger.info("Loading %s accounts...", len(accounts))
         account_id_map = {}
         
         for i, account in enumerate(accounts):
@@ -303,9 +303,9 @@ class JanusGraphLoader:
                         self.stats["edges_created"] += 1
                         
             if (i + 1) % 50 == 0:
-                logger.info(f"  Loaded {i + 1}/{len(accounts)} accounts")
+                logger.info("  Loaded %s/%s accounts", i + 1, len(accounts))
                 
-        logger.info(f"✓ Loaded {len(account_id_map)} accounts with ownership edges")
+        logger.info("✓ Loaded %s accounts with ownership edges", len(account_id_map))
         return account_id_map
         
     def load_transactions(
@@ -323,7 +323,7 @@ class JanusGraphLoader:
         Returns:
             Mapping of transaction_id to JanusGraph vertex ID
         """
-        logger.info(f"Loading {len(transactions)} transactions...")
+        logger.info("Loading %s transactions...", len(transactions))
         transaction_id_map = {}
         
         for i, tx in enumerate(transactions):
@@ -398,12 +398,12 @@ class JanusGraphLoader:
                     self.stats["edges_created"] += 1
                     
             if (i + 1) % 100 == 0:
-                logger.info(f"  Loaded {i + 1}/{len(transactions)} transactions")
+                logger.info("  Loaded %s/%s transactions", i + 1, len(transactions))
                 
-        logger.info(f"✓ Loaded {len(transaction_id_map)} transactions with edges")
+        logger.info("✓ Loaded %s transactions with edges", len(transaction_id_map))
         return transaction_id_map
         
-        logger.info(f"✓ Loaded {len(transaction_id_map)} transactions with edges")
+        logger.info("✓ Loaded %s transactions with edges", len(transaction_id_map))
         return transaction_id_map
 
     def load_trades(
@@ -423,7 +423,7 @@ class JanusGraphLoader:
         Returns:
             Number of trades loaded
         """
-        logger.info(f"Loading {len(trades)} trades...")
+        logger.info("Loading %s trades...", len(trades))
         trades_loaded = 0
         
         for i, trade in enumerate(trades):
@@ -498,9 +498,9 @@ class JanusGraphLoader:
                     self.stats["edges_created"] += 1
 
             if (i + 1) % 100 == 0:
-                logger.info(f"  Loaded {i + 1}/{len(trades)} trades")
+                logger.info("  Loaded %s/%s trades", i + 1, len(trades))
                 
-        logger.info(f"✓ Loaded {trades_loaded} trades")
+        logger.info("✓ Loaded %s trades", trades_loaded)
         return trades_loaded
         
     def load_communications(
@@ -518,7 +518,7 @@ class JanusGraphLoader:
         Returns:
             Number of communication edges created
         """
-        logger.info(f"Loading {len(communications)} communications...")
+        logger.info("Loading %s communications...", len(communications))
         edges_created = 0
         
         for i, comm in enumerate(communications):
@@ -560,9 +560,9 @@ class JanusGraphLoader:
                     self.stats["edges_created"] += 1
                     
             if (i + 1) % 100 == 0:
-                logger.info(f"  Processed {i + 1}/{len(communications)} communications")
+                logger.info("  Processed %s/%s communications", i + 1, len(communications))
                 
-        logger.info(f"✓ Created {edges_created} communication edges")
+        logger.info("✓ Created %s communication edges", edges_created)
         return edges_created
         
     def load_from_orchestrator(self, orchestrator: Any, clear_first: bool = False):
@@ -624,10 +624,10 @@ class JanusGraphLoader:
             logger.info("\n" + "=" * 80)
             logger.info("LOADING COMPLETE")
             logger.info("=" * 80)
-            logger.info(f"Vertices created: {self.stats['vertices_created']}")
-            logger.info(f"Edges created: {self.stats['edges_created']}")
-            logger.info(f"Duration: {duration:.2f}s")
-            logger.info(f"Errors: {len(self.stats['errors'])}")
+            logger.info("Vertices created: %s", self.stats['vertices_created'])
+            logger.info("Edges created: %s", self.stats['edges_created'])
+            logger.info("Duration: %.2fs", duration)
+            logger.info("Errors: %s", len(self.stats['errors']))
             logger.info("=" * 80)
             
         finally:

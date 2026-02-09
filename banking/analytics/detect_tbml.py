@@ -17,7 +17,7 @@ Date: 2026-02-04
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from gremlin_python.driver import client, serializer
 
 # Configure logging
@@ -82,14 +82,14 @@ class TBMLDetector:
         
     def connect(self):
         """Establish connection to JanusGraph."""
-        logger.info(f"Connecting to JanusGraph at {self.url}...")
+        logger.info("Connecting to JanusGraph at %s...", self.url)
         self.client = client.Client(
             self.url,
             'g',
             message_serializer=serializer.GraphSONSerializersV3d0()
         )
         result = self._query("g.V().count()")
-        logger.info(f"Connected. Current vertex count: {result[0]}")
+        logger.info("Connected. Current vertex count: %s", result[0])
         
     def close(self):
         """Close connection."""
@@ -119,7 +119,7 @@ class TBMLDetector:
         Returns:
             List of TBMLAlerts for detected carousel patterns
         """
-        logger.info(f"Detecting carousel fraud (max depth: {max_depth})...")
+        logger.info("Detecting carousel fraud (max depth: %s)...", max_depth)
         alerts = []
         
         # Find companies involved in circular trading
@@ -131,7 +131,7 @@ class TBMLDetector:
                 
                 if total_value >= self.MIN_LOOP_VALUE:
                     alert = TBMLAlert(
-                        alert_id=f"TBML-CAROUSEL-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                        alert_id=f"TBML-CAROUSEL-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                         alert_type='carousel',
                         severity=self._calculate_severity(total_value),
                         entities=loop.get('companies', []),
@@ -143,13 +143,13 @@ class TBMLDetector:
                             f"Total loop value: ${total_value:,.2f}",
                             f"{len(loop.get('companies', []))} companies involved"
                         ],
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(timezone.utc),
                         details=loop
                     )
                     alerts.append(alert)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} carousel fraud patterns")
+        logger.info("Found %s carousel fraud patterns", len(alerts))
         return alerts
     
     def _find_circular_loops(self, depth: int) -> List[Dict]:
@@ -209,7 +209,7 @@ class TBMLDetector:
                     'raw_data': r
                 })
         except Exception as e:
-            logger.warning(f"Circular loop query failed for depth {depth}: {e}")
+            logger.warning("Circular loop query failed for depth %s: %s", depth, e)
         
         return loops
     
@@ -309,7 +309,7 @@ class TBMLDetector:
                     # Generate alert for high-risk anomalies
                     if anomaly.risk_score >= 0.7:
                         alert = TBMLAlert(
-                            alert_id=f"TBML-{anomaly.direction.upper()}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                            alert_id=f"TBML-{anomaly.direction.upper()}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                             alert_type=f'{anomaly.direction}_invoicing',
                             severity='high' if anomaly.risk_score >= 0.85 else 'medium',
                             entities=[tx.get('from_company', ''), tx.get('to_company', '')],
@@ -321,16 +321,16 @@ class TBMLDetector:
                                 f"Declared: ${anomaly.declared_price:,.2f}, Market: ${anomaly.market_price:,.2f}",
                                 f"Direction: {anomaly.direction}-invoicing"
                             ],
-                            timestamp=datetime.utcnow(),
+                            timestamp=datetime.now(timezone.utc),
                             details={'anomaly': anomaly.__dict__, 'transaction': tx}
                         )
                         alerts.append(alert)
                         
         except Exception as e:
-            logger.warning(f"Invoice manipulation detection failed: {e}")
+            logger.warning("Invoice manipulation detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(anomalies)} price anomalies, {len(alerts)} high-risk alerts")
+        logger.info("Found %s price anomalies, %s high-risk alerts", len(anomalies), len(alerts))
         return anomalies, alerts
     
     def _check_price_anomaly(self, transaction: Dict) -> Optional[PriceAnomaly]:
@@ -448,7 +448,7 @@ class TBMLDetector:
                         total_value = sum(c['company'].get('tx_total', 0) for c in network['companies'])
                         
                         alert = TBMLAlert(
-                            alert_id=f"TBML-SHELL-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                            alert_id=f"TBML-SHELL-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                             alert_type='shell_network',
                             severity=self._calculate_severity(total_value),
                             entities=[c['company'].get('name', '') for c in network['companies']],
@@ -460,16 +460,16 @@ class TBMLDetector:
                                 f"Total transaction volume: ${total_value:,.2f}",
                                 "High-risk TBML network detected"
                             ],
-                            timestamp=datetime.utcnow(),
+                            timestamp=datetime.now(timezone.utc),
                             details=network
                         )
                         alerts.append(alert)
                         
         except Exception as e:
-            logger.warning(f"Shell company detection failed: {e}")
+            logger.warning("Shell company detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} shell company network alerts")
+        logger.info("Found %s shell company network alerts", len(alerts))
         return alerts
     
     def _calculate_shell_company_score(self, company: Dict) -> float:
@@ -554,7 +554,7 @@ class TBMLDetector:
     def generate_report(self) -> Dict[str, Any]:
         """Generate comprehensive TBML detection report."""
         return {
-            'report_date': datetime.utcnow().isoformat(),
+            'report_date': datetime.now(timezone.utc).isoformat(),
             'total_alerts': len(self.alerts),
             'alerts_by_type': {
                 'carousel': len([a for a in self.alerts if a.alert_type == 'carousel']),
@@ -598,7 +598,7 @@ class TBMLDetector:
             # Generate report
             report = self.generate_report()
             
-            logger.info(f"TBML scan complete. Found {len(self.alerts)} alerts.")
+            logger.info("TBML scan complete. Found %s alerts.", len(self.alerts))
             return report
             
         finally:

@@ -9,7 +9,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 
 from ..core.base_generator import BaseGenerator
@@ -132,8 +132,8 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             
         # Generate travel dates
         departure_date = random_datetime_between(
-            datetime.utcnow() - timedelta(days=90),
-            datetime.utcnow() + timedelta(days=30)
+            datetime.now(timezone.utc) - timedelta(days=90),
+            datetime.now(timezone.utc) + timedelta(days=30)
         )
         
         # Travel duration (1-30 days)
@@ -301,7 +301,7 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             "transport_mode": transport_mode,
             "purpose": purpose,
             "duration_days": duration_days,
-            "booking_date": (datetime.utcnow() - timedelta(days=random.randint(1, 60))).isoformat()
+            "booking_date": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 60))).isoformat()
         }
         
         if transport_mode == "air":
@@ -334,7 +334,7 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             List of TravelEvent objects forming suspicious pattern
         """
         travels = []
-        base_date = datetime.utcnow() - timedelta(days=time_window_days)
+        base_date = datetime.now(timezone.utc) - timedelta(days=time_window_days)
         
         # Select high-risk or tax haven destinations
         risky_destinations = list(HIGH_RISK_COUNTRIES) + list(TAX_HAVENS)

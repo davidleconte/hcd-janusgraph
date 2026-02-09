@@ -7,24 +7,22 @@ Created: 2026-01-28
 Phase: 7 (Fraud Detection)
 """
 
-import sys
 import os
 from typing import List, Dict, Optional, Tuple, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 import numpy as np
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
+
 
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import P
 
-from utils.embedding_generator import EmbeddingGenerator
-from utils.vector_search import VectorSearchClient
+from src.python.utils.embedding_generator import EmbeddingGenerator
+from src.python.utils.vector_search import VectorSearchClient
 
 logger = logging.getLogger(__name__)
 
@@ -107,15 +105,15 @@ class FraudDetector:
             embedding_model: Embedding model for semantic analysis
         """
         # Initialize JanusGraph connection
-        logger.info(f"Connecting to JanusGraph: {janusgraph_host}:{janusgraph_port}")
+        logger.info("Connecting to JanusGraph: %s:%s", janusgraph_host, janusgraph_port)
         self.graph_url = f"ws://{janusgraph_host}:{janusgraph_port}/gremlin"
         
         # Initialize embedding generator
-        logger.info(f"Initializing embedding generator: {embedding_model}")
+        logger.info("Initializing embedding generator: %s", embedding_model)
         self.generator = EmbeddingGenerator(model_name=embedding_model)
         
         # Initialize vector search
-        logger.info(f"Connecting to OpenSearch: {opensearch_host}:{opensearch_port}")
+        logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
         self.search_client = VectorSearchClient(
             host=opensearch_host,
             port=opensearch_port
@@ -123,11 +121,42 @@ class FraudDetector:
         
         self.fraud_index = 'fraud_cases'
         self._ensure_fraud_index()
+        self._connection = None
+        self._g = None
+    
+    def connect(self):
+        """Establish reusable connection to JanusGraph."""
+        if self._connection is not None:
+            return
+        self._connection = DriverRemoteConnection(self.graph_url, 'g')
+        self._g = traversal().withRemote(self._connection)
+        logger.info("Connected to JanusGraph at %s", self.graph_url)
+    
+    def disconnect(self):
+        """Close connection to JanusGraph."""
+        if self._connection is not None:
+            self._connection.close()
+            self._connection = None
+            self._g = None
+    
+    def _get_traversal(self):
+        """Get graph traversal, connecting if needed."""
+        if self._g is None:
+            self.connect()
+        return self._g
+    
+    def __enter__(self):
+        self.connect()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+        return False
     
     def _ensure_fraud_index(self):
         """Create fraud cases index if not exists."""
         if not self.search_client.client.indices.exists(index=self.fraud_index):
-            logger.info(f"Creating fraud index: {self.fraud_index}")
+            logger.info("Creating fraud index: %s", self.fraud_index)
             
             additional_fields = {
                 'case_id': {'type': 'keyword'},
@@ -171,9 +200,9 @@ class FraudDetector:
             FraudScore with risk assessment
         """
         if timestamp is None:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
         
-        logger.info(f"Scoring transaction: {transaction_id}")
+        logger.info("Scoring transaction: %s", transaction_id)
         
         # Calculate individual scores
         velocity_score = self._check_velocity(account_id, amount, timestamp)
@@ -239,8 +268,7 @@ class FraudDetector:
             Velocity risk score (0-1)
         """
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
             # Check last hour
             hour_ago = int((timestamp - timedelta(hours=1)).timestamp() * 1000)
@@ -260,9 +288,6 @@ class FraudDetector:
                 .sum_()
                 .next()
             )
-            
-            connection.close()
-            
             # Calculate score
             tx_score = min(1.0, hour_txs / self.MAX_TRANSACTIONS_PER_HOUR)
             amount_score = min(1.0, hour_amount / self.MAX_AMOUNT_PER_HOUR)
@@ -270,7 +295,7 @@ class FraudDetector:
             return max(tx_score, amount_score)
             
         except Exception as e:
-            logger.error(f"Error checking velocity: {e}")
+            logger.error("Error checking velocity: %s", e)
             return 0.0
     
     def _check_network(self, account_id: str) -> float:
@@ -284,8 +309,7 @@ class FraudDetector:
             Network risk score (0-1)
         """
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
             # Check for connections to known fraud accounts
             # Simplified: check if account has many connections
@@ -296,14 +320,11 @@ class FraudDetector:
                 .count()
                 .next()
             )
-            
-            connection.close()
-            
             # High connection count may indicate fraud ring
             return min(1.0, connection_count / 50.0)
             
         except Exception as e:
-            logger.error(f"Error checking network: {e}")
+            logger.error("Error checking network: %s", e)
             return 0.0
     
     # High-risk merchant categories and keywords
@@ -347,7 +368,7 @@ class FraudDetector:
         for keyword, risk in self.HIGH_RISK_MERCHANTS.items():
             if keyword in merchant_lower:
                 category_risk = max(category_risk, risk)
-                logger.debug(f"Merchant '{merchant}' matches high-risk keyword '{keyword}' (risk={risk})")
+                logger.debug("Merchant '%s' matches high-risk keyword '%s' (risk=%s)", merchant, keyword, risk)
         
         # Query historical fraud cases involving this merchant
         try:
@@ -368,16 +389,16 @@ class FraudDetector:
                 similarities = [r.get('_score', 0) for r in results]
                 historical_risk = min(0.8, sum(similarities) / len(similarities))
                 if historical_risk > 0.3:
-                    logger.warning(f"Merchant '{merchant}' similar to {len(results)} fraud cases")
+                    logger.warning("Merchant '%s' similar to %s fraud cases", merchant, len(results))
                     
         except Exception as e:
-            logger.debug(f"Could not query fraud history for merchant: {e}")
+            logger.debug("Could not query fraud history for merchant: %s", e)
             # Continue with category risk only
         
         # Combined score (weight: 60% category, 40% historical)
         final_score = category_risk * 0.6 + historical_risk * 0.4
         
-        logger.info(f"Merchant risk for '{merchant}': category={category_risk:.2f}, historical={historical_risk:.2f}, final={final_score:.2f}")
+        logger.info("Merchant risk for '%s': category=%.2f, historical=%.2f, final=%.2f", merchant, category_risk, historical_risk, final_score)
         
         return final_score
     
@@ -410,11 +431,10 @@ class FraudDetector:
         semantic_risk = 0.0
         
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
             # Get historical transaction data for this account (last 90 days)
-            ninety_days_ago = int((datetime.utcnow() - timedelta(days=90)).timestamp() * 1000)
+            ninety_days_ago = int((datetime.now(timezone.utc) - timedelta(days=90)).timestamp() * 1000)
             
             historical_txns = (
                 g.V().has('Account', 'account_id', account_id)
@@ -426,12 +446,9 @@ class FraudDetector:
                 .by(__.values('description').fold())
                 .toList()
             )
-            
-            connection.close()
-            
             if not historical_txns:
                 # No history - first transaction is inherently riskier
-                logger.debug(f"No transaction history for account {account_id}")
+                logger.debug("No transaction history for account %s", account_id)
                 return 0.3
             
             # Flatten historical data
@@ -457,7 +474,7 @@ class FraudDetector:
                     # All same amounts - any deviation is unusual
                     amount_risk = 0.5 if amount != avg_amount else 0.0
                 
-                logger.debug(f"Amount analysis: current={amount}, avg={avg_amount:.2f}, std={std_amount:.2f}, risk={amount_risk:.2f}")
+                logger.debug("Amount analysis: current=%s, avg=%.2f, std=%.2f, risk=%.2f", amount, avg_amount, std_amount, amount_risk)
             
             # 2. Merchant frequency analysis
             if merchants and merchant:
@@ -478,7 +495,7 @@ class FraudDetector:
                 else:
                     merchant_risk = 0.0
                 
-                logger.debug(f"Merchant analysis: '{merchant}' frequency={current_merchant_freq:.2%}, risk={merchant_risk:.2f}")
+                logger.debug("Merchant analysis: '%s' frequency=%s, risk=%.2f", merchant, current_merchant_freq, merchant_risk)
             
             # 3. Semantic similarity analysis
             if descriptions and description:
@@ -504,19 +521,19 @@ class FraudDetector:
                     else:
                         semantic_risk = 0.0
                     
-                    logger.debug(f"Semantic analysis: max_sim={max_similarity:.2f}, avg_sim={avg_similarity:.2f}, risk={semantic_risk:.2f}")
+                    logger.debug("Semantic analysis: max_sim=%.2f, avg_sim=%.2f, risk=%.2f", max_similarity, avg_similarity, semantic_risk)
                     
                 except Exception as e:
-                    logger.debug(f"Semantic analysis failed: {e}")
+                    logger.debug("Semantic analysis failed: %s", e)
             
         except Exception as e:
-            logger.error(f"Error checking behavior for account {account_id}: {e}")
+            logger.error("Error checking behavior for account %s: %s", account_id, e)
             return 0.2  # Default moderate risk on error
         
         # Combined behavioral risk score
         final_score = amount_risk * 0.4 + merchant_risk * 0.3 + semantic_risk * 0.3
         
-        logger.info(f"Behavioral risk for account {account_id}: amount={amount_risk:.2f}, merchant={merchant_risk:.2f}, semantic={semantic_risk:.2f}, final={final_score:.2f}")
+        logger.info("Behavioral risk for account %s: amount=%.2f, merchant=%.2f, semantic=%.2f, final=%.2f", account_id, amount_risk, merchant_risk, semantic_risk, final_score)
         
         return final_score
     
@@ -592,7 +609,7 @@ class FraudDetector:
             return [r['source'] for r in results]
             
         except Exception as e:
-            logger.error(f"Error finding similar cases: {e}")
+            logger.error("Error finding similar cases: %s", e)
             return []
     
     def generate_alert(
@@ -642,7 +659,7 @@ class FraudDetector:
         )
         
         alert = FraudAlert(
-            alert_id=f"FRAUD_{score.transaction_id}_{int(datetime.utcnow().timestamp())}",
+            alert_id=f"FRAUD_{score.transaction_id}_{int(datetime.now(timezone.utc).timestamp())}",
             alert_type=alert_type,
             severity=score.risk_level,
             transaction_id=score.transaction_id,
@@ -654,7 +671,7 @@ class FraudDetector:
             fraud_score=score.overall_score,
             risk_factors=risk_factors,
             similar_cases=similar_cases,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             metadata=transaction_data
         )
         
@@ -681,7 +698,7 @@ class FraudDetector:
         Returns:
             Dict with training results
         """
-        logger.info(f"Training anomaly model on {len(transactions)} transactions...")
+        logger.info("Training anomaly model on %s transactions...", len(transactions))
         
         # Extract features for training
         amounts = [t.get('amount', 0) for t in transactions]
@@ -756,7 +773,7 @@ class FraudDetector:
             tx_count = len(transactions)
             velocity_score = min(1.0, tx_count / self.MAX_TRANSACTIONS_PER_HOUR)
         else:
-            velocity_score = self._check_velocity(account_id)
+            velocity_score = self._check_velocity(account_id, 0.0, datetime.now(timezone.utc))
         
         is_anomaly = velocity_score >= 0.7
         risk_level = 'high' if velocity_score >= 0.8 else ('medium' if velocity_score >= 0.5 else 'low')
@@ -939,7 +956,7 @@ class FraudDetector:
             'accuracy': accuracy,
             'anomalies_detected': anomalies,
             'anomaly_rate': anomaly_rate,
-            'avg_confidence': 0.75  # Average confidence score
+            'avg_confidence': sum(r['fraud_score'] for r in [self.detect_fraud(tx) for tx in test_transactions]) / len(test_transactions) if test_transactions else 0.0
         }
 
 

@@ -7,16 +7,14 @@ Created: 2026-01-28
 Phase: Week 1 Remediation (CRITICAL-001)
 """
 
-import sys
 import os
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import logging
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
+
 
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
@@ -97,8 +95,40 @@ class StructuringDetector:
         self.graph_url = f"ws://{janusgraph_host}:{janusgraph_port}/gremlin"
         self.ctr_threshold = ctr_threshold or self.CTR_THRESHOLD
         self.suspicious_threshold = self.ctr_threshold * Decimal('0.9')
+        self._connection = None
+        self._g = None
         
-        logger.info(f"Initialized StructuringDetector: threshold=${self.ctr_threshold}")
+        logger.info("Initialized StructuringDetector: threshold=$%s", self.ctr_threshold)
+    
+    def connect(self):
+        """Establish reusable connection to JanusGraph."""
+        if self._connection is not None:
+            return
+        self._connection = DriverRemoteConnection(self.graph_url, 'g')
+        self._g = traversal().withRemote(self._connection)
+        logger.info("Connected to JanusGraph at %s", self.graph_url)
+    
+    def disconnect(self):
+        """Close connection to JanusGraph."""
+        if self._connection is not None:
+            self._connection.close()
+            self._connection = None
+            self._g = None
+            logger.info("Disconnected from JanusGraph")
+    
+    def _get_traversal(self):
+        """Get graph traversal, connecting if needed."""
+        if self._g is None:
+            self.connect()
+        return self._g
+    
+    def __enter__(self):
+        self.connect()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disconnect()
+        return False
     
     def detect_smurfing(
         self,
@@ -120,14 +150,13 @@ class StructuringDetector:
         Returns:
             List of detected structuring patterns
         """
-        logger.info(f"Analyzing account {account_id} for smurfing patterns...")
+        logger.info("Analyzing account %s for smurfing patterns...", account_id)
         
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
             # Get recent transactions just below threshold
-            cutoff_time = int((datetime.utcnow() - timedelta(hours=time_window_hours)).timestamp() * 1000)
+            cutoff_time = int((datetime.now(timezone.utc) - timedelta(hours=time_window_hours)).timestamp() * 1000)
             
             transactions = (
                 g.V().has('Account', 'account_id', account_id)
@@ -141,11 +170,8 @@ class StructuringDetector:
                 .by(__.inV().values('account_id'))
                 .toList()
             )
-            
-            connection.close()
-            
             if len(transactions) < min_transactions:
-                logger.info(f"No smurfing pattern detected (only {len(transactions)} transactions)")
+                logger.info("No smurfing pattern detected (only %s transactions)", len(transactions))
                 return []
             
             # Analyze pattern
@@ -154,14 +180,14 @@ class StructuringDetector:
             )
             
             if pattern:
-                logger.warning(f"⚠️  SMURFING DETECTED: {len(transactions)} transactions, "
-                             f"total ${pattern.total_amount}")
+                logger.warning("⚠️  SMURFING DETECTED: %s transactions, "
+                             f"total $%s", len(transactions), pattern.total_amount)
                 return [pattern]
             
             return []
             
         except Exception as e:
-            logger.error(f"Error detecting smurfing: {e}")
+            logger.error("Error detecting smurfing: %s", e)
             return []
     
     def detect_layering(
@@ -181,13 +207,12 @@ class StructuringDetector:
         Returns:
             List of detected layering patterns
         """
-        logger.info(f"Analyzing {len(account_ids)} accounts for layering patterns...")
+        logger.info("Analyzing %s accounts for layering patterns...", len(account_ids))
         
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
-            cutoff_time = int((datetime.utcnow() - timedelta(hours=time_window_hours)).timestamp() * 1000)
+            cutoff_time = int((datetime.now(timezone.utc) - timedelta(hours=time_window_hours)).timestamp() * 1000)
             
             # Find circular transaction patterns
             patterns = []
@@ -216,16 +241,13 @@ class StructuringDetector:
                     )
                     if pattern:
                         patterns.append(pattern)
-            
-            connection.close()
-            
             if patterns:
-                logger.warning(f"⚠️  LAYERING DETECTED: {len(patterns)} patterns found")
+                logger.warning("⚠️  LAYERING DETECTED: %s patterns found", len(patterns))
             
             return patterns
             
         except Exception as e:
-            logger.error(f"Error detecting layering: {e}")
+            logger.error("Error detecting layering: %s", e)
             return []
     
     def detect_network_structuring(
@@ -245,13 +267,12 @@ class StructuringDetector:
         Returns:
             List of detected network structuring patterns
         """
-        logger.info(f"Analyzing network structuring from account {seed_account_id}...")
+        logger.info("Analyzing network structuring from account %s...", seed_account_id)
         
         try:
-            connection = DriverRemoteConnection(self.graph_url, 'g')
-            g = traversal().withRemote(connection)
+            g = self._get_traversal()
             
-            cutoff_time = int((datetime.utcnow() - timedelta(hours=time_window_hours)).timestamp() * 1000)
+            cutoff_time = int((datetime.now(timezone.utc) - timedelta(hours=time_window_hours)).timestamp() * 1000)
             
             # Find connected accounts with suspicious transactions
             network_accounts = (
@@ -264,7 +285,6 @@ class StructuringDetector:
             )
             
             if len(network_accounts) < 3:
-                connection.close()
                 return []
             
             # Check for coordinated suspicious transactions
@@ -283,22 +303,19 @@ class StructuringDetector:
                     .toList()
                 )
                 suspicious_txs.extend(txs)
-            
-            connection.close()
-            
             if len(suspicious_txs) >= self.MIN_TRANSACTIONS_FOR_PATTERN * len(network_accounts) / 2:
                 pattern = self._analyze_network_pattern(
                     network_accounts, suspicious_txs, time_window_hours
                 )
                 if pattern:
-                    logger.warning(f"⚠️  NETWORK STRUCTURING DETECTED: {len(network_accounts)} accounts, "
-                                 f"{len(suspicious_txs)} transactions")
+                    logger.warning("⚠️  NETWORK STRUCTURING DETECTED: %s accounts, "
+                                 f"%s transactions", len(network_accounts), len(suspicious_txs))
                     return [pattern]
             
             return []
             
         except Exception as e:
-            logger.error(f"Error detecting network structuring: {e}")
+            logger.error("Error detecting network structuring: %s", e)
             return []
     
     def _analyze_smurfing_pattern(
@@ -352,7 +369,7 @@ class StructuringDetector:
             risk_level = 'medium'
         
         return StructuringPattern(
-            pattern_id=f"SMURF_{account_id}_{int(datetime.utcnow().timestamp())}",
+            pattern_id=f"SMURF_{account_id}_{int(datetime.now(timezone.utc).timestamp())}",
             pattern_type='smurfing',
             account_ids=[account_id],
             transaction_ids=[str(tx['id']) for tx in transactions],
@@ -362,7 +379,7 @@ class StructuringDetector:
             confidence_score=confidence,
             risk_level=risk_level,
             indicators=indicators,
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={
                 'avg_amount': float(avg_amount),
                 'threshold': float(self.ctr_threshold),
@@ -392,7 +409,7 @@ class StructuringDetector:
         confidence = min(confidence, 1.0)
         
         return StructuringPattern(
-            pattern_id=f"LAYER_{account_id}_{int(datetime.utcnow().timestamp())}",
+            pattern_id=f"LAYER_{account_id}_{int(datetime.now(timezone.utc).timestamp())}",
             pattern_type='layering',
             account_ids=[account_id],
             transaction_ids=[str(tx['id']) for tx in transactions],
@@ -402,7 +419,7 @@ class StructuringDetector:
             confidence_score=confidence,
             risk_level='high' if confidence >= 0.8 else 'medium',
             indicators=indicators,
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={'circular_pattern': True}
         )
     
@@ -428,7 +445,7 @@ class StructuringDetector:
         confidence = min(confidence, 1.0)
         
         return StructuringPattern(
-            pattern_id=f"NETWORK_{int(datetime.utcnow().timestamp())}",
+            pattern_id=f"NETWORK_{int(datetime.now(timezone.utc).timestamp())}",
             pattern_type='network_structuring',
             account_ids=account_ids,
             transaction_ids=[str(tx['id']) for tx in transactions],
@@ -438,7 +455,7 @@ class StructuringDetector:
             confidence_score=confidence,
             risk_level='critical' if confidence >= 0.85 else 'high',
             indicators=indicators,
-            detected_at=datetime.utcnow().isoformat(),
+            detected_at=datetime.now(timezone.utc).isoformat(),
             metadata={'network_size': len(account_ids)}
         )
     
@@ -475,14 +492,14 @@ class StructuringDetector:
             recommendation = 'Monitor closely and gather additional evidence'
         
         alert = StructuringAlert(
-            alert_id=f"STRUCT_ALERT_{int(datetime.utcnow().timestamp())}",
+            alert_id=f"STRUCT_ALERT_{int(datetime.now(timezone.utc).timestamp())}",
             alert_type='structuring',
             severity=severity,
             patterns=patterns,
             accounts_involved=all_accounts,
             total_amount=total_amount if total_amount else Decimal('0'),
             recommendation=recommendation,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
         
         logger.warning(

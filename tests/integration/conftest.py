@@ -314,9 +314,9 @@ def test_data_cleanup(janusgraph_connection):
             count = g.V().hasLabel(label).count().next()
             if count > 0:
                 g.V().hasLabel(label).drop().iterate()
-                logger.info(f"Cleaned up {count} vertices with label: {label}")
+                logger.info("Cleaned up %s vertices with label: %s", count, label)
         except Exception as e:
-            logger.warning(f"Failed to cleanup {label}: {e}")
+            logger.warning("Failed to cleanup %s: %s", label, e)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -331,7 +331,7 @@ def log_test_environment():
     for service_name, service_config in SERVICES.items():
         health = check_service_health(service_name)
         status = "✅ AVAILABLE" if health['available'] else "❌ NOT AVAILABLE"
-        logger.info(f"{service_config['name']}: {status}")
+        logger.info("%s: %s", service_config['name'], status)
     
     logger.info("="*60)
     

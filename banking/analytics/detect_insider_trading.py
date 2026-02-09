@@ -17,7 +17,7 @@ Date: 2026-02-04
 import logging
 from typing import List, Dict, Any, Optional, Set
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 from gremlin_python.driver import client, serializer
 
@@ -97,14 +97,14 @@ class InsiderTradingDetector:
         
     def connect(self):
         """Establish connection to JanusGraph."""
-        logger.info(f"Connecting to JanusGraph at {self.url}...")
+        logger.info("Connecting to JanusGraph at %s...", self.url)
         self.client = client.Client(
             self.url,
             'g',
             message_serializer=serializer.GraphSONSerializersV3d0()
         )
         result = self._query("g.V().count()")
-        logger.info(f"Connected. Current vertex count: {result[0]}")
+        logger.info("Connected. Current vertex count: %s", result[0])
         
     def close(self):
         """Close connection."""
@@ -179,10 +179,10 @@ class InsiderTradingDetector:
                 alerts.extend(timing_alerts)
                 
         except Exception as e:
-            logger.warning(f"Timing pattern detection failed: {e}")
+            logger.warning("Timing pattern detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} timing-based alerts")
+        logger.info("Found %s timing-based alerts", len(alerts))
         return alerts
     
     def _analyze_timing_for_symbol(
@@ -213,7 +213,7 @@ class InsiderTradingDetector:
                     total_value = sum(t.get('total_value', 0) for t in pre_trades)
                     
                     alert = InsiderTradingAlert(
-                        alert_id=f"IT-TIMING-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                        alert_id=f"IT-TIMING-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                         alert_type='timing',
                         severity=self._calculate_severity(risk_score),
                         traders=list(set(t.get('trader_id', '') for t in pre_trades)),
@@ -227,7 +227,7 @@ class InsiderTradingDetector:
                             f"Price impact: {event.price_change_percent:.1f}%",
                             f"Total pre-announcement trading: ${total_value:,.2f}"
                         ],
-                        timestamp=datetime.utcnow(),
+                        timestamp=datetime.now(timezone.utc),
                         details={
                             'event': event.__dict__ if hasattr(event, '__dict__') else str(event),
                             'trades': pre_trades
@@ -378,7 +378,7 @@ class InsiderTradingDetector:
                         
                         if risk_score >= 0.6:
                             alert = InsiderTradingAlert(
-                                alert_id=f"IT-COORD-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                                alert_id=f"IT-COORD-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                                 alert_type='coordinated',
                                 severity=self._calculate_severity(risk_score),
                                 traders=list(cluster.unique_traders),
@@ -392,7 +392,7 @@ class InsiderTradingDetector:
                                     f"Total value: ${cluster.total_value:,.2f}",
                                     f"Time window: {cluster.start_time} to {cluster.end_time}"
                                 ],
-                                timestamp=datetime.utcnow(),
+                                timestamp=datetime.now(timezone.utc),
                                 details={'cluster': {
                                     'trades': cluster.trades,
                                     'traders': list(cluster.unique_traders),
@@ -402,10 +402,10 @@ class InsiderTradingDetector:
                             alerts.append(alert)
                             
         except Exception as e:
-            logger.warning(f"Coordinated trading detection failed: {e}")
+            logger.warning("Coordinated trading detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} coordinated trading alerts")
+        logger.info("Found %s coordinated trading alerts", len(alerts))
         return alerts
     
     def _find_coordinated_clusters(self, trades: List[Dict]) -> List[TradeCluster]:
@@ -544,7 +544,7 @@ class InsiderTradingDetector:
                     
                     if risk_score >= 0.6:
                         alert = InsiderTradingAlert(
-                            alert_id=f"IT-COMM-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                            alert_id=f"IT-COMM-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                             alert_type='communication',
                             severity=self._calculate_severity(risk_score),
                             traders=[trader_info.get('person_id', [''])[0]],
@@ -558,7 +558,7 @@ class InsiderTradingDetector:
                                 f"Trade value: ${trade_info.get('total_value', [0])[0]:,.2f}",
                                 "Potential MNPI sharing detected"
                             ],
-                            timestamp=datetime.utcnow(),
+                            timestamp=datetime.now(timezone.utc),
                             details={
                                 'communication': comm_info,
                                 'trade': trade_info,
@@ -568,10 +568,10 @@ class InsiderTradingDetector:
                         alerts.append(alert)
                         
         except Exception as e:
-            logger.warning(f"Communication-based detection failed: {e}")
+            logger.warning("Communication-based detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} communication-based alerts")
+        logger.info("Found %s communication-based alerts", len(alerts))
         return alerts
     
     def _is_suspicious_communication(
@@ -679,7 +679,7 @@ class InsiderTradingDetector:
                         contact_info = trades[0].get('contact', {})
                         
                         alert = InsiderTradingAlert(
-                            alert_id=f"IT-NET-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                            alert_id=f"IT-NET-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                             alert_type='network',
                             severity=self._calculate_severity(risk_score),
                             traders=[contact_info.get('person_id', [''])[0]],
@@ -693,7 +693,7 @@ class InsiderTradingDetector:
                                 f"Insider role: {insider_info.get('job_title', ['Unknown'])[0]}",
                                 f"{len(trades)} trades through this connection"
                             ],
-                            timestamp=datetime.utcnow(),
+                            timestamp=datetime.now(timezone.utc),
                             details={
                                 'insider': insider_info,
                                 'contact': contact_info,
@@ -703,10 +703,10 @@ class InsiderTradingDetector:
                         alerts.append(alert)
                         
         except Exception as e:
-            logger.warning(f"Network-based detection failed: {e}")
+            logger.warning("Network-based detection failed: %s", e)
         
         self.alerts.extend(alerts)
-        logger.info(f"Found {len(alerts)} network-based alerts")
+        logger.info("Found %s network-based alerts", len(alerts))
         return alerts
     
     def _calculate_network_risk(self, trades: List[Dict]) -> float:
@@ -767,7 +767,7 @@ class InsiderTradingDetector:
     def generate_report(self) -> Dict[str, Any]:
         """Generate comprehensive insider trading detection report."""
         return {
-            'report_date': datetime.utcnow().isoformat(),
+            'report_date': datetime.now(timezone.utc).isoformat(),
             'total_alerts': len(self.alerts),
             'alerts_by_type': {
                 'timing': len([a for a in self.alerts if a.alert_type == 'timing']),
@@ -816,7 +816,7 @@ class InsiderTradingDetector:
             # Generate report
             report = self.generate_report()
             
-            logger.info(f"Insider trading scan complete. Found {len(self.alerts)} alerts.")
+            logger.info("Insider trading scan complete. Found %s alerts.", len(self.alerts))
             return report
             
         finally:

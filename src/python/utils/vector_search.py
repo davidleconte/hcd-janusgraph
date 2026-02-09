@@ -13,7 +13,7 @@ import numpy as np
 from opensearchpy import OpenSearch, helpers
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -85,11 +85,11 @@ class VectorSearchClient:
         
         self.client = OpenSearch(**client_kwargs)
         
-        logger.info(f"Connected to OpenSearch at {host}:{port} (SSL: {use_ssl})")
+        logger.info("Connected to OpenSearch at %s:%s (SSL: %s)", host, port, use_ssl)
         
         # Verify connection
         info = self.client.info()
-        logger.info(f"OpenSearch version: {info['version']['number']}")
+        logger.info("OpenSearch version: %s", info['version']['number'])
     
     def create_vector_index(
         self,
@@ -119,7 +119,7 @@ class VectorSearchClient:
             True if index created successfully
         """
         if self.client.indices.exists(index=index_name):
-            logger.warning(f"Index {index_name} already exists")
+            logger.warning("Index %s already exists", index_name)
             return False
         
         # Build index settings and mappings
@@ -155,7 +155,7 @@ class VectorSearchClient:
         
         # Create index
         self.client.indices.create(index=index_name, body=index_body)
-        logger.info(f"Created vector index: {index_name} (dim={vector_dimension}, engine={engine})")
+        logger.info("Created vector index: %s (dim=%s, engine=%s)", index_name, vector_dimension, engine)
         
         return True
     
@@ -182,7 +182,7 @@ class VectorSearchClient:
         """
         doc = {
             vector_field: embedding.tolist(),
-            'indexed_at': datetime.utcnow().isoformat()
+            'indexed_at': datetime.now(timezone.utc).isoformat()
         }
         
         if metadata:
@@ -219,7 +219,7 @@ class VectorSearchClient:
         actions = []
         for doc in documents:
             if id_field not in doc or vector_field not in doc:
-                logger.warning(f"Skipping document missing required fields: {doc}")
+                logger.warning("Skipping document missing required fields: %s", doc)
                 continue
             
             embedding = doc[vector_field]
@@ -231,7 +231,7 @@ class VectorSearchClient:
                 '_id': doc[id_field],
                 '_source': {
                     vector_field: embedding,
-                    'indexed_at': datetime.utcnow().isoformat()
+                    'indexed_at': datetime.now(timezone.utc).isoformat()
                 }
             }
             
@@ -243,7 +243,7 @@ class VectorSearchClient:
             actions.append(action)
         
         success, errors = helpers.bulk(self.client, actions, refresh=True)
-        logger.info(f"Bulk indexed {success} documents to {index_name}")
+        logger.info("Bulk indexed %s documents to %s", success, index_name)
         
         return success, errors
     
@@ -316,7 +316,7 @@ class VectorSearchClient:
             if min_score is None or result['score'] >= min_score:
                 results.append(result)
         
-        logger.debug(f"Found {len(results)} results for k-NN search")
+        logger.debug("Found %s results for k-NN search", len(results))
         return results
     
     def delete_index(self, index_name: str) -> bool:
@@ -330,11 +330,11 @@ class VectorSearchClient:
             True if deleted successfully
         """
         if not self.client.indices.exists(index=index_name):
-            logger.warning(f"Index {index_name} does not exist")
+            logger.warning("Index %s does not exist", index_name)
             return False
         
         self.client.indices.delete(index=index_name)
-        logger.info(f"Deleted index: {index_name}")
+        logger.info("Deleted index: %s", index_name)
         return True
     
     def get_index_stats(self, index_name: str) -> Dict[str, Any]:

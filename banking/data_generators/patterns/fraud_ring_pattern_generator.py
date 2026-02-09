@@ -9,7 +9,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from decimal import Decimal
 
@@ -118,7 +118,7 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
             duration_days = random.randint(7, 90)
             
         # Generate pattern dates
-        end_date = datetime.utcnow()
+        end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=duration_days)
         
         # Generate ring accounts
@@ -179,7 +179,7 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
         return Pattern(
             pattern_id=f"PTN-FRAUD-{self.faker.uuid4()[:12]}",
             pattern_type="fraud_ring",
-            detection_date=datetime.utcnow(),
+            detection_date=datetime.now(timezone.utc),
             detection_method=f"network_analysis_{pattern_type}",
             confidence_score=confidence_score,
             entity_ids=entity_ids,

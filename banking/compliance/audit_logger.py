@@ -19,7 +19,7 @@ All audit events are logged in structured JSON format with:
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -190,7 +190,7 @@ class AuditLogger:
     ) -> None:
         """Log data access event (GDPR Article 30)"""
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=AuditEventType.DATA_ACCESS,
             severity=AuditSeverity.INFO,
             user=user,
@@ -215,7 +215,7 @@ class AuditLogger:
     ) -> None:
         """Log data modification event"""
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=AuditEventType.DATA_UPDATE,
             severity=AuditSeverity.INFO,
             user=user,
@@ -252,7 +252,7 @@ class AuditLogger:
             severity = AuditSeverity.WARNING
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=event_type,
             severity=severity,
             user=user,
@@ -285,7 +285,7 @@ class AuditLogger:
         )
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=event_type,
             severity=severity,
             user=user,
@@ -313,7 +313,7 @@ class AuditLogger:
         }
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=event_type_map.get(
                 request_type, AuditEventType.GDPR_DATA_REQUEST
             ),
@@ -343,7 +343,7 @@ class AuditLogger:
         }
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=AuditEventType.AML_ALERT_GENERATED,
             severity=severity_map.get(severity, AuditSeverity.WARNING),
             user=user,
@@ -371,7 +371,7 @@ class AuditLogger:
         }
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=AuditEventType.FRAUD_ALERT_GENERATED,
             severity=severity_map.get(severity, AuditSeverity.WARNING),
             user=user,
@@ -400,7 +400,7 @@ class AuditLogger:
         }
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=event_type_map.get(
                 event_type, AuditEventType.SECURITY_POLICY_VIOLATION
             ),
@@ -431,7 +431,7 @@ class AuditLogger:
         }
 
         event = AuditEvent(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             event_type=event_type_map.get(action, AuditEventType.ADMIN_CONFIG_CHANGE),
             severity=AuditSeverity.WARNING,
             user=user,

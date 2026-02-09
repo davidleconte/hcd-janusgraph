@@ -11,7 +11,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
 
@@ -255,7 +255,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             List of structuring transactions
         """
         transactions = []
-        base_time = datetime.utcnow() - timedelta(days=random.randint(1, 30))
+        base_time = datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))
         
         for i in range(count):
             # Spread transactions across time window
@@ -295,7 +295,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
     def _generate_transaction_date(self) -> datetime:
         """Generate transaction date."""
         # Transactions in last 90 days
-        end_date = datetime.utcnow()
+        end_date = datetime.now(timezone.utc)
         start_date = end_date - timedelta(days=90)
         
         # 70% during business hours

@@ -49,14 +49,14 @@ class AMLStructuringDetector:
         
     def connect(self):
         """Establish connection to JanusGraph."""
-        logger.info(f"Connecting to JanusGraph at {self.url}...")
+        logger.info("Connecting to JanusGraph at %s...", self.url)
         self.client = client.Client(
             self.url,
             'g',
             message_serializer=serializer.GraphSONSerializersV3d0()
         )
         result = self.client.submit("g.V().count()").all().result()
-        logger.info(f"Connected. Current vertex count: {result[0]}")
+        logger.info("Connected. Current vertex count: %s", result[0])
         
     def close(self):
         """Close connection."""
@@ -233,7 +233,7 @@ class AMLStructuringDetector:
                             "recommendation": "File SAR (Suspicious Activity Report)"
                         })
         except Exception as e:
-            logger.debug(f"Complex query failed, using fallback: {e}")
+            logger.debug("Complex query failed, using fallback: %s", e)
             
             # Fallback: analyze all accounts individually
             accounts = self._query("g.V().hasLabel('account').values('account_id')")

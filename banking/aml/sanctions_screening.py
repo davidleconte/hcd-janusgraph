@@ -11,7 +11,7 @@ import sys
 import os
 from typing import List, Dict, Any
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 # Add src to path
@@ -79,11 +79,11 @@ class SanctionsScreener:
         self.index_name = index_name
         
         # Initialize embedding generator
-        logger.info(f"Initializing embedding generator: {embedding_model}")
+        logger.info("Initializing embedding generator: %s", embedding_model)
         self.generator = EmbeddingGenerator(model_name=embedding_model)
         
         # Initialize vector search client
-        logger.info(f"Connecting to OpenSearch: {opensearch_host}:{opensearch_port}")
+        logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
         self.search_client = VectorSearchClient(
             host=opensearch_host,
             port=opensearch_port
@@ -95,7 +95,7 @@ class SanctionsScreener:
     def _ensure_index_exists(self):
         """Create sanctions index if it doesn't exist."""
         if not self.search_client.client.indices.exists(index=self.index_name):
-            logger.info(f"Creating sanctions index: {self.index_name}")
+            logger.info("Creating sanctions index: %s", self.index_name)
             
             additional_fields = {
                 'name': {'type': 'text'},
@@ -130,7 +130,7 @@ class SanctionsScreener:
         Returns:
             Number of entities indexed
         """
-        logger.info(f"Loading {len(sanctions_data)} sanctioned entities...")
+        logger.info("Loading %s sanctioned entities...", len(sanctions_data))
         
         # Generate embeddings
         names = [entity['name'] for entity in sanctions_data]
@@ -148,7 +148,7 @@ class SanctionsScreener:
                 'entity_type': entity.get('entity_type', 'person'),
                 'country': entity.get('country', ''),
                 'aliases': entity.get('aliases', ''),
-                'date_added': entity.get('date_added', datetime.utcnow().isoformat()),
+                'date_added': entity.get('date_added', datetime.now(timezone.utc).isoformat()),
                 'metadata': entity.get('metadata', {})
             }
             documents.append(doc)
@@ -159,9 +159,9 @@ class SanctionsScreener:
             documents=documents
         )
         
-        logger.info(f"Indexed {success} sanctioned entities")
+        logger.info("Indexed %s sanctioned entities", success)
         if errors:
-            logger.warning(f"Encountered {len(errors)} errors during indexing")
+            logger.warning("Encountered %s errors during indexing", len(errors))
         
         return success
     
@@ -187,7 +187,7 @@ class SanctionsScreener:
         if min_score is None:
             min_score = self.LOW_RISK_THRESHOLD
         
-        logger.info(f"Screening customer: {customer_name} (ID: {customer_id})")
+        logger.info("Screening customer: %s (ID: %s)", customer_name, customer_id)
         
         # Generate embedding for customer name
         customer_embedding = encode_person_name(customer_name, self.generator)
@@ -243,7 +243,7 @@ class SanctionsScreener:
             customer_name=customer_name,
             is_match=is_match,
             matches=matches,
-            screening_timestamp=datetime.utcnow().isoformat(),
+            screening_timestamp=datetime.now(timezone.utc).isoformat(),
             confidence=confidence
         )
         
@@ -253,7 +253,7 @@ class SanctionsScreener:
                 f"(score: {matches[0].similarity_score:.4f}, risk: {matches[0].risk_level})"
             )
         else:
-            logger.info(f"✅ No sanctions match for: {customer_name}")
+            logger.info("✅ No sanctions match for: %s", customer_name)
         
         return result
     
@@ -277,7 +277,7 @@ class SanctionsScreener:
         import time
         start_time = time.time()
         
-        logger.info(f"Batch screening {len(customers)} customers...")
+        logger.info("Batch screening %s customers...", len(customers))
         
         results = []
         for customer in customers:
@@ -297,7 +297,7 @@ class SanctionsScreener:
         
         # Summary
         matches = [r for r in results if r.is_match]
-        logger.info(f"Batch screening complete: {len(matches)}/{len(customers)} matches found")
+        logger.info("Batch screening complete: %s/%s matches found", len(matches), len(customers))
         
         return {
             'total_screened': len(customers),

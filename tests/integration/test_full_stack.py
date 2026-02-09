@@ -56,7 +56,7 @@ class TestStackHealth:
         result = hcd_session.execute("SELECT release_version FROM system.local")
         version = result.one()[0]
         
-        logger.info(f"✅ HCD version: {version}")
+        logger.info("✅ HCD version: %s", version)
         assert version is not None
         assert len(version) > 0
     
@@ -74,7 +74,7 @@ class TestStackHealth:
         # Test basic query
         count = g.V().count().next()
         
-        logger.info(f"✅ JanusGraph is healthy (vertex count: {count})")
+        logger.info("✅ JanusGraph is healthy (vertex count: %s)", count)
         assert count >= 0
     
     def test_grafana_health(self, require_grafana):
@@ -124,7 +124,7 @@ class TestJanusGraphOperations:
             .next()
         
         assert vertex is not None
-        logger.info(f"✅ Created vertex: {vertex.id}")
+        logger.info("✅ Created vertex: %s", vertex.id)
         
         # Verify vertex exists
         count = g.V().hasLabel('test_person') \
@@ -157,7 +157,7 @@ class TestJanusGraphOperations:
         edge = g.V(v1).addE('knows').to(v2).next()
         
         assert edge is not None
-        logger.info(f"✅ Created edge: {edge.id}")
+        logger.info("✅ Created edge: %s", edge.id)
         
         # Verify edge exists
         edge_count = g.V(v1).outE('knows').count().next()
@@ -190,7 +190,7 @@ class TestJanusGraphOperations:
             .toList()
         
         assert 'Charlie' in friends_of_friends
-        logger.info(f"✅ Friends of friends traversal: {friends_of_friends}")
+        logger.info("✅ Friends of friends traversal: %s", friends_of_friends)
     
     def test_vertex_properties(self, janusgraph_connection, test_data_cleanup):
         """
@@ -218,7 +218,7 @@ class TestJanusGraphOperations:
         assert 42 in props.get('int_prop', [])
         assert 3.14 in props.get('float_prop', [])
         
-        logger.info(f"✅ Vertex properties verified: {len(props)} properties")
+        logger.info("✅ Vertex properties verified: %s properties", len(props))
     
     def test_delete_operations(self, janusgraph_connection, test_data_cleanup):
         """
@@ -273,7 +273,7 @@ class TestJanusGraphOperations:
             .count().next()
         
         assert count == vertex_count
-        logger.info(f"✅ Batch operation: created {vertex_count} vertices")
+        logger.info("✅ Batch operation: created %s vertices", vertex_count)
 
 
 @pytest.mark.integration
@@ -311,8 +311,8 @@ class TestPerformance:
         elapsed_time = time.time() - start_time
         throughput = vertex_count / elapsed_time
         
-        logger.info(f"📊 Bulk insert: {vertex_count} vertices in {elapsed_time:.2f}s")
-        logger.info(f"📊 Throughput: {throughput:.2f} vertices/second")
+        logger.info("📊 Bulk insert: %s vertices in %.2fs", vertex_count, elapsed_time)
+        logger.info("📊 Throughput: %.2f vertices/second", throughput)
         
         # Performance assertion (should be > 10 vertices/second)
         assert throughput > 10, f"Performance too slow: {throughput:.2f} v/s"
@@ -343,7 +343,7 @@ class TestPerformance:
         elapsed_time = time.time() - start_time
         avg_query_time = (elapsed_time / iterations) * 1000  # ms
         
-        logger.info(f"📊 Average query time: {avg_query_time:.2f}ms")
+        logger.info("📊 Average query time: %.2fms", avg_query_time)
         
         # Performance assertion (should be < 100ms per query)
         assert avg_query_time < 100, f"Query too slow: {avg_query_time:.2f}ms"
@@ -383,7 +383,7 @@ class TestPerformance:
         elapsed_time = time.time() - start_time
         avg_time = (elapsed_time / iterations) * 1000  # ms
         
-        logger.info(f"📊 Average 3-hop traversal time: {avg_time:.2f}ms")
+        logger.info("📊 Average 3-hop traversal time: %.2fms", avg_time)
         
         # Performance assertion
         assert avg_time < 200, f"Traversal too slow: {avg_time:.2f}ms"
@@ -421,7 +421,7 @@ class TestDataPersistence:
             .count().next()
         
         assert count == 1
-        logger.info(f"✅ Data persistence verified for: {test_id}")
+        logger.info("✅ Data persistence verified for: %s", test_id)
     
     def test_property_update_persistence(self, janusgraph_connection, test_data_cleanup):
         """
@@ -519,7 +519,7 @@ class TestErrorHandling:
             .count().next()
         
         assert count >= 10
-        logger.info(f"✅ Concurrent operations: created {count} vertices")
+        logger.info("✅ Concurrent operations: created %s vertices", count)
 
 
 # Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

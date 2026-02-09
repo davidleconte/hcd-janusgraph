@@ -10,7 +10,7 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any, Tuple
 from faker import Faker
 
@@ -150,8 +150,8 @@ class CommunicationGenerator(BaseGenerator[Communication]):
             
         # Generate timestamp (within last 90 days)
         timestamp = random_datetime_between(
-            datetime.utcnow() - timedelta(days=90),
-            datetime.utcnow()
+            datetime.now(timezone.utc) - timedelta(days=90),
+            datetime.now(timezone.utc)
         )
         
         # Generate content based on type and language
@@ -485,8 +485,8 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         """
         thread_id = f"THREAD-{self.faker.uuid4()[:12]}"
         base_time = random_datetime_between(
-            datetime.utcnow() - timedelta(days=30),
-            datetime.utcnow()
+            datetime.now(timezone.utc) - timedelta(days=30),
+            datetime.now(timezone.utc)
         )
         
         # Select communication type for entire thread
