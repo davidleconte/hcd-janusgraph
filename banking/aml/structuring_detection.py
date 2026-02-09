@@ -21,6 +21,8 @@ from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import T, P
 
+from src.python.utils.resilience import CircuitBreaker, CircuitBreakerConfig, retry_with_backoff
+
 logger = logging.getLogger(__name__)
 
 
@@ -97,11 +99,16 @@ class StructuringDetector:
         self.suspicious_threshold = self.ctr_threshold * Decimal('0.9')
         self._connection = None
         self._g = None
+        self._breaker = CircuitBreaker(
+            config=CircuitBreakerConfig(failure_threshold=5, recovery_timeout=30.0),
+            name="structuring-gremlin",
+        )
         
         logger.info("Initialized StructuringDetector: threshold=$%s", self.ctr_threshold)
     
+    @retry_with_backoff(max_retries=3, base_delay=1.0, retryable_exceptions=(Exception,))
     def connect(self):
-        """Establish reusable connection to JanusGraph."""
+        """Establish reusable connection to JanusGraph with retry."""
         if self._connection is not None:
             return
         self._connection = DriverRemoteConnection(self.graph_url, 'g')

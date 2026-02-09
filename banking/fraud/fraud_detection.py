@@ -22,6 +22,7 @@ from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import P
 
 from src.python.utils.embedding_generator import EmbeddingGenerator
+from src.python.utils.resilience import CircuitBreaker, retry_with_backoff
 from src.python.utils.vector_search import VectorSearchClient
 
 logger = logging.getLogger(__name__)
@@ -123,14 +124,24 @@ class FraudDetector:
         self._ensure_fraud_index()
         self._connection = None
         self._g = None
+        self._breaker = CircuitBreaker(
+            failure_threshold=3,
+            recovery_timeout=30.0,
+            name="fraud-janusgraph",
+        )
     
+    @retry_with_backoff(max_retries=3, base_delay=1.0, max_delay=15.0)
     def connect(self):
         """Establish reusable connection to JanusGraph."""
         if self._connection is not None:
             return
+        self._breaker.call(self._do_connect)
+        logger.info("Connected to JanusGraph at %s", self.graph_url)
+
+    def _do_connect(self):
+        """Internal connect, called through circuit breaker."""
         self._connection = DriverRemoteConnection(self.graph_url, 'g')
         self._g = traversal().withRemote(self._connection)
-        logger.info("Connected to JanusGraph at %s", self.graph_url)
     
     def disconnect(self):
         """Close connection to JanusGraph."""
@@ -244,8 +255,8 @@ class FraudDetector:
         )
         
         logger.info(
-            f"Transaction {transaction_id}: score={overall_score:.3f}, "
-            f"risk={risk_level}, action={recommendation}"
+            "Transaction %s: score=%.3f, risk=%s, action=%s",
+            transaction_id, overall_score, risk_level, recommendation
         )
         
         return score
@@ -676,8 +687,8 @@ class FraudDetector:
         )
         
         logger.warning(
-            f"🚨 FRAUD ALERT: {alert.alert_id} - "
-            f"{alert.severity} severity, score: {alert.fraud_score:.3f}"
+            "🚨 FRAUD ALERT: %s - %s severity, score: %.3f",
+            alert.alert_id, alert.severity, alert.fraud_score
         )
         
         return alert
