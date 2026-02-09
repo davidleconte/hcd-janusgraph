@@ -21,6 +21,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notebooks guide updated with OpenSearch aggregation details
 - System architecture updated with OLAP notes
 
+## [1.3.0] - 2026-02-09
+
+### Added
+- **Centralized Configuration** via `pydantic-settings` (`src/python/config/settings.py`)
+- **Resilience Utilities** — `CircuitBreaker` and `retry_with_backoff` (`src/python/utils/resilience.py`)
+- **FastAPI Hardening** — rate limiting (`slowapi`), structured JSON logging, liveness/readiness probes, global error handlers, JWT/API key authentication middleware
+- **API Pagination** for fraud rings and structuring endpoints
+- **Expanded Makefile** with 12 dev targets (format, lint, typecheck, coverage, etc.)
+- `py.typed` markers for PEP 561 compliance
+- `banking/__init__.py` package marker
+
+### Changed
+- `JanusGraphClient` now requires `username`/`password` for authentication
+- `CircuitBreaker` uses `CircuitBreakerConfig` dataclass instead of keyword args
+- Module-level constants in `src/python/api/main.py` replaced with `get_settings()`
+- `structuring_detection.py` and `fraud_detection.py` refactored to use connection pooling and context managers
+- Dependencies consolidated in `pyproject.toml`
+- PII removed from 90+ files
+
+### Fixed
+- All 572 unit/integration tests passing
+- Test serialization fixed (`GraphSONSerializersV3d0` for JanusGraph custom types)
+- Stale `__class__` double-underscore test case removed (pattern intentionally unblocked for Gremlin `__` traversals)
+
 ## [1.2.1] - 2026-02-09
 
 ### Fixed

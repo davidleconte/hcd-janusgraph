@@ -269,12 +269,27 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     settings = get_settings()
     _configure_logging(settings)
+
+    from src.python.utils.tracing import TracingConfig, initialize_tracing
+    tracing_config = TracingConfig(
+        service_name="graph-analytics-api",
+        enabled=settings.tracing_enabled,
+    )
+    tracing_mgr = initialize_tracing(tracing_config)
+
+    try:
+        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+        FastAPIInstrumentor.instrument_app(app)
+    except Exception:
+        logger.debug("opentelemetry-instrumentation-fastapi not installed, skipping")
+
     logger.info("Starting Analytics API Service...")
     yield
     global _connection
     if _connection:
         _connection.close()
         logger.info("Closed JanusGraph connection")
+    tracing_mgr.shutdown()
 
 
 # ---------------------------------------------------------------------------
