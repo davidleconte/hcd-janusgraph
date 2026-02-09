@@ -325,5 +325,3 @@ class TestSecureLogging:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

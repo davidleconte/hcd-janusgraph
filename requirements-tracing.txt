@@ -1,23 +1,4 @@
-# Distributed Tracing Requirements
-# Install with: pip install -r requirements-tracing.txt
-
-# OpenTelemetry Core
-opentelemetry-api>=1.21.0
-opentelemetry-sdk>=1.21.0
-
-# OpenTelemetry Exporters
-opentelemetry-exporter-jaeger>=1.21.0
-opentelemetry-exporter-otlp>=1.21.0
-opentelemetry-exporter-otlp-proto-grpc>=1.21.0
-
-# OpenTelemetry Instrumentation
-opentelemetry-instrumentation>=0.42b0
-opentelemetry-instrumentation-requests>=0.42b0
-opentelemetry-instrumentation-logging>=0.42b0
-
-# Jaeger Client
-jaeger-client>=4.8.0
-
-# gRPC (for OTLP)
-grpcio>=1.59.0
-protobuf>=4.25.0
+# This file is kept for backward compatibility.
+# Canonical source: pyproject.toml [project.optional-dependencies.tracing]
+# Install with: uv pip install -e ".[tracing]"
+-e ".[tracing]"

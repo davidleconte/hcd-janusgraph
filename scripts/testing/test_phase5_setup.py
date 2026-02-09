@@ -224,5 +224,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

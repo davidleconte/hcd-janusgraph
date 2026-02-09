@@ -550,5 +550,3 @@ class TestAlertAggregation:
         assert alerts[0].severity == 'critical'
         assert alerts[1].severity == 'high'
         assert alerts[2].severity == 'medium'
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

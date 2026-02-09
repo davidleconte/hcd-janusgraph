@@ -109,5 +109,3 @@ __all__ = [
     'get_credentials',
     'validate_ssl_config',
 ]
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

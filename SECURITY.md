@@ -11,7 +11,7 @@
 **DO NOT** create public GitHub issues for security vulnerabilities.
 
 Instead, please report security vulnerabilities by emailing:
-[david.leconte1@ibm.com]
+[team@example.com]
 
 Include:
 - Description of the vulnerability

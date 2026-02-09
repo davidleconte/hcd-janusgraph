@@ -175,4 +175,4 @@ This remediation ensures compliance with the Five Layers of Isolation:
 
 **Document Status:** Complete  
 **Last Updated:** 2026-02-03  
-**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>
+**Co-Authored-By:** David Leconte <team@example.com>

@@ -9,7 +9,7 @@ assignees: ''
 <!--
 File: .github/ISSUE_TEMPLATE/bug_report.md
 Created: 2026-01-28T10:31:20.123
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 -->
 
 ## Bug Description
@@ -42,4 +42,4 @@ If applicable, add screenshots to help explain the problem.
 Any other context about the problem.
 
 ---
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

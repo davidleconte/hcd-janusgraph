@@ -3,7 +3,7 @@
 **File**: QUICKSTART.md
 **Created**: 2026-01-28T10:35:00.123
 **Last Updated**: 2026-02-07
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Production Readiness**: Grade A+ (99/100) - All phases complete
 
 ---
@@ -555,7 +555,7 @@ NETWORK_NAME=hcd-janusgraph-network
 ### Support Channels
 - **Issues**: https://github.com/davidleconte/hcd-janusgraph/issues
 - **Discussions**: https://github.com/davidleconte/hcd-janusgraph/discussions
-- **Email**: david.leconte1@ibm.com
+- **Email**: team@example.com
 
 ### External Resources
 - [JanusGraph Docs](https://docs.janusgraph.org/)
@@ -583,7 +583,7 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -650,4 +650,4 @@ NETWORK_NAME=hcd-janusgraph-network
 
 **Last Updated**: 2026-02-07  
 **Status**: All phases complete  
-**Contact**: david.leconte1@ibm.com
+**Contact**: team@example.com

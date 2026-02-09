@@ -1,10 +1,9 @@
-# HCD + JanusGraph Banking System - Python Dependencies
-# Generated from pyproject.toml
-# Install with: pip install -r requirements.txt
-# Or with uv: uv pip install -r requirements.txt
-
-# Core dependencies
-gremlinpython>=3.6.0,<3.8.0  # 3.8.0+ has .discard() incompatible with JanusGraph
+# AUTO-GENERATED from pyproject.toml — do not edit manually.
+# To regenerate: uv pip compile pyproject.toml -o requirements.txt
+# To install:    uv pip install -e ".[all]"
+#
+# Core dependencies (see pyproject.toml for canonical source):
+gremlinpython>=3.6.0,<3.8.0
 cassandra-driver==3.29.3
 pandas>=2.0.0
 networkx>=3.0

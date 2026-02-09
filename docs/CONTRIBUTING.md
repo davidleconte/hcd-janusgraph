@@ -2,7 +2,7 @@
 
 **File**: docs/CONTRIBUTING.md  
 **Created**: 2026-01-28T11:09:00.123  
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -288,7 +288,7 @@ Maintainers only:
 
 - GitHub Discussions
 - Issues (with question label)
-- Email: david.leconte1@ibm.com
+- Email: team@example.com
 
 ### Community
 
@@ -308,4 +308,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

@@ -1,7 +1,7 @@
 # Project Backlog
 
 **Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** +33614126117  
+**Contact:**   
 **Date:** 2026-02-06  
 **Status:** ✅ Production Ready
 

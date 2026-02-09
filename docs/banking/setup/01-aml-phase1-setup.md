@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-28
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Contact**: david.leconte1@ibm.com | +33614126117
+**Contact**: team@example.com
 
 ## Overview
 

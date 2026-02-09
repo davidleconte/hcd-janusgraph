@@ -2,7 +2,7 @@
 
 **File**: docs/DEPLOYMENT.md  
 **Created**: 2026-01-28T10:36:45.123  
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -87,4 +87,4 @@ bash scripts/deployment/deploy_full_stack.sh
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

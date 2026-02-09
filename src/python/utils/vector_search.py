@@ -461,5 +461,3 @@ if __name__ == "__main__":
     print("\nCleaning up...")
     client.delete_index(index_name)
     print("✅ Test complete!")
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

@@ -293,5 +293,3 @@ if __name__ == "__main__":
     print(f"Similarity '{name1}' vs '{name2}': {sim_12:.4f}")
     print(f"Similarity '{name1}' vs '{name3}': {sim_13:.4f}")
     print(f"✅ Fuzzy matching works! Similar names have higher similarity.")
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

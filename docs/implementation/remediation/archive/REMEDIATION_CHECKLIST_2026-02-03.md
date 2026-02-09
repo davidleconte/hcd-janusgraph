@@ -137,4 +137,4 @@ curl -s http://localhost:18182/
 ---
 
 **Executor:** David Leconte  
-**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>
+**Co-Authored-By:** David Leconte <team@example.com>

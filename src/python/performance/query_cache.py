@@ -519,5 +519,3 @@ if __name__ == "__main__":
         args=("g.V().has('type', 'product').limit(100)",)
     )
     warmer.warm_cache()
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

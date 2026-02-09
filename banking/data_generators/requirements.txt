@@ -1,29 +1,4 @@
-# Synthetic Data Generator Dependencies
-# Version: 1.0.0
-# Date: 2026-01-28
-
-# Core dependencies
-faker>=20.0.0              # Generate fake data
-pydantic>=2.0.0            # Data validation
-numpy>=1.24.0              # Numerical operations
-pandas>=2.0.0              # Data manipulation
-
-# NLP and language processing
-langdetect>=1.0.9          # Language detection
-googletrans==4.0.0rc1      # Translation
-textblob>=0.17.1           # Sentiment analysis
-nltk>=3.8.0                # Natural language toolkit
-
-# Phone and location
-phonenumbers>=8.13.0       # Phone number generation
-pycountry>=22.3.5          # Country/currency data
-geopy>=2.3.0               # Geocoding
-
-# Date and time
-python-dateutil>=2.8.2     # Date utilities
-pytz>=2023.3               # Timezone support
-
-# Utilities
-pyyaml>=6.0                # YAML configuration
-python-dotenv>=1.0.0       # Environment variables
-tqdm>=4.65.0               # Progress bars
+# This file is kept for backward compatibility.
+# Canonical source: pyproject.toml
+# Install with: uv pip install -e ".[all]"
+-e ".[all]"

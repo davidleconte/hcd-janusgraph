@@ -570,5 +570,3 @@ if __name__ == "__main__":
     # Generate report
     report = profiler.generate_report()
     print(json.dumps(report, indent=2))
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

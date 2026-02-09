@@ -1,7 +1,7 @@
 # P0 Critical Fixes Documentation
 
 **Date**: 2026-01-28  
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -40,9 +40,9 @@ This document records the critical P0 fixes applied to resolve GitHub push block
 **Status**: ✅ RESOLVED
 
 **Changes**:
-- Replaced `your-email@example.com` with `david.leconte1@ibm.com` (5 occurrences)
-- Replaced `support@example.com` with `david.leconte1@ibm.com`
-- Replaced `security@example.com` with `david.leconte1@ibm.com`
+- Replaced `your-email@example.com` with `team@example.com` (5 occurrences)
+- Replaced `support@example.com` with `team@example.com`
+- Replaced `security@example.com` with `team@example.com`
 
 **Files Modified**:
 - `CODE_OF_CONDUCT.md`
@@ -87,4 +87,4 @@ This document records the critical P0 fixes applied to resolve GitHub push block
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

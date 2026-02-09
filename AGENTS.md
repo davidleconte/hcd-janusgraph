@@ -504,6 +504,28 @@ PYTHONPATH=. OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_streamin
 
 ---
 
+## Test Location Convention
+
+Tests are distributed across multiple locations by design:
+
+| Location | Purpose | Run Command |
+|----------|---------|-------------|
+| `tests/unit/` | Unit tests for `src/python/` modules | `pytest tests/unit/ -v` |
+| `tests/integration/` | E2E tests requiring running services | `pytest tests/integration/ -v` |
+| `tests/benchmarks/` | Performance benchmarks | `pytest tests/benchmarks/ -v` |
+| `tests/performance/` | Load tests | `pytest tests/performance/ -v` |
+| `banking/data_generators/tests/` | Generator-specific tests (co-located) | `cd banking/data_generators/tests && ./run_tests.sh` |
+| `banking/analytics/tests/` | Analytics module tests (co-located) | `pytest banking/analytics/tests/ -v` |
+| `banking/compliance/tests/` | Compliance module tests (co-located) | `pytest banking/compliance/tests/ -v` |
+| `banking/streaming/tests/` | Streaming module tests (co-located) | `pytest banking/streaming/tests/ -v` |
+| `banking/tests/` | Cross-module banking integration tests | `pytest banking/tests/ -v` |
+
+**Convention:** Infrastructure tests go in `tests/`. Domain-specific tests are co-located with their modules in `banking/*/tests/`. All paths are registered in `pyproject.toml` `[tool.pytest.ini_options].testpaths`.
+
+**Run all tests:** `pytest` (uses testpaths from pyproject.toml)
+
+---
+
 ## Testing Gotchas
 
 ### Test Execution

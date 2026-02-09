@@ -631,5 +631,3 @@ def generate_compliance_report(
         reporter.export_report(report, output_file)
 
     return report
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

@@ -2,7 +2,7 @@
 
 **File**: docs/TROUBLESHOOTING.md  
 **Created**: 2026-01-28T11:08:00.123  
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -579,8 +579,8 @@ podman-compose logs -f
 
 ### Support
 - GitHub Issues: https://github.com/davidleconte/hcd-janusgraph/issues
-- Email: david.leconte1@ibm.com
+- Email: team@example.com
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

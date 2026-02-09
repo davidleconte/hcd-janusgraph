@@ -2,7 +2,7 @@
 
 **File**: README.md  
 **Created**: 2026-01-28T10:36:00.123  
-**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -335,7 +335,7 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ## Security
 
-Report security vulnerabilities to: [david.leconte1@ibm.com](mailto:david.leconte1@ibm.com)
+Report security vulnerabilities to: [team@example.com](mailto:team@example.com)
 
 See [SECURITY.md](SECURITY.md) for our security policy.
 
@@ -359,7 +359,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 - **Issues**: [GitHub Issues](https://github.com/davidleconte/hcd-janusgraph/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/davidleconte/hcd-janusgraph/discussions)
-- **Email**: david.leconte1@ibm.com
+- **Email**: team@example.com
 
 ---
 
@@ -370,4 +370,4 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

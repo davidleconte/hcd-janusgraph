@@ -9,7 +9,7 @@ assignees: ''
 <!--
 File: .github/ISSUE_TEMPLATE/feature_request.md
 Created: 2026-01-28T10:31:20.345
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 -->
 
 ## Feature Description
@@ -28,4 +28,4 @@ Other solutions you've considered.
 Any other context, mockups, or examples.
 
 ---
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

@@ -496,7 +496,7 @@ git commit -m "fix: Add Python environment validation scripts
 
 Resolves critical Python environment mismatch.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 
 # Stage Podman isolation fixes
 git add scripts/validation/validate_podman_isolation.sh
@@ -509,7 +509,7 @@ git commit -m "fix: Enforce Podman project isolation
 
 Resolves critical Podman isolation issue.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 
 # Stage notebooks reorganization
 git add notebooks-exploratory/
@@ -524,7 +524,7 @@ git commit -m "refactor: Reorganize notebooks directories
 
 Resolves confusion from multiple 'notebooks' directories.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 ```
 
 ---
@@ -594,7 +594,7 @@ git commit -m "chore: Add development environment config files
 - Add .editorconfig for consistent formatting
 - Add .gitattributes for line ending consistency
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 ```
 
 ---

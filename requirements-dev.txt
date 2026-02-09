@@ -1,11 +1,4 @@
-# File: requirements-dev.txt
-# Created: 2026-01-28T10:37:00.345
-# Author: David LECONTE, IBM WorldWide | Data & AI
-
-pytest==8.0.0
-pytest-cov==4.1.0
-pytest-asyncio==0.23.0
-black==24.0.0
-flake8==7.0.0
-isort==5.13.0
-mypy==1.8.0
+# This file is kept for backward compatibility.
+# Canonical source: pyproject.toml [project.optional-dependencies.dev]
+# Install with: uv pip install -e ".[dev]"
+-e ".[dev]"

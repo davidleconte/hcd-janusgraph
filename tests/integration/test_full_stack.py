@@ -521,5 +521,3 @@ class TestErrorHandling:
         assert count >= 10
         logger.info("✅ Concurrent operations: created %s vertices", count)
 
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

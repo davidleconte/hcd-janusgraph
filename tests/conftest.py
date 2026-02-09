@@ -177,5 +177,3 @@ def clear_janusgraph_env_vars(monkeypatch):
 def temp_directory(tmp_path):
     """Provide a temporary directory for tests"""
     return tmp_path
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

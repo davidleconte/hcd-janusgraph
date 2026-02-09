@@ -67,11 +67,23 @@ repos:
     hooks:
       - id: shellcheck
 
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock|
+            .*\.ipynb|
+            config/certs/.*|
+            vendor/.*
+          )$
+
   # Docker linting
   - repo: https://github.com/hadolint/hadolint
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
         args: ['--ignore', 'DL3008', '--ignore', 'DL3009']
-
-# Made with Bob

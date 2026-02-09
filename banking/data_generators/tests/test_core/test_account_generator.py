@@ -255,5 +255,3 @@ class TestAccountGeneratorAccountTypes:
 
 
 # Run tests with: pytest banking/data_generators/tests/test_core/test_account_generator.py -v
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

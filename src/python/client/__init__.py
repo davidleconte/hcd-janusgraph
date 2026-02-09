@@ -7,7 +7,7 @@ Exports:
 
 File: __init__.py
 Created: 2026-01-28
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 from .exceptions import (

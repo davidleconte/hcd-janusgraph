@@ -120,8 +120,13 @@ all = [
     "hcd-janusgraph-banking[dev,tracing,security,ml,streaming,generators,viz]",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "banking*"]
+exclude = ["tests*", "docs*", "scripts*", "config*", "docker*", "notebooks*"]
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]

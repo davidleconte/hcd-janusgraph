@@ -1,7 +1,7 @@
 # Security Overview
 
 **Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** +33614126117
+**Contact:** 
 
 ## Security Architecture
 

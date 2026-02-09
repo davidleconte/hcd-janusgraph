@@ -6,7 +6,7 @@ Loads synthetic structuring data into JanusGraph.
 Connects entities with proper relationships and validates loading.
 
 Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
-Contact: david.leconte1@ibm.com | +33614126117
+Contact: team@example.com
 Date: 2026-02-06
 """
 
@@ -374,4 +374,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

@@ -30,4 +30,4 @@ When adding new utility scripts:
 
 ---
 
-**Co-Authored-By:** David Leconte <david.leconte1@ibm.com>
+**Co-Authored-By:** David Leconte <team@example.com>

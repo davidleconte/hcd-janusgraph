@@ -11,5 +11,3 @@ This module provides compliance-related functionality including:
 from banking.compliance.audit_logger import AuditLogger, AuditEvent, AuditEventType
 
 __all__ = ["AuditLogger", "AuditEvent", "AuditEventType"]
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

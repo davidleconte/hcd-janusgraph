@@ -840,7 +840,7 @@ git commit -m "fix: Add Python environment validation and consolidated dependenc
 
 Resolves critical environment mismatch issues identified in audit.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 
 # Commit Podman isolation fixes
 git add scripts/deployment/deploy_full_stack_isolated.sh
@@ -853,7 +853,7 @@ git commit -m "fix: Enforce Podman project isolation
 
 Ensures proper container/network/volume isolation between projects.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 
 # Commit folder reorganization
 git mv notebooks notebooks-exploratory
@@ -868,7 +868,7 @@ git commit -m "refactor: Reorganize notebooks directories for clarity
 
 Addresses confusion from multiple 'notebooks' directories.
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 
 # Commit minor improvements
 git add .python-version .envrc .editorconfig .gitattributes
@@ -879,7 +879,7 @@ git commit -m "chore: Add development environment configuration files
 - Add .editorconfig for consistent formatting
 - Add .gitattributes for line ending consistency
 
-Co-Authored-By: David Leconte <david.leconte1@ibm.com>"
+Co-Authored-By: David Leconte <team@example.com>"
 ```
 
 ---

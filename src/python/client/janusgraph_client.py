@@ -273,5 +273,3 @@ class JanusGraphClient:
         """String representation of client."""
         status = "connected" if self.is_connected() else "disconnected"
         return f"JanusGraphClient(url={self.url}, ssl={self.use_ssl}, status={status})"
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117

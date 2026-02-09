@@ -1,29 +1,4 @@
-# Security Enhancement Dependencies
-# MFA and advanced security features
-
-# Multi-Factor Authentication
-pyotp==2.9.0              # TOTP/HOTP implementation
-qrcode[pil]==7.4.2        # QR code generation
-Pillow==10.2.0            # Image processing for QR codes
-
-# Password Security
-bcrypt==4.1.2             # Password hashing
-argon2-cffi==23.1.0       # Argon2 password hashing
-
-# JWT and Token Management
-PyJWT==2.8.0              # JWT token handling
-cryptography==42.0.0      # Cryptographic operations
-
-# Rate Limiting
-redis==5.0.1              # Redis client for rate limiting
-limits==3.7.0             # Rate limiting library
-
-# Security Headers
-secure==0.3.0             # Security headers middleware
-
-# Input Validation
-validators==0.22.0        # Input validation
-bleach==6.1.0             # HTML sanitization
-
-# Audit Logging
-python-json-logger==2.0.7 # Structured logging
+# This file is kept for backward compatibility.
+# Canonical source: pyproject.toml [project.optional-dependencies.security]
+# Install with: uv pip install -e ".[security]"
+-e ".[security]"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # File: scripts/backup/export_graph.py
 # Created: 2026-01-28T10:32:15.789
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 Export JanusGraph to GraphML format for backup
 """
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     success = export_graph(args.output, args.url)
     sys.exit(0 if success else 1)
 
-# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Signature: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

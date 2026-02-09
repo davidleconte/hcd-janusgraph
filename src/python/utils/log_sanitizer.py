@@ -250,5 +250,3 @@ __all__ = [
     'sanitize_for_logging',
     'AllowPIILogging',
 ]
-
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
