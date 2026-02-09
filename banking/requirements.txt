@@ -7,7 +7,7 @@
 # ============================================
 faker==26.1.0         # Realistic fake data generation
 gremlinpython==3.7.2  # JanusGraph client (latest stable)
-pandas==2.2.0         # Data analysis
+pandas==3.0.0         # Data analysis
 numpy==1.26.0         # Numerical operations
 scipy==1.13.0         # Scientific computing
 
