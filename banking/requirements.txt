@@ -15,7 +15,7 @@ scipy==1.13.0         # Scientific computing
 opensearch-py==2.4.0  # OpenSearch Python client
 
 # Visualization
-matplotlib==3.8.0     # Plotting
+matplotlib==3.10.8     # Plotting
 seaborn==0.13.0       # Statistical visualizations
 networkx==3.2.0       # Graph visualization
 pyvis==0.3.2          # Interactive network viz
