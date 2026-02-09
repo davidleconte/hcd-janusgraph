@@ -574,7 +574,7 @@ class JanusGraphLoader:
             )
 
             # 4. Load transactions with edges
-            transaction_id_map = self.load_transactions(orchestrator.transactions, account_id_map)
+            self.load_transactions(orchestrator.transactions, account_id_map)
 
             # 5. Load communications as edges
             self.load_communications(orchestrator.communications, person_id_map)

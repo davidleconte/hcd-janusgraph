@@ -182,12 +182,12 @@ class TestCrossModuleIntegration:
     @patch("banking.fraud.fraud_detection.VectorSearchClient")
     def test_coordinated_detection(self, mock_search, mock_gen):
         """Test coordinated AML and fraud detection"""
-        aml_detector = StructuringDetector()
+        StructuringDetector()
         fraud_detector = FraudDetector()
 
         # Mock AML detection
         with patch("banking.aml.structuring_detection.DriverRemoteConnection"):
-            aml_patterns = []  # Would contain detected patterns
+            pass  # Would contain detected patterns
 
         # Mock fraud detection
         fraud_detector._check_velocity = Mock(return_value=0.7)
@@ -418,7 +418,7 @@ class TestEndToEndScenarios:
     def test_suspicious_account_full_workflow(self):
         """Test complete workflow for suspicious account"""
         # Initialize detectors
-        aml_detector = StructuringDetector()
+        StructuringDetector()
 
         with (
             patch("banking.fraud.fraud_detection.EmbeddingGenerator"),
@@ -437,7 +437,7 @@ class TestEndToEndScenarios:
 
         # Step 1: AML Detection
         with patch("banking.aml.structuring_detection.DriverRemoteConnection"):
-            aml_patterns = []  # Would detect patterns
+            pass  # Would detect patterns
 
         # Step 2: Fraud Scoring
         fraud_score = fraud_detector.score_transaction(

@@ -377,7 +377,6 @@ class TBMLDetector:
         # High-value items that are often manipulated
         high_value_keywords = ["gold", "diamond", "jewelry", "art", "antique", "luxury"]
         tech_keywords = ["electronics", "computer", "phone", "server", "equipment"]
-        commodity_keywords = ["oil", "steel", "copper", "cotton", "grain"]
 
         for keyword in high_value_keywords:
             if keyword in description:

@@ -215,7 +215,7 @@ class TestMasterOrchestratorPerformance:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         # Check that orchestrator doesn't hold excessive memory
         # (rough check - should be < 100MB)
@@ -229,7 +229,7 @@ class TestMasterOrchestratorIntegration:
     def test_export_to_json(self, small_orchestrator, tmp_path):
         """Test exporting data to JSON"""
         # Generate data
-        stats = small_orchestrator.generate_all()
+        small_orchestrator.generate_all()
 
         # Export to JSON
         output_file = tmp_path / "test_output.json"
@@ -248,7 +248,7 @@ class TestMasterOrchestratorIntegration:
 
     def test_export_structure(self, small_orchestrator, tmp_path):
         """Test exported data structure"""
-        stats = small_orchestrator.generate_all()
+        small_orchestrator.generate_all()
 
         output_file = tmp_path / "test_output.json"
         small_orchestrator.export_to_json(output_file)
@@ -296,7 +296,7 @@ class TestMasterOrchestratorDataQuality:
 
     def test_referential_integrity(self, small_orchestrator, tmp_path):
         """Test referential integrity of generated data"""
-        stats = small_orchestrator.generate_all()
+        small_orchestrator.generate_all()
 
         output_file = tmp_path / "test_output.json"
         small_orchestrator.export_to_json(output_file)

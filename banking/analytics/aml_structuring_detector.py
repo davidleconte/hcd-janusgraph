@@ -266,7 +266,7 @@ class AMLStructuringDetector:
                                 "recommendation": "File SAR",
                             }
                         )
-                except:
+                except Exception:
                     continue
 
         if patterns:

@@ -164,7 +164,7 @@ class TestMemoryProfiling:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         # Check orchestrator size
         orch_size = sys.getsizeof(orchestrator)
@@ -183,7 +183,7 @@ class TestThroughput:
         count = 1000
 
         start = time.time()
-        persons = [person_generator.generate() for _ in range(count)]
+        [person_generator.generate() for _ in range(count)]
         duration = time.time() - start
 
         throughput = count / duration
@@ -197,7 +197,7 @@ class TestThroughput:
         count = 10000
 
         start = time.time()
-        transactions = [
+        [
             transaction_generator.generate(
                 from_account=sample_accounts[0], to_account=sample_accounts[1]
             )
@@ -263,7 +263,7 @@ class TestPatternInjectionPerformance:
         orchestrator = MasterOrchestrator(config)
 
         start = time.time()
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
         duration = time.time() - start
 
         print(f"\nInsider trading pattern injection: {duration:.2f}s")
@@ -291,7 +291,7 @@ class TestPatternInjectionPerformance:
         orchestrator = MasterOrchestrator(config)
 
         start = time.time()
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
         duration = time.time() - start
 
         print(f"\nMultiple patterns injection: {duration:.2f}s")

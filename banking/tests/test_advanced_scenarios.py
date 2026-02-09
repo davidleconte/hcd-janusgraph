@@ -373,7 +373,7 @@ class TestDataGeneratorPatternValidation:
         account_gen = AccountGenerator(seed=42)
 
         persons = [person_gen.generate() for _ in range(5)]
-        accounts = [account_gen.generate(owner_id=p.person_id) for p in persons]
+        [account_gen.generate(owner_id=p.person_id) for p in persons]
 
         # Initialize fraud ring generator
         fraud_gen = FraudRingPatternGenerator(seed=42)
@@ -392,7 +392,7 @@ class TestDataGeneratorPatternValidation:
         account_gen = AccountGenerator(seed=42)
 
         person = person_gen.generate()
-        account = account_gen.generate(owner_id=person.person_id)
+        account_gen.generate(owner_id=person.person_id)
 
         # Initialize structuring generator
         struct_gen = StructuringPatternGenerator(seed=42)

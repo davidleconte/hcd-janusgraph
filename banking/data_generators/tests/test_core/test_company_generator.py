@@ -189,7 +189,7 @@ class TestCompanyGeneratorBatchGeneration:
 
     def test_batch_statistics(self, company_generator):
         """Test batch generation statistics"""
-        companies = company_generator.generate_batch(50)
+        company_generator.generate_batch(50)
         stats = company_generator.get_statistics()
 
         assert stats["generated_count"] == 50

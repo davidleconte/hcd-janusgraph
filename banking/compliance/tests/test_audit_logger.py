@@ -130,7 +130,7 @@ class TestAuditLogger:
     def test_log_directory_creation(self, temp_log_dir):
         """Test that log directory is created if it doesn't exist"""
         log_dir = Path(temp_log_dir) / "nested" / "logs"
-        logger = AuditLogger(log_dir=str(log_dir))
+        AuditLogger(log_dir=str(log_dir))
 
         assert log_dir.exists()
 

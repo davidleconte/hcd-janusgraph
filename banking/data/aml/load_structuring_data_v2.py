@@ -36,7 +36,7 @@ class ImprovedAMLLoader:
         try:
             result = self.gc.submit(query).all().result()
             return result[0] > 0 if result else False
-        except:
+        except Exception:
             return False
 
     def create_vertex(self, label, properties):
@@ -48,7 +48,7 @@ class ImprovedAMLLoader:
         query = f"g.addV('{label}'){prop_str}.next()"
 
         try:
-            result = self.gc.submit(query).all().result()
+            self.gc.submit(query).all().result()
             self.stats["loaded"] += 1
             return True
         except Exception as e:

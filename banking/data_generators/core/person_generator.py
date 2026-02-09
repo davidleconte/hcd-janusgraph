@@ -444,7 +444,7 @@ class PersonGenerator(BaseGenerator[Person]):
         # Add additional languages
         num_additional = random.choices([0, 1, 2], weights=[0.5, 0.35, 0.15])[0]
         if num_additional > 0:
-            other_langs = [l for l in ["en", "es", "fr", "de", "zh"] if l != primary]
+            other_langs = [lang for lang in ["en", "es", "fr", "de", "zh"] if lang != primary]
             languages.extend(random.sample(other_langs, min(num_additional, len(other_langs))))
 
         return languages

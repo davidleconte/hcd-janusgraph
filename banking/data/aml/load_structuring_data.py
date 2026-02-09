@@ -41,7 +41,7 @@ class AMLDataLoader:
         try:
             self.gc = client.Client(self.gremlin_url, "g")
             # Test connection
-            result = self.gc.submit("g.V().limit(1)").all().result()
+            self.gc.submit("g.V().limit(1)").all().result()
             print("✅ Connected to JanusGraph")
             return True
         except Exception as e:

@@ -54,7 +54,7 @@ class TestFraudDetectorInitialization:
             patch("banking.fraud.fraud_detection.EmbeddingGenerator") as mock_gen,
             patch("banking.fraud.fraud_detection.VectorSearchClient"),
         ):
-            detector = FraudDetector(embedding_model="custom-model")
+            FraudDetector(embedding_model="custom-model")
 
             mock_gen.assert_called_once_with(model_name="custom-model")
 

@@ -475,7 +475,7 @@ def main():
     )
 
     # Generate all data
-    data = generator.generate_all_data()
+    generator.generate_all_data()
 
     # Export to both JSON and CSV
     generator.export_to_json("banking/data/aml/aml_structuring_data.json")

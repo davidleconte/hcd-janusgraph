@@ -181,9 +181,8 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         is_encrypted = self._is_encrypted(platform, risk_score)
 
         # Generate thread ID (70% are part of threads)
-        thread_id = None
         if random.random() < 0.70:
-            thread_id = f"THREAD-{self.faker.uuid4()[:12]}"
+            f"THREAD-{self.faker.uuid4()[:12]}"
 
         # Determine if flagged for review
         flagged_for_review = risk_score > 0.6 or len(suspicious_keywords) > 2
@@ -231,7 +230,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         # Get Faker instance for language (fallback to English)
         try:
             faker_lang = Faker(self._get_faker_locale(language))
-        except:
+        except Exception:
             faker_lang = self.faker
 
         subject = None
@@ -491,7 +490,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         Returns:
             List of Communication objects forming a thread
         """
-        thread_id = f"THREAD-{self.faker.uuid4()[:12]}"
+        f"THREAD-{self.faker.uuid4()[:12]}"
         base_time = random_datetime_between(
             datetime.now(timezone.utc) - timedelta(days=30), datetime.now(timezone.utc)
         )

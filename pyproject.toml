@@ -170,6 +170,19 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 exclude = ['notebooks/', 'notebooks-exploratory/', 'hcd-1.2.3/', 'vendor/']
 
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"banking/notebooks/*" = ["E402", "E722", "F401", "F601"]
+"banking/data_generators/tests/conftest.py" = ["E402"]
+"banking/analytics/tests/*" = ["E402"]
+
 [tool.coverage.run]
 source = ["src", "banking"]
 omit = ["**/tests/*", "**/__pycache__/*", "**/htmlcov/*"]

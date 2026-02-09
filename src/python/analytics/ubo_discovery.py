@@ -573,7 +573,7 @@ class UBODiscovery:
                         for edge in edge_results:
                             edges.append(edge)
                         break
-                    except:
+                    except Exception:
                         continue
 
         except Exception as e:

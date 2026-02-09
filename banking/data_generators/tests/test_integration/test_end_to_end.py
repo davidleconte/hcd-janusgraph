@@ -76,7 +76,7 @@ class TestEndToEndWorkflow:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         output_file = tmp_path / "validation_data.json"
         orchestrator.export_to_json(output_file)
@@ -123,7 +123,7 @@ class TestEndToEndWorkflow:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         # Verify patterns were injected
         output_file = tmp_path / "pattern_data.json"
@@ -155,7 +155,7 @@ class TestDataQualityValidation:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         output_file = tmp_path / "stats_data.json"
         orchestrator.export_to_json(output_file)
@@ -187,7 +187,7 @@ class TestDataQualityValidation:
         )
 
         orchestrator = MasterOrchestrator(config)
-        stats = orchestrator.generate_all()
+        orchestrator.generate_all()
 
         output_file = tmp_path / "unique_data.json"
         orchestrator.export_to_json(output_file)

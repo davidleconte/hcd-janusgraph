@@ -142,7 +142,6 @@ class CATOPatternGenerator(BaseGenerator[Pattern]):
         red_flags: List[str] = []
 
         # Phase 1: Reconnaissance (phishing emails)
-        recon_date = start_date
         for victim in victims:
             comm = self.communication_gen.generate(
                 sender_id=attackers[0].person_id, recipient_id=victim.person_id
