@@ -46,7 +46,7 @@ class PIISanitizer(logging.Filter):
             '[CARD_REDACTED]'
         ),
         'phone': (
-            re.compile(r'\b(?:\+?1[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}\b'),
+            re.compile(r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'),
             '[PHONE_REDACTED]'
         ),
         'account_id': (

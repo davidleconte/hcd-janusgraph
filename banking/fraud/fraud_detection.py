@@ -22,7 +22,7 @@ from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import P
 
 from src.python.utils.embedding_generator import EmbeddingGenerator
-from src.python.utils.resilience import CircuitBreaker, retry_with_backoff
+from src.python.utils.resilience import CircuitBreaker, CircuitBreakerConfig, retry_with_backoff
 from src.python.utils.vector_search import VectorSearchClient
 
 logger = logging.getLogger(__name__)
@@ -125,8 +125,7 @@ class FraudDetector:
         self._connection = None
         self._g = None
         self._breaker = CircuitBreaker(
-            failure_threshold=3,
-            recovery_timeout=30.0,
+            config=CircuitBreakerConfig(failure_threshold=3, recovery_timeout=30.0),
             name="fraud-janusgraph",
         )
     

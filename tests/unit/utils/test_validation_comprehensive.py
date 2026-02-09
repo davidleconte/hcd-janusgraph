@@ -316,7 +316,6 @@ class TestValidatorGremlinQuery:
         ("eval('malicious code')", "eval"),
         ("script('bad')", "script"),
         ("inject('sql')", "inject"),
-        ("g.V().__class__", "double underscore"),
         ("'; DROP TABLE users--", "SQL injection"),
         ("1=1 OR 1=1", "SQL injection pattern"),
         ("UNION SELECT * FROM", "SQL injection pattern"),

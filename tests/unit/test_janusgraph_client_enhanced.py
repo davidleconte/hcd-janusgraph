@@ -9,8 +9,7 @@ Author: Security Remediation Team
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from src.python.client.janusgraph_client import JanusGraphClient
+from unittest.mock import Mock, patch
 from src.python.client.janusgraph_client import JanusGraphClient
 from src.python.client.exceptions import (
     ConnectionError,
@@ -20,15 +19,17 @@ from src.python.client.exceptions import (
 )
 from src.python.utils.validation import ValidationError as UtilsValidationError
 
+CREDS = {"username": "test", "password": "test"}
+
 
 class TestJanusGraphClientInitialization:
     """Test client initialization and validation"""
 
     def test_init_with_default_parameters(self):
         """Test client initialization with default parameters"""
-        client = JanusGraphClient()
+        client = JanusGraphClient(**CREDS)
         assert client.host == "localhost"
-        assert client.port == 18182  # Project default is 18182 (podman mapped port)
+        assert client.port == 18182
         assert client.traversal_source == "g"
         assert client.timeout == 30
         assert client.url == "wss://localhost:18182/gremlin"
@@ -40,7 +41,8 @@ class TestJanusGraphClientInitialization:
             host="janusgraph.example.com",
             port=8182,
             traversal_source="graph",
-            timeout=60
+            timeout=60,
+            **CREDS,
         )
         assert client.host == "janusgraph.example.com"
         assert client.port == 8182
@@ -48,14 +50,11 @@ class TestJanusGraphClientInitialization:
         assert client.timeout == 60
         assert client.url == "wss://janusgraph.example.com:8182/gremlin"
 
-        # Misplaced assertions removed
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_connect_timeout(self, mock_client_class):
         """Test connection timeout raises TimeoutError"""
         mock_client_class.side_effect = TimeoutError("Connection timeout")
-
-        jg_client = JanusGraphClient()
-        
+        jg_client = JanusGraphClient(**CREDS)
         with pytest.raises(TimeoutError, match="Connection to .* timed out"):
             jg_client.connect()
 
@@ -63,26 +62,21 @@ class TestJanusGraphClientInitialization:
     def test_connect_failure(self, mock_client_class):
         """Test connection failure raises ConnectionError"""
         mock_client_class.side_effect = Exception("Connection refused")
-
-        jg_client = JanusGraphClient()
-        
+        jg_client = JanusGraphClient(**CREDS)
         with pytest.raises(ConnectionError, match="Failed to connect"):
             jg_client.connect()
 
     def test_is_connected_when_not_connected(self):
         """Test is_connected returns False when not connected"""
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         assert not jg_client.is_connected()
 
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_is_connected_when_connected(self, mock_client_class):
         """Test is_connected returns True when connected"""
-        mock_client_instance = Mock()
-        mock_client_class.return_value = mock_client_instance
-
-        jg_client = JanusGraphClient()
+        mock_client_class.return_value = Mock()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
-        
         assert jg_client.is_connected()
 
 
@@ -91,48 +85,35 @@ class TestJanusGraphClientQueryExecution:
 
     def test_execute_without_connection(self):
         """Test executing query without connection raises ConnectionError"""
-        jg_client = JanusGraphClient()
-        
+        jg_client = JanusGraphClient(**CREDS)
         with pytest.raises(ConnectionError, match="Client not connected"):
             jg_client.execute("g.V().count()")
-
-    def test_execute_with_empty_query(self):
-        """Test executing empty query raises ValidationError"""
-        jg_client = JanusGraphClient()
-        jg_client.connect()
-        with pytest.raises(UtilsValidationError, match="must be a non-empty string"):
-            jg_client.execute("")
-        with pytest.raises(ValidationError, match="Query cannot be empty"):
-            jg_client.execute("")
 
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_execute_with_whitespace_query(self, mock_client_class):
         """Test executing whitespace-only query raises ValidationError"""
-        # Mock connection to bypass ConnectionError check
-        mock_client_instance = Mock()
-        mock_client_class.return_value = mock_client_instance
-        
-        jg_client = JanusGraphClient()
+        mock_client_class.return_value = Mock()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
-        
         with pytest.raises(UtilsValidationError, match="must be a non-empty string"):
             jg_client.execute("   ")
+
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_execute_success(self, mock_client_class):
         """Test successful query execution"""
         mock_client_instance = mock_client_class.return_value
         mock_client_instance.submit.return_value.all.return_value.result.return_value = [42]
-        
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
         result = jg_client.execute("g.V().count()")
-
         assert result == [42]
         mock_client_instance.submit.assert_called_once_with("g.V().count()")
+
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_execute_with_empty_query(self, mock_client_class):
         """Test executing empty query raises ValidationError"""
-        jg_client = JanusGraphClient()
+        mock_client_class.return_value = Mock()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
         with pytest.raises(UtilsValidationError, match="must be a non-empty string"):
             jg_client.execute("")
@@ -143,12 +124,12 @@ class TestJanusGraphClientQueryExecution:
         mock_client_instance = Mock()
         mock_client_instance.submit.side_effect = TimeoutError("Query timeout")
         mock_client_class.return_value = mock_client_instance
-
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
-
         with pytest.raises(TimeoutError, match="Query execution timed out"):
             jg_client.execute("g.V().count()")
+
+
 class TestJanusGraphClientConnectionManagement:
     """Test connection lifecycle management"""
 
@@ -157,18 +138,16 @@ class TestJanusGraphClientConnectionManagement:
         """Test closing connection when connected"""
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
-        
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
         jg_client.close()
-
         mock_client_instance.close.assert_called_once()
         assert not jg_client.is_connected()
 
     def test_close_when_not_connected(self):
         """Test closing connection when not connected (should not raise)"""
-        jg_client = JanusGraphClient()
-        jg_client.close()  # Should not raise
+        jg_client = JanusGraphClient(**CREDS)
+        jg_client.close()
         assert not jg_client.is_connected()
 
     @patch('src.python.client.janusgraph_client.client.Client')
@@ -176,13 +155,10 @@ class TestJanusGraphClientConnectionManagement:
         """Test closing connection multiple times (idempotent)"""
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
-
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
         jg_client.close()
-        jg_client.close()  # Should not raise
-
-        # Close should only be called once
+        jg_client.close()
         mock_client_instance.close.assert_called_once()
 
     @patch('src.python.client.janusgraph_client.client.Client')
@@ -191,17 +167,10 @@ class TestJanusGraphClientConnectionManagement:
         mock_client_instance = Mock()
         mock_client_instance.close.side_effect = Exception("Close error")
         mock_client_class.return_value = mock_client_instance
-
-        jg_client = JanusGraphClient()
+        jg_client = JanusGraphClient(**CREDS)
         jg_client.connect()
-
         with pytest.raises(Exception, match="Close error"):
             jg_client.close()
-        
-        # Client should still be marked as closed
-        assert not jg_client.is_connected()
-        
-        # Client should still be marked as closed
         assert not jg_client.is_connected()
 
 
@@ -213,11 +182,8 @@ class TestJanusGraphClientContextManager:
         """Test using client as context manager"""
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
-
-        with JanusGraphClient() as client:
+        with JanusGraphClient(**CREDS) as client:
             assert client.is_connected()
-        
-        # Connection should be closed after exiting context
         mock_client_instance.close.assert_called_once()
 
     @patch('src.python.client.janusgraph_client.client.Client')
@@ -225,29 +191,16 @@ class TestJanusGraphClientContextManager:
         """Test context manager closes connection even when exception occurs"""
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
-
         with pytest.raises(RuntimeError):
-            with JanusGraphClient() as client:
+            with JanusGraphClient(**CREDS) as client:
                 assert client.is_connected()
                 raise RuntimeError("Test error")
-        
-        # Connection should still be closed
         mock_client_instance.close.assert_called_once()
 
-    @patch('src.python.client.janusgraph_client.client.Client')
-    def test_context_manager_query_execution(self, mock_client_class):
-        """Test executing queries within context manager"""
-        mock_result = Mock()
-        mock_result.all().result.return_value = [10]
-        
-        mock_client_instance = Mock()
-        mock_client_instance.submit.return_value = mock_result
-        mock_client_class.return_value = mock_client_instance
     def test_repr_when_not_connected(self):
         """Test __repr__ when not connected"""
-        jg_client = JanusGraphClient(host="test.example.com", port=8182)
+        jg_client = JanusGraphClient(host="test.example.com", port=8182, **CREDS)
         repr_str = repr(jg_client)
-        
         assert "JanusGraphClient" in repr_str
         assert "wss://test.example.com:8182/gremlin" in repr_str
         assert "disconnected" in repr_str
@@ -255,39 +208,29 @@ class TestJanusGraphClientContextManager:
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_repr_when_connected(self, mock_client_class):
         """Test __repr__ when connected"""
-        mock_client_instance = Mock()
-        mock_client_class.return_value = mock_client_instance
-
-        jg_client = JanusGraphClient(host="test.example.com", port=8182)
+        mock_client_class.return_value = Mock()
+        jg_client = JanusGraphClient(host="test.example.com", port=8182, **CREDS)
         jg_client.connect()
         repr_str = repr(jg_client)
-        
         assert "JanusGraphClient" in repr_str
         assert "wss://test.example.com:8182/gremlin" in repr_str
         assert "connected" in repr_str
+
     @patch('src.python.client.janusgraph_client.client.Client')
     def test_full_workflow(self, mock_client_class):
         """Test complete workflow: connect, query, close"""
         mock_result = Mock()
         mock_result.all().result.return_value = [5]
-        
         mock_client_instance = Mock()
         mock_client_instance.submit.return_value = mock_result
         mock_client_class.return_value = mock_client_instance
 
-        # Create client
-        client = JanusGraphClient(host="localhost", port=8182)
+        client = JanusGraphClient(host="localhost", port=8182, **CREDS)
         assert not client.is_connected()
-
-        # Connect
         client.connect()
         assert client.is_connected()
-
-        # Execute query
         result = client.execute("g.V().hasLabel('person').count()")
         assert result == [5]
-
-        # Close
         client.close()
         assert not client.is_connected()
 
@@ -296,27 +239,19 @@ class TestJanusGraphClientContextManager:
         """Test executing multiple queries in sequence"""
         mock_client_instance = Mock()
         mock_client_class.return_value = mock_client_instance
-
-        # Setup different results for different queries
         mock_result1 = Mock()
         mock_result1.all().result.return_value = [10]
         mock_result2 = Mock()
         mock_result2.all().result.return_value = [20]
         mock_result3 = Mock()
         mock_result3.all().result.return_value = [{"name": "Alice"}]
-
         mock_client_instance.submit.side_effect = [mock_result1, mock_result2, mock_result3]
 
-        with JanusGraphClient() as client:
-            result1 = client.execute("g.V().count()")
-            result2 = client.execute("g.E().count()")
-            result3 = client.execute("g.V().has('name', 'Alice').valueMap()")
-
-            assert result1 == [10]
-            assert result2 == [20]
-            assert result3 == [{"name": "Alice"}]
+        with JanusGraphClient(**CREDS) as client:
+            assert client.execute("g.V().count()") == [10]
+            assert client.execute("g.E().count()") == [20]
+            assert client.execute("g.V().has('name', 'Alice').valueMap()") == [{"name": "Alice"}]
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--cov=src.python.client", "--cov-report=term-missing"])
-

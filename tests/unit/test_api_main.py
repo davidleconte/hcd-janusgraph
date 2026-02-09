@@ -100,9 +100,10 @@ class TestAPIConfiguration:
     """Test API configuration."""
 
     def test_default_janusgraph_config(self):
-        from src.python.api.main import JANUSGRAPH_HOST, JANUSGRAPH_PORT
-        assert JANUSGRAPH_HOST == "localhost"
-        assert isinstance(JANUSGRAPH_PORT, int)
+        from src.python.config.settings import get_settings
+        settings = get_settings()
+        assert settings.janusgraph_host == "localhost"
+        assert isinstance(settings.janusgraph_port, int)
 
 
 if __name__ == "__main__":
