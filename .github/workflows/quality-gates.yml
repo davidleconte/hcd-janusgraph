@@ -29,8 +29,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ -v --cov=src --cov=banking --cov-report=xml || true
-        continue-on-error: true
+          pytest tests/ -v --cov=src --cov=banking --cov-report=xml --cov-fail-under=80
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -50,7 +49,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Check docstring coverage
-        run: python scripts/docs/doc_coverage.py --report || true
+        run: python scripts/docs/doc_coverage.py --report
         continue-on-error: true
 
   security-scan:
@@ -68,7 +67,7 @@ jobs:
         run: pip install safety
 
       - name: Run safety check
-        run: safety check --full-report || true
+        run: safety check --full-report
         continue-on-error: true
 
       - name: Check for hardcoded secrets
@@ -76,7 +75,8 @@ jobs:
           if grep -rE "(password|secret|api_key)\s*=\s*['\"][^'\"]+['\"]" \
             --include="*.py" --exclude-dir=.git --exclude-dir=tests \
             src/ banking/ 2>/dev/null | grep -v "example\|placeholder"; then
-            echo "Warning: Potential hardcoded secrets found"
+            echo "::error::Potential hardcoded secrets found"
+            exit 1
           else
             echo "No obvious hardcoded secrets found"
           fi
@@ -96,7 +96,7 @@ jobs:
         run: pip install mypy types-requests
 
       - name: Run mypy
-        run: mypy src/ banking/ --ignore-missing-imports || true
+        run: mypy src/ banking/ --ignore-missing-imports
         continue-on-error: true
 
   code-quality:
@@ -115,4 +115,3 @@ jobs:
 
       - name: Run ruff linter
         run: ruff check src/ banking/ --ignore E501
-        continue-on-error: true

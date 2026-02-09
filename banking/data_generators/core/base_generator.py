@@ -13,7 +13,7 @@ import random
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, TypeVar, Generic
-from datetime import datetime
+from datetime import datetime, timezone
 
 from faker import Faker
 
@@ -95,7 +95,7 @@ class BaseGenerator(ABC, Generic[T]):
         Returns:
             List of generated entities
         """
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         entities = []
         
         for i in range(count):
@@ -105,11 +105,11 @@ class BaseGenerator(ABC, Generic[T]):
                 self.generated_count += 1
                 
                 if show_progress and (i + 1) % 100 == 0:
-                    self.logger.info(f"Generated {i + 1}/{count} entities")
+                    self.logger.info("Generated %d/%d entities", i + 1, count)
                     
             except Exception as e:
                 self.error_count += 1
-                self.logger.error(f"Error generating entity {i + 1}: {str(e)}")
+                self.logger.error("Error generating entity %d: %s", i + 1, e)
                 if self.config.get('raise_on_error', False):
                     raise
         
@@ -126,7 +126,7 @@ class BaseGenerator(ABC, Generic[T]):
         rate = None
         
         if self.start_time:
-            elapsed_time = (datetime.utcnow() - self.start_time).total_seconds()
+            elapsed_time = (datetime.now(timezone.utc) - self.start_time).total_seconds()
             if elapsed_time > 0:
                 rate = self.generated_count / elapsed_time
         

@@ -168,12 +168,18 @@ class JanusGraphClient:
                     ssl_context.verify_mode = ssl.CERT_NONE
 
             # Create client with authentication
+            connect_kwargs = {
+                "username": self.username,
+                "password": self.password,
+                "message_serializer": serializer.GraphSONSerializersV3d0(),
+            }
+            if ssl_context is not None:
+                connect_kwargs["ssl_options"] = ssl_context
+
             self._client = client.Client(
                 self.url,
                 self.traversal_source,
-                username=self.username,
-                password=self.password,
-                message_serializer=serializer.GraphSONSerializersV3d0(),
+                **connect_kwargs,
             )
             
             logger.info("Successfully connected to JanusGraph at %s", self.url)

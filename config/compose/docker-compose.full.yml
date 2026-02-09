@@ -81,7 +81,7 @@ services:
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
       - plugins.security.disabled=true  # Dev mode - enable in production
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=JanusGr@ph2026Demo!  # Required even with security disabled
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD:-DefaultDev0nly!2026}  # Override in production
 
     ulimits:
       memlock:

@@ -761,7 +761,6 @@ class Validator:
         return name
     
     @staticmethod
-    @staticmethod
     def validate_phone(phone: str) -> str:
         """
         Validate phone number.
