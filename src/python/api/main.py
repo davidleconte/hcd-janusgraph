@@ -270,6 +270,15 @@ async def lifespan(app: FastAPI):
     settings = get_settings()
     _configure_logging(settings)
 
+    from src.python.utils.startup_validation import validate_startup
+    result = validate_startup(strict=False)
+    if result.has_errors:
+        for issue in result.issues:
+            logger.error("Startup validation: %s", issue.message)
+        raise RuntimeError("Startup validation failed — check configuration")
+    for issue in result.issues:
+        logger.warning("Startup validation: %s", issue.message)
+
     from src.python.utils.tracing import TracingConfig, initialize_tracing
     tracing_config = TracingConfig(
         service_name="graph-analytics-api",
