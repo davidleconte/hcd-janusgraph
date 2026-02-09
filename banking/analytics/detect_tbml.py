@@ -621,7 +621,3 @@ def detect_tbml_loops():
     print(f"{'='*80}\n")
     
     return report
-
-
-if __name__ == "__main__":
-    detect_tbml_loops()

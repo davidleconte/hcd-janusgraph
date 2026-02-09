@@ -843,7 +843,3 @@ def detect_insider_trading():
     print(f"{'='*80}\n")
     
     return report
-
-
-if __name__ == "__main__":
-    detect_insider_trading()

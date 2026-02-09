@@ -425,7 +425,3 @@ def main():
     print(f"Structuring Patterns: {len(findings['structuring_patterns'])}")
     print(f"High-Risk Accounts: {len(findings['high_risk_accounts'])}")
     print("=" * 60)
-
-
-if __name__ == "__main__":
-    main()

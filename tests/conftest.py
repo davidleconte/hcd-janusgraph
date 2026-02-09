@@ -12,7 +12,7 @@ import pytest
 import sys
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 # Add project root to path
@@ -128,7 +128,7 @@ def sample_transaction():
         'to_account': 'A002',
         'amount': Decimal('1000.00'),
         'currency': 'USD',
-        'timestamp': datetime.now().isoformat(),
+        'timestamp': datetime.now(timezone.utc).isoformat(),
         'type': 'transfer',
         'status': 'completed'
     }
