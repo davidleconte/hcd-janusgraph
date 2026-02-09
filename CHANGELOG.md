@@ -21,6 +21,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notebooks guide updated with OpenSearch aggregation details
 - System architecture updated with OLAP notes
 
+## [1.2.1] - 2026-02-09
+
+### Fixed
+- **CRITICAL**: TypeError in `fraud_detection.py` `check_velocity()` — missing required args
+- **CRITICAL**: Gremlin `__` anonymous traversals falsely blocked by query validation regex
+- **CRITICAL**: 118 deprecated `datetime.utcnow()` calls replaced with `datetime.now(timezone.utc)` across 30 files
+- 337 f-string logging calls converted to lazy `%s` formatting across 27 files
+- Connection-per-call anti-pattern in `structuring_detection.py` and `fraud_detection.py` — now use connection pooling with context manager support
+- `sys.path.insert()` hacks removed from `structuring_detection.py` and `fraud_detection.py`
+- Hardcoded `avg_confidence: 0.75` in `evaluate_model()` now computed from actual predictions
+- Naive `datetime.now()` in test fixture (`conftest.py`) now timezone-aware
+
+### Removed
+- `__main__` demo blocks from 9 library modules (-374 lines)
+- PII (phone numbers, personal emails) from 90 files (166 instances)
+- Redundant `requirements*.txt` files (8 files replaced with pointers to `pyproject.toml`)
+
+### Added
+- `banking/__init__.py` — package now installable via `uv pip install -e ".[all]"`
+- `[tool.setuptools.packages.find]` in `pyproject.toml` for proper package discovery
+- `detect-secrets` hook in `.pre-commit-config.yaml` with `.secrets.baseline`
+- Test location convention documented in `AGENTS.md`
+- Connection pooling with `connect()`/`disconnect()`/context manager in detection modules
+
 ---
 
 ## [1.0.0] - 2026-01-29
@@ -119,4 +143,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-**Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
+
