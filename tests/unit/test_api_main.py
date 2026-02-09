@@ -106,5 +106,43 @@ class TestAPIConfiguration:
         assert isinstance(settings.janusgraph_port, int)
 
 
+class TestHealthEndpoints:
+    """Test liveness and readiness probe endpoints."""
+
+    @pytest.fixture(autouse=True)
+    def client(self):
+        from fastapi.testclient import TestClient
+        from src.python.api.main import app
+        self.client = TestClient(app)
+
+    def test_liveness_returns_200(self):
+        resp = self.client.get("/healthz")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "ok"
+
+    def test_readiness_returns_200(self):
+        resp = self.client.get("/readyz")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "status" in data
+        assert "services" in data
+
+    def test_health_alias_returns_200(self):
+        resp = self.client.get("/health")
+        assert resp.status_code == 200
+
+    def test_docs_accessible(self):
+        resp = self.client.get("/docs")
+        assert resp.status_code == 200
+
+    def test_openapi_json(self):
+        resp = self.client.get("/openapi.json")
+        assert resp.status_code == 200
+        schema = resp.json()
+        assert "paths" in schema
+        assert "/healthz" in schema["paths"]
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
