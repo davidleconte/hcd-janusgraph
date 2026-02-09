@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## System Architecture
 
@@ -11,23 +11,23 @@ flowchart TB
         DG[Data Generators]
         EXT[External Systems]
     end
-    
+
     subgraph Streaming Layer
         P[Apache Pulsar]
         DLQ[Dead Letter Queue]
     end
-    
+
     subgraph Storage Layer
         JG[JanusGraph]
         HCD[HCD/Cassandra]
         OS[OpenSearch]
     end
-    
+
     subgraph Application Layer
         API[REST API]
         NB[Notebooks]
     end
-    
+
     DG --> P
     EXT --> P
     P --> JG

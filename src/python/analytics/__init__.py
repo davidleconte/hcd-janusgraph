@@ -8,12 +8,6 @@ Modules:
 - ubo_discovery: Ultimate Beneficial Owner discovery through ownership chains
 """
 
-from .ubo_discovery import UBODiscovery, UBOResult, discover_ubos, OwnershipType, OwnershipLink
+from .ubo_discovery import OwnershipLink, OwnershipType, UBODiscovery, UBOResult, discover_ubos
 
-__all__ = [
-    'UBODiscovery',
-    'UBOResult', 
-    'discover_ubos',
-    'OwnershipType',
-    'OwnershipLink'
-]
+__all__ = ["UBODiscovery", "UBOResult", "discover_ubos", "OwnershipType", "OwnershipLink"]

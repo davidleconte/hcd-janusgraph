@@ -5,10 +5,9 @@ Provides decorators and helpers for fault-tolerant Gremlin operations.
 """
 
 import logging
-import time
 import threading
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+import time
+from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from typing import Callable, Optional, Tuple, Type
@@ -150,7 +149,7 @@ def retry_with_backoff(
                     if circuit_breaker:
                         circuit_breaker.record_failure()
                     if attempt < max_retries:
-                        delay = min(base_delay * (exponential_base ** attempt), max_delay)
+                        delay = min(base_delay * (exponential_base**attempt), max_delay)
                         logger.warning(
                             "Retry %d/%d for %s after %.1fs: %s",
                             attempt + 1,

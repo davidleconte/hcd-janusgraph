@@ -61,7 +61,7 @@ def connect_to_graph():
 # File: src/python/utils/graph_connection.py
 class GraphConnectionManager:
     """Centralized graph connection management."""
-    
+
     @staticmethod
     def create_connection(host='localhost', port=8182):
         """Create graph connection with proper configuration."""
@@ -75,6 +75,7 @@ class GraphConnectionManager:
 ```
 
 **Refactoring Actions:**
+
 1. Extract common connection logic to utility module
 2. Create reusable configuration management
 3. Implement connection pooling
@@ -93,7 +94,7 @@ def process_user_data(user_id):
     if not isinstance(user_id, str):
         raise TypeError("User ID must be string")
     # ... more validation
-    
+
     # Database query (20 lines)
     connection = create_connection()
     try:
@@ -102,13 +103,13 @@ def process_user_data(user_id):
         # ... more queries
     finally:
         connection.close()
-    
+
     # Data processing (30 lines)
     processed_data = {}
     for friend in friends:
         # Complex processing logic
         pass
-    
+
     # Response formatting (20 lines)
     response = format_response(processed_data)
     return response
@@ -116,35 +117,35 @@ def process_user_data(user_id):
 # AFTER: Refactored into smaller, focused functions
 class UserDataProcessor:
     """Process user data with clear separation of concerns."""
-    
+
     def __init__(self, graph_connection):
         self.g = graph_connection
-    
+
     def process(self, user_id: str) -> Dict[str, Any]:
         """Main processing pipeline."""
         self._validate_user_id(user_id)
         user_data = self._fetch_user_data(user_id)
         processed = self._process_data(user_data)
         return self._format_response(processed)
-    
+
     def _validate_user_id(self, user_id: str):
         """Validate user ID."""
         if not user_id:
             raise ValueError("User ID required")
         if not isinstance(user_id, str):
             raise TypeError("User ID must be string")
-    
+
     def _fetch_user_data(self, user_id: str) -> Dict[str, Any]:
         """Fetch user data from graph."""
         user = self.g.V(user_id).next()
         friends = self.g.V(user_id).out('knows').toList()
         return {'user': user, 'friends': friends}
-    
+
     def _process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Process fetched data."""
         # Processing logic
         return processed_data
-    
+
     def _format_response(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Format response."""
         # Formatting logic
@@ -158,23 +159,23 @@ class UserDataProcessor:
 def check_query_performance(execution_time):
     if execution_time > 1000:  # What is 1000?
         log_slow_query()
-    
+
     if result_count > 10000:  # Why 10000?
         paginate_results()
 
 # AFTER: Named constants with documentation
 class QueryPerformanceConfig:
     """Query performance configuration constants."""
-    
+
     # Slow query threshold in milliseconds
     SLOW_QUERY_THRESHOLD_MS = 1000
-    
+
     # Maximum results before pagination required
     MAX_RESULTS_BEFORE_PAGINATION = 10000
-    
+
     # Connection pool size
     DEFAULT_POOL_SIZE = 20
-    
+
     # Query timeout in seconds
     DEFAULT_QUERY_TIMEOUT = 30
 
@@ -182,7 +183,7 @@ def check_query_performance(execution_time):
     """Check query performance against thresholds."""
     if execution_time > QueryPerformanceConfig.SLOW_QUERY_THRESHOLD_MS:
         log_slow_query()
-    
+
     if result_count > QueryPerformanceConfig.MAX_RESULTS_BEFORE_PAGINATION:
         paginate_results()
 ```
@@ -207,13 +208,13 @@ class QueryExecutionError(Exception):
 def execute_query(query: str) -> List[Any]:
     """
     Execute graph query with proper error handling.
-    
+
     Args:
         query: Query string
-    
+
     Returns:
         Query results
-    
+
     Raises:
         QueryExecutionError: If query execution fails
     """
@@ -221,15 +222,15 @@ def execute_query(query: str) -> List[Any]:
         result = g.V().has('name', query).toList()
         logger.info(f"Query executed successfully: {query}")
         return result
-    
+
     except GremlinServerError as e:
         logger.error(f"Gremlin server error: {e}", exc_info=True)
         raise QueryExecutionError(f"Query failed: {e}") from e
-    
+
     except ConnectionError as e:
         logger.error(f"Connection error: {e}", exc_info=True)
         raise QueryExecutionError("Database connection failed") from e
-    
+
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
         raise QueryExecutionError(f"Unexpected error: {e}") from e
@@ -240,18 +241,21 @@ def execute_query(query: str) -> List[Any]:
 ## 2. Refactoring Priorities
 
 ### Priority 1: Critical (Week 10)
+
 1. **Extract duplicate code** - Reduce duplication from 15% to <10%
 2. **Break down long functions** - Max 30 lines per function
 3. **Improve error handling** - Specific exceptions, proper logging
 4. **Add type hints** - 100% coverage for public APIs
 
 ### Priority 2: High (Week 11)
+
 1. **Refactor complex classes** - Single Responsibility Principle
 2. **Improve naming** - Clear, descriptive names
 3. **Add docstrings** - All public functions/classes
 4. **Remove dead code** - Unused imports, functions, variables
 
 ### Priority 3: Medium (Week 12)
+
 1. **Optimize imports** - Remove unused, organize properly
 2. **Improve code organization** - Logical module structure
 3. **Add configuration management** - Centralized config
@@ -278,15 +282,15 @@ def process_data(
 ) -> Dict[str, Any]:
     """
     Process user data with configurable options.
-    
+
     Args:
         user_id: User identifier
         include_friends: Whether to include friend data
         max_depth: Maximum traversal depth
-    
+
     Returns:
         Processed user data dictionary
-    
+
     Raises:
         ValueError: If user_id is invalid
     """
@@ -334,29 +338,29 @@ def complex_function(
 ) -> Dict[str, Any]:
     """
     One-line summary of function purpose.
-    
+
     Longer description explaining the function's behavior,
     edge cases, and any important implementation details.
-    
+
     Args:
         param1: Description of param1
         param2: Description of param2
         param3: Optional description of param3. Defaults to None.
-    
+
     Returns:
         Dictionary containing:
             - key1: Description of key1
             - key2: Description of key2
-    
+
     Raises:
         ValueError: If param1 is empty
         TypeError: If param2 is negative
-    
+
     Example:
         >>> result = complex_function("test", 42)
         >>> print(result['key1'])
         'value1'
-    
+
     Note:
         This function has O(n) time complexity.
     """
@@ -650,16 +654,19 @@ tests/
 ### Week 10: Critical Refactoring
 
 **Day 1-2: Setup and Analysis**
+
 - Configure automated tools
 - Run initial code analysis
 - Identify high-priority issues
 
 **Day 3-4: Core Refactoring**
+
 - Extract duplicate code
 - Break down long functions
 - Add type hints to public APIs
 
 **Day 5: Testing and Validation**
+
 - Run full test suite
 - Verify no regressions
 - Update documentation
@@ -667,16 +674,19 @@ tests/
 ### Week 11: Quality Improvements
 
 **Day 1-2: Code Organization**
+
 - Refactor complex classes
 - Improve module structure
 - Organize imports
 
 **Day 3-4: Documentation**
+
 - Add comprehensive docstrings
 - Update API documentation
 - Create code examples
 
 **Day 5: Final Review**
+
 - Code review
 - Performance testing
 - Documentation review
@@ -725,40 +735,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      
+
       - name: Install dependencies
         run: |
           pip install black isort flake8 mypy pylint radon bandit
-      
+
       - name: Run Black
         run: black --check src/
-      
+
       - name: Run isort
         run: isort --check-only src/
-      
+
       - name: Run flake8
         run: flake8 src/
-      
+
       - name: Run mypy
         run: mypy src/
-      
+
       - name: Run pylint
         run: pylint src/
-      
+
       - name: Check complexity
         run: radon cc src/ -a -nb --total-average
-      
+
       - name: Security scan
         run: bandit -r src/
 ```
 
 ---
 
-**Document Classification:** Internal - Technical  
-**Next Review Date:** 2026-04-28  
+**Document Classification:** Internal - Technical
+**Next Review Date:** 2026-04-28
 **Document Owner:** Engineering Team

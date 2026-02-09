@@ -1,8 +1,8 @@
 # Pulsar Implementation Plan
 
-**Date:** 2026-02-04  
-**Version:** 1.0  
-**Status:** Planning  
+**Date:** 2026-02-04
+**Version:** 1.0
+**Status:** Planning
 **Reference:** Event Sourced Ingestion Architecture
 
 ---
@@ -91,10 +91,12 @@
 ```
 
 **Key Insight**: OpenSearch does NOT require delete + recreate. Using the same `_id`:
+
 - `PUT /index/_doc/{id}` → full document replacement (upsert)
 - `POST /index/_update/{id}` → partial update (merge)
 
-**Recommendation**: 
+**Recommendation**:
+
 - **Simple approach**: Always regenerate embedding on update (wasteful but simple)
 - **Optimized approach**: Check if `text_for_embedding` changed; if not, partial update
 
@@ -122,10 +124,12 @@
 ```
 
 **For This Project**:
+
 - If ALL writes go through Pulsar → **CDC NOT required**
 - If notebooks/scripts write directly to JanusGraph → **CDC IS required**
 
-**Recommendation**: 
+**Recommendation**:
+
 1. **Phase 1**: Enforce all writes through Pulsar (no CDC needed)
 2. **Phase 2 (optional)**: Add CDC if direct JanusGraph access is needed
 
@@ -153,7 +157,7 @@ producer.send(
 # Idempotent create/update pattern
 def process_event(g, event):
     entity_id = event['entity_id']
-    
+
     # fold().coalesce() pattern - idempotent
     g.V().has('entity_id', entity_id) \
         .fold() \
@@ -164,7 +168,7 @@ def process_event(g, event):
         .property('entity_id', entity_id) \
         .property('version', event['version']) \
         .next()
-    
+
 # ✅ Same event processed twice = same result
 ```
 
@@ -219,7 +223,7 @@ def process_update(event):
         embedding = generator.encode(event['text_for_embedding'])
     else:
         embedding = [0.0] * 384  # Or fetch existing
-    
+
     # Full document replace
     opensearch.index(
         index='person_vectors',
@@ -239,18 +243,18 @@ def process_update(event):
 ```python
 def process_update(event):
     """Regenerate embedding only if text changed."""
-    
+
     # Get existing document
     existing = opensearch.get(
         index='person_vectors',
         id=event['entity_id'],
         ignore=[404]
     )
-    
+
     if existing and event.get('text_for_embedding'):
         old_text = existing.get('_source', {}).get('text_for_embedding')
         new_text = event['text_for_embedding']
-        
+
         if old_text != new_text:
             # Text changed - regenerate embedding
             embedding = generator.encode(new_text)
@@ -261,7 +265,7 @@ def process_update(event):
     else:
         embedding = generator.encode(event['text_for_embedding'])
         mode = 'full_replace'
-    
+
     if mode == 'full_replace':
         opensearch.index(
             index='person_vectors',
@@ -282,6 +286,7 @@ def process_update(event):
 #### Recommendation
 
 **Start with Option A** (simple), optimize to Option B later if:
+
 - High update volume
 - Embedding generation is slow/expensive
 - Most updates are metadata-only
@@ -354,6 +359,7 @@ def process_update(event):
 ```
 
 **CDC Tools**:
+
 - **Debezium**: Industry standard, supports Cassandra (HCD backend)
 - **Pulsar IO Connector**: Native Pulsar integration
 
@@ -414,9 +420,10 @@ def process_update(event):
 | 1.8 | Update deployment documentation | 2h | 1.7 | Docs |
 
 **Week 1 Deliverables:**
+
 - [ ] Pulsar running in docker-compose
 - [ ] Topics created and accessible
-- [ ] Admin console at http://localhost:8080
+- [ ] Admin console at <http://localhost:8080>
 - [ ] Deduplication enabled
 
 ### Week 2: Event Schema & Producers
@@ -435,6 +442,7 @@ def process_update(event):
 | 2.10 | Write unit tests for EntityProducer | 3h | 2.2 | QA |
 
 **Week 2 Deliverables:**
+
 - [ ] `banking/streaming/events.py` - EntityEvent
 - [ ] `banking/streaming/producer.py` - EntityProducer
 - [ ] Generators updated with producer injection
@@ -455,6 +463,7 @@ def process_update(event):
 | 3.9 | Performance benchmarking | 3h | 3.8 | QA |
 
 **Week 3 Deliverables:**
+
 - [ ] `banking/streaming/graph_consumer.py`
 - [ ] Integration tests passing
 - [ ] Metrics exposed at /metrics
@@ -475,6 +484,7 @@ def process_update(event):
 | 4.9 | Test cross-system ID consistency | 4h | 4.8, 3.8 | QA |
 
 **Week 4 Deliverables:**
+
 - [ ] `banking/streaming/vector_consumer.py`
 - [ ] Same entity_id in JanusGraph and OpenSearch
 - [ ] Integration tests passing
@@ -495,6 +505,7 @@ def process_update(event):
 | 5.9 | Document test results | 3h | 5.8 | Docs |
 
 **Week 5 Deliverables:**
+
 - [ ] E2E test suite in `tests/integration/test_streaming.py`
 - [ ] All scenarios passing
 - [ ] Load test report
@@ -514,6 +525,7 @@ def process_update(event):
 | 6.8 | Final documentation review | 3h | 6.6 | Docs |
 
 **Week 6 Deliverables:**
+
 - [ ] DLQ topic and monitoring
 - [ ] Grafana dashboard
 - [ ] Alert rules
@@ -595,8 +607,8 @@ tests/
 
 ---
 
-**Document Status**: Planning  
-**Last Updated**: 2026-02-04  
+**Document Status**: Planning
+**Last Updated**: 2026-02-04
 **Next Steps**: Review and approve Week 1 tasks
 
 Co-Authored-By: David Leconte <team@example.com>

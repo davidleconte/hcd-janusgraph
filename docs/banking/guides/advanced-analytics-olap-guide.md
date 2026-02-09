@@ -1,7 +1,7 @@
 # Advanced Analytics & OLAP Implementation Guide
 
-**Date:** 2026-01-28  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
+**Date:** 2026-01-28
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 **Purpose:** Comprehensive guide to OLAP operations, complex scenarios, and direct OpenSearch queries
 
 ---
@@ -21,6 +21,7 @@
 ### What is OLAP?
 
 **OLAP (Online Analytical Processing)** enables multi-dimensional analysis of data. Unlike OLTP (transactional), OLAP focuses on:
+
 - Complex queries
 - Aggregations
 - Historical analysis
@@ -33,19 +34,19 @@ flowchart LR
     subgraph "OLAP Cube"
         DATA[(Raw Data)]
     end
-    
+
     DATA --> SLICE[SLICE<br/>Filter 1 dimension]
     DATA --> DICE[DICE<br/>Filter N dimensions]
     DATA --> DRILL[DRILL-DOWN<br/>Summary → Detail]
     DATA --> ROLL[ROLL-UP<br/>Detail → Summary]
     DATA --> PIVOT[PIVOT<br/>Rotate view]
-    
+
     SLICE --> OS[(OpenSearch<br/>Aggregations)]
     DICE --> OS
     DRILL --> OS
     ROLL --> OS
     PIVOT --> PD[Pandas<br/>DataFrame]
-    
+
     style DATA fill:#e3f2fd
     style OS fill:#fff3e0
     style PD fill:#e8f5e9
@@ -60,6 +61,7 @@ flowchart LR
 ### Our Implementation
 
 We implement OLAP using:
+
 - **OpenSearch aggregations** (primary engine)
 - **Pandas DataFrames** (in-memory processing)
 - **JanusGraph** (graph traversals for relationships)
@@ -77,12 +79,14 @@ This project deliberately uses **OpenSearch aggregations** for OLAP-style analyt
 | **Complexity** | Simple REST API | Requires Spark expertise |
 
 **When Spark Would Be Better:**
+
 - Petabyte-scale graph analytics
 - Complex iterative algorithms (PageRank, community detection)
 - Machine learning pipelines on graph data
 - Cross-cluster federated queries
 
 **When OpenSearch Is Better (Our Use Case):**
+
 - Real-time compliance dashboards
 - Sub-second query response requirements
 - OLAP operations (slice, dice, drill-down, roll-up, pivot)
@@ -122,6 +126,7 @@ The notebooks use **abstraction layers** (Python classes) for simplicity, but un
 ### Example 1: Vector Search (What the Code Does)
 
 **High-Level Code (in notebooks):**
+
 ```python
 from utils.vector_search import VectorSearchClient
 
@@ -134,6 +139,7 @@ results = vec_client.search(
 ```
 
 **Actual OpenSearch Query (underneath):**
+
 ```python
 # This is what VectorSearchClient.search() actually sends to OpenSearch
 query = {
@@ -158,6 +164,7 @@ response = opensearch_client.search(
 ### Example 2: Complex Boolean Search
 
 **Direct OpenSearch Query:**
+
 ```json
 {
   "size": 20,
@@ -201,6 +208,7 @@ response = opensearch_client.search(
 ```
 
 **Python Code:**
+
 ```python
 from opensearchpy import OpenSearch
 
@@ -233,6 +241,7 @@ for hit in response['hits']['hits']:
 **Business Example:** "Show me all Q1 2024 transactions"
 
 **OpenSearch Implementation:**
+
 ```python
 slice_query = {
     "size": 0,  # Only aggregations
@@ -269,11 +278,12 @@ response = client.search(index="aml_transactions", body=slice_query)
 ```
 
 **Result:**
+
 ```
 Q1 2024 Transactions:
   Total Volume: $1,234,567.89
   Transaction Count: 1,155
-  
+
   By Type:
     DEPOSIT:       450 txns ($567,890.12)
     WITHDRAWAL:    350 txns ($345,678.90)
@@ -287,6 +297,7 @@ Q1 2024 Transactions:
 **Business Example:** "High-value international wires in last 30 days"
 
 **OpenSearch Implementation:**
+
 ```python
 dice_query = {
     "size": 0,
@@ -318,10 +329,11 @@ dice_query = {
 ```
 
 **Result:**
+
 ```
 High-Value International Wires (Last 30 Days):
   Total Matching: 87 transactions
-  
+
   Top Accounts:
     ACC_001: $234,567.89 (12 txns, 8 counterparties)
     ACC_002: $189,234.56 (8 txns, 5 counterparties)
@@ -335,6 +347,7 @@ High-Value International Wires (Last 30 Days):
 **Business Example:** "Start at currency level, drill to transaction type, then account"
 
 **OpenSearch Implementation:**
+
 ```python
 drilldown_query = {
     "size": 0,
@@ -363,15 +376,16 @@ drilldown_query = {
 ```
 
 **Result:**
+
 ```
 Level 1 - Currency: USD
   Volume: $1,234,567.89
   Transactions: 850
-  
+
   Level 2 - Type: WIRE_TRANSFER
     Volume: $567,890.12
     Transactions: 120
-    
+
     Level 3 - Account: ACC_001
       Volume: $234,567.89
       Avg: $19,547.32
@@ -386,6 +400,7 @@ Level 1 - Currency: USD
 **Business Example:** "Roll up daily → weekly → monthly"
 
 **OpenSearch Implementation:**
+
 ```python
 rollup_query = {
     "size": 0,
@@ -427,15 +442,16 @@ rollup_query = {
 ```
 
 **Result:**
+
 ```
 Monthly Summary:
   2024-01: $1,234,567.89 (1,155 txns, avg: $1,068.89)
   2024-02: $1,456,789.01 (1,289 txns, avg: $1,130.17)
-  
+
 Weekly Summary (last 4 weeks):
   Week of 2024-02-19: $345,678.90 (312 txns)
   Week of 2024-02-26: $389,012.34 (298 txns)
-  
+
 Daily Summary (last 7 days):
   2024-02-22: $45,678.90 (42 txns)
   2024-02-23: $52,345.67 (48 txns)
@@ -448,6 +464,7 @@ Daily Summary (last 7 days):
 **Business Example:** "Transaction Type × Currency matrix"
 
 **OpenSearch + Pandas Implementation:**
+
 ```python
 # OpenSearch query
 pivot_query = {
@@ -490,6 +507,7 @@ pivot_table = df.pivot_table(
 ```
 
 **Result:**
+
 ```
 Transaction Volume by Type and Currency:
 
@@ -508,11 +526,13 @@ WIRE         $234,567.89  $123,456.78  $65,432.10
 ### Scenario 1: Multi-Jurisdictional Sanctions Network
 
 **Business Problem:** Detect sophisticated money laundering using:
+
 - Shell companies with similar names
 - Multiple aliases and transliterations
 - Coordinated transactions across time zones
 
 **Implementation:**
+
 ```python
 # Combine vector similarity + fuzzy matching + filters
 complex_query = {
@@ -549,11 +569,13 @@ complex_query = {
 ### Scenario 2: Fraud Ring Detection
 
 **Business Problem:** Detect coordinated fraud rings:
+
 - Multiple accounts transacting with same counterparty
 - Similar amounts (coordinated)
 - Within short time window
 
 **Implementation:**
+
 ```python
 fraud_ring_query = {
     "size": 0,
@@ -588,7 +610,7 @@ fraud_ring_query = {
 for bucket in response['aggregations']['by_counterparty']['buckets']:
     unique_accounts = bucket['unique_accounts']['value']
     variance = bucket['amount_variance']['std_deviation']
-    
+
     if unique_accounts >= 3 and variance < 500:
         # FRAUD RING DETECTED
         risk_score = min(100, unique_accounts * 10 + (1000 - variance) / 10)
@@ -597,11 +619,13 @@ for bucket in response['aggregations']['by_counterparty']['buckets']:
 ### Scenario 3: Money Laundering Network (3 Stages)
 
 **Business Problem:** Detect complete laundering cycle:
+
 1. **Placement:** Multiple structured deposits
 2. **Layering:** Complex transfer network
 3. **Integration:** Large withdrawals
 
 **Implementation:**
+
 ```python
 ml_network_query = {
     "size": 0,
@@ -759,7 +783,7 @@ response = client.search(index="aml_transactions", body=query)
 for currency in response['aggregations']['by_currency']['buckets']:
     print(f"\nCurrency: {currency['key']}")
     print(f"Volume: ${currency['total_volume']['value']:,.2f}")
-    
+
     for txn_type in currency['by_type']['buckets']:
         print(f"  {txn_type['key']}: ${txn_type['type_volume']['value']:,.2f}")
 ```
@@ -773,12 +797,14 @@ for currency in response['aggregations']['by_currency']['buckets']:
 **Q1: "Are the code to request from OpenSearch also in the notebook?"**
 
 **A:** Yes and no. The notebooks use **abstraction layers** (Python classes like `VectorSearchClient`, `SanctionsScreener`) for readability, but these classes make **direct OpenSearch API calls** underneath. This guide shows you both:
+
 - The high-level code (what you see in notebooks)
 - The actual OpenSearch queries (what happens underneath)
 
 **Q2: "How did you perform OLAP implementation?"**
 
 **A:** OLAP is implemented using:
+
 1. **OpenSearch aggregations** - Primary engine for SLICE, DICE, DRILL-DOWN, ROLL-UP
 2. **Pandas pivot tables** - For PIVOT operations
 3. **Python post-processing** - For complex business logic
@@ -788,11 +814,13 @@ All 5 OLAP operations are demonstrated with real queries and results.
 **Q3: "Can you create even more complex scenarios?"**
 
 **A:** Yes! This guide includes 3 complex scenarios:
+
 1. Multi-jurisdictional sanctions network
 2. Fraud ring detection
 3. Money laundering network (3-stage detection)
 
 Each scenario combines multiple techniques:
+
 - Vector similarity search
 - Boolean filters
 - Aggregations
@@ -810,6 +838,6 @@ Each scenario combines multiple techniques:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-28  
+**Document Version:** 1.0
+**Last Updated:** 2026-01-28
 **Status:** ✅ Complete

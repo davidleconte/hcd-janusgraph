@@ -43,6 +43,7 @@ This document provides comprehensive guidance for optimizing the HCD JanusGraph 
 ### 1.1 CPU Allocation
 
 **Recommended Configuration:**
+
 ```yaml
 # docker-compose.yml
 services:
@@ -56,12 +57,14 @@ services:
 ```
 
 **CPU Affinity:**
+
 ```bash
 # Pin JanusGraph to specific CPU cores
 docker update --cpuset-cpus="0-3" janusgraph
 ```
 
 **Best Practices:**
+
 - Allocate at least 2 CPU cores for production
 - Reserve 1 core per 100 concurrent queries
 - Monitor CPU steal time in virtualized environments
@@ -70,12 +73,14 @@ docker update --cpuset-cpus="0-3" janusgraph
 ### 1.2 Memory Allocation
 
 **JanusGraph Memory:**
+
 ```bash
 # Set JVM heap size (50-75% of container memory)
 JAVA_OPTIONS="-Xms4g -Xmx4g -XX:+UseG1GC"
 ```
 
 **Container Memory:**
+
 ```yaml
 services:
   janusgraph:
@@ -88,6 +93,7 @@ services:
 ```
 
 **Memory Breakdown:**
+
 - JVM Heap: 4GB (50%)
 - Off-heap (Direct Memory): 2GB (25%)
 - OS Cache: 1.5GB (19%)
@@ -96,6 +102,7 @@ services:
 ### 1.3 Disk Allocation
 
 **Storage Configuration:**
+
 ```yaml
 volumes:
   janusgraph_data:
@@ -107,12 +114,14 @@ volumes:
 ```
 
 **Disk Requirements:**
+
 - **Data Volume:** SSD with 500+ IOPS
 - **Log Volume:** Standard SSD acceptable
 - **Backup Volume:** HDD acceptable
 - **Temp Volume:** Fast SSD recommended
 
 **RAID Configuration:**
+
 - RAID 10 for data (performance + redundancy)
 - RAID 1 for logs (redundancy)
 - No RAID for temp (performance)
@@ -124,6 +133,7 @@ volumes:
 ### 2.1 Gremlin Connection Pool
 
 **Optimal Configuration:**
+
 ```properties
 # janusgraph-server.yaml
 gremlin:
@@ -141,6 +151,7 @@ gremlin:
 ```
 
 **Connection Pool Sizing:**
+
 ```
 Optimal Pool Size = (Core Count × 2) + Effective Spindle Count
 For 4 cores + SSD: (4 × 2) + 1 = 9 ≈ 10 minimum
@@ -150,6 +161,7 @@ Maximum: 100 (adjust based on load testing)
 ### 2.2 Cassandra Connection Pool
 
 **Driver Configuration:**
+
 ```properties
 # janusgraph-hcd.properties
 storage.cql.local-max-connections-per-host=8
@@ -159,6 +171,7 @@ storage.cql.pool-timeout-millis=5000
 ```
 
 **Best Practices:**
+
 - Start with 8 connections per host
 - Increase if seeing connection timeouts
 - Monitor connection usage metrics
@@ -167,6 +180,7 @@ storage.cql.pool-timeout-millis=5000
 ### 2.3 Application Connection Pool
 
 **Python Example:**
+
 ```python
 from gremlin_python.driver import client
 
@@ -187,6 +201,7 @@ gremlin_client = client.Client(
 ### 3.1 JVM Heap Tuning
 
 **G1GC Configuration (Recommended):**
+
 ```bash
 JAVA_OPTIONS="
   -Xms4g
@@ -201,6 +216,7 @@ JAVA_OPTIONS="
 ```
 
 **ZGC Configuration (Low Latency):**
+
 ```bash
 JAVA_OPTIONS="
   -Xms4g
@@ -214,6 +230,7 @@ JAVA_OPTIONS="
 ### 3.2 Off-Heap Memory
 
 **Direct Memory Configuration:**
+
 ```bash
 JAVA_OPTIONS="
   -XX:MaxDirectMemorySize=2g
@@ -224,6 +241,7 @@ JAVA_OPTIONS="
 ### 3.3 Cache Configuration
 
 **JanusGraph Cache Settings:**
+
 ```properties
 # janusgraph-hcd.properties
 cache.db-cache=true
@@ -234,6 +252,7 @@ cache.tx-cache-size=20000
 ```
 
 **Cache Sizing:**
+
 - DB Cache: 25% of heap (1GB for 4GB heap)
 - TX Cache: 20,000 elements (adjust per workload)
 - Clean wait: 20ms (balance between freshness and performance)
@@ -245,6 +264,7 @@ cache.tx-cache-size=20000
 ### 4.1 File System Tuning
 
 **XFS Configuration (Recommended):**
+
 ```bash
 # Mount options
 mount -o noatime,nodiratime,nobarrier /dev/sdb1 /mnt/janusgraph
@@ -254,6 +274,7 @@ mount -o noatime,nodiratime,nobarrier /dev/sdb1 /mnt/janusgraph
 ```
 
 **I/O Scheduler:**
+
 ```bash
 # For SSD: use noop or none
 echo noop > /sys/block/sdb/queue/scheduler
@@ -266,6 +287,7 @@ cat /sys/block/nvme0n1/queue/scheduler
 ### 4.2 Cassandra/HCD I/O Settings
 
 **Commit Log:**
+
 ```yaml
 # cassandra.yaml
 commitlog_sync: periodic
@@ -276,6 +298,7 @@ commitlog_compression:
 ```
 
 **Compaction:**
+
 ```yaml
 compaction_throughput_mb_per_sec: 64
 concurrent_compactors: 4
@@ -285,12 +308,14 @@ compaction_large_partition_warning_threshold_mb: 100
 ### 4.3 Read/Write Optimization
 
 **Read Ahead:**
+
 ```bash
 # Increase read-ahead for sequential reads
 blockdev --setra 8192 /dev/sdb
 ```
 
 **Write Cache:**
+
 ```bash
 # Enable write cache on SSD (if battery-backed)
 hdparm -W1 /dev/sdb
@@ -303,6 +328,7 @@ hdparm -W1 /dev/sdb
 ### 5.1 TCP Tuning
 
 **Kernel Parameters:**
+
 ```bash
 # /etc/sysctl.conf
 net.core.rmem_max=134217728
@@ -321,6 +347,7 @@ sysctl -p
 ### 5.2 Network Interface Tuning
 
 **Ring Buffer Size:**
+
 ```bash
 # Increase ring buffer
 ethtool -G eth0 rx 4096 tx 4096
@@ -330,6 +357,7 @@ ethtool -g eth0
 ```
 
 **Interrupt Coalescing:**
+
 ```bash
 # Reduce interrupt overhead
 ethtool -C eth0 rx-usecs 50 tx-usecs 50
@@ -338,6 +366,7 @@ ethtool -C eth0 rx-usecs 50 tx-usecs 50
 ### 5.3 Connection Keep-Alive
 
 **TCP Keep-Alive:**
+
 ```properties
 # janusgraph-server.yaml
 channelizer: org.apache.tinkerpop.gremlin.server.channel.WsAndHttpChannelizer
@@ -351,6 +380,7 @@ keepAliveInterval: 60000
 ### 6.1 Garbage Collection
 
 **GC Logging:**
+
 ```bash
 JAVA_OPTIONS="
   -Xlog:gc*:file=/var/log/janusgraph/gc.log:time,uptime,level,tags
@@ -361,6 +391,7 @@ JAVA_OPTIONS="
 ```
 
 **GC Tuning Goals:**
+
 - Pause time < 200ms
 - GC overhead < 5%
 - No full GCs during normal operation
@@ -368,6 +399,7 @@ JAVA_OPTIONS="
 ### 6.2 JIT Compilation
 
 **Compiler Options:**
+
 ```bash
 JAVA_OPTIONS="
   -XX:+TieredCompilation
@@ -380,6 +412,7 @@ JAVA_OPTIONS="
 ### 6.3 Thread Configuration
 
 **Thread Pool Sizing:**
+
 ```bash
 JAVA_OPTIONS="
   -XX:ParallelGCThreads=4
@@ -395,6 +428,7 @@ JAVA_OPTIONS="
 ### 7.1 Memory Settings
 
 **Heap Size:**
+
 ```bash
 # cassandra-env.sh
 MAX_HEAP_SIZE="4G"
@@ -402,6 +436,7 @@ HEAP_NEWSIZE="800M"
 ```
 
 **Off-Heap:**
+
 ```yaml
 # cassandra.yaml
 file_cache_size_in_mb: 2048
@@ -410,6 +445,7 @@ file_cache_size_in_mb: 2048
 ### 7.2 Read/Write Paths
 
 **Memtable Settings:**
+
 ```yaml
 memtable_allocation_type: heap_buffers
 memtable_cleanup_threshold: 0.5
@@ -417,6 +453,7 @@ memtable_flush_writers: 2
 ```
 
 **Bloom Filter:**
+
 ```yaml
 bloom_filter_fp_chance: 0.01
 ```
@@ -424,6 +461,7 @@ bloom_filter_fp_chance: 0.01
 ### 7.3 Compaction Strategy
 
 **Leveled Compaction (Recommended):**
+
 ```cql
 CREATE TABLE IF NOT EXISTS janusgraph.edgestore (
     key blob,
@@ -443,12 +481,14 @@ CREATE TABLE IF NOT EXISTS janusgraph.edgestore (
 ### 8.1 Key Performance Indicators
 
 **System Metrics:**
+
 - CPU utilization < 70%
 - Memory utilization < 80%
 - Disk I/O wait < 10%
 - Network throughput < 70% capacity
 
 **Application Metrics:**
+
 - Query latency P95 < 500ms
 - Query latency P99 < 1000ms
 - Throughput > 100 QPS
@@ -457,6 +497,7 @@ CREATE TABLE IF NOT EXISTS janusgraph.edgestore (
 ### 8.2 Monitoring Tools
 
 **Prometheus Queries:**
+
 ```promql
 # CPU usage
 rate(process_cpu_seconds_total[5m]) * 100
@@ -483,7 +524,7 @@ groups:
         for: 5m
         annotations:
           summary: "High query latency detected"
-      
+
       - alert: LowThroughput
         expr: rate(query_total[5m]) < 50
         for: 10m
@@ -496,6 +537,7 @@ groups:
 ## Performance Tuning Checklist
 
 ### Initial Setup
+
 - [ ] Allocate appropriate CPU/memory resources
 - [ ] Configure SSD storage with proper file system
 - [ ] Set up connection pooling
@@ -503,6 +545,7 @@ groups:
 - [ ] Enable GC logging
 
 ### Optimization
+
 - [ ] Tune connection pool sizes
 - [ ] Optimize cache settings
 - [ ] Configure disk I/O scheduler
@@ -510,6 +553,7 @@ groups:
 - [ ] Set up monitoring and alerting
 
 ### Ongoing Maintenance
+
 - [ ] Review GC logs weekly
 - [ ] Analyze slow query logs
 - [ ] Monitor resource utilization
@@ -521,24 +565,28 @@ groups:
 ## Troubleshooting
 
 ### High CPU Usage
+
 1. Check for inefficient queries (full scans)
 2. Review GC overhead
 3. Verify connection pool isn't exhausted
 4. Check for CPU steal in VMs
 
 ### High Memory Usage
+
 1. Review heap size configuration
 2. Check for memory leaks
 3. Analyze cache hit rates
 4. Review transaction sizes
 
 ### High Disk I/O
+
 1. Check compaction settings
 2. Review query patterns
 3. Verify SSD performance
 4. Check for excessive logging
 
 ### Network Bottlenecks
+
 1. Review network bandwidth
 2. Check connection pool settings
 3. Verify TCP tuning parameters
@@ -555,6 +603,6 @@ groups:
 
 ---
 
-**Document Classification:** Internal - Technical  
-**Next Review Date:** 2026-04-28  
+**Document Classification:** Internal - Technical
+**Next Review Date:** 2026-04-28
 **Document Owner:** Infrastructure Team

@@ -1,7 +1,7 @@
 # Banking Notebooks Guide
 
-**Date:** 2026-02-04  
-**Version:** 2.0  
+**Date:** 2026-02-04
+**Version:** 2.0
 **Status:** Active
 
 ---
@@ -18,26 +18,26 @@ flowchart TB
         NB[Notebook]
         CFG[notebook_config.py]
     end
-    
+
     subgraph "Service Layer"
         JG[JanusGraph<br/>:18182]
         OS[OpenSearch<br/>:9200]
         API[FastAPI<br/>:8001]
     end
-    
+
     subgraph "Storage Layer"
         HCD[(HCD/Cassandra)]
         IDX[(Vector Index)]
     end
-    
+
     NB --> CFG
     CFG --> JG
     CFG --> OS
     NB --> API
-    
+
     JG --> HCD
     OS --> IDX
-    
+
     style NB fill:#fff3e0
     style JG fill:#e3f2fd
     style OS fill:#f3e5f5
@@ -83,6 +83,7 @@ The `janusgraph-analysis` conda environment has these variables pre-configured:
 | `JANUSGRAPH_USE_SSL` | `false` | Disable SSL for local development |
 
 Verify after activation:
+
 ```bash
 conda activate janusgraph-analysis
 echo $JANUSGRAPH_PORT      # 18182
@@ -135,45 +136,53 @@ PROJECT_ROOT = config['project_root']
 ### Detailed Descriptions
 
 #### 01: Sanctions Screening Demo
+
 - **Objective**: Real-time sanctions screening with fuzzy name matching
 - **Techniques**: Vector embeddings, k-NN similarity search
 - **Business Value**: OFAC, EU, UN sanctions compliance
 - **Cross-Service**: JanusGraph network tracing for flagged entities (trace 2-hop relationships)
 
-#### 02: AML Structuring Detection Demo  
+#### 02: AML Structuring Detection Demo
+
 - **Objective**: Detect structuring (smurfing) patterns
 - **Techniques**: Temporal pattern analysis, amount clustering
 - **Business Value**: BSA compliance, CTR avoidance detection
 
 #### 03: Fraud Detection Demo
+
 - **Objective**: Identify fraudulent transaction patterns
 - **Techniques**: Graph traversal, anomaly detection
 - **Business Value**: Reduce fraud losses
 
 #### 04: Customer 360 View Demo
+
 - **Objective**: Unified view of customer relationships
 - **Techniques**: Multi-hop graph traversal
 - **Business Value**: KYC enhancement, relationship intelligence
 - **Cross-Service**: HCD compliance audit logging for profile access (GDPR)
 
 #### 05: Advanced Analytics OLAP Demo
+
 - **Objective**: OLAP-style analytics on graph data
 - **Techniques**: OpenSearch aggregations (slice, dice, drill-down, roll-up, pivot)
 - **Business Value**: Business intelligence, reporting
 - **Implementation**: Uses OpenSearch aggregation framework (not Spark) for sub-second response times. See [Advanced Analytics OLAP Guide](advanced-analytics-olap-guide.md) for details.
 
 #### 06: TBML Detection Demo
+
 - **Objective**: Trade-based money laundering detection
 - **Techniques**: Circular trading loops, price deviation analysis
 - **Business Value**: Carousel fraud detection, shell company identification
 
 #### 07: Insider Trading Detection Demo
+
 - **Objective**: Detect coordinated trading patterns
 - **Techniques**: Timing correlation, communication network analysis
 - **Business Value**: SEC compliance, market manipulation detection
 - **Cross-Service**: OpenSearch MNPI keyword search in communications
 
 #### 08: UBO Discovery Demo
+
 - **Objective**: Ultimate beneficial owner identification
 - **Techniques**: Ownership chain traversal, effective ownership calculation
 - **Business Value**: EU 5AMLD compliance, FATF recommendations
@@ -181,11 +190,13 @@ PROJECT_ROOT = config['project_root']
 - **⚠️ Note**: Requires manual execution or longer timeout (>300s) for automated testing due to complex graph traversals. Run interactively for best experience.
 
 #### 09: API Integration Demo
+
 - **Objective**: Demonstrate FastAPI analytics service integration
 - **Techniques**: REST API calls, batch processing
 - **Business Value**: Production-ready API integration patterns
 
 #### 10: Integrated Architecture Demo
+
 - **Objective**: Demonstrate multi-service architecture synergies
 - **Techniques**: Service latency benchmarking, cross-service AML investigation workflow
 - **Business Value**: End-to-end compliance workflow demonstration
@@ -228,6 +239,7 @@ pytest tests/test_notebooks.py -v
 ```
 
 Tests verify:
+
 - ✅ Valid JSON structure
 - ✅ Correct kernel specification
 - ✅ notebook_config usage
@@ -244,6 +256,7 @@ All notebooks have been validated for Python syntax errors.
 ### "Module not found" Error
 
 Ensure conda environment is activated:
+
 ```bash
 conda activate janusgraph-analysis
 ```

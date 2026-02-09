@@ -18,13 +18,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 try:
     import pytest_benchmark
+
     BENCHMARK_AVAILABLE = True
 except ImportError:
     BENCHMARK_AVAILABLE = False
 
 pytestmark = [
     pytest.mark.benchmark,
-    pytest.mark.skipif(not BENCHMARK_AVAILABLE, reason="pytest-benchmark not installed")
+    pytest.mark.skipif(not BENCHMARK_AVAILABLE, reason="pytest-benchmark not installed"),
 ]
 
 
@@ -32,7 +33,10 @@ def check_janusgraph() -> bool:
     try:
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
         from gremlin_python.process.anonymous_traversal import traversal
-        conn = DriverRemoteConnection(f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g")
+
+        conn = DriverRemoteConnection(
+            f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g"
+        )
         g = traversal().withRemote(conn)
         g.V().limit(1).toList()
         conn.close()
@@ -51,7 +55,10 @@ def jg_connection():
         pytest.skip("JanusGraph unavailable")
     from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
     from gremlin_python.process.anonymous_traversal import traversal
-    conn = DriverRemoteConnection(f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g")
+
+    conn = DriverRemoteConnection(
+        f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g"
+    )
     yield traversal().withRemote(conn)
     conn.close()
 
@@ -74,13 +81,17 @@ class TestJanusGraphBenchmarks:
     @skip_no_jg
     def test_single_hop_traversal(self, benchmark, jg_connection):
         """Benchmark: Single-hop traversal."""
-        result = benchmark(lambda: jg_connection.V().hasLabel("person").limit(10).out().limit(50).toList())
+        result = benchmark(
+            lambda: jg_connection.V().hasLabel("person").limit(10).out().limit(50).toList()
+        )
         assert isinstance(result, list)
 
     @skip_no_jg
     def test_two_hop_traversal(self, benchmark, jg_connection):
         """Benchmark: Two-hop traversal."""
-        result = benchmark(lambda: jg_connection.V().hasLabel("person").limit(5).out().out().limit(100).toList())
+        result = benchmark(
+            lambda: jg_connection.V().hasLabel("person").limit(5).out().out().limit(100).toList()
+        )
         assert isinstance(result, list)
 
 

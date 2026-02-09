@@ -2,9 +2,9 @@
 """Tests for streaming events module."""
 
 import sys
-from pathlib import Path
-from datetime import datetime
 import uuid
+from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -20,7 +20,7 @@ class TestEntityEvent:
             entity_id=str(uuid.uuid4()),
             event_type="create",
             entity_type="person",
-            payload={"name": "John Doe", "age": 30}
+            payload={"name": "John Doe", "age": 30},
         )
 
     def test_event_creation(self, sample_event):
@@ -32,36 +32,30 @@ class TestEntityEvent:
     def test_event_types(self):
         for event_type in ["create", "update", "delete"]:
             event = EntityEvent(
-                entity_id="test-123",
-                event_type=event_type,
-                entity_type="account",
-                payload={}
+                entity_id="test-123", event_type=event_type, entity_type="account", payload={}
             )
             assert event.event_type == event_type
 
     def test_entity_types(self):
         for entity_type in ["person", "account", "transaction", "company", "communication"]:
             event = EntityEvent(
-                entity_id="test-123",
-                event_type="create",
-                entity_type=entity_type,
-                payload={}
+                entity_id="test-123", event_type="create", entity_type=entity_type, payload={}
             )
             assert event.entity_type == entity_type
 
     def test_to_pulsar_message(self, sample_event):
-        if hasattr(sample_event, 'to_pulsar_message'):
+        if hasattr(sample_event, "to_pulsar_message"):
             msg = sample_event.to_pulsar_message()
             assert isinstance(msg, dict)
-            assert 'partition_key' in msg
-            assert 'content' in msg
+            assert "partition_key" in msg
+            assert "content" in msg
 
 
 class TestEntityEventBatch:
     def test_batch_creation(self):
         events = [
             EntityEvent(entity_id="1", event_type="create", entity_type="person", payload={}),
-            EntityEvent(entity_id="2", event_type="create", entity_type="person", payload={})
+            EntityEvent(entity_id="2", event_type="create", entity_type="person", payload={}),
         ]
         batch = EntityEventBatch(events=events)
         assert len(batch.events) == 2

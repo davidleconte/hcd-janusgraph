@@ -1,7 +1,7 @@
 # Week 3-4: Test Coverage Improvement Plan
 
-**Date:** 2026-01-29  
-**Status:** 🟡 Ready to Execute  
+**Date:** 2026-01-29
+**Status:** 🟡 Ready to Execute
 **Goal:** Achieve 80% test coverage (currently ~40-50%)
 
 ## Executive Summary
@@ -11,6 +11,7 @@ Weeks 3-4 focus on comprehensive test coverage across all modules. This is a cri
 ## Current State Analysis
 
 ### Coverage Baseline (Estimated)
+
 ```
 Module                          Current    Target    Gap
 ─────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ Overall                         ~45%       80%       +35%
 ```
 
 ### Test Infrastructure Status
+
 - ✅ pytest configured
 - ✅ conftest.py with fixtures
 - ✅ Test directory structure
@@ -40,9 +42,11 @@ Overall                         ~45%       80%       +35%
 ### Week 3: Core Infrastructure Tests (Target: 70% overall)
 
 #### Day 1-2: Client Module Tests
+
 **Focus:** `src/python/client/janusgraph_client.py`
 
 **Test Cases to Add:**
+
 1. Connection Management
    - Test successful connection
    - Test connection with SSL/TLS
@@ -70,6 +74,7 @@ Overall                         ~45%       80%       +35%
    - Test retry logic
 
 **Files to Create:**
+
 - `tests/unit/client/test_janusgraph_client.py`
 - `tests/unit/client/test_connection.py`
 - `tests/unit/client/test_authentication.py`
@@ -78,9 +83,11 @@ Overall                         ~45%       80%       +35%
 **Target:** 80% coverage for `src/python/client/`
 
 #### Day 3-4: Utilities Tests
+
 **Focus:** `src/python/utils/`
 
 **Test Cases to Add:**
+
 1. Validator Class (17+ methods)
    - Test email validation
    - Test phone validation
@@ -109,6 +116,7 @@ Overall                         ~45%       80%       +35%
    - Test similarity calculations
 
 **Files to Create:**
+
 - `tests/unit/utils/test_validator.py`
 - `tests/unit/utils/test_log_sanitizer.py`
 - `tests/unit/utils/test_tracing.py`
@@ -117,9 +125,11 @@ Overall                         ~45%       80%       +35%
 **Target:** 85% coverage for `src/python/utils/`
 
 #### Day 5: Integration Tests
+
 **Focus:** End-to-end workflows
 
 **Test Cases to Add:**
+
 1. Stack Deployment
    - Test service startup
    - Test service health checks
@@ -136,6 +146,7 @@ Overall                         ~45%       80%       +35%
    - Test error recovery
 
 **Files to Create:**
+
 - `tests/integration/test_stack_deployment.py`
 - `tests/integration/test_data_pipeline.py`
 - `tests/integration/test_query_pipeline.py`
@@ -145,9 +156,11 @@ Overall                         ~45%       80%       +35%
 ### Week 4: Banking Domain Tests (Target: 80% overall)
 
 #### Day 1-2: Data Generator Tests
+
 **Focus:** `banking/data_generators/`
 
 **Test Cases to Add:**
+
 1. Core Generators
    - PersonGenerator: demographics, addresses, contacts
    - CompanyGenerator: business types, industries, sizes
@@ -166,6 +179,7 @@ Overall                         ~45%       80%       +35%
    - CATOPattern: cross-border, layering
 
 **Files to Create:**
+
 - `banking/data_generators/tests/test_core/test_person_generator_extended.py`
 - `banking/data_generators/tests/test_core/test_company_generator_extended.py`
 - `banking/data_generators/tests/test_core/test_account_generator_extended.py`
@@ -175,9 +189,11 @@ Overall                         ~45%       80%       +35%
 **Target:** 75% coverage for `banking/data_generators/`
 
 #### Day 3-4: AML/Fraud Detection Tests
+
 **Focus:** `banking/aml/` and `banking/fraud/`
 
 **Test Cases to Add:**
+
 1. AML Detection
    - Structuring detection algorithms
    - Threshold calculations
@@ -197,6 +213,7 @@ Overall                         ~45%       80%       +35%
    - Concurrent operations
 
 **Files to Create:**
+
 - `tests/unit/aml/test_structuring_detection.py`
 - `tests/unit/aml/test_pattern_matching.py`
 - `tests/unit/fraud/test_anomaly_detection.py`
@@ -205,9 +222,11 @@ Overall                         ~45%       80%       +35%
 **Target:** 70% coverage for `banking/aml/` and `banking/fraud/`
 
 #### Day 5: Performance & Load Tests
+
 **Focus:** System performance
 
 **Test Cases to Add:**
+
 1. Performance Benchmarks
    - Query performance
    - Data generation speed
@@ -221,6 +240,7 @@ Overall                         ~45%       80%       +35%
    - Stress testing
 
 **Files to Create:**
+
 - `tests/performance/test_query_performance.py`
 - `tests/performance/test_data_generation.py`
 - `tests/performance/test_load.py`
@@ -230,6 +250,7 @@ Overall                         ~45%       80%       +35%
 ## Test Framework Setup
 
 ### Directory Structure
+
 ```
 tests/
 ├── unit/
@@ -266,13 +287,14 @@ tests/
 ### pytest Configuration
 
 Update `pytest.ini`:
+
 ```ini
 [pytest]
 testpaths = tests banking/data_generators/tests
 python_files = test_*.py
 python_classes = Test*
 python_functions = test_*
-addopts = 
+addopts =
     -v
     --strict-markers
     --tb=short
@@ -294,6 +316,7 @@ markers =
 ### Coverage Configuration
 
 Update `pyproject.toml`:
+
 ```toml
 [tool.coverage.run]
 source = ["src", "banking"]
@@ -327,20 +350,22 @@ directory = "htmlcov"
 ## Testing Best Practices
 
 ### 1. Test Structure (AAA Pattern)
+
 ```python
 def test_example():
     # Arrange - Set up test data
     generator = PersonGenerator(seed=42)
-    
+
     # Act - Execute the code under test
     person = generator.generate()
-    
+
     # Assert - Verify the results
     assert person['first_name'] is not None
     assert len(person['email']) > 0
 ```
 
 ### 2. Fixtures for Reusability
+
 ```python
 @pytest.fixture
 def sample_person():
@@ -356,6 +381,7 @@ def test_with_fixture(sample_person):
 ```
 
 ### 3. Parametrized Tests
+
 ```python
 @pytest.mark.parametrize("email,expected", [
     ("valid@example.com", True),
@@ -368,6 +394,7 @@ def test_email_validation(email, expected):
 ```
 
 ### 4. Mocking External Dependencies
+
 ```python
 from unittest.mock import Mock, patch
 
@@ -378,6 +405,7 @@ def test_with_mock():
 ```
 
 ### 5. Testing Exceptions
+
 ```python
 def test_exception_handling():
     validator = Validator()
@@ -388,6 +416,7 @@ def test_exception_handling():
 ## Execution Plan
 
 ### Phase 1: Setup (Day 0)
+
 ```bash
 # 1. Create test directory structure
 mkdir -p tests/{unit/{client,utils,security,aml,fraud},integration,performance}
@@ -403,6 +432,7 @@ pytest --cov=src --cov=banking --cov-report=html --cov-report=term
 ```
 
 ### Phase 2: Implementation (Days 1-10)
+
 ```bash
 # Daily workflow:
 # 1. Write tests for target module
@@ -416,6 +446,7 @@ pytest tests/unit/client/ --cov=src/python/client --cov-report=term-missing
 ```
 
 ### Phase 3: Validation (Day 11)
+
 ```bash
 # 1. Run full test suite
 pytest
@@ -476,15 +507,19 @@ open htmlcov/index.html
 ## Risk Mitigation
 
 ### Risk 1: Time Constraints
+
 **Mitigation:** Prioritize critical paths, use test generation tools
 
 ### Risk 2: Complex Dependencies
+
 **Mitigation:** Use mocking extensively, create test fixtures
 
 ### Risk 3: Flaky Tests
+
 **Mitigation:** Use fixed seeds, avoid time-dependent tests
 
 ### Risk 4: Coverage Gaps
+
 **Mitigation:** Daily coverage reviews, pair programming
 
 ## Next Steps
@@ -497,7 +532,7 @@ open htmlcov/index.html
 
 ---
 
-**Estimated Effort:** 10 days (2 weeks)  
-**Team Size:** 2-3 developers  
-**Priority:** HIGH  
+**Estimated Effort:** 10 days (2 weeks)
+**Team Size:** 2-3 developers
+**Priority:** HIGH
 **Dependencies:** Weeks 1-2 complete

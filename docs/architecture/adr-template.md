@@ -2,9 +2,9 @@
 
 <!-- Note: {NUMBER}, {PLACEHOLDER} patterns are intentional template markers -->
 
-**Status**: [Proposed | Accepted | Deprecated | Superseded by ADR-YYY]  
-**Date**: YYYY-MM-DD  
-**Deciders**: [List of people involved in the decision]  
+**Status**: [Proposed | Accepted | Deprecated | Superseded by ADR-YYY]
+**Date**: YYYY-MM-DD
+**Deciders**: [List of people involved in the decision]
 **Technical Story**: [Link to issue/ticket if applicable]
 
 ## Context
@@ -36,30 +36,36 @@
 ### Option 1: [Name]
 
 **Pros:**
+
 - [Pro 1]
 - [Pro 2]
 
 **Cons:**
+
 - [Con 1]
 - [Con 2]
 
 ### Option 2: [Name]
 
 **Pros:**
+
 - [Pro 1]
 - [Pro 2]
 
 **Cons:**
+
 - [Con 1]
 - [Con 2]
 
 ### Option 3: [Name]
 
 **Pros:**
+
 - [Pro 1]
 - [Pro 2]
 
 **Cons:**
+
 - [Con 1]
 - [Con 2]
 

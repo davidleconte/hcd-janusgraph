@@ -1,6 +1,7 @@
 """Tests for log_sanitizer PII protection."""
 
 import logging
+
 import pytest
 
 from src.python.utils.log_sanitizer import (

@@ -1,7 +1,7 @@
 # Synthetic Data Generator Plan - Enterprise Patterns
 
-**Date:** 2026-01-28  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
+**Date:** 2026-01-28
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 **Purpose:** Comprehensive plan for generating realistic synthetic data matching all advanced patterns
 
 ---
@@ -21,6 +21,7 @@
 ### Objectives
 
 Generate realistic synthetic data for:
+
 - **Multi-modal communications** (SMS, email, phone, chat)
 - **Multi-lingual content** (50+ languages)
 - **Multi-currency transactions** (150+ currencies)
@@ -72,6 +73,7 @@ Generate realistic synthetic data for:
 ### Component Breakdown
 
 **1. Entity Generators:**
+
 - PersonGenerator (individuals, demographics, attributes)
 - CompanyGenerator (corporations, shell companies, subsidiaries)
 - AccountGenerator (bank accounts, brokerage accounts, crypto wallets)
@@ -79,6 +81,7 @@ Generate realistic synthetic data for:
 - LocationGenerator (addresses, GPS coordinates, IP addresses)
 
 **2. Relationship Generators:**
+
 - FamilyRelationshipGenerator (parent, child, spouse, sibling)
 - SocialRelationshipGenerator (friend, colleague, acquaintance)
 - CorporateRelationshipGenerator (employee, director, shareholder)
@@ -86,6 +89,7 @@ Generate realistic synthetic data for:
 - CommunicationLinkGenerator (calls, emails, messages)
 
 **3. Event Generators:**
+
 - TransactionGenerator (deposits, withdrawals, transfers, wires)
 - TradeGenerator (stock trades, options, futures, forex)
 - CommunicationGenerator (SMS, email, phone, chat, video)
@@ -93,6 +97,7 @@ Generate realistic synthetic data for:
 - DocumentGenerator (invoices, contracts, reports)
 
 **4. Pattern Generators:**
+
 - InsiderTradingPatternGenerator
 - TBMLPatternGenerator
 - FraudRingPatternGenerator
@@ -108,6 +113,7 @@ Generate realistic synthetic data for:
 **Purpose:** Generate realistic individuals with complete profiles
 
 **Attributes:**
+
 ```python
 class Person:
     # Identity
@@ -118,7 +124,7 @@ class Person:
     date_of_birth: date
     ssn: str  # synthetic
     passport_number: str
-    
+
     # Demographics
     gender: str
     nationality: str
@@ -126,22 +132,22 @@ class Person:
     city: str
     address: str
     postal_code: str
-    
+
     # Contact
     email: str
     phone_primary: str
     phone_secondary: str
-    
+
     # Professional
     occupation: str
     employer: str
     position: str
     annual_income: float
-    
+
     # Behavioral
     risk_tolerance: str  # low, medium, high
     trading_experience: str  # novice, intermediate, expert
-    
+
     # Flags
     is_pep: bool  # Politically Exposed Person
     is_insider: bool
@@ -149,6 +155,7 @@ class Person:
 ```
 
 **Generation Strategy:**
+
 ```python
 def generate_person(
     country: str = None,
@@ -160,7 +167,7 @@ def generate_person(
     Generate realistic person with cultural/regional accuracy
     """
     faker = Faker(locale=get_locale(country))
-    
+
     # Generate name appropriate for country
     if country == 'China':
         first_name = faker.first_name_chinese()
@@ -171,10 +178,10 @@ def generate_person(
     else:
         first_name = faker.first_name()
         last_name = faker.last_name()
-    
+
     # Generate realistic SSN/ID for country
     ssn = generate_synthetic_id(country)
-    
+
     # Generate email with realistic patterns
     email_patterns = [
         f"{first_name.lower()}.{last_name.lower()}@{faker.free_email_domain()}",
@@ -182,14 +189,15 @@ def generate_person(
         f"{first_name.lower()}{random.randint(1,999)}@{faker.free_email_domain()}"
     ]
     email = random.choice(email_patterns)
-    
+
     # Generate phone with country code
     phone = generate_phone_number(country)
-    
+
     return Person(...)
 ```
 
 **Realistic Distributions:**
+
 - Age: Normal distribution (mean=45, std=15)
 - Income: Log-normal distribution
 - Occupation: Based on country's employment statistics
@@ -200,6 +208,7 @@ def generate_person(
 **Purpose:** Generate companies including shell companies and subsidiaries
 
 **Attributes:**
+
 ```python
 class Company:
     # Identity
@@ -208,35 +217,36 @@ class Company:
     legal_name: str
     registration_number: str
     tax_id: str
-    
+
     # Incorporation
     country_of_incorporation: str
     incorporation_date: date
     jurisdiction: str
-    
+
     # Structure
     company_type: str  # LLC, Corp, Partnership, Trust
     is_shell_company: bool
     is_legitimate_business: bool
     parent_company_id: str
-    
+
     # Operations
     industry: str
     business_description: str
     number_of_employees: int
     annual_revenue: float
-    
+
     # Physical presence
     has_physical_office: bool
     office_address: str
     website: str
-    
+
     # Risk indicators
     is_high_risk: bool
     risk_factors: List[str]
 ```
 
 **Shell Company Indicators:**
+
 ```python
 def generate_shell_company(
     country: str = 'Panama',
@@ -252,7 +262,7 @@ def generate_shell_company(
     # - No physical office
     # - Nominee directors
     # - Shared address with many other companies
-    
+
     generic_names = [
         "Global Trading LLC",
         "International Exports SA",
@@ -260,14 +270,14 @@ def generate_shell_company(
         "Universal Holdings Ltd",
         "Premier Investments Corp"
     ]
-    
+
     # Shared addresses (red flag)
     shell_addresses = [
         "Ugland House, Grand Cayman",  # Famous for 18,000+ companies
         "1209 Orange Street, Wilmington, DE",  # Delaware shell address
         "Trust Company Complex, Tortola, BVI"
     ]
-    
+
     return Company(
         company_name=random.choice(generic_names),
         incorporation_date=datetime.now() - timedelta(days=age_days),
@@ -292,6 +302,7 @@ def generate_shell_company(
 **Purpose:** Generate multi-lingual, multi-channel communications
 
 **Supported Channels:**
+
 - SMS
 - Email
 - Phone calls
@@ -300,18 +311,19 @@ def generate_shell_company(
 - Social media posts
 
 **Multi-Lingual Content:**
+
 ```python
 class CommunicationGenerator:
     """
     Generate realistic communications in 50+ languages
     """
-    
+
     LANGUAGES = [
         'en', 'zh', 'es', 'ar', 'ru', 'fr', 'de', 'ja', 'pt', 'hi',
         'ko', 'it', 'tr', 'pl', 'nl', 'sv', 'no', 'da', 'fi', 'el',
         # ... 30 more languages
     ]
-    
+
     SUSPICIOUS_KEYWORDS = {
         'en': ['insider', 'tip', 'confidential', 'buy now', 'before announcement'],
         'zh': ['内幕', '提示', '机密', '立即购买', '公告前'],
@@ -322,7 +334,7 @@ class CommunicationGenerator:
         'de': ['Insider', 'Tipp', 'vertraulich', 'jetzt kaufen'],
         # ... more languages
     }
-    
+
     def generate_suspicious_sms(
         self,
         from_person: Person,
@@ -346,9 +358,9 @@ class CommunicationGenerator:
             ],
             # ... more languages
         }
-        
+
         template = random.choice(templates.get(language, templates['en']))
-        
+
         # Fill in variables
         content = template.format(
             action=random.choice(['buy', 'sell', 'short']),
@@ -359,7 +371,7 @@ class CommunicationGenerator:
             direction=random.choice(['up', 'down', 'spike', 'crash']),
             insider_info=generate_insider_info(language)
         )
-        
+
         return SMS(
             from_number=from_person.phone_primary,
             to_number=to_person.phone_primary,
@@ -369,7 +381,7 @@ class CommunicationGenerator:
             sentiment_urgency=urgency,
             contains_suspicious_keywords=True
         )
-    
+
     def generate_email(
         self,
         from_person: Person,
@@ -393,10 +405,10 @@ class CommunicationGenerator:
             # SPF/DKIM/DMARC (can be spoofed for suspicious emails)
             'Authentication-Results': generate_auth_results(is_suspicious=True)
         }
-        
+
         # Generate body
         body = generate_email_body(language, subject)
-        
+
         # Generate attachment if needed
         attachment = None
         if has_attachment:
@@ -404,7 +416,7 @@ class CommunicationGenerator:
                 filename=f"confidential_{random.randint(1000,9999)}.pdf",
                 content_type='application/pdf'
             )
-        
+
         return Email(
             headers=headers,
             body=body,
@@ -419,6 +431,7 @@ class CommunicationGenerator:
 **Purpose:** Generate realistic financial transactions
 
 **Transaction Types:**
+
 - Deposits (cash, check, wire)
 - Withdrawals (ATM, teller, wire)
 - Transfers (internal, external, P2P)
@@ -428,12 +441,13 @@ class CommunicationGenerator:
 - Cryptocurrency (buy, sell, transfer)
 
 **Multi-Currency Support:**
+
 ```python
 class TransactionGenerator:
     """
     Generate transactions in 150+ currencies
     """
-    
+
     CURRENCIES = {
         'USD': {'symbol': '$', 'countries': ['USA', 'Ecuador', 'El Salvador']},
         'EUR': {'symbol': '€', 'countries': ['Germany', 'France', 'Italy', 'Spain']},
@@ -445,11 +459,11 @@ class TransactionGenerator:
         'CAD': {'symbol': '$', 'countries': ['Canada']},
         # ... 142 more currencies
     }
-    
+
     CRYPTO_CURRENCIES = [
         'BTC', 'ETH', 'USDT', 'BNB', 'XRP', 'ADA', 'SOL', 'DOT', 'DOGE', 'MATIC'
     ]
-    
+
     def generate_structuring_pattern(
         self,
         account: Account,
@@ -461,7 +475,7 @@ class TransactionGenerator:
         Generate structuring pattern (multiple deposits just below $10K)
         """
         transactions = []
-        
+
         # Split total amount into deposits just below $10K
         amounts = []
         remaining = total_amount
@@ -470,18 +484,18 @@ class TransactionGenerator:
             amount = random.uniform(5000, 9900)
             amounts.append(amount)
             remaining -= amount
-        
+
         # Distribute over time period
         start_date = datetime.now() - timedelta(days=days)
-        
+
         for i, amount in enumerate(amounts):
             # Random time within period
             days_offset = random.uniform(0, days)
             timestamp = start_date + timedelta(days=days_offset)
-            
+
             # Random location (different branches)
             branch = random.choice(['Branch A', 'Branch B', 'Branch C', 'Branch D'])
-            
+
             transaction = Transaction(
                 transaction_id=generate_transaction_id(),
                 account_id=account.account_id,
@@ -494,11 +508,11 @@ class TransactionGenerator:
                 is_suspicious=True,
                 risk_indicators=['STRUCTURING', 'JUST_BELOW_THRESHOLD']
             )
-            
+
             transactions.append(transaction)
-        
+
         return transactions
-    
+
     def generate_wire_transfer(
         self,
         from_account: Account,
@@ -522,12 +536,12 @@ class TransactionGenerator:
                     'country': random.choice(COUNTRIES),
                     'sequence': i + 1
                 })
-        
+
         # Calculate fees
         base_fee = 25 if not is_international else 45
         correspondent_fees = len(correspondent_banks) * 15
         total_fee = base_fee + correspondent_fees
-        
+
         # Exchange rate if currency conversion
         exchange_rate = None
         if from_account.currency != to_account.currency:
@@ -536,7 +550,7 @@ class TransactionGenerator:
                 to_currency=to_account.currency,
                 date=datetime.now()
             )
-        
+
         return Transaction(
             transaction_id=generate_transaction_id(),
             from_account_id=from_account.account_id,
@@ -558,6 +572,7 @@ class TransactionGenerator:
 **Purpose:** Generate complete insider trading scenarios
 
 **Scenario Components:**
+
 1. Corporate insider with MNPI (Material Non-Public Information)
 2. Social network (family, friends, colleagues)
 3. Communications (multi-lingual, multi-channel)
@@ -567,12 +582,13 @@ class TransactionGenerator:
 7. Time zone coordination
 
 **Implementation:**
+
 ```python
 class InsiderTradingPatternGenerator:
     """
     Generate complete insider trading scenario
     """
-    
+
     def generate_scenario(
         self,
         company: Company,
@@ -587,7 +603,7 @@ class InsiderTradingPatternGenerator:
         """
         Generate complete insider trading scenario with all dimensions
         """
-        
+
         # STEP 1: Create corporate insider
         insider = self.person_gen.generate_person(
             country='USA',
@@ -595,7 +611,7 @@ class InsiderTradingPatternGenerator:
             is_insider=True,
             has_material_nonpublic_info=True
         )
-        
+
         # Link insider to company
         employment = Employment(
             person_id=insider.person_id,
@@ -604,14 +620,14 @@ class InsiderTradingPatternGenerator:
             start_date=datetime.now() - timedelta(days=1825),  # 5 years
             has_access_to_mnpi=True
         )
-        
+
         # STEP 2: Create social network (6 degrees)
         network = self.create_social_network(
             insider=insider,
             size=network_size,
             countries=countries
         )
-        
+
         # STEP 3: Create offshore entities for network members
         offshore_entities = []
         for person in network['level_2_friends'] + network['level_3_colleagues']:
@@ -623,7 +639,7 @@ class InsiderTradingPatternGenerator:
                     'person': person,
                     'company': shell_company
                 })
-        
+
         # STEP 4: Create trading accounts
         accounts = []
         for person in [insider] + network['all']:
@@ -635,7 +651,7 @@ class InsiderTradingPatternGenerator:
                 currency=random.choice(currencies)
             )
             accounts.append(personal_account)
-            
+
             # Offshore account (30% chance)
             if random.random() < 0.3:
                 offshore_account = self.account_gen.generate_account(
@@ -645,19 +661,19 @@ class InsiderTradingPatternGenerator:
                     currency=random.choice(['CHF', 'EUR', 'USD'])
                 )
                 accounts.append(offshore_account)
-        
+
         # STEP 5: Generate communications (multi-lingual, multi-channel)
         communications = []
-        
+
         # Timeline: 90 days before announcement
         lookback_days = 90
         start_date = announcement_date - timedelta(days=lookback_days)
-        
+
         # Insider communicates with network
         for person in network['level_1_family'] + network['level_2_friends'][:3]:
             # Choose language based on person's country
             language = self.get_language_for_country(person.country_of_residence)
-            
+
             # SMS (most common for quick tips)
             if random.random() < 0.7:
                 sms = self.comm_gen.generate_suspicious_sms(
@@ -670,7 +686,7 @@ class InsiderTradingPatternGenerator:
                     days=random.uniform(lookback_days - 30, lookback_days - 1)
                 )
                 communications.append(sms)
-            
+
             # Phone call (for more detailed discussion)
             if random.random() < 0.5:
                 call = self.comm_gen.generate_phone_call(
@@ -681,7 +697,7 @@ class InsiderTradingPatternGenerator:
                 )
                 call.timestamp = sms.timestamp + timedelta(hours=random.uniform(1, 24))
                 communications.append(call)
-            
+
             # Email (for sharing documents)
             if random.random() < 0.3:
                 email = self.comm_gen.generate_email(
@@ -693,38 +709,38 @@ class InsiderTradingPatternGenerator:
                 )
                 email.timestamp = call.timestamp + timedelta(hours=random.uniform(2, 48))
                 communications.append(email)
-        
+
         # STEP 6: Generate trading activity (coordinated timing)
         trades = []
-        
+
         for person in [insider] + network['all']:
             person_accounts = [a for a in accounts if a.owner_id == person.person_id]
-            
+
             for account in person_accounts:
                 # Trade timing: 1-30 days before announcement
                 days_before = random.randint(1, 30)
                 trade_date = announcement_date - timedelta(days=days_before)
-                
+
                 # Find if person received communication
                 person_comms = [c for c in communications if c.to_person_id == person.person_id]
-                
+
                 if person_comms:
                     # Trade within 48 hours of communication (suspicious!)
                     latest_comm = max(person_comms, key=lambda c: c.timestamp)
                     trade_date = latest_comm.timestamp + timedelta(
                         hours=random.uniform(2, 48)
                     )
-                
+
                 # Trade size: 3-10x normal volume
                 historical_avg = account.average_trade_size
                 trade_volume = historical_avg * random.uniform(3, 10)
-                
+
                 # Trade type based on announcement impact
                 if price_impact > 0:
                     trade_type = 'BUY'  # Positive news
                 else:
                     trade_type = 'SELL'  # Negative news
-                
+
                 # Options for higher leverage (more suspicious)
                 if random.random() < 0.4:
                     trade = self.trade_gen.generate_option_trade(
@@ -745,12 +761,12 @@ class InsiderTradingPatternGenerator:
                         price=company.current_stock_price,
                         timestamp=trade_date
                     )
-                
+
                 trades.append(trade)
-        
+
         # STEP 7: Generate currency flows (multi-currency layering)
         currency_flows = []
-        
+
         for trade in trades:
             if trade.account.currency != 'USD':
                 # Currency conversion before trade
@@ -761,10 +777,10 @@ class InsiderTradingPatternGenerator:
                     timestamp=trade.timestamp - timedelta(hours=random.uniform(1, 24))
                 )
                 currency_flows.append(conversion)
-        
+
         # STEP 8: Generate geospatial data (time zone coordination)
         geospatial_events = []
-        
+
         for person in [insider] + network['all']:
             # Generate location history
             locations = self.location_gen.generate_location_history(
@@ -774,7 +790,7 @@ class InsiderTradingPatternGenerator:
                 num_locations=random.randint(10, 50)
             )
             geospatial_events.extend(locations)
-        
+
         # STEP 9: Calculate risk indicators
         risk_indicators = {
             'network_size': len(network['all']),
@@ -790,10 +806,10 @@ class InsiderTradingPatternGenerator:
                 (announcement_date - t.timestamp).days for t in trades
             ])
         }
-        
+
         # STEP 10: Calculate overall risk score
         risk_score = self.calculate_risk_score(risk_indicators)
-        
+
         return InsiderTradingScenario(
             scenario_id=generate_scenario_id(),
             company=company,
@@ -819,6 +835,7 @@ class InsiderTradingPatternGenerator:
 ## Implementation Plan
 
 ### Phase 1: Core Generators (Week 1-2)
+
 - [ ] PersonGenerator
 - [ ] CompanyGenerator
 - [ ] AccountGenerator
@@ -826,12 +843,14 @@ class InsiderTradingPatternGenerator:
 - [ ] LocationGenerator
 
 ### Phase 2: Relationship Generators (Week 3)
+
 - [ ] FamilyRelationshipGenerator
 - [ ] SocialRelationshipGenerator
 - [ ] CorporateRelationshipGenerator
 - [ ] OwnershipGenerator
 
 ### Phase 3: Event Generators (Week 4-5)
+
 - [ ] TransactionGenerator
 - [ ] TradeGenerator
 - [ ] CommunicationGenerator (multi-lingual)
@@ -839,6 +858,7 @@ class InsiderTradingPatternGenerator:
 - [ ] DocumentGenerator
 
 ### Phase 4: Pattern Generators (Week 6-7)
+
 - [ ] InsiderTradingPatternGenerator
 - [ ] TBMLPatternGenerator
 - [ ] FraudRingPatternGenerator
@@ -846,6 +866,7 @@ class InsiderTradingPatternGenerator:
 - [ ] CATOPatternGenerator
 
 ### Phase 5: Integration & Testing (Week 8)
+
 - [ ] Graph builder integration
 - [ ] Data validation
 - [ ] Performance optimization
@@ -856,7 +877,9 @@ class InsiderTradingPatternGenerator:
 ## Data Volumes & Scenarios
 
 ### Scenario 1: Insider Trading Network
+
 **Volume:**
+
 - 1 insider
 - 50 network members (family, friends, colleagues)
 - 10 offshore entities
@@ -872,7 +895,9 @@ class InsiderTradingPatternGenerator:
 **Time Zones:** EST, CET, SGT
 
 ### Scenario 2: TBML Network
+
 **Volume:**
+
 - 20 companies (including 10 shell companies)
 - 50 trades
 - 200 documents (invoices, bills of lading, contracts)
@@ -885,7 +910,9 @@ class InsiderTradingPatternGenerator:
 **Currencies:** USD, CNY, AED, RUB, EUR
 
 ### Scenario 3: Fraud Ring
+
 **Volume:**
+
 - 20 individuals
 - 50 accounts
 - 1,000 transactions
@@ -912,6 +939,7 @@ This comprehensive synthetic data generator plan covers:
 ✅ **Behavioral realism** - Normal + suspicious patterns
 
 **Next Steps:**
+
 1. Review and approve plan
 2. Switch to code mode for implementation
 3. Generate sample datasets
@@ -920,6 +948,6 @@ This comprehensive synthetic data generator plan covers:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-28  
+**Document Version:** 1.0
+**Last Updated:** 2026-01-28
 **Status:** ✅ Ready for Implementation

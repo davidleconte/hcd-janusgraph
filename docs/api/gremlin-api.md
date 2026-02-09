@@ -76,6 +76,7 @@ person_count = g.V().hasLabel('person').count().next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().count()
 g.V().hasLabel('person').count()
@@ -92,6 +93,7 @@ knows_count = g.E().hasLabel('knows').count().next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.E().count()
 g.E().hasLabel('knows').count()
@@ -108,6 +110,7 @@ vertices = g.V().limit(10).valueMap(True).toList()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().limit(100)
 g.V().limit(10).valueMap(true)
@@ -132,6 +135,7 @@ vertex_id = person.id
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.addV('person')
     .property('name', 'John Doe')
@@ -153,6 +157,7 @@ name = g.V(vertex_id).values('name').next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(vertex_id)
 g.V(vertex_id).valueMap(true)
@@ -176,6 +181,7 @@ g.V(vertex_id).property(list, 'phone', '+1234567890').iterate()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(vertex_id).property('age', 31)
 g.V(vertex_id)
@@ -195,6 +201,7 @@ g.V().hasLabel('temp').drop().iterate()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(vertex_id).drop()
 g.V().hasLabel('temp').drop()
@@ -223,6 +230,7 @@ edge = g.addE('knows') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(person1_id).addE('knows')
     .to(V(person2_id))
@@ -255,6 +263,7 @@ all_edges = g.V(vertex_id).bothE().toList()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.E(edge_id)
 g.E(edge_id).valueMap(true)
@@ -271,6 +280,7 @@ g.E(edge_id).property('weight', 0.9).iterate()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.E(edge_id).property('weight', 0.9)
 ```
@@ -289,6 +299,7 @@ g.V(person1_id).outE('knows').where(inV().hasId(person2_id)).drop().iterate()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.E(edge_id).drop()
 g.E().hasLabel('temp_relation').drop()
@@ -319,6 +330,7 @@ results = g.V().hasLabel('person') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().has('email')
 g.V().has('name', 'John')
@@ -361,6 +373,7 @@ g.V().has('status', P.eq('active').or_(P.eq('pending'))).toList()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().has('age', gt(30))
 g.V().has('age', between(25, 35))
@@ -386,6 +399,7 @@ results = g.V().hasLabel('person').as_('a') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().hasLabel('person')
     .where(out('knows').has('name', 'John'))
@@ -415,6 +429,7 @@ city_names = g.V().hasLabel('person') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().hasLabel('person')
     .group().by('age').by(count())
@@ -432,6 +447,7 @@ age_distribution = g.V().hasLabel('person').groupCount().by('age').next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().groupCount().by(label)
 g.V().hasLabel('person').groupCount().by('age')
@@ -452,6 +468,7 @@ max_age = g.V().hasLabel('person').values('age').max().next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().hasLabel('person').values('age').sum()
 g.V().hasLabel('person').values('age').mean()
@@ -482,6 +499,7 @@ shortest = g.V(start_id).repeat(out().simplePath()) \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(start_id).repeat(out().simplePath())
     .until(hasId(end_id))
@@ -501,6 +519,7 @@ paths = g.V(start_id) \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(start_id)
     .repeat(outE('knows', 'works_with').inV().simplePath())
@@ -521,6 +540,7 @@ cycles = g.V().as_('start') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().as('start')
     .repeat(out().simplePath())
@@ -549,6 +569,7 @@ recommendations = g.V(user_id) \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V(user_id)
     .out('knows').aggregate('friends')
@@ -571,6 +592,7 @@ top_ranked = g.V().order().by('pagerank', desc).limit(10).toList()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().pageRank().by('pagerank')
 g.V().order().by('pagerank', desc).limit(10)
@@ -587,6 +609,7 @@ communities = g.V().groupCount().by('component').next()
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().connectedComponent().by('component')
 g.V().groupCount().by('component')
@@ -606,6 +629,7 @@ triangles = g.V().as_('a') \
 ```
 
 **Gremlin String:**
+
 ```groovy
 g.V().as('a')
     .out().as('b')
@@ -783,6 +807,7 @@ subgraph = g.V(vertex_id) \
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: [Project Repository]
-- Email: support@example.com
+- Email: <support@example.com>
 - Documentation: [Project Wiki]

@@ -2,7 +2,7 @@
 
 Complete API documentation for all data generator components.
 
-**Version**: 1.0.0  
+**Version**: 1.0.0
 **Last Updated**: 2026-01-28
 
 ---
@@ -40,9 +40,11 @@ PersonGenerator(seed: Optional[int] = None)
 ```
 
 **Parameters**:
+
 - `seed` (int, optional): Random seed for reproducibility
 
 **Example**:
+
 ```python
 generator = PersonGenerator(seed=42)
 ```
@@ -60,6 +62,7 @@ Generate a single person entity.
 **Returns**: `Person` - Generated person object
 
 **Example**:
+
 ```python
 person = generator.generate()
 print(f"Generated: {person.first_name} {person.last_name}")
@@ -67,6 +70,7 @@ print(f"Age: {person.age}, Risk Level: {person.risk_level}")
 ```
 
 **Person Attributes**:
+
 - `person_id` (str): Unique identifier (format: PER-{12-CHAR-ID})
 - `first_name` (str): First name
 - `last_name` (str): Last name
@@ -117,6 +121,7 @@ Generate a single company entity.
 **Returns**: `Company` - Generated company object
 
 **Example**:
+
 ```python
 generator = CompanyGenerator(seed=42)
 company = generator.generate()
@@ -125,6 +130,7 @@ print(f"Industry: {company.industry}, Revenue: ${company.annual_revenue:,.2f}")
 ```
 
 **Company Attributes**:
+
 - `company_id` (str): Unique identifier (format: COM-{12-CHAR-ID})
 - `name` (str): Company name
 - `legal_name` (str): Legal entity name
@@ -172,11 +178,13 @@ def generate(owner: Union[Person, Company]) -> Account
 Generate a single account entity.
 
 **Parameters**:
+
 - `owner` (Person | Company): Account owner (person or company)
 
 **Returns**: `Account` - Generated account object
 
 **Example**:
+
 ```python
 person_gen = PersonGenerator(seed=42)
 account_gen = AccountGenerator(seed=42)
@@ -189,6 +197,7 @@ print(f"Type: {account.account_type}, Balance: ${account.balance:,.2f}")
 ```
 
 **Account Attributes**:
+
 - `account_id` (str): Unique identifier (format: ACC-{12-CHAR-ID})
 - `account_number` (str): Account number
 - `account_type` (str): Account type (checking, savings, investment, etc.)
@@ -239,6 +248,7 @@ def generate(
 Generate a single transaction.
 
 **Parameters**:
+
 - `from_account` (Account): Source account
 - `to_account` (Account): Destination account
 - `timestamp` (datetime, optional): Transaction timestamp
@@ -246,6 +256,7 @@ Generate a single transaction.
 **Returns**: `Transaction` - Generated transaction object
 
 **Example**:
+
 ```python
 txn_gen = TransactionGenerator(seed=42)
 transaction = txn_gen.generate(
@@ -259,6 +270,7 @@ print(f"Type: {transaction.transaction_type}")
 ```
 
 **Transaction Attributes**:
+
 - `transaction_id` (str): Unique identifier (format: TXN-{16-CHAR-ID})
 - `from_account_id` (str): Source account ID
 - `to_account_id` (str): Destination account ID
@@ -298,6 +310,7 @@ def generate(
 Generate a communication event.
 
 **Communication Attributes**:
+
 - `communication_id` (str): Unique identifier
 - `from_person_id` (str): Sender person ID
 - `to_person_id` (str): Recipient person ID
@@ -332,6 +345,7 @@ def generate(
 Generate a securities trade.
 
 **Trade Attributes**:
+
 - `trade_id` (str): Unique identifier
 - `account_id` (str): Trading account ID
 - `security_symbol` (str): Security ticker symbol
@@ -367,6 +381,7 @@ def generate(
 Generate a travel event.
 
 **Travel Attributes**:
+
 - `travel_id` (str): Unique identifier
 - `person_id` (str): Traveler person ID
 - `origin_country` (str): Origin country code
@@ -402,6 +417,7 @@ def generate(
 Generate a document event.
 
 **Document Attributes**:
+
 - `document_id` (str): Unique identifier
 - `owner_person_id` (str, optional): Owner person ID
 - `owner_company_id` (str, optional): Owner company ID
@@ -442,6 +458,7 @@ def inject_pattern(
 Inject insider trading pattern into existing data.
 
 **Parameters**:
+
 - `persons`: List of person entities
 - `companies`: List of company entities
 - `accounts`: List of account entities
@@ -451,6 +468,7 @@ Inject insider trading pattern into existing data.
 **Returns**: Dictionary with pattern metadata
 
 **Example**:
+
 ```python
 pattern_gen = InsiderTradingPatternGenerator(seed=42)
 pattern_info = pattern_gen.inject_pattern(
@@ -595,9 +613,11 @@ MasterOrchestrator(config: GenerationConfig)
 ```
 
 **Parameters**:
+
 - `config` (GenerationConfig): Generation configuration
 
 **Example**:
+
 ```python
 from pathlib import Path
 
@@ -628,6 +648,7 @@ Generate all entities, events, and patterns.
 **Returns**: `GenerationStats` - Generation statistics
 
 **Example**:
+
 ```python
 stats = orchestrator.generate_all()
 
@@ -647,9 +668,11 @@ def export_to_json(output_file: Path) -> None
 Export generated data to JSON file.
 
 **Parameters**:
+
 - `output_file` (Path): Output file path
 
 **Example**:
+
 ```python
 orchestrator.export_to_json(Path("./output/data.json"))
 ```
@@ -689,6 +712,7 @@ output_dir: Path = Path("./output")
 ```
 
 **Example**:
+
 ```python
 config = GenerationConfig(
     seed=42,
@@ -842,6 +866,7 @@ def generate_id(prefix: str, length: int = 12) -> str
 Generate unique identifier with prefix.
 
 **Example**:
+
 ```python
 person_id = generate_id("PER", 12)  # "PER-ABC123DEF456"
 ```
@@ -898,6 +923,7 @@ class GenerationError(Exception):
 Raised when data generation fails.
 
 **Example**:
+
 ```python
 try:
     person = generator.generate()
@@ -976,6 +1002,7 @@ assert transaction.amount > 0
 ## Support
 
 For issues, questions, or contributions:
+
 - Documentation: `docs/banking/`
 - Examples: `banking/data_generators/examples/`
 - Tests: `banking/data_generators/tests/`
@@ -983,5 +1010,5 @@ For issues, questions, or contributions:
 
 ---
 
-**Last Updated**: 2026-01-28  
+**Last Updated**: 2026-01-28
 **Version**: 1.0.0

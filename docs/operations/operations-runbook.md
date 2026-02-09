@@ -6,7 +6,7 @@
 - **Last Updated:** 2026-01-28
 - **Owner:** Operations Team
 - **Review Cycle:** Quarterly
-- **On-Call Contact:** ops-oncall@example.com
+- **On-Call Contact:** <ops-oncall@example.com>
 
 ---
 
@@ -18,10 +18,10 @@ This runbook provides comprehensive operational procedures for the HCD JanusGrap
 
 | Emergency | Contact | Response Time |
 |-----------|---------|---------------|
-| P0 - System Down | ops-oncall@example.com | 15 minutes |
-| P1 - Critical Issue | ops-team@example.com | 1 hour |
-| P2 - Major Issue | ops-team@example.com | 4 hours |
-| P3 - Minor Issue | ops-team@example.com | 1 business day |
+| P0 - System Down | <ops-oncall@example.com> | 15 minutes |
+| P1 - Critical Issue | <ops-team@example.com> | 1 hour |
+| P2 - Major Issue | <ops-team@example.com> | 4 hours |
+| P3 - Minor Issue | <ops-team@example.com> | 1 business day |
 
 ---
 
@@ -145,16 +145,16 @@ def check_health():
         'prometheus': check_prometheus(),
         'grafana': check_grafana()
     }
-    
+
     all_healthy = all(checks.values())
-    
+
     print(f"Health Check Report - {datetime.now()}")
     print("=" * 50)
     for service, healthy in checks.items():
         status = "✓ HEALTHY" if healthy else "✗ UNHEALTHY"
         print(f"{service:20s}: {status}")
     print("=" * 50)
-    
+
     return 0 if all_healthy else 1
 
 def check_janusgraph():
@@ -205,6 +205,7 @@ if __name__ == '__main__':
 ### 2.2 Component Health Checks
 
 **JanusGraph:**
+
 ```bash
 # Check if JanusGraph is responding
 curl -f http://localhost:8182/health || echo "JanusGraph unhealthy"
@@ -216,6 +217,7 @@ curl -X POST http://localhost:8182 \
 ```
 
 **Cassandra/HCD:**
+
 ```bash
 # Check node status
 docker-compose exec hcd nodetool status
@@ -225,6 +227,7 @@ docker-compose exec hcd cqlsh -e "SELECT now() FROM system.local;"
 ```
 
 **Monitoring Stack:**
+
 ```bash
 # Prometheus
 curl -f http://localhost:9090/-/healthy
@@ -297,11 +300,13 @@ curl -X POST http://localhost:9093/api/v1/alerts \
 ### 4.1 High CPU Usage
 
 **Symptoms:**
+
 - CPU utilization > 80%
 - Slow query response times
 - System unresponsive
 
 **Diagnosis:**
+
 ```bash
 # Check CPU usage by container
 docker stats --no-stream
@@ -314,6 +319,7 @@ docker-compose logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
 ```
 
 **Resolution:**
+
 1. Identify CPU-intensive queries
 2. Kill long-running queries if necessary
 3. Optimize or cache problematic queries
@@ -323,11 +329,13 @@ docker-compose logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
 ### 4.2 High Memory Usage
 
 **Symptoms:**
+
 - Memory utilization > 90%
 - OutOfMemoryError in logs
 - Frequent GC pauses
 
 **Diagnosis:**
+
 ```bash
 # Check memory usage
 docker stats --no-stream
@@ -340,6 +348,7 @@ docker-compose exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
 ```
 
 **Resolution:**
+
 1. Review heap dump for memory leaks
 2. Check for large transactions
 3. Review cache sizes
@@ -349,11 +358,13 @@ docker-compose exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
 ### 4.3 Slow Queries
 
 **Symptoms:**
+
 - Query latency P95 > 1000ms
 - Timeout errors
 - User complaints
 
 **Diagnosis:**
+
 ```bash
 # Enable query profiling
 docker-compose exec janusgraph \
@@ -368,6 +379,7 @@ docker-compose exec janusgraph \
 ```
 
 **Resolution:**
+
 1. Identify slow query patterns
 2. Add appropriate indexes
 3. Optimize query structure
@@ -377,11 +389,13 @@ docker-compose exec janusgraph \
 ### 4.4 Connection Pool Exhaustion
 
 **Symptoms:**
+
 - "No available connections" errors
 - Connection timeout errors
 - Increasing connection wait times
 
 **Diagnosis:**
+
 ```bash
 # Check active connections
 docker-compose exec janusgraph netstat -an | grep :8182 | wc -l
@@ -391,6 +405,7 @@ curl http://localhost:8182/metrics | grep connection_pool
 ```
 
 **Resolution:**
+
 1. Increase connection pool size
 2. Check for connection leaks
 3. Implement connection timeout
@@ -400,11 +415,13 @@ curl http://localhost:8182/metrics | grep connection_pool
 ### 4.5 Disk Space Issues
 
 **Symptoms:**
+
 - Disk usage > 85%
 - Write failures
 - "No space left on device" errors
 
 **Diagnosis:**
+
 ```bash
 # Check disk usage
 df -h
@@ -417,6 +434,7 @@ du -sh /var/log/* | sort -h | tail -10
 ```
 
 **Resolution:**
+
 1. Clean up old logs: `find /var/log -name "*.log" -mtime +30 -delete`
 2. Remove old backups: `find /backups -mtime +90 -delete`
 3. Compact Cassandra: `nodetool compact`
@@ -441,6 +459,7 @@ du -sh /var/log/* | sort -h | tail -10
 ### 5.2 Planned Maintenance Procedure
 
 **Pre-Maintenance:**
+
 1. Schedule maintenance window (off-peak hours)
 2. Notify stakeholders 48 hours in advance
 3. Create backup before maintenance
@@ -448,6 +467,7 @@ du -sh /var/log/* | sort -h | tail -10
 5. Review maintenance steps
 
 **During Maintenance:**
+
 ```bash
 # 1. Enable maintenance mode
 curl -X POST http://localhost:8182/admin/maintenance/enable
@@ -469,6 +489,7 @@ curl -X POST http://localhost:8182/admin/maintenance/disable
 ```
 
 **Post-Maintenance:**
+
 1. Verify all services healthy
 2. Run smoke tests
 3. Monitor for issues (1 hour)
@@ -478,6 +499,7 @@ curl -X POST http://localhost:8182/admin/maintenance/disable
 ### 5.3 Certificate Renewal
 
 **Procedure:**
+
 ```bash
 # Check certificate expiry
 openssl x509 -in /etc/ssl/certs/janusgraph.crt -noout -enddate
@@ -500,6 +522,7 @@ openssl s_client -connect localhost:8182 -showcerts
 ### 6.1 Backup Procedures
 
 **Daily Backup:**
+
 ```bash
 #!/bin/bash
 # scripts/backup/daily_backup.sh
@@ -538,6 +561,7 @@ echo "Backup completed: backup_$DATE.tar.gz.gpg"
 ### 6.2 Recovery Procedures
 
 **Full System Recovery:**
+
 ```bash
 #!/bin/bash
 # scripts/backup/restore.sh
@@ -567,6 +591,7 @@ See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 ### 7.1 Horizontal Scaling
 
 **Add JanusGraph Node:**
+
 ```bash
 # Update docker-compose.yml
 docker-compose up -d --scale janusgraph=3
@@ -576,6 +601,7 @@ docker-compose ps janusgraph
 ```
 
 **Add Cassandra Node:**
+
 ```bash
 # Add node to cluster
 docker-compose up -d --scale hcd=3
@@ -587,6 +613,7 @@ docker-compose exec hcd nodetool status
 ### 7.2 Vertical Scaling
 
 **Increase Resources:**
+
 ```yaml
 # docker-compose.yml
 services:
@@ -610,6 +637,7 @@ docker-compose up -d
 ### 8.1 Security Monitoring
 
 **Daily Security Checks:**
+
 ```bash
 # Check for failed authentication attempts
 docker-compose logs | grep "authentication failed" | wc -l
@@ -673,11 +701,11 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 
 | Level | Role | Contact | When to Escalate |
 |-------|------|---------|------------------|
-| L1 | On-Call Engineer | ops-oncall@example.com | Initial response |
-| L2 | Senior Engineer | ops-senior@example.com | Not resolved in 30 min |
-| L3 | Team Lead | ops-lead@example.com | Not resolved in 2 hours |
-| L4 | Engineering Manager | eng-manager@example.com | Critical impact > 4 hours |
-| L5 | CTO | cto@example.com | Business-critical outage |
+| L1 | On-Call Engineer | <ops-oncall@example.com> | Initial response |
+| L2 | Senior Engineer | <ops-senior@example.com> | Not resolved in 30 min |
+| L3 | Team Lead | <ops-lead@example.com> | Not resolved in 2 hours |
+| L4 | Engineering Manager | <eng-manager@example.com> | Critical impact > 4 hours |
+| L5 | CTO | <cto@example.com> | Business-critical outage |
 
 ### 10.2 Escalation Procedure
 
@@ -696,6 +724,7 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 ### Appendix A: Command Reference
 
 **Quick Commands:**
+
 ```bash
 # Restart all services
 docker-compose restart
@@ -715,10 +744,10 @@ docker-compose up -d --scale janusgraph=3
 
 ### Appendix B: Contact Information
 
-- **Operations Team:** ops-team@example.com
-- **On-Call:** ops-oncall@example.com (24/7)
-- **Security Team:** security@example.com
-- **Database Team:** dba@example.com
+- **Operations Team:** <ops-team@example.com>
+- **On-Call:** <ops-oncall@example.com> (24/7)
+- **Security Team:** <security@example.com>
+- **Database Team:** <dba@example.com>
 
 ### Appendix C: Related Documentation
 
@@ -730,6 +759,6 @@ docker-compose up -d --scale janusgraph=3
 
 ---
 
-**Document Classification:** Internal - Operational  
-**Next Review Date:** 2026-04-28  
+**Document Classification:** Internal - Operational
+**Next Review Date:** 2026-04-28
 **Document Owner:** Operations Team

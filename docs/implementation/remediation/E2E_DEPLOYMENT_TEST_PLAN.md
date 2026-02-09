@@ -1,8 +1,8 @@
 # End-to-End Deployment Test Plan
 
-**Date:** 2026-01-29  
-**Purpose:** Verify all script fixes work correctly in practice  
-**Scope:** Complete deployment workflow validation  
+**Date:** 2026-01-29
+**Purpose:** Verify all script fixes work correctly in practice
+**Scope:** Complete deployment workflow validation
 **Status:** 🔄 In Progress
 
 ---
@@ -22,6 +22,7 @@
 ## Pre-Test Checklist
 
 ### Environment Requirements
+
 - [ ] Podman/Docker installed and running
 - [ ] Conda environment `janusgraph-analysis` available
 - [ ] Python 3.11+ installed
@@ -29,6 +30,7 @@
 - [ ] Ports available: 8182, 9042, 9200, 8200, 9090, 3001, 8888
 
 ### Backup Current State
+
 ```bash
 # Backup any existing data
 mkdir -p ~/backup-before-test
@@ -45,6 +47,7 @@ podman ps -a > ~/backup-before-test/containers.txt
 **Objective:** Verify cleanup script requires confirmation and only removes project resources
 
 **Steps:**
+
 ```bash
 # 1. Test cancellation
 ./scripts/utils/cleanup_podman.sh
@@ -66,6 +69,7 @@ podman rm -f test-external-container
 ```
 
 **Expected Results:**
+
 - ✅ Script requires "DELETE" confirmation
 - ✅ Only project-prefixed resources removed
 - ✅ External containers preserved
@@ -80,6 +84,7 @@ podman rm -f test-external-container
 **Objective:** Verify deployment script works without JMX port exposure
 
 **Steps:**
+
 ```bash
 # 1. Deploy full stack
 cd config/compose
@@ -103,6 +108,7 @@ podman exec hcd-server nodetool status
 ```
 
 **Expected Results:**
+
 - ✅ All services start successfully
 - ✅ No JMX port 7199 exposed externally
 - ✅ JanusGraph responds on port 8182
@@ -112,6 +118,7 @@ podman exec hcd-server nodetool status
 **Status:** [ ] Pass [ ] Fail [ ] Not Run
 
 **Verification Commands:**
+
 ```bash
 # Check all expected services
 podman ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
@@ -133,6 +140,7 @@ podman ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 **Objective:** Verify Vault credentials are logged to file, not stdout
 
 **Steps:**
+
 ```bash
 # 1. Initialize Vault
 ./scripts/security/init_vault.sh 2>&1 | tee /tmp/vault-init-output.txt
@@ -158,6 +166,7 @@ vault kv get janusgraph/admin
 ```
 
 **Expected Results:**
+
 - ✅ No tokens/passwords in stdout
 - ✅ Credentials file created with 400 permissions
 - ✅ All credentials present in log file
@@ -173,6 +182,7 @@ vault kv get janusgraph/admin
 **Objective:** Verify initialize_graph.py works with new data_script
 
 **Steps:**
+
 ```bash
 # 1. Activate conda environment
 conda activate janusgraph-analysis
@@ -198,6 +208,7 @@ curl -s "http://localhost:8182?gremlin=g.V().count()" | jq .
 ```
 
 **Expected Results:**
+
 - ✅ No NameError for data_script
 - ✅ Schema initializes successfully
 - ✅ Sample data loads without errors
@@ -212,6 +223,7 @@ curl -s "http://localhost:8182?gremlin=g.V().count()" | jq .
 **Objective:** Verify start_jupyter.sh works with fixed paths
 
 **Steps:**
+
 ```bash
 # 1. Start Jupyter
 ./scripts/deployment/start_jupyter.sh
@@ -232,6 +244,7 @@ podman inspect jupyter-notebook | jq '.[0].Mounts'
 ```
 
 **Expected Results:**
+
 - ✅ No syntax errors during startup
 - ✅ Container starts successfully
 - ✅ Volume mounts use correct paths
@@ -247,6 +260,7 @@ podman inspect jupyter-notebook | jq '.[0].Mounts'
 **Objective:** Verify backup/restore with aligned naming convention
 
 **Steps:**
+
 ```bash
 # 1. Create test data
 curl -X POST "http://localhost:8182" \
@@ -271,6 +285,7 @@ curl -s "http://localhost:8182?gremlin=g.V().has('name','backup-test').count()"
 ```
 
 **Expected Results:**
+
 - ✅ Backup creates timestamped files
 - ✅ Restore accepts directory and timestamp parameters
 - ✅ Restore finds correct backup files
@@ -286,6 +301,7 @@ curl -s "http://localhost:8182?gremlin=g.V().has('name','backup-test').count()"
 **Objective:** Verify monitoring services are healthy
 
 **Steps:**
+
 ```bash
 # 1. Check Prometheus
 curl -s http://localhost:9090/-/healthy
@@ -309,6 +325,7 @@ curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[].rules[].name'
 ```
 
 **Expected Results:**
+
 - ✅ All monitoring services healthy
 - ✅ Metrics being collected
 - ✅ Alert rules loaded
@@ -323,6 +340,7 @@ curl -s http://localhost:9090/api/v1/rules | jq '.data.groups[].rules[].name'
 **Objective:** Verify security improvements are in place
 
 **Steps:**
+
 ```bash
 # 1. Verify no JMX port exposure
 netstat -an | grep 7199
@@ -346,6 +364,7 @@ podman exec janusgraph-server env | grep PASSWORD
 ```
 
 **Expected Results:**
+
 - ✅ JMX not accessible externally
 - ✅ SSL certificates present
 - ✅ Vault unsealed and accessible
@@ -361,6 +380,7 @@ podman exec janusgraph-server env | grep PASSWORD
 **Objective:** Run automated test suite
 
 **Steps:**
+
 ```bash
 # 1. Activate conda environment
 conda activate janusgraph-analysis
@@ -381,6 +401,7 @@ pytest --cov=src --cov=banking --cov-report=term-missing
 ```
 
 **Expected Results:**
+
 - ✅ Smoke tests pass
 - ✅ Unit tests pass (170+ tests)
 - ✅ Integration tests pass
@@ -395,6 +416,7 @@ pytest --cov=src --cov=banking --cov-report=term-missing
 **Objective:** Complete workflow from deployment to query
 
 **Steps:**
+
 ```bash
 # 1. Clean environment
 ./scripts/utils/cleanup_podman.sh
@@ -436,6 +458,7 @@ curl -s http://localhost:9090/api/v1/query?query=janusgraph_vertices_total
 ```
 
 **Expected Results:**
+
 - ✅ Complete workflow executes without errors
 - ✅ All services healthy
 - ✅ Data queryable
@@ -476,12 +499,14 @@ curl -s http://localhost:9090/api/v1/query?query=janusgraph_vertices_total
 ## Post-Test Actions
 
 ### If All Tests Pass ✅
+
 1. Update production readiness status to "VERIFIED"
 2. Document test results
 3. Proceed with default password replacement
 4. Schedule external security audit
 
 ### If Tests Fail ❌
+
 1. Document failure details
 2. Identify root cause
 3. Apply fixes
@@ -498,6 +523,6 @@ Test execution will be logged here...
 
 ---
 
-**Test Plan Created:** 2026-01-29T04:07:00Z  
-**Tester:** David Leconte (Advanced Mode)  
+**Test Plan Created:** 2026-01-29T04:07:00Z
+**Tester:** David Leconte (Advanced Mode)
 **Status:** 📋 Ready for Execution

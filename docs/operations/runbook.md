@@ -1,7 +1,7 @@
 # Operations Runbook
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Common Operations
 
@@ -76,4 +76,4 @@ curl -X PUT "localhost:9200/_snapshot/backup"
 ## Emergency Contacts
 
 - **Author:** David Leconte
-- **Phone:** 
+- **Phone:**

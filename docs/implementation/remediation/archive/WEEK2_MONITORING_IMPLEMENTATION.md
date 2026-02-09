@@ -1,12 +1,13 @@
 # Week 2: Monitoring & Observability Enhancement
 
-**Date:** 2026-01-29  
-**Status:** 🟡 In Progress (Day 1 Complete)  
+**Date:** 2026-01-29
+**Status:** 🟡 In Progress (Day 1 Complete)
 **Goal:** Enhance monitoring with AlertManager, metrics exporters, and automated dashboards
 
 ## Overview
 
 Week 2 focuses on production-grade monitoring and observability:
+
 - AlertManager for intelligent alert routing
 - JanusGraph metrics exporter for detailed graph metrics
 - Automated Grafana dashboard provisioning
@@ -74,17 +75,20 @@ Week 2 focuses on production-grade monitoring and observability:
 ### AlertManager Features
 
 **Alert Routing:**
+
 - Critical alerts → immediate notification to ops + oncall
 - Security alerts → security team channel
 - Compliance alerts → compliance team (daily digest)
 - Performance warnings → performance team (daily digest)
 
 **Notification Channels:**
+
 - Email (SMTP)
 - Slack (webhooks)
 - Configurable via environment variables
 
 **Inhibition Rules:**
+
 - Suppress warnings when critical alerts fire
 - Suppress service alerts when cluster is down
 - Suppress performance alerts when service is down
@@ -92,6 +96,7 @@ Week 2 focuses on production-grade monitoring and observability:
 ### JanusGraph Exporter Metrics
 
 **Basic Metrics:**
+
 - `janusgraph_vertices_total` - Total vertex count
 - `janusgraph_edges_total` - Total edge count
 - `janusgraph_query_duration_seconds` - Query latency histogram
@@ -99,10 +104,12 @@ Week 2 focuses on production-grade monitoring and observability:
 - `janusgraph_connection_status` - Connection health
 
 **Label Metrics:**
+
 - `janusgraph_vertex_labels_count{label="..."}` - Vertices by label
 - `janusgraph_edge_labels_count{label="..."}` - Edges by label
 
 **Configuration:**
+
 - `GREMLIN_URL` - JanusGraph Gremlin endpoint (default: ws://localhost:8182/gremlin)
 - `EXPORTER_PORT` - Metrics port (default: 8000)
 - `SCRAPE_INTERVAL` - Collection interval (default: 15s)
@@ -110,10 +117,12 @@ Week 2 focuses on production-grade monitoring and observability:
 ### Grafana Provisioning
 
 **Datasources:**
+
 - Prometheus automatically configured
 - No manual setup required
 
 **Dashboards:**
+
 - Existing dashboards automatically loaded
 - Located in `config/grafana/dashboards/`
 - Updates reflected within 10 seconds
@@ -220,22 +229,25 @@ curl http://localhost:8000/metrics | grep janusgraph
 ### Task 6: Configure Slack Notifications
 
 1. Create Slack webhook:
-   - Go to https://api.slack.com/apps
+   - Go to <https://api.slack.com/apps>
    - Create new app → Incoming Webhooks
    - Add webhook to workspace
    - Copy webhook URL
 
 2. Update `.env`:
+
    ```bash
    SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
    ```
 
 3. Restart AlertManager:
+
    ```bash
    podman restart alertmanager
    ```
 
 4. Test notification:
+
    ```bash
    # Trigger a test alert
    curl -X POST http://localhost:9093/api/v1/alerts -d '[{
@@ -247,6 +259,7 @@ curl http://localhost:8000/metrics | grep janusgraph
 ## Files Created/Modified
 
 ### Created (6 files)
+
 1. `config/monitoring/alertmanager.yml` - AlertManager configuration
 2. `config/grafana/datasources/prometheus.yml` - Grafana datasource
 3. `config/grafana/dashboards/dashboards.yml` - Dashboard provisioning
@@ -254,6 +267,7 @@ curl http://localhost:8000/metrics | grep janusgraph
 5. `docs/implementation/remediation/WEEK2_MONITORING_IMPLEMENTATION.md` - This file
 
 ### Modified (3 files)
+
 1. `config/compose/docker-compose.full.yml` - Added AlertManager, updated Grafana/Prometheus
 2. `config/monitoring/prometheus.yml` - Added AlertManager integration
 3. `requirements.txt` - Added prometheus-client
@@ -280,6 +294,7 @@ curl http://localhost:8000/metrics | grep janusgraph
 ## Troubleshooting
 
 ### AlertManager not receiving alerts
+
 ```bash
 # Check Prometheus AlertManager config
 curl http://localhost:9090/api/v1/alertmanagers | jq
@@ -292,6 +307,7 @@ podman logs prometheus
 ```
 
 ### Slack notifications not working
+
 ```bash
 # Test webhook directly
 curl -X POST -H 'Content-type: application/json' \
@@ -303,6 +319,7 @@ podman logs alertmanager
 ```
 
 ### Exporter not collecting metrics
+
 ```bash
 # Check exporter logs
 podman logs janusgraph-exporter
@@ -316,11 +333,13 @@ curl -X POST http://localhost:8182 \
 ## Production Readiness Impact
 
 **Before Week 2:** B+ (83/100)
+
 - Monitoring: 70/100
 - Alerting: 50/100
 - Observability: 60/100
 
 **After Week 2:** A (95/100)
+
 - Monitoring: 95/100 (+25)
 - Alerting: 90/100 (+40)
 - Observability: 90/100 (+30)
@@ -329,7 +348,7 @@ curl -X POST http://localhost:8182 \
 
 ---
 
-**Implementation Time:** 3-4 days  
-**Complexity:** Medium  
-**Dependencies:** Week 1 complete  
+**Implementation Time:** 3-4 days
+**Complexity:** Medium
+**Dependencies:** Week 1 complete
 **Next:** Week 3 - Test Coverage

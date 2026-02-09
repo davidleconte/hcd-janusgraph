@@ -11,31 +11,34 @@ Date: 2026-02-06
 print("=== AML Structuring Detection Analysis ===\n")
 
 import nest_asyncio
+
 nest_asyncio.apply()
 
+import json
+import warnings
+from datetime import datetime
+
+import pandas as pd
 from gremlin_python.driver import client
+from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
-from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
-import pandas as pd
-import json
-from datetime import datetime
-import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 print("✅ Imports successful")
 
 # Cell 2: Connect to JanusGraph
 print("\n📡 Connecting to JanusGraph...")
 
-GREMLIN_URL = 'ws://localhost:18182/gremlin'
+GREMLIN_URL = "ws://localhost:18182/gremlin"
 
 try:
     # Create connection
-    gc = client.Client(GREMLIN_URL, 'g')
-    
+    gc = client.Client(GREMLIN_URL, "g")
+
     # Test connection with simple query
-    result = gc.submit('1+1').all().result()
+    result = gc.submit("1+1").all().result()
     print(f"✅ Connected to JanusGraph at {GREMLIN_URL}")
     print(f"   Test query result: {result[0]}")
 except Exception as e:
@@ -50,12 +53,10 @@ schema_queries = [
     "mgmt = graph.openManagement(); person = mgmt.makeVertexLabel('person').make(); mgmt.commit()",
     "mgmt = graph.openManagement(); account = mgmt.makeVertexLabel('account').make(); mgmt.commit()",
     "mgmt = graph.openManagement(); transaction = mgmt.makeVertexLabel('transaction').make(); mgmt.commit()",
-    
     # Create edge labels
     "mgmt = graph.openManagement(); owns_account = mgmt.makeEdgeLabel('owns_account').make(); mgmt.commit()",
     "mgmt = graph.openManagement(); from_account = mgmt.makeEdgeLabel('from_account').make(); mgmt.commit()",
     "mgmt = graph.openManagement(); to_account = mgmt.makeEdgeLabel('to_account').make(); mgmt.commit()",
-    
     # Create properties
     "mgmt = graph.openManagement(); person_id = mgmt.makePropertyKey('person_id').dataType(String.class).make(); mgmt.commit()",
     "mgmt = graph.openManagement(); first_name = mgmt.makePropertyKey('first_name').dataType(String.class).make(); mgmt.commit()",
@@ -92,7 +93,7 @@ else:
 print("\n💾 Loading Sample AML Data...")
 
 # Load generated data
-with open('../banking/data/aml/aml_structuring_data.json', 'r') as f:
+with open("../banking/data/aml/aml_structuring_data.json", "r") as f:
     data = json.load(f)
 
 print(f"Data loaded from JSON:")
@@ -101,11 +102,13 @@ print(f"  Accounts: {len(data['accounts'])}")
 print(f"  Transactions: {len(data['transactions'])}")
 
 # Load a subset for demo (first 10 of each)
-sample_persons = data['persons'][:10]
-sample_accounts = data['accounts'][:15]
+sample_persons = data["persons"][:10]
+sample_accounts = data["accounts"][:15]
 
 # Find structuring transactions
-structuring_txns = [t for t in data['transactions'] if t.get('suspicious_pattern') == 'structuring'][:20]
+structuring_txns = [
+    t for t in data["transactions"] if t.get("suspicious_pattern") == "structuring"
+][:20]
 print(f"\n📊 Sample data:")
 print(f"  Loading {len(sample_persons)} persons")
 print(f"  Loading {len(sample_accounts)} accounts")
@@ -151,8 +154,8 @@ for account in sample_accounts:
 
 # Create ownership relationships
 for account in sample_accounts:
-    owner_id = account['owner_person_id']
-    account_id = account['account_id']
+    owner_id = account["owner_person_id"]
+    account_id = account["account_id"]
     query = f"""
     person = g.V().has('person', 'person_id', '{owner_id}').next()
     account = g.V().has('account', 'account_id', '{account_id}').next()
@@ -177,7 +180,7 @@ for txn in structuring_txns:
     """
     try:
         gc.submit(query).all().result()
-        
+
         # Create from/to relationships
         from_query = f"""
         txn = g.V().has('transaction', 'transaction_id', '{txn['transaction_id']}').next()
@@ -197,10 +200,10 @@ print("\n✅ Data Validation")
 print("=" * 50)
 
 counts = {
-    'persons': gc.submit("g.V().hasLabel('person').count()").all().result()[0],
-    'accounts': gc.submit("g.V().hasLabel('account').count()").all().result()[0],
-    'transactions': gc.submit("g.V().hasLabel('transaction').count()").all().result()[0],
-    'ownership_edges': gc.submit("g.E().hasLabel('owns_account').count()").all().result()[0],
+    "persons": gc.submit("g.V().hasLabel('person').count()").all().result()[0],
+    "accounts": gc.submit("g.V().hasLabel('account').count()").all().result()[0],
+    "transactions": gc.submit("g.V().hasLabel('transaction').count()").all().result()[0],
+    "ownership_edges": gc.submit("g.E().hasLabel('owns_account').count()").all().result()[0],
 }
 
 print(f"Vertex counts:")
@@ -245,7 +248,9 @@ try:
     print(f"Found {len(results)} potential beneficiary accounts")
     if results:
         for r in results:
-            print(f"  Account: {r.get('account_id', ['Unknown'])[0]}, Balance: ${r.get('balance', [0])[0]:,.2f}")
+            print(
+                f"  Account: {r.get('account_id', ['Unknown'])[0]}, Balance: ${r.get('balance', [0])[0]:,.2f}"
+            )
 except Exception as e:
     print(f"Error: {e}")
 
@@ -271,8 +276,18 @@ except Exception as e:
 print("\n\n📊 AML Structuring Pattern Analysis Summary")
 print("=" * 50)
 
-total_structuring = gc.submit("g.V().hasLabel('transaction').has('suspicious_pattern', 'structuring').count()").all().result()[0]
-total_amount = gc.submit("g.V().hasLabel('transaction').has('suspicious_pattern', 'structuring').values('amount').sum()").all().result()[0]
+total_structuring = (
+    gc.submit("g.V().hasLabel('transaction').has('suspicious_pattern', 'structuring').count()")
+    .all()
+    .result()[0]
+)
+total_amount = (
+    gc.submit(
+        "g.V().hasLabel('transaction').has('suspicious_pattern', 'structuring').values('amount').sum()"
+    )
+    .all()
+    .result()[0]
+)
 avg_amount = total_amount / total_structuring if total_structuring > 0 else 0
 
 print(f"\nStructuring Pattern Detection:")

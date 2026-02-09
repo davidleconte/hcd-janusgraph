@@ -1,9 +1,10 @@
 # Disaster Recovery Plan
+
 # JanusGraph Banking Compliance System
 
-**Version:** 1.0  
-**Date:** 2026-01-29  
-**Status:** Active  
+**Version:** 1.0
+**Date:** 2026-01-29
+**Status:** Active
 **Classification:** Confidential
 
 ## Executive Summary
@@ -13,16 +14,19 @@ This Disaster Recovery Plan (DRP) provides comprehensive procedures for recoveri
 ## Recovery Objectives
 
 ### Recovery Time Objective (RTO)
+
 - **Critical Systems:** 4 hours
 - **Standard Systems:** 24 hours
 - **Non-Critical Systems:** 72 hours
 
 ### Recovery Point Objective (RPO)
+
 - **Transaction Data:** 15 minutes
 - **Configuration Data:** 1 hour
 - **Analytics Data:** 24 hours
 
 ### Service Level Objectives (SLO)
+
 - **System Availability:** 99.9% uptime
 - **Data Durability:** 99.999%
 - **Recovery Success Rate:** 99%
@@ -60,11 +64,12 @@ This Disaster Recovery Plan (DRP) provides comprehensive procedures for recoveri
 
 ### Scenario 1: Single Node Failure
 
-**Impact:** Low  
-**RTO:** 1 hour  
+**Impact:** Low
+**RTO:** 1 hour
 **RPO:** 0 minutes (no data loss)
 
 **Recovery Procedure:**
+
 ```bash
 # 1. Identify failed node
 docker ps -a | grep -v "Up"
@@ -82,13 +87,14 @@ curl http://localhost:8182/health
 
 ### Scenario 2: Complete Data Center Failure
 
-**Impact:** High  
-**RTO:** 4 hours  
+**Impact:** High
+**RTO:** 4 hours
 **RPO:** 15 minutes
 
 **Recovery Procedure:**
 
 #### Phase 1: Assessment (15 minutes)
+
 ```bash
 # 1. Verify disaster scope
 ping <primary_datacenter>
@@ -100,6 +106,7 @@ ssh <backup_datacenter>
 ```
 
 #### Phase 2: Infrastructure Recovery (1 hour)
+
 ```bash
 # 1. Provision backup infrastructure
 cd /backup/infrastructure
@@ -114,6 +121,7 @@ docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 ```
 
 #### Phase 3: Data Recovery (2 hours)
+
 ```bash
 # 1. Restore HCD data
 cd /backup/data/hcd
@@ -132,6 +140,7 @@ cd /backup/opensearch
 ```
 
 #### Phase 4: Service Validation (45 minutes)
+
 ```bash
 # 1. Run health checks
 ./scripts/comprehensive_health_check.sh
@@ -148,11 +157,12 @@ cd /backup/opensearch
 
 ### Scenario 3: Data Corruption
 
-**Impact:** Medium  
-**RTO:** 2 hours  
+**Impact:** Medium
+**RTO:** 2 hours
 **RPO:** 1 hour
 
 **Recovery Procedure:**
+
 ```bash
 # 1. Identify corruption scope
 ./scripts/detect_corruption.sh
@@ -175,13 +185,14 @@ docker-compose start janusgraph hcd
 
 ### Scenario 4: Security Breach
 
-**Impact:** Critical  
-**RTO:** Immediate containment, 8 hours full recovery  
+**Impact:** Critical
+**RTO:** Immediate containment, 8 hours full recovery
 **RPO:** 0 minutes
 
 **Recovery Procedure:**
 
 #### Immediate Actions (0-15 minutes)
+
 ```bash
 # 1. Isolate affected systems
 ./scripts/security/isolate_systems.sh
@@ -197,6 +208,7 @@ docker-compose start janusgraph hcd
 ```
 
 #### Investigation (15 minutes - 2 hours)
+
 ```bash
 # 1. Collect forensic data
 ./scripts/security/collect_forensics.sh
@@ -209,6 +221,7 @@ docker-compose start janusgraph hcd
 ```
 
 #### Remediation (2-6 hours)
+
 ```bash
 # 1. Rotate all secrets
 ./scripts/security/rotate_all_secrets.sh
@@ -224,6 +237,7 @@ docker-compose start janusgraph hcd
 ```
 
 #### Validation (6-8 hours)
+
 ```bash
 # 1. Security scan
 ./scripts/security/comprehensive_scan.sh
@@ -240,6 +254,7 @@ docker-compose start janusgraph hcd
 ### Automated Backups
 
 #### Daily Full Backup
+
 ```bash
 #!/bin/bash
 # /scripts/backup/daily_full_backup.sh
@@ -261,6 +276,7 @@ vault operator raft snapshot save /backup/vault/daily_$(date +%Y%m%d).snap
 ```
 
 #### Hourly Incremental Backup
+
 ```bash
 #!/bin/bash
 # /scripts/backup/hourly_incremental.sh
@@ -466,6 +482,7 @@ Level 5: Customers (As needed)
 ### Communication Templates
 
 #### Initial Incident Notification
+
 ```
 SUBJECT: [INCIDENT] System Outage - JanusGraph Banking System
 
@@ -485,6 +502,7 @@ Contact: [On-call engineer]
 ```
 
 #### Recovery Complete Notification
+
 ```
 SUBJECT: [RESOLVED] System Recovery Complete
 
@@ -503,26 +521,31 @@ All systems operational.
 ### Disaster Recovery Team
 
 **DR Coordinator**
+
 - Overall recovery coordination
 - Stakeholder communication
 - Decision authority
 
 **Infrastructure Lead**
+
 - Infrastructure recovery
 - Service deployment
 - Network configuration
 
 **Data Lead**
+
 - Data restoration
 - Integrity verification
 - Consistency checks
 
 **Security Lead**
+
 - Security assessment
 - Access control
 - Compliance verification
 
 **Application Lead**
+
 - Application recovery
 - Functional testing
 - User acceptance
@@ -645,6 +668,7 @@ See: [`operations-runbook.md`](operations-runbook.md)
 ---
 
 **Document Control:**
+
 - **Version:** 1.0
 - **Last Updated:** 2026-01-29
 - **Next Review:** 2026-04-29

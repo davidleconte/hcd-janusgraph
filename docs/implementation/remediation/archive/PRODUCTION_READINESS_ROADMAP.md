@@ -1,9 +1,9 @@
 # Production Readiness Implementation Roadmap
 
-**Date:** 2026-01-28  
-**Version:** 1.0  
-**Status:** Active  
-**Current Grade:** B+ (83/100)  
+**Date:** 2026-01-28
+**Version:** 1.0
+**Status:** Active
+**Current Grade:** B+ (83/100)
 **Target Grade:** A (95/100)
 
 ## Executive Summary
@@ -13,6 +13,7 @@ This roadmap addresses the remaining production readiness gaps identified in the
 ## Current State Assessment
 
 ### ✅ Completed (B+ Grade Achievements)
+
 - **Security Foundation:** Input validation, authentication utilities, credential management
 - **Code Quality:** Type hints, error handling, documentation
 - **Infrastructure:** Docker/Podman containerization, basic monitoring setup
@@ -20,6 +21,7 @@ This roadmap addresses the remaining production readiness gaps identified in the
 - **Documentation:** Comprehensive guides, API references, architecture docs
 
 ### 🔴 Critical Gaps (Blocking Production)
+
 1. SSL/TLS not enabled by default
 2. No secrets management integration (HashiCorp Vault)
 3. Test coverage ~40-50% (target: 80%)
@@ -30,16 +32,19 @@ This roadmap addresses the remaining production readiness gaps identified in the
 ## Implementation Plan
 
 ### Phase 1: Security Hardening (Week 1)
-**Priority:** CRITICAL  
-**Effort:** 3-4 days  
+
+**Priority:** CRITICAL
+**Effort:** 3-4 days
 **Dependencies:** None
 
 #### 1.1 Enable SSL/TLS by Default
-**Status:** 🔴 Not Started  
-**Effort:** 1 day  
+
+**Status:** 🔴 Not Started
+**Effort:** 1 day
 **Owner:** Security Team
 
 **Existing Assets:**
+
 - `config/janusgraph/janusgraph-hcd-tls.properties` (TLS config exists)
 - `config/janusgraph/janusgraph-server-tls.yaml` (TLS server config exists)
 - `config/monitoring/prometheus-web-config.yml` (Prometheus TLS config exists)
@@ -47,6 +52,7 @@ This roadmap addresses the remaining production readiness gaps identified in the
 - `docker-compose.tls.yml` (TLS compose file exists)
 
 **Tasks:**
+
 ```bash
 # 1. Generate certificates (script already exists)
 ./scripts/security/generate_certificates.sh
@@ -68,6 +74,7 @@ HCD_INTERNODE_ENCRYPTION=all
 ```
 
 **Validation:**
+
 ```bash
 # Test TLS connections
 openssl s_client -connect localhost:7001 -showcerts
@@ -78,16 +85,19 @@ podman exec janusgraph-server curl -k https://localhost:8182?gremlin=g.V().count
 ```
 
 **Files to Modify:**
+
 - `docker-compose.yml` (switch to TLS configs)
 - `.env.example` (add TLS variables)
 - `config/compose/docker-compose.yml` (update for consistency)
 
 #### 1.2 Integrate HashiCorp Vault
-**Status:** 🔴 Not Started  
-**Effort:** 2-3 days  
+
+**Status:** 🔴 Not Started
+**Effort:** 2-3 days
 **Owner:** Security Team
 
 **Existing Assets:**
+
 - `scripts/utils/secrets_manager.py` (Vault integration code exists!)
 - Vault client implementation with hvac library
 - Support for env, vault, and AWS backends
@@ -95,6 +105,7 @@ podman exec janusgraph-server curl -k https://localhost:8182?gremlin=g.V().count
 **Decision: Container vs Environment-Based**
 
 **Option A: Vault Container (RECOMMENDED)**
+
 ```yaml
 # Add to docker-compose.full.yml
 services:
@@ -129,17 +140,20 @@ volumes:
 ```
 
 **Pros:**
+
 - Self-contained, no external dependencies
 - Easy local development and testing
 - Consistent across environments
 - No additional infrastructure costs
 
 **Cons:**
+
 - Adds container overhead (~50MB memory)
 - Requires vault initialization and unsealing
 - Need backup strategy for vault data
 
 **Option B: External Vault (Production)**
+
 - Use existing enterprise Vault instance
 - No container needed
 - Better for production with existing Vault infrastructure
@@ -147,6 +161,7 @@ volumes:
 **Implementation Steps:**
 
 1. **Add Vault Container** (if Option A):
+
 ```bash
 # Vault configuration already created at config/vault/config.hcl
 # Vault service already added to docker-compose.full.yml
@@ -161,6 +176,7 @@ cd ../..
 ```
 
 2. **Migrate Secrets to Vault**:
+
 ```bash
 # Enable KV secrets engine
 vault secrets enable -path=janusgraph kv-v2
@@ -182,6 +198,7 @@ vault token create -policy=janusgraph-policy
 ```
 
 3. **Update Application Code**:
+
 ```python
 # Use existing secrets_manager.py
 from scripts.utils.secrets_manager import SecretsManager
@@ -195,6 +212,7 @@ hcd_password = sm.get_secret("janusgraph/hcd:password")
 ```
 
 4. **Update Docker Compose**:
+
 ```yaml
 # Add Vault environment variables to services
 services:
@@ -207,6 +225,7 @@ services:
 ```
 
 5. **Add hvac Dependency**:
+
 ```bash
 # Add to requirements.txt
 echo "hvac==2.1.0" >> requirements.txt
@@ -214,6 +233,7 @@ pip install hvac==2.1.0
 ```
 
 **Validation:**
+
 ```bash
 # Test Vault connection
 python -c "from scripts.utils.secrets_manager import SecretsManager; sm = SecretsManager('vault'); print(sm.get_secret('janusgraph/admin:username'))"
@@ -223,6 +243,7 @@ vault kv get janusgraph/admin
 ```
 
 **Files to Create/Modify:**
+
 - `config/vault/config.hcl` (new)
 - `docker-compose.full.yml` (add vault service)
 - `requirements.txt` (add hvac)
@@ -230,16 +251,19 @@ vault kv get janusgraph/admin
 - Update initialization scripts to use SecretsManager
 
 ### Phase 2: Monitoring & Observability (Week 2)
-**Priority:** HIGH  
-**Effort:** 3-4 days  
+
+**Priority:** HIGH
+**Effort:** 3-4 days
 **Dependencies:** Phase 1 complete
 
 #### 2.1 Enhance Prometheus/Grafana Setup
-**Status:** 🟡 Partially Complete  
-**Effort:** 2 days  
+
+**Status:** 🟡 Partially Complete
+**Effort:** 2 days
 **Owner:** DevOps Team
 
 **Existing Assets:**
+
 - ✅ Prometheus configured (`config/monitoring/prometheus.yml`)
 - ✅ Grafana configured (`docker-compose.full.yml`)
 - ✅ Alert rules script (`scripts/monitoring/setup_alerts.sh`)
@@ -251,6 +275,7 @@ vault kv get janusgraph/admin
 - ✅ Alert rules template (`config/monitoring/alert-rules.yml`)
 
 **Gaps to Address:**
+
 1. Alerts not deployed/tested
 2. Missing JanusGraph-specific metrics exporters
 3. No alerting integration (PagerDuty, Slack, email)
@@ -259,6 +284,7 @@ vault kv get janusgraph/admin
 **Tasks:**
 
 1. **Deploy Alert Rules**:
+
 ```bash
 # Run existing setup script
 ./scripts/monitoring/setup_alerts.sh
@@ -278,6 +304,7 @@ EOF
 ```
 
 2. **Add AlertManager Service**:
+
 ```yaml
 # Add to docker-compose.full.yml
 services:
@@ -302,6 +329,7 @@ volumes:
 ```
 
 3. **Configure AlertManager**:
+
 ```yaml
 # Create config/monitoring/alertmanager.yml
 global:
@@ -337,6 +365,7 @@ inhibit_rules:
 ```
 
 4. **Add JanusGraph Metrics Exporter**:
+
 ```python
 # Create scripts/monitoring/janusgraph_exporter.py
 """
@@ -359,11 +388,11 @@ def collect_metrics():
         # Query JanusGraph for metrics
         response = requests.get('http://janusgraph-server:8184/metrics')
         data = response.json()
-        
+
         # Update Prometheus metrics
         janusgraph_vertices.set(data.get('vertices', 0))
         janusgraph_edges.set(data.get('edges', 0))
-        
+
     except Exception as e:
         janusgraph_errors.inc()
         print(f"Error collecting metrics: {e}")
@@ -376,6 +405,7 @@ if __name__ == '__main__':
 ```
 
 5. **Provision Grafana Dashboards Automatically**:
+
 ```yaml
 # Add to docker-compose.full.yml grafana service
 services:
@@ -400,6 +430,7 @@ datasources:
 ```
 
 6. **Test Monitoring Stack**:
+
 ```bash
 # Run test script
 ./scripts/monitoring/test_alerts.sh
@@ -412,6 +443,7 @@ curl -X POST http://localhost:9093/api/v1/alerts
 ```
 
 **Files to Create/Modify:**
+
 - `config/monitoring/alertmanager.yml` (new)
 - `config/monitoring/prometheus.yml` (update with alerting)
 - `config/grafana/datasources/prometheus.yml` (new)
@@ -420,32 +452,38 @@ curl -X POST http://localhost:9093/api/v1/alerts
 - `requirements.txt` (add prometheus_client)
 
 #### 2.2 Implement Distributed Tracing
-**Status:** 🟡 Partially Complete  
-**Effort:** 1 day  
+
+**Status:** 🟡 Partially Complete
+**Effort:** 1 day
 **Owner:** DevOps Team
 
 **Existing Assets:**
+
 - ✅ OpenTelemetry collector configured (`config/tracing/otel-collector-config.yml`)
 - ✅ Tracing utilities (`src/python/utils/tracing.py`)
 - ✅ Docker compose for tracing (`docker-compose.tracing.yml`)
 
 **Tasks:**
+
 1. Enable tracing in docker-compose.full.yml
 2. Instrument Python clients with OpenTelemetry
 3. Add Jaeger UI for trace visualization
 4. Test end-to-end tracing
 
 ### Phase 3: Testing & Quality (Weeks 3-4)
-**Priority:** HIGH  
-**Effort:** 2 weeks  
+
+**Priority:** HIGH
+**Effort:** 2 weeks
 **Dependencies:** Phase 1-2 complete
 
 #### 3.1 Achieve 80% Test Coverage
-**Status:** 🔴 Not Started (Currently ~40-50%)  
-**Effort:** 2 weeks  
+
+**Status:** 🔴 Not Started (Currently ~40-50%)
+**Effort:** 2 weeks
 **Owner:** Development Team
 
 **Current Coverage Analysis:**
+
 ```bash
 # Run coverage analysis
 pytest --cov=src --cov=banking --cov-report=html --cov-report=term
@@ -461,6 +499,7 @@ pytest --cov=src --cov=banking --cov-report=html --cov-report=term
 **Coverage Improvement Plan:**
 
 **Week 3: Core Infrastructure (Target: 70%)**
+
 1. **Day 1-2: Client Tests**
    - Test JanusGraphClient connection handling
    - Test SSL/TLS configuration
@@ -482,6 +521,7 @@ pytest --cov=src --cov=banking --cov-report=html --cov-report=term
    - **Target:** Basic integration test suite
 
 **Week 4: Banking Domain (Target: 80%)**
+
 1. **Day 1-2: Data Generators**
    - Test PersonGenerator
    - Test CompanyGenerator
@@ -504,6 +544,7 @@ pytest --cov=src --cov=banking --cov-report=html --cov-report=term
    - Concurrent access tests
 
 **Test Infrastructure Setup:**
+
 ```bash
 # Install test dependencies
 pip install pytest-cov pytest-mock pytest-asyncio pytest-benchmark
@@ -515,7 +556,7 @@ testpaths = tests banking/data_generators/tests
 python_files = test_*.py
 python_classes = Test*
 python_functions = test_*
-addopts = 
+addopts =
     --cov=src
     --cov=banking
     --cov-report=html
@@ -530,6 +571,7 @@ EOF
 ```
 
 **Test Templates:**
+
 ```python
 # tests/test_janusgraph_client.py
 import pytest
@@ -540,13 +582,13 @@ class TestJanusGraphClient:
         """Test successful connection to JanusGraph"""
         client = JanusGraphClient(host='localhost', port=8182)
         assert client.is_connected()
-    
+
     def test_connection_failure(self):
         """Test connection failure handling"""
         with pytest.raises(ConnectionError):
             client = JanusGraphClient(host='invalid', port=9999)
             client.connect()
-    
+
     def test_ssl_configuration(self):
         """Test SSL/TLS configuration"""
         client = JanusGraphClient(
@@ -556,7 +598,7 @@ class TestJanusGraphClient:
             ca_certs='/path/to/ca.crt'
         )
         assert client.ssl_enabled
-    
+
     @pytest.mark.integration
     def test_query_execution(self, janusgraph_client):
         """Test query execution"""
@@ -565,6 +607,7 @@ class TestJanusGraphClient:
 ```
 
 **Coverage Tracking:**
+
 ```bash
 # Daily coverage reports
 pytest --cov=src --cov=banking --cov-report=html
@@ -575,7 +618,7 @@ open htmlcov/index.html
 - name: Run tests with coverage
   run: |
     pytest --cov=src --cov=banking --cov-report=xml
-    
+
 - name: Upload coverage to Codecov
   uses: codecov/codecov-action@v3
   with:
@@ -584,6 +627,7 @@ open htmlcov/index.html
 ```
 
 **Files to Create:**
+
 - `tests/test_janusgraph_client.py`
 - `tests/test_validator.py`
 - `tests/test_auth.py`
@@ -594,16 +638,19 @@ open htmlcov/index.html
 - `banking/fraud/tests/test_fraud_detection.py`
 
 ### Phase 4: Disaster Recovery (Week 5)
-**Priority:** MEDIUM  
-**Effort:** 1 week  
+
+**Priority:** MEDIUM
+**Effort:** 1 week
 **Dependencies:** Phase 1-3 complete
 
 #### 4.1 Document and Test DR Procedures
-**Status:** 🔴 Not Started  
-**Effort:** 1 week  
+
+**Status:** 🔴 Not Started
+**Effort:** 1 week
 **Owner:** Operations Team
 
 **Existing Assets:**
+
 - ✅ Backup scripts (`scripts/backup/backup_volumes.sh`, `backup_volumes_encrypted.sh`)
 - ✅ Export script (`scripts/backup/export_graph.py`)
 - ✅ DR plan template (`docs/operations/disaster-recovery-plan.md`)
@@ -611,11 +658,12 @@ open htmlcov/index.html
 **Tasks:**
 
 1. **Create DR Runbook**:
+
 ```markdown
 # Disaster Recovery Runbook
 
 ## Scenario 1: Complete Data Loss
-**RTO:** 4 hours  
+**RTO:** 4 hours
 **RPO:** 24 hours
 
 ### Recovery Steps:
@@ -641,6 +689,7 @@ docker-compose up -d
 ```
 
 2. **Automated DR Testing**:
+
 ```bash
 # Create scripts/testing/test_disaster_recovery.sh
 #!/bin/bash
@@ -664,27 +713,32 @@ echo "✅ DR test complete"
 ```
 
 3. **Monthly DR Drills**:
+
 - Schedule monthly DR tests
 - Document results
 - Update procedures based on findings
 - Train team on DR procedures
 
 **Files to Create:**
+
 - `docs/operations/disaster-recovery-runbook.md`
 - `scripts/backup/restore_volumes.sh`
 - `scripts/testing/test_disaster_recovery.sh`
 
 ### Phase 5: Compliance & Documentation (Week 6)
-**Priority:** MEDIUM  
-**Effort:** 1 week  
+
+**Priority:** MEDIUM
+**Effort:** 1 week
 **Dependencies:** All phases complete
 
 #### 5.1 Complete Compliance Documentation
-**Status:** 🟡 Partially Complete  
-**Effort:** 1 week  
+
+**Status:** 🟡 Partially Complete
+**Effort:** 1 week
 **Owner:** Compliance Team
 
 **Existing Assets:**
+
 - ✅ GDPR compliance doc (`docs/compliance/gdpr-compliance.md`)
 - ✅ SOC2 controls (`docs/compliance/soc2-controls.md`)
 - ✅ Data retention policy (`docs/compliance/data-retention-policy.md`)
@@ -692,6 +746,7 @@ echo "✅ DR test complete"
 **Tasks:**
 
 1. **Audit Trail Implementation**:
+
 ```python
 # Create banking/compliance/audit_logger.py
 """
@@ -712,8 +767,8 @@ class AuditLogger:
         ))
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
-    
-    def log_access(self, user: str, resource: str, action: str, 
+
+    def log_access(self, user: str, resource: str, action: str,
                    result: str, metadata: Dict[str, Any] = None):
         """Log data access event"""
         event = {
@@ -726,8 +781,8 @@ class AuditLogger:
             "metadata": metadata or {}
         }
         self.logger.info(json.dumps(event))
-    
-    def log_modification(self, user: str, resource: str, 
+
+    def log_modification(self, user: str, resource: str,
                         old_value: Any, new_value: Any):
         """Log data modification event"""
         event = {
@@ -742,6 +797,7 @@ class AuditLogger:
 ```
 
 2. **Compliance Reporting**:
+
 ```python
 # Create scripts/compliance/generate_compliance_report.py
 """
@@ -771,12 +827,14 @@ def generate_soc2_report(quarter: int, year: int):
 ```
 
 3. **Update Documentation**:
+
 - Complete API documentation
 - Update architecture diagrams
 - Document all security controls
 - Create compliance checklist
 
 **Files to Create:**
+
 - `banking/compliance/audit_logger.py`
 - `scripts/compliance/generate_compliance_report.py`
 - `docs/compliance/AUDIT_TRAIL_GUIDE.md`
@@ -785,30 +843,35 @@ def generate_soc2_report(quarter: int, year: int):
 ## Success Metrics
 
 ### Phase 1: Security (Week 1)
+
 - [ ] SSL/TLS enabled on all services
 - [ ] All secrets stored in Vault
 - [ ] Zero hardcoded credentials
 - [ ] Certificate rotation documented
 
 ### Phase 2: Monitoring (Week 2)
+
 - [ ] All services monitored
 - [ ] Alerts configured and tested
 - [ ] Dashboards provisioned
 - [ ] 99.9% uptime SLA achievable
 
 ### Phase 3: Testing (Weeks 3-4)
+
 - [ ] 80%+ test coverage achieved
 - [ ] All critical paths tested
 - [ ] Performance benchmarks established
 - [ ] CI/CD pipeline with tests
 
 ### Phase 4: DR (Week 5)
+
 - [ ] DR procedures documented
 - [ ] DR test successful
 - [ ] RTO < 4 hours
 - [ ] RPO < 24 hours
 
 ### Phase 5: Compliance (Week 6)
+
 - [ ] Audit trail implemented
 - [ ] Compliance reports automated
 - [ ] Documentation complete
@@ -827,6 +890,7 @@ def generate_soc2_report(quarter: int, year: int):
 ## Resource Requirements
 
 ### Team
+
 - **Security Engineer:** 2 weeks (Phases 1-2)
 - **DevOps Engineer:** 3 weeks (Phases 1-2, 4)
 - **QA Engineer:** 2 weeks (Phase 3)
@@ -834,12 +898,14 @@ def generate_soc2_report(quarter: int, year: int):
 - **Compliance Officer:** 1 week (Phase 5)
 
 ### Infrastructure
+
 - **Vault Container:** ~50MB memory, minimal CPU
 - **AlertManager:** ~30MB memory, minimal CPU
 - **Additional monitoring:** ~100MB memory total
 - **Test environment:** Same as production
 
 ### Budget
+
 - **Software:** $0 (all open source)
 - **Cloud resources:** ~$50/month (if using cloud)
 - **Training:** 2 days team training
@@ -895,6 +961,7 @@ Week 6: Compliance & Documentation
 ## Appendix
 
 ### A. Existing Infrastructure Summary
+
 - ✅ Docker/Podman containerization
 - ✅ HCD 1.2.3 (Cassandra-compatible)
 - ✅ JanusGraph latest
@@ -905,6 +972,7 @@ Week 6: Compliance & Documentation
 - ✅ Secrets manager code (needs deployment)
 
 ### B. Key Configuration Files
+
 - `docker-compose.yml` - Main compose file
 - `config/compose/docker-compose.full.yml` - Full stack with monitoring
 - `config/monitoring/prometheus.yml` - Prometheus config
@@ -912,6 +980,7 @@ Week 6: Compliance & Documentation
 - `scripts/utils/secrets_manager.py` - Vault integration
 
 ### C. Documentation References
+
 - Production Readiness Audit (see main implementation)
 - [Code Review Fixes Summary](./CODE_REVIEW_FIXES_SUMMARY.md)
 - [Security Guide](../../../security/authentication-guide.md)
@@ -919,6 +988,6 @@ Week 6: Compliance & Documentation
 
 ---
 
-**Document Owner:** Production Readiness Team  
-**Last Updated:** 2026-01-28  
+**Document Owner:** Production Readiness Team
+**Last Updated:** 2026-01-28
 **Next Review:** 2026-02-04 (Weekly)

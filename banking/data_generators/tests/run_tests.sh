@@ -1,9 +1,9 @@
 #!/bin/bash
 # Test Runner Script
 # ==================
-# 
+#
 # Comprehensive test execution script for data generators
-# 
+#
 # Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-28
 
@@ -40,9 +40,9 @@ run_tests() {
     local test_path=$1
     local test_name=$2
     local markers=$3
-    
+
     echo -e "${YELLOW}Running $test_name...${NC}"
-    
+
     if [ -n "$markers" ]; then
         if [ "$VERBOSE" = "-v" ] || [ "$VERBOSE" = "--verbose" ]; then
             pytest "$test_path" -m "$markers" -v --tb=short
@@ -56,7 +56,7 @@ run_tests() {
             pytest "$test_path" --tb=short
         fi
     fi
-    
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ $test_name passed${NC}"
     else
@@ -74,7 +74,7 @@ case $TEST_TYPE in
         echo "Running smoke tests only..."
         run_tests "." "Smoke Tests" "not slow and not integration and not benchmark"
         ;;
-    
+
     "unit")
         echo "Running unit tests..."
         run_tests "test_core/" "Core Generator Tests" "not slow and not integration"
@@ -82,34 +82,34 @@ case $TEST_TYPE in
         run_tests "test_patterns/" "Pattern Generator Tests" "not slow and not integration"
         run_tests "test_orchestration/" "Orchestration Tests" "not slow and not integration"
         ;;
-    
+
     "integration")
         echo "Running integration tests..."
         run_tests "test_integration/" "Integration Tests" "integration"
         ;;
-    
+
     "performance")
         echo "Running performance benchmarks..."
         run_tests "test_performance/" "Performance Benchmarks" "benchmark or slow"
         ;;
-    
+
     "fast")
         echo "Running fast tests only (no slow, integration, or benchmark)..."
         run_tests "." "Fast Tests" "not slow and not integration and not benchmark"
         ;;
-    
+
     "all")
         echo "Running all tests..."
         run_tests "." "All Tests" ""
         ;;
-    
+
     "coverage")
         echo "Running tests with coverage..."
         pytest . --cov=banking.data_generators --cov-report=html --cov-report=term
         echo ""
         echo -e "${GREEN}Coverage report generated in htmlcov/index.html${NC}"
         ;;
-    
+
     *)
         echo -e "${RED}Unknown test type: $TEST_TYPE${NC}"
         echo ""

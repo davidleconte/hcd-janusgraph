@@ -3,6 +3,7 @@
 ## Summary of Changes
 
 The remediation script successfully:
+
 - ✅ Removed build artifacts (.coverage, htmlcov/, .pytest_cache)
 - ✅ Moved vendor code (hcd-1.2.3/) to vendor/
 - ✅ Consolidated docker-compose files to config/compose/
@@ -13,20 +14,24 @@ The remediation script successfully:
 ## Git Status Analysis
 
 ### Modified Files (Core Changes)
+
 - `.gitignore` - Added vendor/, hcd-*/, certs, build artifacts
 - `config/compose/docker-compose.*.yml` - Fixed build contexts
 - `README.md`, `QUICKSTART.md` - Updated deployment instructions
 - `AGENTS.md` - Added deployment standards
 
 ### Deleted Files (Vendor Code Moved)
+
 - `hcd-1.2.3/**` - 150+ files moved to vendor/ (excluded by .gitignore)
 
 ### Untracked Files (New Features)
+
 - Many new features from previous work (banking/, tests/, docs/, etc.)
 
 ## Recommended Commit Strategy
 
 ### Option 1: Single Comprehensive Commit (Recommended)
+
 ```bash
 # Stage all changes
 git add -A
@@ -62,6 +67,7 @@ Refs: docs/implementation/remediation/AUDIT_REMEDIATION_COMPLETE.md"
 ### Option 2: Staged Commits (More Granular)
 
 #### Commit 1: Security & .gitignore
+
 ```bash
 git add .gitignore
 git commit -m "fix: update .gitignore for security and vendor exclusions
@@ -73,6 +79,7 @@ git commit -m "fix: update .gitignore for security and vendor exclusions
 ```
 
 #### Commit 2: Vendor Code Removal
+
 ```bash
 git add -u  # Stage deletions only
 git commit -m "refactor: move vendor code to excluded directory
@@ -85,6 +92,7 @@ BREAKING CHANGE: Run scripts/setup/download_hcd.sh to download HCD"
 ```
 
 #### Commit 3: Docker Compose Consolidation
+
 ```bash
 git add config/compose/docker-compose.*.yml
 git add docker-compose.*.yml  # If any remain at root
@@ -98,6 +106,7 @@ BREAKING CHANGE: Must run podman-compose from config/compose/"
 ```
 
 #### Commit 4: Documentation Updates
+
 ```bash
 git add README.md QUICKSTART.md AGENTS.md
 git add docs/implementation/remediation/AUDIT_REMEDIATION_COMPLETE.md
@@ -111,6 +120,7 @@ git commit -m "docs: update deployment instructions and add remediation report
 ```
 
 #### Commit 5: New Features (Separate)
+
 ```bash
 git add banking/ tests/ docs/ scripts/ src/
 git commit -m "feat: add banking compliance system and test infrastructure
@@ -125,6 +135,7 @@ git commit -m "feat: add banking compliance system and test infrastructure
 ## Recommended Approach
 
 **Use Option 1 (Single Commit)** because:
+
 1. All changes are part of the same audit remediation effort
 2. Changes are interdependent (build contexts depend on file moves)
 3. Easier to revert if needed

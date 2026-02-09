@@ -13,41 +13,45 @@ Created: 2026-01-29
 Phase: Week 3 Days 3-4 - Utils Module Testing
 """
 
-import pytest
-from decimal import Decimal, InvalidOperation
-from datetime import datetime, date, timedelta
-from pathlib import Path
 import sys
+from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
+
+import pytest
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from src.python.utils.validation import (
-    Validator,
     ValidationError,
+    Validator,
+    validate_file_path,
+    validate_gremlin_query,
     validate_hostname,
     validate_port,
-    validate_gremlin_query,
-    validate_file_path,
 )
 
 
 class TestValidatorAccountID:
     """Test account ID validation"""
 
-    @pytest.mark.parametrize("account_id,should_pass", [
-        ("ACC-12345", True),
-        ("USER_001", True),
-        ("A1B2C3D4E5", True),
-        ("12345-ABCDE", True),
-        ("VALID_ID-123", True),
-        ("", False),  # Empty
-        ("abc", False),  # Too short (< 5)
-        ("a" * 51, False),  # Too long (> 50)
-        ("invalid@id", False),  # Invalid char
-        ("lower-case", False),  # Lowercase not allowed
-        ("spaces here", False),  # Spaces not allowed
-    ])
+    @pytest.mark.parametrize(
+        "account_id,should_pass",
+        [
+            ("ACC-12345", True),
+            ("USER_001", True),
+            ("A1B2C3D4E5", True),
+            ("12345-ABCDE", True),
+            ("VALID_ID-123", True),
+            ("", False),  # Empty
+            ("abc", False),  # Too short (< 5)
+            ("a" * 51, False),  # Too long (> 50)
+            ("invalid@id", False),  # Invalid char
+            ("lower-case", False),  # Lowercase not allowed
+            ("spaces here", False),  # Spaces not allowed
+        ],
+    )
     def test_validate_account_id(self, account_id, should_pass):
         """Test account ID validation with various inputs"""
         if should_pass:
@@ -74,23 +78,23 @@ class TestValidatorAmount:
     def test_validate_amount_valid_float(self):
         """Test amount validation with valid float"""
         result = Validator.validate_amount(100.50)
-        assert result == Decimal('100.50')
+        assert result == Decimal("100.50")
         assert isinstance(result, Decimal)
 
     def test_validate_amount_valid_int(self):
         """Test amount validation with valid integer"""
         result = Validator.validate_amount(100)
-        assert result == Decimal('100.00')
+        assert result == Decimal("100.00")
 
     def test_validate_amount_valid_decimal(self):
         """Test amount validation with Decimal"""
-        result = Validator.validate_amount(Decimal('99.99'))
-        assert result == Decimal('99.99')
+        result = Validator.validate_amount(Decimal("99.99"))
+        assert result == Decimal("99.99")
 
     def test_validate_amount_valid_string(self):
         """Test amount validation with string"""
-        result = Validator.validate_amount('50.25')
-        assert result == Decimal('50.25')
+        result = Validator.validate_amount("50.25")
+        assert result == Decimal("50.25")
 
     def test_validate_amount_below_minimum(self):
         """Test amount below minimum"""
@@ -105,7 +109,7 @@ class TestValidatorAmount:
     def test_validate_amount_too_many_decimals(self):
         """Test amount with too many decimal places"""
         with pytest.raises(ValidationError, match="too many decimal places"):
-            Validator.validate_amount(Decimal('10.123'))
+            Validator.validate_amount(Decimal("10.123"))
 
     def test_validate_amount_invalid_format(self):
         """Test amount with invalid format"""
@@ -120,7 +124,7 @@ class TestValidatorAmount:
     def test_validate_amount_quantization(self):
         """Test amount is quantized to 2 decimal places"""
         result = Validator.validate_amount(10.1)
-        assert result == Decimal('10.10')
+        assert result == Decimal("10.10")
 
 
 class TestValidatorSanitizeString:
@@ -156,7 +160,7 @@ class TestValidatorSanitizeString:
 
     def test_sanitize_string_with_allowed_chars(self):
         """Test sanitization with allowed characters"""
-        result = Validator.sanitize_string("user@example.com", allow_chars='@.')
+        result = Validator.sanitize_string("user@example.com", allow_chars="@.")
         assert result == "user@example.com"
 
     def test_sanitize_string_not_string(self):
@@ -168,29 +172,35 @@ class TestValidatorSanitizeString:
 class TestValidatorEmail:
     """Test email validation"""
 
-    @pytest.mark.parametrize("email,expected", [
-        ("valid@example.com", "valid@example.com"),
-        ("user.name@example.co.uk", "user.name@example.co.uk"),
-        ("user+tag@example.com", "user+tag@example.com"),
-        ("test_user@sub.domain.com", "test_user@sub.domain.com"),
-        ("123@example.com", "123@example.com"),
-    ])
+    @pytest.mark.parametrize(
+        "email,expected",
+        [
+            ("valid@example.com", "valid@example.com"),
+            ("user.name@example.co.uk", "user.name@example.co.uk"),
+            ("user+tag@example.com", "user+tag@example.com"),
+            ("test_user@sub.domain.com", "test_user@sub.domain.com"),
+            ("123@example.com", "123@example.com"),
+        ],
+    )
     def test_validate_email_valid(self, email, expected):
         """Test email validation with valid emails"""
         result = Validator.validate_email(email)
         assert result == expected.lower()
 
-    @pytest.mark.parametrize("email", [
-        "invalid@",
-        "@example.com",
-        "no-at-sign.com",
-        "",
-        "spaces in@example.com",
-        "missing.domain@",
-        "@",
-        "user@",
-        "user@@example.com",
-    ])
+    @pytest.mark.parametrize(
+        "email",
+        [
+            "invalid@",
+            "@example.com",
+            "no-at-sign.com",
+            "",
+            "spaces in@example.com",
+            "missing.domain@",
+            "@",
+            "user@",
+            "user@@example.com",
+        ],
+    )
     def test_validate_email_invalid(self, email):
         """Test email validation with invalid emails"""
         with pytest.raises(ValidationError):
@@ -240,11 +250,14 @@ class TestValidatorDate:
         result = Validator.validate_date("2024-01-15")
         assert result == date(2024, 1, 15)
 
-    @pytest.mark.parametrize("date_str,expected", [
-        ("2024-01-15", date(2024, 1, 15)),
-        ("01/15/2024", date(2024, 1, 15)),
-        ("15/01/2024", date(2024, 1, 15)),
-    ])
+    @pytest.mark.parametrize(
+        "date_str,expected",
+        [
+            ("2024-01-15", date(2024, 1, 15)),
+            ("01/15/2024", date(2024, 1, 15)),
+            ("15/01/2024", date(2024, 1, 15)),
+        ],
+    )
     def test_validate_date_various_formats(self, date_str, expected):
         """Test date validation with various string formats"""
         result = Validator.validate_date(date_str)
@@ -310,19 +323,22 @@ class TestValidatorGremlinQuery:
         with pytest.raises(ValidationError, match="exceeds maximum length"):
             Validator.validate_gremlin_query(long_query)
 
-    @pytest.mark.parametrize("dangerous_query,pattern", [
-        ("g.V().drop()", "drop"),
-        ("system('rm -rf /')", "system"),
-        ("eval('malicious code')", "eval"),
-        ("script('bad')", "script"),
-        ("inject('sql')", "inject"),
-        ("'; DROP TABLE users--", "SQL injection"),
-        ("1=1 OR 1=1", "SQL injection pattern"),
-        ("UNION SELECT * FROM", "SQL injection pattern"),
-        ("<script>alert('xss')</script>", "XSS attempt"),
-        ("javascript:alert(1)", "JavaScript injection"),
-        ("../../etc/passwd", "path traversal"),
-    ])
+    @pytest.mark.parametrize(
+        "dangerous_query,pattern",
+        [
+            ("g.V().drop()", "drop"),
+            ("system('rm -rf /')", "system"),
+            ("eval('malicious code')", "eval"),
+            ("script('bad')", "script"),
+            ("inject('sql')", "inject"),
+            ("'; DROP TABLE users--", "SQL injection"),
+            ("1=1 OR 1=1", "SQL injection pattern"),
+            ("UNION SELECT * FROM", "SQL injection pattern"),
+            ("<script>alert('xss')</script>", "XSS attempt"),
+            ("javascript:alert(1)", "JavaScript injection"),
+            ("../../etc/passwd", "path traversal"),
+        ],
+    )
     def test_validate_gremlin_query_dangerous(self, dangerous_query, pattern):
         """Test detection of dangerous operations"""
         with pytest.raises(ValidationError, match="dangerous operation"):
@@ -406,28 +422,34 @@ class TestValidatorPort:
 class TestStandaloneValidateHostname:
     """Test standalone hostname validation function"""
 
-    @pytest.mark.parametrize("hostname", [
-        "localhost",
-        "example.com",
-        "sub.domain.example.com",
-        "192.168.1.1",
-        "my-server",
-        "server123",
-    ])
+    @pytest.mark.parametrize(
+        "hostname",
+        [
+            "localhost",
+            "example.com",
+            "sub.domain.example.com",
+            "192.168.1.1",
+            "my-server",
+            "server123",
+        ],
+    )
     def test_validate_hostname_valid(self, hostname):
         """Test valid hostnames"""
         result = validate_hostname(hostname)
         assert result == hostname
 
-    @pytest.mark.parametrize("hostname", [
-        "",
-        " ",
-        "a" * 254,  # Too long
-        "invalid..domain",
-        "-invalid",
-        "invalid-",
-        "invalid_domain",  # Underscore not allowed
-    ])
+    @pytest.mark.parametrize(
+        "hostname",
+        [
+            "",
+            " ",
+            "a" * 254,  # Too long
+            "invalid..domain",
+            "-invalid",
+            "invalid-",
+            "invalid_domain",  # Underscore not allowed
+        ],
+    )
     def test_validate_hostname_invalid(self, hostname):
         """Test invalid hostnames"""
         with pytest.raises(ValidationError):
@@ -464,7 +486,7 @@ class TestStandaloneValidateFilePath:
         """Test valid file path"""
         test_file = tmp_path / "test.txt"
         test_file.write_text("test")
-        
+
         result = validate_file_path(str(test_file), must_exist=True)
         assert result == str(test_file)
 
@@ -503,5 +525,3 @@ class TestValidationErrorException:
         """Test raising ValidationError"""
         with pytest.raises(ValidationError, match="Test message"):
             raise ValidationError("Test message")
-
-

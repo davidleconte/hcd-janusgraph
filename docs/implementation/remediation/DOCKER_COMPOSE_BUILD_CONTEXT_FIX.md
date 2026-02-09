@@ -1,8 +1,8 @@
 # Docker Compose Build Context Fix
 
-**Date**: 2026-01-29  
-**Status**: Complete  
-**Severity**: CRITICAL  
+**Date**: 2026-01-29
+**Status**: Complete
+**Severity**: CRITICAL
 **Impact**: Prevents deployment failures
 
 ---
@@ -14,8 +14,8 @@ The `docker-compose.full.yml` file had incorrect build contexts that caused Dock
 ### Error Encountered
 
 ```
-Error: building at STEP "COPY docker/jupyter/environment.yml /tmp/environment.yml": 
-checking on sources under "/var/tmp/libpod_builder3721578708/build": 
+Error: building at STEP "COPY docker/jupyter/environment.yml /tmp/environment.yml":
+checking on sources under "/var/tmp/libpod_builder3721578708/build":
 copier: stat: "/docker/jupyter/environment.yml": no such file or directory
 ```
 
@@ -37,8 +37,9 @@ jupyter:
 ### Path Resolution
 
 From `config/compose/` directory:
+
 - `context: .` → `/path/to/project/config/compose/`
-- Dockerfile tries: `COPY docker/jupyter/environment.yml` 
+- Dockerfile tries: `COPY docker/jupyter/environment.yml`
 - Resolves to: `/path/to/project/config/compose/docker/jupyter/environment.yml` ❌ (doesn't exist)
 
 ---
@@ -54,7 +55,8 @@ jupyter:
     dockerfile: docker/jupyter/Dockerfile  # Relative to project root
 ```
 
-**Why This Works**: 
+**Why This Works**:
+
 - `context: ../..` sets build context to project root
 - Dockerfile paths in `COPY` commands now resolve correctly relative to project root
 - Example: `COPY docker/jupyter/environment.yml` → `/path/to/project/docker/jupyter/environment.yml` ✅
@@ -84,6 +86,7 @@ All services with custom Dockerfiles were updated:
 **File**: `config/...`
 
 **Lines Changed**:
+
 - Line 100: `context: .` → `context: ../..`
 - Line 101: `dockerfile: ../../docker/jupyter/Dockerfile` → `dockerfile: docker/jupyter/Dockerfile`
 - Line 132: `context: .` → `context: ../..`
@@ -98,6 +101,7 @@ All services with custom Dockerfiles were updated:
 ## Verification
 
 ### Before Fix
+
 ```bash
 cd config/compose
 podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
@@ -107,6 +111,7 @@ Error: copier: stat: "/docker/jupyter/environment.yml": no such file or director
 ```
 
 ### After Fix
+
 ```bash
 cd config/compose
 podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
@@ -116,6 +121,7 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 ```
 
 ### Verification Commands
+
 ```bash
 # Verify build context is correct
 cd config/compose
@@ -131,11 +137,13 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml config | grep -A 2 
 ### Design Decision Trade-off
 
 The original configuration attempted to:
+
 1. Keep compose file in `config/compose/` for organization
 2. Use relative paths to Dockerfiles in `docker/` directory
 3. Use current directory (`.`) as build context for simplicity
 
 **Problem**: This created a mismatch between:
+
 - Where the Dockerfile is located (`docker/*/Dockerfile`)
 - What the Dockerfile expects to copy (paths relative to project root)
 - Where the build context points (`config/compose/`)
@@ -143,6 +151,7 @@ The original configuration attempted to:
 ### Correct Approach
 
 The fix aligns all three:
+
 1. Compose file location: `config/compose/docker-compose.full.yml`
 2. Build context: `../..` (project root)
 3. Dockerfile paths: Relative to project root
@@ -163,13 +172,17 @@ The fix aligns all three:
 ## Related Issues
 
 ### Issue 1: Directory Requirement
+
 The requirement to run from `config/compose/` directory is now properly documented in:
+
 - `README.md` (root)
 - `QUICKSTART.md` (root)
 - `AGENTS.md` (root)
 
 ### Issue 2: Build Context Understanding
+
 This fix clarifies the relationship between:
+
 - Compose file location
 - Build context
 - Dockerfile location
@@ -180,7 +193,9 @@ This fix clarifies the relationship between:
 ## Best Practices Learned
 
 ### 1. Build Context Should Be Project Root
+
 When Dockerfiles reference multiple directories, use project root as context:
+
 ```yaml
 build:
   context: ../..  # Project root
@@ -188,7 +203,9 @@ build:
 ```
 
 ### 2. Dockerfile Paths Relative to Context
+
 All paths in Dockerfile should be relative to the build context:
+
 ```dockerfile
 # If context is project root:
 COPY docker/service/config.yml /app/
@@ -196,7 +213,9 @@ COPY src/python/ /app/src/
 ```
 
 ### 3. Document Directory Requirements
+
 Always document where commands must be run from:
+
 ```bash
 # MUST run from config/compose directory
 cd config/compose
@@ -204,7 +223,9 @@ podman-compose -f docker-compose.full.yml up -d
 ```
 
 ### 4. Test Build Contexts
+
 Verify build contexts work from the documented directory:
+
 ```bash
 cd config/compose
 podman-compose config  # Validate configuration
@@ -216,6 +237,7 @@ podman-compose build   # Test builds
 ## Testing Recommendations
 
 ### Pre-Deployment Testing
+
 ```bash
 # 1. Clean previous builds
 podman system prune -af
@@ -237,7 +259,9 @@ podman ps --format "{{.Names}}\t{{.Status}}"
 ```
 
 ### Expected Results
+
 All custom-built containers should show:
+
 - `janusgraph-demo_jupyter-lab_1` - Up
 - `janusgraph-demo_janusgraph-visualizer_1` - Up
 - `janusgraph-demo_graphexp_1` - Up
@@ -249,11 +273,13 @@ All custom-built containers should show:
 ## Future Improvements
 
 ### Short Term
+
 - [ ] Add pre-flight validation script
 - [ ] Create deployment wrapper that enforces directory
 - [ ] Add CI/CD test for build contexts
 
 ### Long Term
+
 - [ ] Consider monorepo structure with clearer paths
 - [ ] Evaluate multi-stage builds for optimization
 - [ ] Document build context patterns in CONTRIBUTING.md
@@ -268,13 +294,13 @@ This fix resolves a critical deployment blocker by correcting the build context 
 
 ---
 
-**Status**: ✅ Complete  
-**Tested**: Yes (static analysis)  
-**Production Ready**: Yes  
+**Status**: ✅ Complete
+**Tested**: Yes (static analysis)
+**Production Ready**: Yes
 **Breaking Changes**: No (fix only, no API changes)
 
 ---
 
-**Last Updated**: 2026-01-29  
-**Author**: David Leconte  
+**Last Updated**: 2026-01-29
+**Author**: David Leconte
 **Review Status**: Complete

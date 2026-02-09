@@ -16,20 +16,20 @@ from banking.compliance.audit_logger import AuditEventType
 
 class TestAuditEventType:
     def test_auth_event_types_exist(self):
-        assert hasattr(AuditEventType, 'AUTH_LOGIN')
-        assert hasattr(AuditEventType, 'AUTH_LOGOUT')
-        assert hasattr(AuditEventType, 'AUTH_FAILED')
+        assert hasattr(AuditEventType, "AUTH_LOGIN")
+        assert hasattr(AuditEventType, "AUTH_LOGOUT")
+        assert hasattr(AuditEventType, "AUTH_FAILED")
 
     def test_data_event_types_exist(self):
-        assert hasattr(AuditEventType, 'DATA_ACCESS')
-        assert hasattr(AuditEventType, 'DATA_CREATE')
-        assert hasattr(AuditEventType, 'DATA_UPDATE')
-        assert hasattr(AuditEventType, 'DATA_DELETE')
+        assert hasattr(AuditEventType, "DATA_ACCESS")
+        assert hasattr(AuditEventType, "DATA_CREATE")
+        assert hasattr(AuditEventType, "DATA_UPDATE")
+        assert hasattr(AuditEventType, "DATA_DELETE")
 
     def test_compliance_event_types_exist(self):
-        assert hasattr(AuditEventType, 'GDPR_DATA_REQUEST')
-        assert hasattr(AuditEventType, 'AML_ALERT_GENERATED')
-        assert hasattr(AuditEventType, 'FRAUD_ALERT_GENERATED')
+        assert hasattr(AuditEventType, "GDPR_DATA_REQUEST")
+        assert hasattr(AuditEventType, "AML_ALERT_GENERATED")
+        assert hasattr(AuditEventType, "FRAUD_ALERT_GENERATED")
 
     def test_event_type_values(self):
         assert AuditEventType.AUTH_LOGIN.value == "auth_login"
@@ -44,6 +44,7 @@ class TestAuditLogger:
 
     def test_logger_can_be_imported(self):
         from banking.compliance.audit_logger import AuditLogger
+
         assert AuditLogger is not None
 
     @patch.dict(os.environ, {"AUDIT_LOG_DIR": ""})
@@ -52,6 +53,7 @@ class TestAuditLogger:
             mock_path.return_value.exists.return_value = True
             mock_path.return_value.mkdir = lambda **kwargs: None
             from banking.compliance.audit_logger import AuditLogger
+
             # Just test that import and class definition work
 
 

@@ -2,7 +2,7 @@
 
 System architecture and design documentation for the synthetic data generation framework.
 
-**Version**: 1.0.0  
+**Version**: 1.0.0
 **Last Updated**: 2026-01-28
 
 ---
@@ -93,7 +93,7 @@ All generators inherit from `BaseGenerator`:
 ```python
 class BaseGenerator:
     """Base class for all generators"""
-    
+
     def __init__(self, seed: Optional[int] = None):
         self.seed = seed
         self.faker = Faker()
@@ -103,6 +103,7 @@ class BaseGenerator:
 ```
 
 **Responsibilities**:
+
 - Initialize Faker with seed
 - Provide common generation utilities
 - Ensure reproducibility
@@ -127,6 +128,7 @@ BaseGenerator
 ```
 
 **Key Features**:
+
 - Independent generation
 - Realistic attribute distribution
 - Risk scoring
@@ -156,6 +158,7 @@ BaseGenerator
 ```
 
 **Key Features**:
+
 - Temporal consistency
 - Entity relationships
 - Realistic patterns
@@ -185,6 +188,7 @@ BaseGenerator
 ```
 
 **Key Features**:
+
 - Multi-entity coordination
 - Temporal sequencing
 - Realistic indicators
@@ -199,22 +203,23 @@ class MasterOrchestrator:
     def __init__(self, config: GenerationConfig):
         self.config = config
         self._initialize_generators()
-    
+
     def generate_all(self) -> GenerationStats:
         # Phase 1: Core entities
         self._generate_core_entities()
-        
+
         # Phase 2: Events
         self._generate_events()
-        
+
         # Phase 3: Patterns
         self._inject_patterns()
-        
+
         # Phase 4: Export
         return self._collect_stats()
 ```
 
 **Responsibilities**:
+
 - Initialize all generators
 - Coordinate generation phases
 - Manage entity relationships
@@ -300,6 +305,7 @@ class BaseGenerator:
 ```
 
 **Benefits**:
+
 - Consistent generation workflow
 - Easy to extend
 - Enforces best practices
@@ -320,6 +326,7 @@ class GeneratorFactory:
 ```
 
 **Benefits**:
+
 - Centralized creation logic
 - Easy to add new generators
 - Consistent initialization
@@ -332,12 +339,13 @@ class GeneratorFactory:
 class PatternInjector:
     def __init__(self, strategy: PatternGenerator):
         self.strategy = strategy
-    
+
     def inject(self, data):
         return self.strategy.inject_pattern(data)
 ```
 
 **Benefits**:
+
 - Interchangeable patterns
 - Easy to add new patterns
 - Testable in isolation
@@ -356,6 +364,7 @@ config = (GenerationConfig()
 ```
 
 **Benefits**:
+
 - Fluent API
 - Validation at build time
 - Immutable configuration
@@ -368,12 +377,13 @@ config = (GenerationConfig()
 class StatisticsObserver:
     def on_entity_generated(self, entity_type: str):
         self.stats[entity_type] += 1
-    
+
     def on_pattern_injected(self, pattern_type: str):
         self.patterns[pattern_type] += 1
 ```
 
 **Benefits**:
+
 - Decoupled statistics
 - Real-time monitoring
 - Easy to add metrics
@@ -483,7 +493,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 def generate_parallel(count: int):
     with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = [executor.submit(generator.generate) 
+        futures = [executor.submit(generator.generate)
                    for _ in range(count)]
         return [f.result() for f in futures]
 ```
@@ -515,6 +525,7 @@ class LazyGenerator:
 ### 5. Profiling
 
 **Tools**:
+
 - `cProfile` for CPU profiling
 - `memory_profiler` for memory profiling
 - `py-spy` for production profiling
@@ -669,6 +680,7 @@ logger.error(f"Generation failed: {error}")
 The synthetic data generation framework provides a robust, extensible architecture for creating realistic financial crime patterns. The modular design enables easy extension while maintaining performance and data quality.
 
 **Key Strengths**:
+
 - Modular, extensible design
 - High performance
 - Comprehensive testing
@@ -677,6 +689,6 @@ The synthetic data generation framework provides a robust, extensible architectu
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-28  
+**Version**: 1.0.0
+**Last Updated**: 2026-01-28
 **Maintained By**: Development Team

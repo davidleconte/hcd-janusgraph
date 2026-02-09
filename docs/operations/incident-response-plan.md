@@ -1,9 +1,9 @@
 # Incident Response Plan (IRP)
 
-**Project**: HCD + JanusGraph Stack  
-**Version**: 1.0  
-**Date**: 2026-01-28  
-**Classification**: CONFIDENTIAL  
+**Project**: HCD + JanusGraph Stack
+**Version**: 1.0
+**Date**: 2026-01-28
+**Classification**: CONFIDENTIAL
 **Review Cycle**: Quarterly
 
 ---
@@ -51,44 +51,52 @@ This Incident Response Plan (IRP) provides structured procedures for detecting, 
 ### Severity Levels
 
 #### P0 - Critical
-**Impact**: Complete service outage or major security breach  
-**Response Time**: Immediate (< 15 minutes)  
+
+**Impact**: Complete service outage or major security breach
+**Response Time**: Immediate (< 15 minutes)
 **Escalation**: Immediate to CTO/CISO
 
 **Examples**:
+
 - Complete system outage
 - Active ransomware attack
 - Data breach with PII exposure
 - Critical vulnerability exploitation
 
 #### P1 - High
-**Impact**: Significant service degradation or security threat  
-**Response Time**: < 30 minutes  
+
+**Impact**: Significant service degradation or security threat
+**Response Time**: < 30 minutes
 **Escalation**: Within 1 hour to management
 
 **Examples**:
+
 - Partial service outage
 - DDoS attack
 - Unauthorized access attempt
 - Critical data corruption
 
 #### P2 - Medium
-**Impact**: Minor service degradation or security concern  
-**Response Time**: < 2 hours  
+
+**Impact**: Minor service degradation or security concern
+**Response Time**: < 2 hours
 **Escalation**: Within 4 hours if unresolved
 
 **Examples**:
+
 - Performance degradation
 - Failed authentication spike
 - Non-critical vulnerability
 - Configuration error
 
 #### P3 - Low
-**Impact**: Minimal or no service impact  
-**Response Time**: < 8 hours  
+
+**Impact**: Minimal or no service impact
+**Response Time**: < 8 hours
 **Escalation**: Within 24 hours if unresolved
 
 **Examples**:
+
 - Informational security alerts
 - Minor configuration issues
 - Routine maintenance needs
@@ -140,10 +148,12 @@ Incident Commander
 ### Roles and Responsibilities
 
 #### Incident Commander (IC)
-**Primary**: John Doe (john.doe@company.com, +1-555-0100)  
-**Backup**: Jane Smith (jane.smith@company.com, +1-555-0101)
+
+**Primary**: John Doe (<john.doe@company.com>, +1-555-0100)
+**Backup**: Jane Smith (<jane.smith@company.com>, +1-555-0101)
 
 **Responsibilities**:
+
 - Declare incident and severity
 - Activate response team
 - Coordinate response efforts
@@ -152,9 +162,11 @@ Incident Commander
 - Declare incident resolved
 
 #### Technical Lead
-**Primary**: Bob Johnson (bob.johnson@company.com, +1-555-0102)
+
+**Primary**: Bob Johnson (<bob.johnson@company.com>, +1-555-0102)
 
 **Responsibilities**:
+
 - Lead technical investigation
 - Coordinate technical team
 - Implement containment measures
@@ -162,9 +174,11 @@ Incident Commander
 - Document technical findings
 
 #### Security Lead
-**Primary**: Diana Prince (diana.prince@company.com, +1-555-0105)
+
+**Primary**: Diana Prince (<diana.prince@company.com>, +1-555-0105)
 
 **Responsibilities**:
+
 - Assess security implications
 - Conduct forensic analysis
 - Implement security controls
@@ -172,9 +186,11 @@ Incident Commander
 - Document security findings
 
 #### Communications Lead
-**Primary**: Eve Adams (eve.adams@company.com, +1-555-0106)
+
+**Primary**: Eve Adams (<eve.adams@company.com>, +1-555-0106)
 
 **Responsibilities**:
+
 - Manage internal communications
 - Coordinate external communications
 - Prepare status updates
@@ -190,6 +206,7 @@ Incident Commander
 #### 1.1 Incident Detection
 
 **Automated Detection**:
+
 ```bash
 # Monitoring alerts
 - Prometheus alerts
@@ -200,6 +217,7 @@ Incident Commander
 ```
 
 **Manual Detection**:
+
 - User reports
 - Security team observation
 - Vendor notification
@@ -208,12 +226,14 @@ Incident Commander
 #### 1.2 Initial Assessment
 
 **Actions**:
+
 1. Verify the incident is real (not false positive)
 2. Determine incident type and category
 3. Assess initial severity
 4. Document initial findings
 
 **Assessment Checklist**:
+
 - [ ] What happened?
 - [ ] When did it happen?
 - [ ] What systems are affected?
@@ -224,12 +244,14 @@ Incident Commander
 #### 1.3 Incident Declaration
 
 **Criteria for Declaration**:
+
 - Confirmed security incident
 - Service outage or degradation
 - Data integrity concern
 - Compliance violation
 
 **Declaration Process**:
+
 ```bash
 # 1. Notify Incident Commander
 # 2. Create incident ticket
@@ -245,6 +267,7 @@ Incident Commander
 **Objective**: Stop the incident from spreading
 
 **Actions**:
+
 ```bash
 # Isolate affected systems
 docker-compose stop <affected-service>
@@ -284,6 +307,7 @@ docker exec <container> gcore <pid>
 **Objective**: Maintain business operations while preparing for eradication
 
 **Actions**:
+
 - Deploy temporary fixes
 - Implement workarounds
 - Enhance monitoring
@@ -294,12 +318,14 @@ docker exec <container> gcore <pid>
 #### 3.1 Root Cause Analysis
 
 **Investigation Steps**:
+
 1. Analyze logs and forensic data
 2. Identify attack vector
 3. Determine scope of compromise
 4. Identify all affected systems
 
 **Tools**:
+
 ```bash
 # Log analysis
 docker logs <container> | grep -i error
@@ -316,6 +342,7 @@ loki-cli query '{job="janusgraph"}' --since 1h
 #### 3.2 Threat Removal
 
 **Actions**:
+
 ```bash
 # Remove malware
 ./scripts/security/remove_malware.sh --scan-all
@@ -333,6 +360,7 @@ loki-cli query '{job="janusgraph"}' --since 1h
 #### 3.3 System Hardening
 
 **Actions**:
+
 ```bash
 # Update security configurations
 ./scripts/security/harden_system.sh
@@ -352,6 +380,7 @@ loki-cli query '{job="janusgraph"}' --since 1h
 #### 4.1 Service Restoration
 
 **Actions**:
+
 ```bash
 # Restore from clean backup (if needed)
 ./scripts/backup/restore_volumes.sh \
@@ -369,6 +398,7 @@ docker-compose up -d
 #### 4.2 Verification
 
 **Checklist**:
+
 - [ ] All services running
 - [ ] Data integrity verified
 - [ ] Security controls active
@@ -379,6 +409,7 @@ docker-compose up -d
 #### 4.3 Return to Normal Operations
 
 **Actions**:
+
 1. Gradually restore traffic
 2. Monitor closely for 24-48 hours
 3. Maintain enhanced logging
@@ -390,6 +421,7 @@ docker-compose up -d
 #### 5.1 Incident Documentation
 
 **Required Documentation**:
+
 - Incident timeline
 - Actions taken
 - Evidence collected
@@ -400,6 +432,7 @@ docker-compose up -d
 #### 5.2 Post-Incident Review
 
 **Meeting Agenda**:
+
 1. What happened?
 2. What went well?
 3. What could be improved?
@@ -410,6 +443,7 @@ docker-compose up -d
 #### 5.3 Improvement Actions
 
 **Follow-up Tasks**:
+
 - Update security controls
 - Patch vulnerabilities
 - Update documentation
@@ -434,7 +468,7 @@ docker-compose up -d
 #### Communication Channels
 
 - **Slack**: #incident-response (real-time updates)
-- **Email**: incident-team@company.com (formal updates)
+- **Email**: <incident-team@company.com> (formal updates)
 - **Phone**: Conference bridge for P0/P1 incidents
 - **Status Page**: status.company.com (customer-facing)
 
@@ -466,18 +500,20 @@ Next Update: <time>
 #### Customer Notifications
 
 **When to Notify**:
+
 - P0 incidents (always)
 - P1 incidents (if customer-facing)
 - Data breach (always, per regulations)
 - Extended outage (> 1 hour)
 
 **Notification Template**:
+
 ```
 Subject: Service Incident Notification
 
 Dear Customer,
 
-We are currently experiencing [brief description]. 
+We are currently experiencing [brief description].
 
 Impact: [what is affected]
 Status: [current status]
@@ -493,11 +529,13 @@ Thank you for your patience.
 #### Regulatory Notifications
 
 **Requirements**:
+
 - **Data Breach**: Notify within 72 hours (GDPR)
 - **PCI Incident**: Notify immediately
 - **HIPAA Breach**: Notify within 60 days
 
 **Notification Process**:
+
 1. Consult legal counsel
 2. Prepare notification
 3. Submit to regulators
@@ -510,6 +548,7 @@ Thank you for your patience.
 ### Playbook 1: Ransomware Attack
 
 **Detection Indicators**:
+
 - Files encrypted with unusual extensions
 - Ransom note files
 - Unusual file modifications
@@ -518,12 +557,13 @@ Thank you for your patience.
 **Response Steps**:
 
 1. **Immediate Actions** (< 5 minutes)
+
    ```bash
    # Isolate infected systems
    docker-compose down
    iptables -A INPUT -j DROP
    iptables -A OUTPUT -j DROP
-   
+
    # Preserve evidence
    ./scripts/backup/backup_volumes_encrypted.sh --tag ransomware-evidence
    ```
@@ -547,6 +587,7 @@ Thank you for your patience.
    - Resume operations
 
 **Do NOT**:
+
 - Pay the ransom
 - Delete evidence
 - Restore from potentially infected backups
@@ -554,6 +595,7 @@ Thank you for your patience.
 ### Playbook 2: DDoS Attack
 
 **Detection Indicators**:
+
 - Sudden traffic spike
 - Service degradation
 - High CPU/network usage
@@ -562,10 +604,11 @@ Thank you for your patience.
 **Response Steps**:
 
 1. **Immediate Actions** (< 5 minutes)
+
    ```bash
    # Enable rate limiting
    docker-compose -f docker-compose.nginx.yml up -d
-   
+
    # Block attacking IPs
    ./scripts/security/block_ips.sh --file attacking-ips.txt
    ```
@@ -589,6 +632,7 @@ Thank you for your patience.
 ### Playbook 3: Data Breach
 
 **Detection Indicators**:
+
 - Unauthorized data access
 - Data exfiltration
 - Compromised credentials
@@ -597,13 +641,14 @@ Thank you for your patience.
 **Response Steps**:
 
 1. **Immediate Actions** (< 15 minutes)
+
    ```bash
    # Enable read-only mode
    ./scripts/maintenance/enable_readonly_mode.sh
-   
+
    # Revoke all access tokens
    ./scripts/security/revoke_all_tokens.sh
-   
+
    # Enable enhanced audit logging
    ./scripts/monitoring/enable_audit_logging.sh
    ```
@@ -629,6 +674,7 @@ Thank you for your patience.
 ### Playbook 4: Insider Threat
 
 **Detection Indicators**:
+
 - Unusual data access patterns
 - After-hours activity
 - Large data downloads
@@ -637,13 +683,14 @@ Thank you for your patience.
 **Response Steps**:
 
 1. **Immediate Actions** (< 30 minutes)
+
    ```bash
    # Disable suspect account
    ./scripts/security/disable_account.sh --user <username>
-   
+
    # Preserve evidence
    ./scripts/security/capture_user_activity.sh --user <username>
-   
+
    # Enable enhanced monitoring
    ./scripts/monitoring/monitor_user.sh --user <username>
    ```
@@ -692,21 +739,23 @@ loki-cli query '{job="<service>"}'
 
 ### External Resources
 
-- **NIST Incident Response Guide**: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf
-- **SANS Incident Response**: https://www.sans.org/incident-response/
-- **MITRE ATT&CK**: https://attack.mitre.org/
-- **CVE Database**: https://cve.mitre.org/
+- **NIST Incident Response Guide**: <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf>
+- **SANS Incident Response**: <https://www.sans.org/incident-response/>
+- **MITRE ATT&CK**: <https://attack.mitre.org/>
+- **CVE Database**: <https://cve.mitre.org/>
 
 ### Contact Information
 
 **Emergency Contacts**: See [Contact Information](#contact-information) section
 
 **Law Enforcement**:
+
 - FBI Cyber Division: +1-855-292-3937
 - Local Police: 911
-- IC3 (Internet Crime Complaint Center): https://www.ic3.gov/
+- IC3 (Internet Crime Complaint Center): <https://www.ic3.gov/>
 
 **Vendors**:
+
 - AWS Security: +1-800-AWS-SUPPORT
 - DataStax Support: +1-855-DATASTAX
 
@@ -798,6 +847,7 @@ Lessons Learned:
 ### Appendix C: Compliance Requirements
 
 **Data Breach Notification**:
+
 - **GDPR**: 72 hours to regulator, without undue delay to individuals
 - **CCPA**: Without unreasonable delay
 - **HIPAA**: 60 days
@@ -811,9 +861,9 @@ Lessons Learned:
 
 ---
 
-**Document Classification**: CONFIDENTIAL  
-**Next Review Date**: 2026-04-28  
-**Document Owner**: Incident Commander  
+**Document Classification**: CONFIDENTIAL
+**Next Review Date**: 2026-04-28
+**Document Owner**: Incident Commander
 **Approval**: CTO, CISO
 
 ---

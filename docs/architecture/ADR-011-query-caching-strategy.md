@@ -1,8 +1,8 @@
 # ADR-011: LRU-Based Query Caching Strategy
 
-**Status**: Accepted  
-**Date**: 2026-01-25  
-**Deciders**: Performance Team, Development Team  
+**Status**: Accepted
+**Date**: 2026-01-25
+**Deciders**: Performance Team, Development Team
 **Technical Story**: Performance Optimization P3-002
 
 ## Context
@@ -50,11 +50,13 @@ How do we implement an effective query caching system that significantly improve
 ### Option 1: No Caching (Status Quo)
 
 **Pros:**
+
 - Simple - no additional complexity
 - Always fresh data
 - No memory overhead
 
 **Cons:**
+
 - Poor performance for repeated queries
 - High database load
 - Slow response times
@@ -63,11 +65,13 @@ How do we implement an effective query caching system that significantly improve
 ### Option 2: Simple TTL-Based Cache
 
 **Pros:**
+
 - Simple to implement
 - Predictable behavior
 - Automatic expiration
 
 **Cons:**
+
 - No memory management
 - May cache rarely-used data
 - Fixed expiration regardless of usage
@@ -76,6 +80,7 @@ How do we implement an effective query caching system that significantly improve
 ### Option 3: LRU (Least Recently Used) Cache
 
 **Pros:**
+
 - Efficient memory usage
 - Keeps frequently accessed data
 - Automatic eviction of old data
@@ -83,6 +88,7 @@ How do we implement an effective query caching system that significantly improve
 - Good for read-heavy workloads
 
 **Cons:**
+
 - Doesn't consider access frequency
 - May evict data that's accessed regularly but not recently
 - Requires tracking access times
@@ -90,11 +96,13 @@ How do we implement an effective query caching system that significantly improve
 ### Option 4: LFU (Least Frequently Used) Cache
 
 **Pros:**
+
 - Keeps most frequently accessed data
 - Good for stable access patterns
 - Considers long-term usage
 
 **Cons:**
+
 - Slow to adapt to changing patterns
 - Requires tracking access counts
 - May keep old popular data too long
@@ -103,12 +111,14 @@ How do we implement an effective query caching system that significantly improve
 ### Option 5: Hybrid LRU + TTL Cache
 
 **Pros:**
+
 - Combines benefits of both strategies
 - Memory-efficient with automatic expiration
 - Flexible and adaptable
 - Handles both temporal and spatial locality
 
 **Cons:**
+
 - More complex implementation
 - Requires tuning multiple parameters
 - Higher overhead
@@ -176,6 +186,7 @@ The hybrid LRU + TTL approach provides:
 ### Required Changes
 
 1. **Cache Module** (`src/python/performance/query_cache.py`):
+
    ```python
    class QueryCache:
        - LRU eviction logic
@@ -185,6 +196,7 @@ The hybrid LRU + TTL approach provides:
    ```
 
 2. **Cached Executor** (`src/python/performance/query_cache.py`):
+
    ```python
    class CachedQueryExecutor:
        - Cache key generation
@@ -193,6 +205,7 @@ The hybrid LRU + TTL approach provides:
    ```
 
 3. **Cache Warmer** (`src/python/performance/query_cache.py`):
+
    ```python
    class CacheWarmer:
        - Pre-populate common queries
@@ -205,6 +218,7 @@ The hybrid LRU + TTL approach provides:
    - Support wildcard invalidation
 
 5. **Configuration**:
+
    ```yaml
    cache:
      max_size_mb: 100
@@ -223,24 +237,28 @@ The hybrid LRU + TTL approach provides:
 ### Migration Path
 
 **Phase 1: Development (Week 1)**
+
 1. Implement core caching logic
 2. Add unit tests
 3. Benchmark performance improvements
 4. Document usage
 
 **Phase 2: Staging (Week 2)**
+
 1. Deploy with conservative settings (50MB, 10min TTL)
 2. Monitor cache metrics
 3. Tune parameters based on workload
 4. Validate invalidation logic
 
 **Phase 3: Production (Week 3)**
+
 1. Deploy with optimized settings
 2. Enable cache warming for common queries
 3. Monitor performance improvements
 4. Create dashboards and alerts
 
 **Phase 4: Optimization (Week 4)**
+
 1. Analyze cache patterns
 2. Optimize cache key generation
 3. Fine-tune TTL per query type
@@ -249,6 +267,7 @@ The hybrid LRU + TTL approach provides:
 ### Rollback Strategy
 
 If caching causes issues:
+
 1. Disable caching via environment variable
 2. Clear all cache entries
 3. Monitor for data consistency issues
@@ -275,11 +294,13 @@ If caching causes issues:
 ### Cache Key Generation
 
 Cache keys are generated using:
+
 ```python
 hash(query_string + str(parameters))
 ```
 
 This ensures:
+
 - Identical queries with same parameters share cache entries
 - Different parameters create different cache entries
 - Consistent key generation across instances
@@ -294,6 +315,7 @@ This ensures:
 ### Monitoring Metrics
 
 Track these key metrics:
+
 - **Hit Rate**: Target 70-90%
 - **Miss Rate**: Should decrease over time
 - **Eviction Rate**: Should be low (<10%)

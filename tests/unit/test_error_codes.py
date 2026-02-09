@@ -9,8 +9,13 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.python.utils.error_codes import (
-    ERROR_CODES, ErrorCategory, ErrorCode, AppException,
-    ValidationError, NotFoundError, ConnectionError
+    ERROR_CODES,
+    AppException,
+    ConnectionError,
+    ErrorCategory,
+    ErrorCode,
+    NotFoundError,
+    ValidationError,
 )
 
 

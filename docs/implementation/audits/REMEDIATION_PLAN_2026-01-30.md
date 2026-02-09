@@ -1,7 +1,7 @@
 # Critical Issues Remediation Plan - January 30, 2026
 
-**Date:** 2026-01-30  
-**Priority:** IMMEDIATE  
+**Date:** 2026-01-30
+**Priority:** IMMEDIATE
 **Estimated Time:** 2-3 days for critical issues
 
 ---
@@ -11,6 +11,7 @@
 This document provides step-by-step remediation for the 4 critical and 7 major issues identified in the comprehensive audit.
 
 **Related Documents:**
+
 - [Comprehensive Audit Report](./COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md)
 - `AGENTS.md`
 
@@ -172,7 +173,7 @@ dependencies:
     - cassandra-driver>=3.28.0
     - python-dotenv>=1.0.0
     - pyyaml>=6.0
-    
+
     # Development dependencies (from requirements-dev.txt)
     - pytest>=7.4.0
     - pytest-cov>=4.1.0
@@ -182,22 +183,22 @@ dependencies:
     - isort>=5.12.0
     - mypy>=1.4.0
     - pylint>=2.17.0
-    
+
     # Security dependencies (from requirements-security.txt)
     - cryptography>=41.0.0
     - hvac>=1.1.0
-    
+
     # Tracing dependencies (from requirements-tracing.txt)
     - opentelemetry-api>=1.20.0
     - opentelemetry-sdk>=1.20.0
-    
+
     # Banking module dependencies
     - faker>=20.0.0
     - networkx>=3.0
-    
+
     # Test dependencies
     - pytest-benchmark>=4.0.0
-    
+
     # Integration test dependencies
     - requests>=2.31.0
 ```
@@ -282,6 +283,7 @@ echo "3.11" > .python-version
 **Current State Analysis:**
 
 The `deploy_full_stack.sh` script uses individual `podman run` commands without project prefixes:
+
 - Container names: `hcd-server`, `janusgraph-server` (no prefix)
 - Network: `hcd-janusgraph-network` (no prefix)
 - Volumes: `hcd-data`, `janusgraph-index`, etc. (no prefix)
@@ -487,10 +489,12 @@ cd ../..
 ```
 
 **Why This Matters:**
+
 - Prevents container name conflicts
 - Isolates volumes (prevents data mixing)
 - Isolates networks (prevents cross-project communication)
 - Allows multiple projects on same Podman machine
+
 ```
 
 ---
@@ -550,9 +554,11 @@ podman-compose -p janusgraph-demo up jupyter
 
 # Access at http://localhost:8888
 ```
+
 EOF
 
 git add notebooks-exploratory/README.md
+
 ```
 
 **Create README for banking/notebooks:**
@@ -588,9 +594,11 @@ See [Banking User Guide](../guides/user-guide.md) for detailed instructions.
 cd config/compose
 podman-compose -p janusgraph-demo up jupyter
 ```
+
 EOF
 
 git add banking/notebooks/README.md
+
 ```
 
 **Update all documentation references:**

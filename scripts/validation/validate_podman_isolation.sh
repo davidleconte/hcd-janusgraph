@@ -76,18 +76,18 @@ podman_cmd() {
 
 check_podman_available() {
     log_info "Checking Podman connection to '$PODMAN_CONNECTION'..."
-    
+
     if ! command -v podman &> /dev/null; then
         log_error "Podman is not installed"
         return 1
     fi
-    
+
     if ! podman_cmd ps &> /dev/null; then
         log_error "Cannot connect to Podman machine '$PODMAN_CONNECTION'"
         log_info "Start with: podman machine start $PODMAN_CONNECTION"
         return 1
     fi
-    
+
     log_success "Podman connection successful"
     return 0
 }
@@ -98,22 +98,22 @@ check_podman_available() {
 
 validate_network_isolation() {
     log_section "Layer 1: Network Isolation"
-    
+
     local networks
     networks=$(podman_cmd network ls --filter "name=${PROJECT_NAME}" --format "{{.Name}}" 2>/dev/null || echo "")
-    
+
     if [[ -z "$networks" ]]; then
         log_warning "No networks found with project prefix '$PROJECT_NAME'"
         log_info "Networks will be created on first deployment"
         ((WARNINGS++))
         return 0
     fi
-    
+
     log_info "Found networks with project prefix:"
     echo "$networks" | while read -r network; do
         if [[ -n "$network" ]]; then
             log_success "  $network"
-            
+
             # Check network has project label
             local labels
             labels=$(podman_cmd network inspect "$network" --format '{{.Labels}}' 2>/dev/null || echo "{}")
@@ -125,23 +125,23 @@ validate_network_isolation() {
             fi
         fi
     done
-    
+
     # Check for conflicting networks (without project prefix)
     local all_networks
     all_networks=$(podman_cmd network ls --format "{{.Name}}" 2>/dev/null || echo "")
     local conflicts=""
-    
+
     while IFS= read -r net; do
         if [[ "$net" == "hcd-janusgraph-network" ]] && [[ "$net" != "${PROJECT_NAME}_"* ]]; then
             conflicts+="$net "
         fi
     done <<< "$all_networks"
-    
+
     if [[ -n "$conflicts" ]]; then
         log_warning "Found networks without project prefix that may conflict: $conflicts"
         ((WARNINGS++))
     fi
-    
+
     return 0
 }
 
@@ -151,24 +151,24 @@ validate_network_isolation() {
 
 validate_volume_isolation() {
     log_section "Layer 2: Volume Isolation"
-    
+
     local volumes
     volumes=$(podman_cmd volume ls --filter "name=${PROJECT_NAME}" --format "{{.Name}}" 2>/dev/null || echo "")
-    
+
     if [[ -z "$volumes" ]]; then
         log_warning "No volumes found with project prefix '$PROJECT_NAME'"
         log_info "Volumes will be created on first deployment"
         ((WARNINGS++))
         return 0
     fi
-    
+
     log_info "Found volumes with project prefix:"
     echo "$volumes" | while read -r volume; do
         if [[ -n "$volume" ]]; then
             log_success "  $volume"
         fi
     done
-    
+
     return 0
 }
 
@@ -178,18 +178,18 @@ validate_volume_isolation() {
 
 validate_container_naming() {
     log_section "Layer 3: Container Naming (Project Prefix)"
-    
+
     local containers
     containers=$(podman_cmd ps -a --format "{{.Names}}" 2>/dev/null || echo "")
-    
+
     if [[ -z "$containers" ]]; then
         log_info "No containers running"
         return 0
     fi
-    
+
     local project_containers=""
     local orphan_containers=""
-    
+
     while IFS= read -r container; do
         if [[ "$container" == "${PROJECT_NAME}_"* ]] || [[ "$container" == "${PROJECT_NAME}-"* ]]; then
             project_containers+="$container "
@@ -199,11 +199,11 @@ validate_container_naming() {
             orphan_containers+="$container "
         fi
     done <<< "$containers"
-    
+
     if [[ -n "$project_containers" ]]; then
         log_success "Containers with project prefix: $project_containers"
     fi
-    
+
     if [[ -n "$orphan_containers" ]]; then
         log_error "Found containers WITHOUT project prefix (violates isolation):"
         log_error "  $orphan_containers"
@@ -211,7 +211,7 @@ validate_container_naming() {
         log_info "Fix: Remove container_name: from docker-compose files and use -p flag"
         ((ERRORS++))
     fi
-    
+
     return 0
 }
 
@@ -221,18 +221,18 @@ validate_container_naming() {
 
 validate_compose_config() {
     log_section "Layer 4: Docker Compose Configuration"
-    
+
     local compose_dir="$PROJECT_ROOT/config/compose"
-    
+
     if [[ ! -d "$compose_dir" ]]; then
         log_error "Compose directory not found: $compose_dir"
         ((ERRORS++))
         return 1
     fi
-    
+
     # Check for container_name overrides (CRITICAL violation)
     log_info "Checking for container_name overrides (violates isolation)..."
-    
+
     local container_name_count=0
     for file in "$compose_dir"/*.yml; do
         if [[ -f "$file" ]]; then
@@ -244,7 +244,7 @@ validate_compose_config() {
             fi
         fi
     done
-    
+
     if [[ $container_name_count -gt 0 ]]; then
         log_error "CRITICAL: Found $container_name_count container_name overrides"
         log_error "This BREAKS project isolation - containers won't have project prefix"
@@ -253,7 +253,7 @@ validate_compose_config() {
     else
         log_success "No container_name overrides found (good!)"
     fi
-    
+
     # Check for project label usage
     log_info "Checking for project labels..."
     local has_labels=false
@@ -264,13 +264,13 @@ validate_compose_config() {
             fi
         fi
     done
-    
+
     if [[ "$has_labels" == "false" ]]; then
         log_warning "No project labels found in compose files"
         log_info "Recommended: Add 'labels: [\"project=$PROJECT_NAME\"]' to services"
         ((WARNINGS++))
     fi
-    
+
     return 0
 }
 
@@ -280,16 +280,16 @@ validate_compose_config() {
 
 validate_env_config() {
     log_section "Layer 5: Environment Configuration"
-    
+
     local env_file="$PROJECT_ROOT/.env"
-    
+
     if [[ ! -f "$env_file" ]]; then
         log_error ".env file not found"
         log_info "Copy from: cp $PROJECT_ROOT/.env.example $env_file"
         ((ERRORS++))
         return 1
     fi
-    
+
     # Check COMPOSE_PROJECT_NAME
     if grep -q "^COMPOSE_PROJECT_NAME=" "$env_file" 2>/dev/null; then
         local project_name
@@ -300,7 +300,7 @@ validate_env_config() {
         log_info "Add: COMPOSE_PROJECT_NAME=janusgraph-demo"
         ((ERRORS++))
     fi
-    
+
     # Check PODMAN_CONNECTION
     if grep -q "^PODMAN_CONNECTION=" "$env_file" 2>/dev/null; then
         local conn
@@ -310,14 +310,14 @@ validate_env_config() {
         log_warning "PODMAN_CONNECTION not set in .env (using default: $PODMAN_CONNECTION)"
         ((WARNINGS++))
     fi
-    
+
     # Check for placeholder passwords
     if grep -q "CHANGE_ME" "$env_file" 2>/dev/null || grep -q "changeit" "$env_file" 2>/dev/null; then
         log_warning "Found placeholder passwords in .env"
         log_info "Update all passwords before production deployment"
         ((WARNINGS++))
     fi
-    
+
     return 0
 }
 
@@ -327,7 +327,7 @@ validate_env_config() {
 
 validate_port_availability() {
     log_section "Port Availability Check"
-    
+
     local ports=(
         "19042:HCD CQL"
         "18182:JanusGraph Gremlin"
@@ -336,13 +336,13 @@ validate_port_availability() {
         "9090:Prometheus"
         "3001:Grafana"
     )
-    
+
     log_info "Checking port availability on localhost..."
-    
+
     for port_info in "${ports[@]}"; do
         local port="${port_info%%:*}"
         local service="${port_info##*:}"
-        
+
         if lsof -Pi ":$port" -sTCP:LISTEN -t &>/dev/null; then
             local pid
             pid=$(lsof -Pi ":$port" -sTCP:LISTEN -t 2>/dev/null | head -1)
@@ -354,7 +354,7 @@ validate_port_availability() {
             log_success "Port $port ($service) is available"
         fi
     done
-    
+
     return 0
 }
 
@@ -371,13 +371,13 @@ main() {
     echo "Connection: $PODMAN_CONNECTION"
     echo "Strict:     $STRICT_MODE"
     echo ""
-    
+
     # Check Podman is available
     if ! check_podman_available; then
         log_error "Cannot proceed without Podman connection"
         exit 1
     fi
-    
+
     # Run all validation layers
     validate_env_config
     validate_compose_config
@@ -385,27 +385,27 @@ main() {
     validate_volume_isolation
     validate_container_naming
     validate_port_availability
-    
+
     # Summary
     echo ""
     echo "=========================================="
     echo "Validation Summary"
     echo "=========================================="
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         log_error "ERRORS: $ERRORS"
     else
         log_success "ERRORS: 0"
     fi
-    
+
     if [[ $WARNINGS -gt 0 ]]; then
         log_warning "WARNINGS: $WARNINGS"
     else
         log_success "WARNINGS: 0"
     fi
-    
+
     echo ""
-    
+
     # Exit code
     if [[ $ERRORS -gt 0 ]]; then
         log_error "VALIDATION FAILED"

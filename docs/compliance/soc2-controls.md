@@ -49,12 +49,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** The entity demonstrates a commitment to integrity and ethical values.
 
 **Implementation:**
+
 - Code of Conduct documented and signed by all employees
 - Ethics training completed annually
 - Whistleblower policy established
 - Regular ethics reviews
 
 **Evidence:**
+
 - `CODE_OF_CONDUCT.md`
 - Training completion records
 - Ethics policy documents
@@ -68,12 +70,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** The board of directors demonstrates independence from management.
 
 **Implementation:**
+
 - Independent board oversight
 - Regular board meetings
 - Audit committee established
 - Risk management oversight
 
 **Evidence:**
+
 - Board meeting minutes
 - Audit committee charter
 - Independence declarations
@@ -87,12 +91,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** Management establishes structures, reporting lines, and authorities.
 
 **Implementation:**
+
 - Clear organizational chart
 - Defined roles and responsibilities
 - Documented reporting structure
 - Authority matrices
 
 **Evidence:**
+
 - Organization chart
 - Role descriptions
 - RACI matrix
@@ -106,12 +112,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** The entity demonstrates commitment to competence.
 
 **Implementation:**
+
 - Job descriptions with required skills
 - Technical training programs
 - Certification requirements
 - Performance evaluations
 
 **Evidence:**
+
 - Job descriptions
 - Training records
 - Certification tracking
@@ -126,12 +134,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** The entity holds individuals accountable for their responsibilities.
 
 **Implementation:**
+
 - Performance metrics defined
 - Regular performance reviews
 - Disciplinary procedures
 - Reward and recognition programs
 
 **Evidence:**
+
 - Performance review records
 - Disciplinary action logs
 - Recognition records
@@ -147,12 +157,14 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Control:** The entity obtains or generates relevant, quality information.
 
 **Implementation:**
+
 - Data quality standards
 - Validation procedures
 - Regular data quality audits
 - Error correction processes
 
 **Evidence:**
+
 - Data quality policy
 - Validation scripts
 - Audit reports
@@ -160,6 +172,7 @@ This document maps the HCD JanusGraph project's security controls to the SOC 2 T
 **Testing Frequency:** Quarterly
 
 **Technical Implementation:**
+
 ```python
 # Data validation framework
 def validate_data_quality(data):
@@ -180,12 +193,14 @@ def validate_data_quality(data):
 **Control:** The entity internally communicates information necessary to support functioning.
 
 **Implementation:**
+
 - Internal communication channels (Slack, email)
 - Regular team meetings
 - Documentation repository
 - Incident notifications
 
 **Evidence:**
+
 - Meeting minutes
 - Communication logs
 - Documentation updates
@@ -199,12 +214,14 @@ def validate_data_quality(data):
 **Control:** The entity communicates with external parties.
 
 **Implementation:**
+
 - Customer communication channels
 - Vendor management
 - Regulatory reporting
 - Public disclosures
 
 **Evidence:**
+
 - Customer communications
 - Vendor contracts
 - Regulatory filings
@@ -220,12 +237,14 @@ def validate_data_quality(data):
 **Control:** The entity specifies objectives with sufficient clarity.
 
 **Implementation:**
+
 - Strategic objectives documented
 - Risk register maintained
 - Regular risk assessments
 - Risk appetite defined
 
 **Evidence:**
+
 - Strategic plan
 - Risk register
 - Risk assessment reports
@@ -241,12 +260,14 @@ def validate_data_quality(data):
 **Control:** The entity identifies and analyzes risk.
 
 **Implementation:**
+
 - Risk identification process
 - Risk analysis methodology
 - Impact and likelihood assessment
 - Risk prioritization
 
 **Evidence:**
+
 - Risk assessment methodology
 - Risk analysis reports
 - Risk heat maps
@@ -260,12 +281,14 @@ def validate_data_quality(data):
 **Control:** The entity considers potential for fraud.
 
 **Implementation:**
+
 - Fraud risk assessment
 - Anti-fraud controls
 - Fraud detection monitoring
 - Incident response procedures
 
 **Evidence:**
+
 - Fraud risk assessment
 - Monitoring reports
 - Incident logs
@@ -279,12 +302,14 @@ def validate_data_quality(data):
 **Control:** The entity identifies and assesses changes.
 
 **Implementation:**
+
 - Change management process
 - Change approval workflow
 - Impact assessment
 - Rollback procedures
 
 **Evidence:**
+
 - Change management policy
 - Change tickets
 - Approval records
@@ -292,6 +317,7 @@ def validate_data_quality(data):
 **Testing Frequency:** Monthly
 
 **Technical Implementation:**
+
 ```yaml
 # .github/workflows/change-approval.yml
 name: Change Approval
@@ -319,12 +345,14 @@ jobs:
 **Control:** The entity selects, develops, and performs ongoing evaluations.
 
 **Implementation:**
+
 - Continuous monitoring systems
 - Automated alerting
 - Performance dashboards
 - Regular reviews
 
 **Evidence:**
+
 - Monitoring dashboards
 - Alert configurations
 - Review reports
@@ -332,6 +360,7 @@ jobs:
 **Testing Frequency:** Continuous
 
 **Technical Implementation:**
+
 ```yaml
 # Prometheus monitoring rules
 groups:
@@ -342,7 +371,7 @@ groups:
         expr: rate(auth_failures[5m]) > 10
         annotations:
           summary: "High rate of authentication failures"
-      
+
       - alert: DataExfiltration
         expr: rate(data_export_bytes[5m]) > 1000000
         annotations:
@@ -356,12 +385,14 @@ groups:
 **Control:** The entity evaluates and communicates deficiencies.
 
 **Implementation:**
+
 - Internal audits
 - External audits
 - Penetration testing
 - Vulnerability assessments
 
 **Evidence:**
+
 - Audit reports
 - Penetration test reports
 - Vulnerability scan results
@@ -377,12 +408,14 @@ groups:
 **Control:** The entity selects and develops control activities.
 
 **Implementation:**
+
 - Control framework established
 - Controls mapped to risks
 - Control design documentation
 - Control effectiveness testing
 
 **Evidence:**
+
 - Control matrix
 - Control descriptions
 - Test results
@@ -396,12 +429,14 @@ groups:
 **Control:** The entity deploys control activities through policies.
 
 **Implementation:**
+
 - Security policies documented
 - Technical controls implemented
 - Access controls enforced
 - Monitoring and logging
 
 **Evidence:**
+
 - Security policies
 - Configuration files
 - Access control lists
@@ -416,12 +451,14 @@ groups:
 **Control:** The entity establishes policies and procedures.
 
 **Implementation:**
+
 - Comprehensive policy framework
 - Procedure documentation
 - Regular policy reviews
 - Policy acknowledgment tracking
 
 **Evidence:**
+
 - Policy documents
 - Procedure manuals
 - Review records
@@ -438,12 +475,14 @@ groups:
 **Control:** The entity implements logical access security measures.
 
 **Implementation:**
+
 - Role-based access control (RBAC)
 - Principle of least privilege
 - Access reviews
 - Privileged access management
 
 **Evidence:**
+
 - Access control policies
 - User access lists
 - Access review reports
@@ -452,6 +491,7 @@ groups:
 **Testing Frequency:** Quarterly
 
 **Technical Implementation:**
+
 ```python
 # RBAC implementation
 ROLES = {
@@ -492,12 +532,14 @@ def check_access(user, resource, action):
 **Control:** The entity authenticates users prior to granting access.
 
 **Implementation:**
+
 - Multi-factor authentication (MFA)
 - Strong password policies
 - Account lockout policies
 - Session management
 
 **Evidence:**
+
 - Authentication logs
 - MFA enrollment records
 - Password policy configuration
@@ -506,6 +548,7 @@ def check_access(user, resource, action):
 **Testing Frequency:** Continuous
 
 **Technical Implementation:**
+
 ```python
 # MFA implementation
 from pyotp import TOTP
@@ -515,18 +558,18 @@ def setup_mfa(user_id):
     """Setup MFA for user."""
     secret = generate_secret()
     store_mfa_secret(user_id, secret)
-    
+
     # Generate QR code
     totp_uri = f"otpauth://totp/JanusGraph:{user_id}?secret={secret}&issuer=JanusGraph"
     qr = qrcode.make(totp_uri)
-    
+
     return qr, secret
 
 def verify_mfa(user_id, token):
     """Verify MFA token."""
     secret = get_mfa_secret(user_id)
     totp = TOTP(secret)
-    
+
     if totp.verify(token, valid_window=1):
         log_mfa_success(user_id)
         return True
@@ -542,12 +585,14 @@ def verify_mfa(user_id, token):
 **Control:** The entity authorizes users to perform actions.
 
 **Implementation:**
+
 - Authorization policies
 - Permission management
 - Segregation of duties
 - Authorization logging
 
 **Evidence:**
+
 - Authorization policies
 - Permission matrices
 - SoD analysis
@@ -562,12 +607,14 @@ def verify_mfa(user_id, token):
 **Control:** The entity removes access when no longer required.
 
 **Implementation:**
+
 - Automated deprovisioning
 - Termination procedures
 - Access recertification
 - Dormant account removal
 
 **Evidence:**
+
 - Deprovisioning logs
 - Termination checklists
 - Recertification reports
@@ -576,6 +623,7 @@ def verify_mfa(user_id, token):
 **Testing Frequency:** Monthly
 
 **Technical Implementation:**
+
 ```python
 # Automated access removal
 def deprovision_user(user_id, reason):
@@ -585,16 +633,16 @@ def deprovision_user(user_id, reason):
         .property('disabled_at', datetime.utcnow()) \
         .property('disabled_reason', reason) \
         .iterate()
-    
+
     # Revoke all sessions
     revoke_all_sessions(user_id)
-    
+
     # Remove from groups
     remove_from_all_groups(user_id)
-    
+
     # Log deprovisioning
     log_deprovisioning(user_id, reason)
-    
+
     # Notify administrators
     notify_admins('user_deprovisioned', user_id)
 ```
@@ -606,12 +654,14 @@ def deprovision_user(user_id, reason):
 **Control:** The entity restricts physical access.
 
 **Implementation:**
+
 - Data center access controls
 - Badge access systems
 - Visitor management
 - Physical security monitoring
 
 **Evidence:**
+
 - Access logs
 - Visitor logs
 - Security camera footage
@@ -628,12 +678,14 @@ def deprovision_user(user_id, reason):
 **Control:** The entity monitors system components.
 
 **Implementation:**
+
 - Infrastructure monitoring (Prometheus)
 - Application monitoring (APM)
 - Log aggregation (Loki)
 - Alerting (Grafana)
 
 **Evidence:**
+
 - Monitoring dashboards
 - Alert configurations
 - Incident tickets
@@ -650,12 +702,14 @@ def deprovision_user(user_id, reason):
 **Control:** The entity monitors system capacity.
 
 **Implementation:**
+
 - Capacity planning
 - Resource utilization monitoring
 - Scalability testing
 - Performance benchmarking
 
 **Evidence:**
+
 - Capacity reports
 - Utilization metrics
 - Load test results
@@ -670,12 +724,14 @@ def deprovision_user(user_id, reason):
 **Control:** The entity implements environmental protections.
 
 **Implementation:**
+
 - Redundant power supplies
 - Climate control
 - Fire suppression
 - Disaster recovery sites
 
 **Evidence:**
+
 - Infrastructure diagrams
 - Environmental monitoring logs
 - DR site documentation
@@ -689,12 +745,14 @@ def deprovision_user(user_id, reason):
 **Control:** The entity identifies and manages vulnerabilities.
 
 **Implementation:**
+
 - Automated vulnerability scanning
 - Patch management process
 - Security advisories monitoring
 - Remediation tracking
 
 **Evidence:**
+
 - Vulnerability scan reports
 - Patch logs
 - Remediation tickets
@@ -703,6 +761,7 @@ def deprovision_user(user_id, reason):
 **Testing Frequency:** Weekly (scans), Monthly (reviews)
 
 **Technical Implementation:**
+
 ```bash
 # Automated vulnerability scanning
 #!/bin/bash
@@ -728,12 +787,14 @@ python scripts/generate_vuln_report.py
 **Control:** The entity implements data backup processes.
 
 **Implementation:**
+
 - Automated daily backups
 - Encrypted backup storage
 - Backup testing
 - Retention policies
 
 **Evidence:**
+
 - Backup logs
 - Restore test results
 - Backup inventory
@@ -752,12 +813,14 @@ python scripts/generate_vuln_report.py
 **Control:** The entity implements a change management process.
 
 **Implementation:**
+
 - Change request process
 - Change approval workflow
 - Change testing requirements
 - Change documentation
 
 **Evidence:**
+
 - Change management policy
 - Change tickets
 - Approval records
@@ -766,6 +829,7 @@ python scripts/generate_vuln_report.py
 **Testing Frequency:** Per change
 
 **Technical Implementation:**
+
 ```yaml
 # Change management workflow
 name: Change Management
@@ -778,7 +842,7 @@ jobs:
     steps:
       - name: Risk Assessment
         run: python scripts/assess_change_risk.py
-      
+
       - name: Require Approvals
         if: steps.assess.outputs.risk == 'high'
         uses: actions/require-approvals@v1
@@ -796,12 +860,14 @@ jobs:
 **Control:** The entity identifies, selects, and develops risk mitigation activities.
 
 **Implementation:**
+
 - Risk treatment plans
 - Control implementation
 - Residual risk acceptance
 - Risk monitoring
 
 **Evidence:**
+
 - Risk treatment plans
 - Control implementation records
 - Risk acceptance forms
@@ -818,12 +884,14 @@ jobs:
 **Control:** The entity maintains availability commitments.
 
 **Implementation:**
+
 - SLA definitions (99.9% uptime)
 - High availability architecture
 - Redundancy and failover
 - Disaster recovery
 
 **Evidence:**
+
 - SLA documents
 - Uptime reports
 - Architecture diagrams
@@ -832,6 +900,7 @@ jobs:
 **Testing Frequency:** Monthly
 
 **SLA Metrics:**
+
 ```
 Target Availability: 99.9%
 Maximum Downtime: 43.8 minutes/month
@@ -846,12 +915,14 @@ RPO: 1 hour
 **Control:** The entity monitors system availability.
 
 **Implementation:**
+
 - Uptime monitoring
 - Health checks
 - Incident response
 - Root cause analysis
 
 **Evidence:**
+
 - Uptime reports
 - Health check logs
 - Incident tickets
@@ -866,12 +937,14 @@ RPO: 1 hour
 **Control:** The entity implements recovery procedures.
 
 **Implementation:**
+
 - Disaster recovery plan
 - Backup and restore procedures
 - Failover testing
 - Recovery time objectives
 
 **Evidence:**
+
 - DR plan
 - Restore test results
 - Failover test results
@@ -890,12 +963,14 @@ RPO: 1 hour
 **Control:** The entity maintains processing integrity commitments.
 
 **Implementation:**
+
 - Data validation
 - Transaction integrity
 - Error handling
 - Reconciliation procedures
 
 **Evidence:**
+
 - Validation rules
 - Transaction logs
 - Error logs
@@ -904,6 +979,7 @@ RPO: 1 hour
 **Testing Frequency:** Continuous
 
 **Technical Implementation:**
+
 ```python
 # Transaction integrity
 def process_transaction(transaction):
@@ -911,24 +987,24 @@ def process_transaction(transaction):
     # Validate input
     if not validate_transaction(transaction):
         raise ValidationError("Invalid transaction")
-    
+
     # Begin transaction
     tx = g.tx()
     try:
         # Process with ACID guarantees
         result = execute_transaction(tx, transaction)
-        
+
         # Verify result
         if not verify_transaction_result(result):
             tx.rollback()
             raise IntegrityError("Transaction verification failed")
-        
+
         # Commit
         tx.commit()
-        
+
         # Log success
         log_transaction_success(transaction, result)
-        
+
         return result
     except Exception as e:
         tx.rollback()
@@ -943,12 +1019,14 @@ def process_transaction(transaction):
 **Control:** The entity validates data inputs.
 
 **Implementation:**
+
 - Input validation rules
 - Data type checking
 - Range validation
 - Format validation
 
 **Evidence:**
+
 - Validation rules
 - Validation logs
 - Rejected input logs
@@ -962,12 +1040,14 @@ def process_transaction(transaction):
 **Control:** The entity processes data completely and accurately.
 
 **Implementation:**
+
 - Processing controls
 - Error detection
 - Exception handling
 - Audit trails
 
 **Evidence:**
+
 - Processing logs
 - Error logs
 - Audit logs
@@ -981,12 +1061,14 @@ def process_transaction(transaction):
 **Control:** The entity reviews data outputs.
 
 **Implementation:**
+
 - Output validation
 - Reconciliation
 - Quality checks
 - Review procedures
 
 **Evidence:**
+
 - Output validation logs
 - Reconciliation reports
 - Quality check results
@@ -1000,12 +1082,14 @@ def process_transaction(transaction):
 **Control:** The entity stores data completely and accurately.
 
 **Implementation:**
+
 - Data integrity checks
 - Checksums and hashing
 - Replication verification
 - Storage monitoring
 
 **Evidence:**
+
 - Integrity check logs
 - Checksum verification
 - Replication status
@@ -1022,12 +1106,14 @@ def process_transaction(transaction):
 **Control:** The entity maintains confidentiality commitments.
 
 **Implementation:**
+
 - Data classification
 - Encryption requirements
 - Access controls
 - Confidentiality agreements
 
 **Evidence:**
+
 - Data classification policy
 - Encryption configuration
 - Access control lists
@@ -1042,12 +1128,14 @@ def process_transaction(transaction):
 **Control:** The entity identifies and maintains confidential information.
 
 **Implementation:**
+
 - Data discovery
 - Classification tagging
 - Handling procedures
 - Disposal procedures
 
 **Evidence:**
+
 - Data inventory
 - Classification tags
 - Handling procedures
@@ -1064,12 +1152,14 @@ def process_transaction(transaction):
 **Control:** The entity provides notice about privacy practices.
 
 **Implementation:**
+
 - Privacy policy published
 - Privacy notices
 - Consent mechanisms
 - Policy updates communicated
 
 **Evidence:**
+
 - Privacy policy
 - Privacy notices
 - Consent records
@@ -1086,12 +1176,14 @@ def process_transaction(transaction):
 **Control:** The entity collects personal information consistent with notice.
 
 **Implementation:**
+
 - Collection limitations
 - Purpose specification
 - Consent management
 - Collection logging
 
 **Evidence:**
+
 - Collection policies
 - Consent records
 - Collection logs
@@ -1105,12 +1197,14 @@ def process_transaction(transaction):
 **Control:** The entity maintains accurate personal information.
 
 **Implementation:**
+
 - Data validation
 - Update procedures
 - Quality monitoring
 - Correction processes
 
 **Evidence:**
+
 - Validation rules
 - Update logs
 - Quality reports
@@ -1125,12 +1219,14 @@ def process_transaction(transaction):
 **Control:** The entity retains personal information consistent with commitments.
 
 **Implementation:**
+
 - Retention policies
 - Automated deletion
 - Retention monitoring
 - Disposal procedures
 
 **Evidence:**
+
 - Retention policy
 - Deletion logs
 - Retention reports
@@ -1145,12 +1241,14 @@ def process_transaction(transaction):
 **Control:** The entity disposes of personal information consistent with commitments.
 
 **Implementation:**
+
 - Secure deletion
 - Media sanitization
 - Disposal verification
 - Disposal logging
 
 **Evidence:**
+
 - Disposal procedures
 - Sanitization logs
 - Verification records
@@ -1165,6 +1263,7 @@ def process_transaction(transaction):
 ### Testing Methodology
 
 **Test Types:**
+
 1. **Design Testing:** Verify control design adequacy
 2. **Operating Effectiveness:** Verify control operates as designed
 3. **Automated Testing:** Continuous automated validation
@@ -1186,6 +1285,7 @@ def process_transaction(transaction):
 ### Test Evidence
 
 **Required Documentation:**
+
 - Test plan
 - Test procedures
 - Test results
@@ -1267,6 +1367,6 @@ This document has been reviewed and approved by:
 
 ---
 
-**Document Classification:** Internal - Confidential  
-**Next Review Date:** 2026-04-28  
+**Document Classification:** Internal - Confidential
+**Next Review Date:** 2026-04-28
 **Document Owner:** Chief Information Security Officer

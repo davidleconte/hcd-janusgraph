@@ -11,7 +11,7 @@ storage "file" {
 listener "tcp" {
   address = "0.0.0.0:8200"
   tls_disable = 1  # Disable TLS for internal network (enable in production with external access)
-  
+
   # For production with TLS:
   # tls_disable = 0
   # tls_cert_file = "/vault/certs/vault-cert.pem"

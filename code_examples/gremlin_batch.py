@@ -11,8 +11,8 @@ Features:
 - Error-safe script generation
 """
 
-from typing import List, Dict, Any
 import logging
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -20,24 +20,24 @@ logger = logging.getLogger(__name__)
 class GremlinBatchBuilder:
     """
     Builder for creating idempotent Gremlin batch scripts.
-    
+
     Usage:
         builder = GremlinBatchBuilder()
         script = builder.build_transaction_batch(events)
         result = gremlin_client.submit(script).all().result()
     """
-    
+
     @staticmethod
     def build_transaction_batch(events: List[Dict[str, Any]]) -> str:
         """
         Build Gremlin script for batch transaction insertion.
-        
+
         Args:
             events: List of transaction events
-        
+
         Returns:
             Gremlin script with atomic transaction
-        
+
         Example:
             events = [
                 {
@@ -55,27 +55,27 @@ class GremlinBatchBuilder:
             ]
         """
         lines = []
-        
+
         for event in events:
-            if event['event_type'] == 'transaction':
-                payload = event['payload']
-                
+            if event["event_type"] == "transaction":
+                payload = event["payload"]
+
                 # Idempotent vertex creation + edge creation
                 vertex_script = GremlinBatchBuilder._create_transaction_edge(
-                    from_account=payload['from_account_id'],
-                    to_account=payload['to_account_id'],
-                    transaction_id=payload['transaction_id'],
-                    amount=payload['amount'],
-                    currency=payload.get('currency', 'USD'),
-                    timestamp=event['timestamp'],
-                    event_id=event['event_id']
+                    from_account=payload["from_account_id"],
+                    to_account=payload["to_account_id"],
+                    transaction_id=payload["transaction_id"],
+                    amount=payload["amount"],
+                    currency=payload.get("currency", "USD"),
+                    timestamp=event["timestamp"],
+                    event_id=event["event_id"],
                 )
                 lines.append(vertex_script)
-        
+
         # Wrap in transaction
         script = ";\n".join(lines) + ";\ng.tx().commit()"
         return script
-    
+
     @staticmethod
     def _create_transaction_edge(
         from_account: str,
@@ -84,11 +84,11 @@ class GremlinBatchBuilder:
         amount: float,
         currency: str,
         timestamp: str,
-        event_id: str
+        event_id: str,
     ) -> str:
         """
         Create transaction edge with idempotent vertex creation.
-        
+
         Uses fold().coalesce() pattern:
         - fold(): Convert stream to list (empty if no vertices)
         - coalesce(): If list empty, create vertex; else use existing
@@ -115,7 +115,7 @@ class GremlinBatchBuilder:
             'event_id', '{event_id}'
         )
         """
-    
+
     @staticmethod
     def escape_string(value: str) -> str:
         """Escape special characters for Gremlin"""
@@ -125,7 +125,7 @@ class GremlinBatchBuilder:
 # Example usage
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    
+
     # Example events
     events = [
         {
@@ -137,8 +137,8 @@ if __name__ == "__main__":
                 "from_account_id": "ACC_123456",
                 "to_account_id": "ACC_789012",
                 "amount": 9500.00,
-                "currency": "USD"
-            }
+                "currency": "USD",
+            },
         },
         {
             "event_id": "evt_20260130_153046_002",
@@ -149,14 +149,14 @@ if __name__ == "__main__":
                 "from_account_id": "ACC_789012",
                 "to_account_id": "ACC_111222",
                 "amount": 2500.00,
-                "currency": "USD"
-            }
-        }
+                "currency": "USD",
+            },
+        },
     ]
-    
+
     # Build batch script
     builder = GremlinBatchBuilder()
     script = builder.build_transaction_batch(events)
-    
+
     print("Generated Gremlin script:")
     print(script)

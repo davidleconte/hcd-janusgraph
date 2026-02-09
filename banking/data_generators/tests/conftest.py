@@ -8,31 +8,36 @@ Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product S
 Date: 2026-02-06
 """
 
-import pytest
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 # Add project root to path (go up 3 levels: tests -> data_generators -> banking -> root)
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from banking.data_generators.core.person_generator import PersonGenerator
-from banking.data_generators.core.company_generator import CompanyGenerator
 from banking.data_generators.core.account_generator import AccountGenerator
-from banking.data_generators.events.transaction_generator import TransactionGenerator
+from banking.data_generators.core.company_generator import CompanyGenerator
+from banking.data_generators.core.person_generator import PersonGenerator
 from banking.data_generators.events.communication_generator import CommunicationGenerator
-from banking.data_generators.patterns.insider_trading_pattern_generator import InsiderTradingPatternGenerator
-from banking.data_generators.patterns.tbml_pattern_generator import TBMLPatternGenerator
-from banking.data_generators.patterns.fraud_ring_pattern_generator import FraudRingPatternGenerator
-from banking.data_generators.patterns.structuring_pattern_generator import StructuringPatternGenerator
+from banking.data_generators.events.transaction_generator import TransactionGenerator
+from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 from banking.data_generators.patterns.cato_pattern_generator import CATOPatternGenerator
-from banking.data_generators.orchestration import MasterOrchestrator, GenerationConfig
-
+from banking.data_generators.patterns.fraud_ring_pattern_generator import FraudRingPatternGenerator
+from banking.data_generators.patterns.insider_trading_pattern_generator import (
+    InsiderTradingPatternGenerator,
+)
+from banking.data_generators.patterns.structuring_pattern_generator import (
+    StructuringPatternGenerator,
+)
+from banking.data_generators.patterns.tbml_pattern_generator import TBMLPatternGenerator
 
 # ============================================================================
 # GENERATOR FIXTURES
 # ============================================================================
+
 
 @pytest.fixture
 def person_generator():
@@ -98,6 +103,7 @@ def cato_generator():
 # ENTITY FIXTURES
 # ============================================================================
 
+
 @pytest.fixture
 def sample_person(person_generator):
     """Generate a sample person"""
@@ -125,20 +131,14 @@ def sample_companies(company_generator):
 @pytest.fixture
 def sample_account(account_generator, sample_person):
     """Generate a sample account"""
-    return account_generator.generate(
-        owner_id=sample_person.id,
-        owner_type="person"
-    )
+    return account_generator.generate(owner_id=sample_person.id, owner_type="person")
 
 
 @pytest.fixture
 def sample_accounts(account_generator, sample_persons):
     """Generate multiple sample accounts"""
     return [
-        account_generator.generate(
-            owner_id=person.id,
-            owner_type="person"
-        )
+        account_generator.generate(owner_id=person.id, owner_type="person")
         for person in sample_persons
     ]
 
@@ -147,8 +147,7 @@ def sample_accounts(account_generator, sample_persons):
 def sample_transaction(transaction_generator, sample_accounts):
     """Generate a sample transaction"""
     return transaction_generator.generate(
-        from_account_id=sample_accounts[0].id,
-        to_account_id=sample_accounts[1].id
+        from_account_id=sample_accounts[0].id, to_account_id=sample_accounts[1].id
     )
 
 
@@ -156,19 +155,19 @@ def sample_transaction(transaction_generator, sample_accounts):
 def sample_transactions(transaction_generator, sample_accounts):
     """
     Generate multiple sample transactions.
-    
+
     Note: Generates min(20, len(sample_accounts)) transactions to prevent IndexError.
     Requires at least 2 accounts. If you need exactly 20 transactions, ensure
     sample_accounts fixture provides at least 20 accounts.
     """
     assert len(sample_accounts) >= 2, "Need at least 2 accounts for sample_transactions fixture"
-    
+
     # Generate transactions using available accounts
     num_transactions = min(20, len(sample_accounts))
     return [
         transaction_generator.generate(
             from_account_id=sample_accounts[i % len(sample_accounts)].id,
-            to_account_id=sample_accounts[(i + 1) % len(sample_accounts)].id
+            to_account_id=sample_accounts[(i + 1) % len(sample_accounts)].id,
         )
         for i in range(num_transactions)
     ]
@@ -177,6 +176,7 @@ def sample_transactions(transaction_generator, sample_accounts):
 # ============================================================================
 # ORCHESTRATOR FIXTURES
 # ============================================================================
+
 
 @pytest.fixture
 def small_config():
@@ -188,7 +188,7 @@ def small_config():
         account_count=15,
         transaction_count=50,
         communication_count=20,
-        output_dir=Path("/tmp/test_output")
+        output_dir=Path("/tmp/test_output"),
     )
 
 
@@ -207,7 +207,7 @@ def medium_config():
         fraud_ring_patterns=2,
         structuring_patterns=3,
         cato_patterns=2,
-        output_dir=Path("/tmp/test_output")
+        output_dir=Path("/tmp/test_output"),
     )
 
 
@@ -216,19 +216,20 @@ def orchestrator(small_config):
     """Fixture for MasterOrchestrator with small config"""
     return MasterOrchestrator(small_config)
 
+
 @pytest.fixture
 def small_orchestrator(small_config):
     """
     Alias for orchestrator with small config.
-    
+
     This fixture provides backward compatibility with existing tests that
     reference 'small_orchestrator' instead of 'orchestrator'. Both fixtures
     use the same small_config and return identical MasterOrchestrator instances.
-    
+
     Use this fixture when:
     - Maintaining existing tests that use small_orchestrator
     - You need explicit naming to distinguish from other orchestrator sizes
-    
+
     For new tests, prefer using 'orchestrator' fixture for consistency.
     """
     return MasterOrchestrator(small_config)
@@ -237,6 +238,7 @@ def small_orchestrator(small_config):
 # ============================================================================
 # UTILITY FIXTURES
 # ============================================================================
+
 
 @pytest.fixture
 def temp_output_dir(tmp_path):
@@ -250,7 +252,7 @@ def temp_output_dir(tmp_path):
 def sample_datetime():
     """
     Sample datetime for testing with specific time component.
-    
+
     Returns datetime(2024, 1, 15, 10, 30, 0) for tests requiring
     full datetime objects with time information.
     """
@@ -261,7 +263,7 @@ def sample_datetime():
 def sample_date():
     """
     Sample date for testing without time component.
-    
+
     Returns date(2024, 1, 15) for tests requiring only date information.
     """
     return datetime(2024, 1, 15).date()
@@ -271,7 +273,7 @@ def sample_date():
 def date_range():
     """
     Date range for testing temporal queries.
-    
+
     Returns tuple of (start_date, end_date) covering full year 2024.
     Both are datetime objects for compatibility with datetime operations.
     """
@@ -284,17 +286,14 @@ def date_range():
 # PYTEST CONFIGURATION
 # ============================================================================
 
+
 def pytest_configure(config):
     """Configure pytest with custom markers"""
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "benchmark: marks tests as performance benchmarks"
-    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line("markers", "benchmark: marks tests as performance benchmarks")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -303,12 +302,11 @@ def pytest_collection_modifyitems(config, items):
         # Mark integration tests
         if "integration" in item.nodeid:
             item.add_marker(pytest.mark.integration)
-        
+
         # Mark benchmark tests
         if "benchmark" in item.nodeid or "performance" in item.nodeid:
             item.add_marker(pytest.mark.benchmark)
-        
+
         # Mark slow tests
         if any(keyword in item.nodeid for keyword in ["large", "stress", "load"]):
             item.add_marker(pytest.mark.slow)
-

@@ -1,7 +1,7 @@
 # Troubleshooting Guide
 
-**File**: docs/TROUBLESHOOTING.md  
-**Created**: 2026-01-28T11:08:00.123  
+**File**: docs/TROUBLESHOOTING.md
+**Created**: 2026-01-28T11:08:00.123
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -13,29 +13,29 @@ flowchart TD
     A[Issue Detected] --> B{Service Running?}
     B -->|No| C[Check Container Logs]
     B -->|Yes| D{Health Check OK?}
-    
+
     C --> E{Port Conflict?}
     E -->|Yes| F[Kill Process / Change Port]
     E -->|No| G{Config Error?}
     G -->|Yes| H[Fix Configuration]
     G -->|No| I[Check Resources]
-    
+
     D -->|No| J{Connection Error?}
     D -->|Yes| K{Query Error?}
-    
+
     J -->|Yes| L[Check Network/Firewall]
     J -->|No| M[Check Service Logs]
-    
+
     K -->|Yes| N[Check Query Syntax]
     K -->|No| O[Performance Issue]
-    
+
     F --> P[Restart Service]
     H --> P
     I --> P
     L --> P
     N --> Q[Fix Query]
     O --> R[Optimize/Scale]
-    
+
     style A fill:#f9f,stroke:#333
     style P fill:#9f9,stroke:#333
     style Q fill:#9f9,stroke:#333
@@ -53,17 +53,20 @@ flowchart TD
 **Symptoms**: Container exits immediately after starting
 
 **Check**:
+
 ```bash
 podman logs <container-name>
 podman ps -a  # See exit codes
 ```
 
 **Common causes**:
+
 - Port already in use
 - Insufficient resources
 - Configuration error
 
 **Solutions**:
+
 ```bash
 # Check port usage
 lsof -i :<port>
@@ -83,16 +86,19 @@ podman restart <container-name>
 **Symptoms**: Container restarts in loop
 
 **Check health**:
+
 ```bash
 podman inspect <container-name> | grep Health
 ```
 
 **Common causes**:
+
 - Health check failing
 - Application crash
 - Configuration issue
 
 **Solutions**:
+
 - Check logs for errors
 - Verify configuration
 - Increase startup timeout
@@ -106,6 +112,7 @@ podman inspect <container-name> | grep Health
 **Error**: "Unable to gossip with any seeds"
 
 **Solution**:
+
 ```bash
 # Check if port is available
 lsof -i :7000
@@ -125,6 +132,7 @@ podman restart hcd-server
 **Symptoms**: nodetool shows DN (Down/Normal)
 
 **Check**:
+
 ```bash
 podman exec hcd-server nodetool status
 ```
@@ -145,6 +153,7 @@ podman restart hcd-server
 **Error**: "Connection refused on port 9042"
 
 **Solution**:
+
 ```bash
 # Verify HCD is running
 podman ps | grep hcd
@@ -165,11 +174,13 @@ cqlsh localhost 19042
 **Error**: Connection refused on port 8182
 
 **Check**:
+
 ```bash
 curl http://localhost:18182
 ```
 
 **Solutions**:
+
 ```bash
 # Verify JanusGraph is running
 podman ps | grep janusgraph
@@ -186,6 +197,7 @@ podman restart janusgraph-server
 **Symptoms**: No vertex labels found
 
 **Verify**:
+
 ```python
 from gremlin_python.driver import client
 gc = client.Client('ws://localhost:18182/gremlin', 'g')
@@ -194,6 +206,7 @@ print(labels)
 ```
 
 **Solution**:
+
 ```bash
 python3 scripts/init/load_data.py
 ```
@@ -203,11 +216,13 @@ python3 scripts/init/load_data.py
 **Symptoms**: Queries take >1 second
 
 **Check indexes**:
+
 ```python
 gc.submit('mgmt = graph.openManagement(); mgmt.printIndexes()').all().result()
 ```
 
 **Solutions**:
+
 - Add composite indexes for common queries
 - Increase JanusGraph heap size
 - Check HCD performance
@@ -221,6 +236,7 @@ gc.submit('mgmt = graph.openManagement(); mgmt.printIndexes()').all().result()
 **Error**: 404 Not Found
 
 **Solutions**:
+
 ```bash
 # Check if running
 podman ps | grep jupyter
@@ -238,6 +254,7 @@ podman restart jupyter-lab
 
 **Solution**:
 Add to first cell:
+
 ```python
 import nest_asyncio
 nest_asyncio.apply()
@@ -248,6 +265,7 @@ nest_asyncio.apply()
 **Symptoms**: Kernel keeps crashing
 
 **Solutions**:
+
 - Increase container memory
 - Check for memory leaks in code
 - Restart Jupyter
@@ -261,6 +279,7 @@ nest_asyncio.apply()
 **Symptoms**: JanusGraph can't reach HCD
 
 **Check**:
+
 ```bash
 # Verify network exists
 podman network ls
@@ -273,6 +292,7 @@ podman exec janusgraph-server ping hcd-server
 ```
 
 **Solution**:
+
 ```bash
 # Recreate network
 podman network create hcd-janusgraph-network
@@ -287,6 +307,7 @@ bash scripts/deployment/deploy_full_stack.sh
 **Error**: "Address already in use"
 
 **Solution**:
+
 ```bash
 # Find what's using port
 lsof -i :18182
@@ -305,11 +326,13 @@ JANUSGRAPH_PORT=28182
 #### High Memory Usage
 
 **Check**:
+
 ```bash
 podman stats
 ```
 
 **Solutions**:
+
 ```bash
 # Increase heap sizes in .env
 HCD_HEAP_SIZE=8G
@@ -325,12 +348,14 @@ deploy:
 #### High CPU Usage
 
 **Check**:
+
 ```bash
 podman stats
 top -o cpu
 ```
 
 **Solutions**:
+
 - Check for inefficient queries
 - Add indexes
 - Increase CPU limits
@@ -338,12 +363,14 @@ top -o cpu
 #### Disk Space Full
 
 **Check**:
+
 ```bash
 df -h
 du -sh /var/lib/containers/
 ```
 
 **Solutions**:
+
 ```bash
 # Clean up old containers
 podman system prune -a
@@ -364,6 +391,7 @@ podman volume prune
 **Error**: "pytest: command not found"
 
 **Solution**:
+
 ```bash
 pip install -r requirements-dev.txt
 ```
@@ -371,11 +399,13 @@ pip install -r requirements-dev.txt
 #### Connection Tests Fail
 
 **Verify services running**:
+
 ```bash
 podman ps
 ```
 
 **Check connectivity**:
+
 ```bash
 curl http://localhost:18182
 ```
@@ -385,6 +415,7 @@ curl http://localhost:18182
 **Symptoms**: Expected data not found
 
 **Solution**:
+
 ```bash
 # Reinitialize schema and data
 python3 scripts/init/load_data.py
@@ -397,6 +428,7 @@ python3 scripts/init/load_data.py
 #### Deploy Script Fails
 
 **Check**:
+
 ```bash
 # Verify Podman machine running
 podman machine list
@@ -411,6 +443,7 @@ cat .env
 #### Services Won't Stop
 
 **Solution**:
+
 ```bash
 # Force stop
 podman stop -t 10 $(podman ps -q)
@@ -425,9 +458,10 @@ podman rm -f $(podman ps -aq)
 
 #### Prometheus Not Scraping Targets
 
-**Check targets**: http://localhost:9090/targets
+**Check targets**: <http://localhost:9090/targets>
 
 **Common issues**:
+
 - Service not exposing metrics
 - Network connectivity
 - Incorrect service names in config
@@ -438,12 +472,13 @@ Verify prometheus.yml configuration.
 #### Grafana Shows No Data
 
 **Check**:
+
 - Prometheus datasource configured
 - Time range correct
 - Queries valid
 
 **Solution**:
-Verify datasource URL: http://prometheus:9090
+Verify datasource URL: <http://prometheus:9090>
 
 ---
 
@@ -466,6 +501,7 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/ban
 **Root Cause**: On macOS (especially Apple Silicon), Pulsar's advertised address resolution can return stale container IPs
 
 **Solution**: The compose file includes `--advertised-address localhost` fix. If issues persist:
+
 ```bash
 # Restart Pulsar container
 podman restart janusgraph-demo_pulsar_1
@@ -497,6 +533,7 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats \
 **Solutions**:
 
 1. **Run interactively**: Execute notebook manually in JupyterLab with longer cell timeout
+
    ```bash
    conda activate janusgraph-analysis
    jupyter lab banking/notebooks/08_UBO_Discovery_Demo.ipynb
@@ -507,6 +544,7 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats \
 3. **Skip indirect ownership**: Set `include_indirect=False` in `find_ubos_for_company()` calls
 
 4. **Add graph indexes**: Improve performance with JanusGraph indexes:
+
    ```groovy
    mgmt = graph.openManagement()
    mgmt.buildIndex('byCompanyId', Vertex.class).addKey(mgmt.getPropertyKey('company_id')).buildCompositeIndex()
@@ -515,7 +553,8 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats \
    ```
 
 **Known Fixes Applied**:
-- Fixed Python lambda serialization bug in `_find_direct_owners()` 
+
+- Fixed Python lambda serialization bug in `_find_direct_owners()`
 - Optimized `find_shared_ubos()` with single aggregated Gremlin query
 - Created `beneficial_owner` edges for testing
 
@@ -524,6 +563,7 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats \
 ## Debug Commands
 
 ### System Info
+
 ```bash
 # Podman version
 podman --version
@@ -538,6 +578,7 @@ podman stats
 ```
 
 ### Network Debug
+
 ```bash
 # List networks
 podman network ls
@@ -550,6 +591,7 @@ podman exec container1 ping container2
 ```
 
 ### Log Analysis
+
 ```bash
 # Container logs
 podman logs -f <container-name>
@@ -566,6 +608,7 @@ podman-compose logs -f
 ## Getting Help
 
 ### Documentation
+
 - README.md - Project overview
 - QUICKSTART.md - Essential commands
 - docs/SETUP.md - Detailed setup
@@ -573,13 +616,15 @@ podman-compose logs -f
 - docs/BACKUP.md - Backup procedures
 
 ### External Resources
-- JanusGraph Docs: https://docs.janusgraph.org/
-- HCD Docs: https://docs.datastax.com/en/hcd/
-- Podman Docs: https://docs.podman.io/
+
+- JanusGraph Docs: <https://docs.janusgraph.org/>
+- HCD Docs: <https://docs.datastax.com/en/hcd/>
+- Podman Docs: <https://docs.podman.io/>
 
 ### Support
-- GitHub Issues: https://github.com/davidleconte/hcd-janusgraph/issues
-- Email: team@example.com
+
+- GitHub Issues: <https://github.com/davidleconte/hcd-janusgraph/issues>
+- Email: <team@example.com>
 
 ---
 

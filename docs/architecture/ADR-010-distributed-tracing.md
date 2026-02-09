@@ -1,8 +1,8 @@
 # ADR-010: OpenTelemetry and Jaeger for Distributed Tracing
 
-**Status**: Accepted  
-**Date**: 2026-01-24  
-**Deciders**: Operations Team, Development Team  
+**Status**: Accepted
+**Date**: 2026-01-24
+**Deciders**: Operations Team, Development Team
 **Technical Story**: Performance Optimization P3-001
 
 ## Context
@@ -48,12 +48,14 @@ How do we implement comprehensive distributed tracing that provides visibility i
 ### Option 1: Zipkin
 
 **Pros:**
+
 - Mature, battle-tested solution
 - Good UI for trace visualization
 - Wide language support
 - Simple architecture
 
 **Cons:**
+
 - Less active development than alternatives
 - Limited advanced features
 - Smaller community
@@ -62,6 +64,7 @@ How do we implement comprehensive distributed tracing that provides visibility i
 ### Option 2: OpenTelemetry + Jaeger
 
 **Pros:**
+
 - Industry standard (CNCF project)
 - Vendor-neutral, future-proof
 - Excellent language support (Python, Java, Go, etc.)
@@ -72,6 +75,7 @@ How do we implement comprehensive distributed tracing that provides visibility i
 - Automatic instrumentation available
 
 **Cons:**
+
 - More complex setup (two components)
 - Steeper learning curve
 - Requires more infrastructure
@@ -79,11 +83,13 @@ How do we implement comprehensive distributed tracing that provides visibility i
 ### Option 3: AWS X-Ray / Cloud-Specific Solutions
 
 **Pros:**
+
 - Managed service (no infrastructure)
 - Deep cloud integration
 - Automatic instrumentation for AWS services
 
 **Cons:**
+
 - Vendor lock-in
 - Limited to cloud provider
 - Higher cost at scale
@@ -93,11 +99,13 @@ How do we implement comprehensive distributed tracing that provides visibility i
 ### Option 4: Custom Logging Solution
 
 **Pros:**
+
 - Full control
 - No additional dependencies
 - Simple to understand
 
 **Cons:**
+
 - Significant development effort
 - Lacks standard features
 - Difficult to correlate across services
@@ -194,24 +202,28 @@ OpenTelemetry + Jaeger provides the best combination of:
 ### Migration Path
 
 **Phase 1: Development Environment**
+
 1. Deploy Jaeger and OpenTelemetry Collector
 2. Instrument Python client library
 3. Add custom spans to critical paths
 4. Validate trace collection and visualization
 
 **Phase 2: Staging Environment**
+
 1. Deploy production-grade Jaeger with Cassandra
 2. Configure sampling strategies
 3. Performance testing with tracing enabled
 4. Team training on trace analysis
 
 **Phase 3: Production Rollout**
+
 1. Deploy with conservative sampling (1%)
 2. Monitor performance impact
 3. Gradually increase sampling rate
 4. Enable for all services
 
 **Phase 4: Optimization**
+
 1. Fine-tune sampling strategies
 2. Add custom instrumentation where needed
 3. Create dashboards and alerts
@@ -220,6 +232,7 @@ OpenTelemetry + Jaeger provides the best combination of:
 ### Rollback Strategy
 
 If tracing causes issues:
+
 1. Disable OpenTelemetry instrumentation via environment variable
 2. Stop Jaeger and Collector services
 3. Remove tracing configuration
@@ -247,6 +260,7 @@ If tracing causes issues:
 ### Trace Structure
 
 Each trace consists of:
+
 - **Trace ID**: Unique identifier for the entire request
 - **Span ID**: Unique identifier for each operation
 - **Parent Span ID**: Links spans in a hierarchy

@@ -1,8 +1,8 @@
 # ADR-005: JWT-Based Authentication
 
-**Status**: Accepted  
-**Date**: 2026-01-20  
-**Deciders**: Security Team, Development Team  
+**Status**: Accepted
+**Date**: 2026-01-20
+**Deciders**: Security Team, Development Team
 **Technical Story**: Security Audit P0-002
 
 ## Context
@@ -47,11 +47,13 @@ How do we implement secure, scalable authentication for the JanusGraph API that 
 ### Option 1: Session-Based Authentication
 
 **Pros:**
+
 - Simple to implement
 - Easy to revoke sessions
 - Familiar pattern
 
 **Cons:**
+
 - Requires session storage (Redis/database)
 - Not stateless - complicates scaling
 - Sticky sessions or shared session store needed
@@ -60,6 +62,7 @@ How do we implement secure, scalable authentication for the JanusGraph API that 
 ### Option 2: JWT (JSON Web Tokens)
 
 **Pros:**
+
 - Stateless - no server-side session storage
 - Self-contained - includes user claims
 - Industry standard (RFC 7519)
@@ -69,6 +72,7 @@ How do we implement secure, scalable authentication for the JanusGraph API that 
 - Can include custom claims (roles, permissions)
 
 **Cons:**
+
 - Cannot revoke tokens before expiration (mitigated with short TTL + refresh tokens)
 - Token size larger than session ID
 - Requires secure key management
@@ -76,12 +80,14 @@ How do we implement secure, scalable authentication for the JanusGraph API that 
 ### Option 3: OAuth 2.0 / OpenID Connect
 
 **Pros:**
+
 - Industry standard for authorization
 - Supports multiple grant types
 - Built-in token refresh
 - Excellent for third-party integrations
 
 **Cons:**
+
 - More complex to implement
 - Overkill for current requirements
 - Requires additional infrastructure (authorization server)
@@ -173,6 +179,7 @@ The short access token lifetime (15 minutes) mitigates the revocation issue, whi
 ### Rollback Strategy
 
 If JWT implementation fails:
+
 1. Revert to previous authentication method
 2. Clear all issued tokens
 3. Force users to re-authenticate

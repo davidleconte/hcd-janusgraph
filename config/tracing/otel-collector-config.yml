@@ -9,7 +9,7 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-  
+
   # Jaeger receiver (for backward compatibility)
   jaeger:
     protocols:
@@ -21,11 +21,11 @@ receivers:
         endpoint: 0.0.0.0:6831
       thrift_binary:
         endpoint: 0.0.0.0:6832
-  
+
   # Zipkin receiver (for backward compatibility)
   zipkin:
     endpoint: 0.0.0.0:9411
-  
+
   # Prometheus receiver for metrics
   prometheus:
     config:
@@ -40,13 +40,13 @@ processors:
   batch:
     timeout: 10s
     send_batch_size: 1024
-  
+
   # Memory limiter to prevent OOM
   memory_limiter:
     check_interval: 1s
     limit_mib: 512
     spike_limit_mib: 128
-  
+
   # Resource processor to add metadata
   resource:
     attributes:
@@ -56,11 +56,11 @@ processors:
       - key: deployment.environment
         value: production
         action: upsert
-  
+
   # Span processor for filtering and sampling
   probabilistic_sampler:
     sampling_percentage: 100
-  
+
   # Attributes processor
   attributes:
     actions:
@@ -75,20 +75,20 @@ exporters:
     endpoint: jaeger:14250
     tls:
       insecure: true
-  
+
   # Prometheus exporter for metrics
   prometheus:
     endpoint: "0.0.0.0:8889"
     namespace: otel
     const_labels:
       environment: production
-  
+
   # Logging exporter for debugging
   logging:
     loglevel: info
     sampling_initial: 5
     sampling_thereafter: 200
-  
+
   # OTLP exporter (for forwarding to other collectors)
   otlp:
     endpoint: jaeger:4317
@@ -98,35 +98,35 @@ exporters:
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
-  
+
   pprof:
     endpoint: 0.0.0.0:1777
-  
+
   zpages:
     endpoint: 0.0.0.0:55679
 
 service:
   extensions: [health_check, pprof, zpages]
-  
+
   pipelines:
     # Traces pipeline
     traces:
       receivers: [otlp, jaeger, zipkin]
       processors: [memory_limiter, batch, resource, attributes]
       exporters: [jaeger, logging]
-    
+
     # Metrics pipeline
     metrics:
       receivers: [otlp, prometheus]
       processors: [memory_limiter, batch, resource]
       exporters: [prometheus, logging]
-    
+
     # Logs pipeline
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch, resource]
       exporters: [logging]
-  
+
   telemetry:
     logs:
       level: info

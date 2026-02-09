@@ -1,7 +1,7 @@
 # Audit Logging
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Overview
 

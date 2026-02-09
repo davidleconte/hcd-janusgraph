@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-**Version**: 2.0  
+**Version**: 2.0
 **Created**: 2026-01-30
 
 ---
@@ -29,11 +29,13 @@ curl http://localhost:8182/gremlin/status
 ### 1. High Pulsar Backlog
 
 **Symptoms**:
+
 - Pulsar backlog > 10M messages
 - Consumer lag increasing
 - Slow graph updates
 
 **Causes**:
+
 - Insufficient consumer workers
 - Graph write bottleneck
 - HCD performance issues
@@ -52,6 +54,7 @@ kubectl top pods -l app=graph-loader
 ```
 
 **Prevention**:
+
 - Auto-scaling based on backlog size
 - Monitor consumer processing rate
 - Alert when backlog > threshold
@@ -61,11 +64,13 @@ kubectl top pods -l app=graph-loader
 ### 2. Graph Write Failures
 
 **Symptoms**:
+
 - High transaction failure rate
 - Consumer errors in logs
 - Messages being redelivered
 
 **Causes**:
+
 - Schema violations (unique constraint, type mismatch)
 - Transaction conflicts (MVCC)
 - HCD unavailability
@@ -87,6 +92,7 @@ kubectl get pods -l app=hcd-regionserver
 **Solutions**:
 
 Schema violation:
+
 ```bash
 # Check schema definition
 gremlin> mgmt = graph.openManagement()
@@ -94,11 +100,13 @@ gremlin> mgmt.printSchema()
 ```
 
 Transaction conflict:
+
 - Increase retry limit
 - Add exponential backoff
 - Reduce batch size to lower conflict probability
 
 HCD unavailability:
+
 ```bash
 # Check HCD cluster
 kubectl get pods -l app=hcd
@@ -112,10 +120,12 @@ kubectl logs hcd-master-pod-xxx
 ### 3. Deduplication Not Working
 
 **Symptoms**:
+
 - Duplicate graph vertices/edges
 - Same transaction_id appears multiple times
 
 **Causes**:
+
 - Broker deduplication disabled
 - Producer not setting sequence_id
 - Deduplication window expired
@@ -133,11 +143,13 @@ grep "sequence_id" producer.py
 **Solutions**:
 
 Enable deduplication:
+
 ```bash
 pulsar-admin namespaces set-deduplication --enable banking/transactions
 ```
 
 Fix producer:
+
 ```python
 # Always set sequence_id
 producer.send(
@@ -151,11 +163,13 @@ producer.send(
 ### 4. HCD Performance Degradation
 
 **Symptoms**:
+
 - Slow graph writes
 - HCD WAL size growing
 - MemStore pressure
 
 **Causes**:
+
 - Large WAL not flushing
 - Compaction storms
 - Too many regions
@@ -176,12 +190,14 @@ grep "compaction" hcd-regionserver.log
 **Solutions**:
 
 Force WAL flush:
+
 ```bash
 # In HBase shell
 flush 'janusgraph'
 ```
 
 Tune HCD config:
+
 ```xml
 <!-- hbase-site.xml -->
 <property>
@@ -200,11 +216,13 @@ Tune HCD config:
 ### 5. Consumer Rebalancing Issues
 
 **Symptoms**:
+
 - Frequent consumer rebalances
 - Processing stalls
 - Messages redelivered
 
 **Causes**:
+
 - Consumer crashes
 - Network issues
 - Session timeout too short
@@ -222,6 +240,7 @@ kubectl logs pulsar-broker-pod-xxx | grep "rebalance"
 **Solutions**:
 
 Increase session timeout:
+
 ```python
 consumer = client.subscribe(
     topic='...',
@@ -234,6 +253,7 @@ consumer = client.subscribe(
 ```
 
 Fix consumer crashes:
+
 - Add try-except around message processing
 - Use negative ACK instead of crash
 - Monitor memory usage
@@ -243,11 +263,13 @@ Fix consumer crashes:
 ### 6. Out of Memory (OOM)
 
 **Symptoms**:
+
 - Consumer pods killed by OOM
 - Graph loader crashes
 - Slow processing
 
 **Causes**:
+
 - Large batch size
 - Memory leak
 - Insufficient memory limits
@@ -265,11 +287,13 @@ kubectl describe pod graph-loader-pod-xxx | grep OOM
 **Solutions**:
 
 Reduce batch size:
+
 ```python
 self.batch_size = 500  # Was 1000
 ```
 
 Increase memory limits:
+
 ```yaml
 resources:
   limits:
@@ -283,11 +307,13 @@ resources:
 ### 7. Slow Queries
 
 **Symptoms**:
+
 - Graph queries take minutes
 - OpenSearch indexing slow
 - High CPU on JanusGraph
 
 **Causes**:
+
 - Missing indices
 - Large result sets
 - Unoptimized traversal
@@ -306,6 +332,7 @@ gremlin> mgmt.getGraphIndexes(Vertex.class)
 **Solutions**:
 
 Add composite index:
+
 ```python
 mgmt = graph.openManagement()
 account_id = mgmt.getPropertyKey('account_id')
@@ -319,6 +346,7 @@ mgmt.awaitGraphIndexStatus(graph, 'byAccountId').call()
 ```
 
 Optimize traversal:
+
 ```python
 # Bad: Full scan
 g.V().has('amount', gt(10000))
@@ -479,6 +507,7 @@ def _flush_batch(self):
 ### Monitoring
 
 Set up alerts for:
+
 - Backlog > 10M messages
 - Consumer failure rate > 5%
 - Graph write latency > 5s
@@ -488,6 +517,7 @@ Set up alerts for:
 ### Testing
 
 Before deployment:
+
 - Load test with expected throughput
 - Test failure scenarios (consumer crash, HCD down)
 - Verify auto-scaling works
@@ -496,6 +526,7 @@ Before deployment:
 ### Documentation
 
 Keep updated:
+
 - Runbook for common issues
 - Escalation contacts
 - Recent changes log
@@ -503,6 +534,6 @@ Keep updated:
 
 ---
 
-**Document Status**: Operations Guide  
-**Version**: 2.0  
+**Document Status**: Operations Guide
+**Version**: 2.0
 **Last Updated**: 2026-01-30

@@ -76,7 +76,7 @@ from utils.vector_search import VectorSearchClient
 
 try:
     client = VectorSearchClient(host='localhost', port=9200)
-    
+
     # Create sanctions index
     if not client.client.indices.exists(index='sanctions_list'):
         client.create_vector_index(
@@ -93,7 +93,7 @@ try:
         print('   ✅ Created sanctions_list index')
     else:
         print('   ℹ️  sanctions_list index already exists')
-    
+
     # Create transactions index
     if not client.client.indices.exists(index='aml_transactions'):
         client.create_vector_index(
@@ -110,7 +110,7 @@ try:
         print('   ✅ Created aml_transactions index')
     else:
         print('   ℹ️  aml_transactions index already exists')
-    
+
     print('   ✅ OpenSearch indices ready')
 except Exception as e:
     print(f'   ❌ Error creating indices: {e}')

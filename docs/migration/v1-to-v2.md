@@ -5,6 +5,7 @@ This guide helps you migrate from HCD JanusGraph API v1.x to v2.0.
 ## Overview
 
 Version 2.0 introduces significant security and performance improvements, including:
+
 - JWT-based authentication (BREAKING)
 - Enhanced RBAC with MFA support
 - Query caching and profiling
@@ -20,11 +21,13 @@ Version 2.0 introduces significant security and performance improvements, includ
 ### 1. Authentication System
 
 #### What Changed
+
 - **Removed**: Basic authentication
 - **Added**: JWT token-based authentication
 - **Required**: All API calls must include `Authorization` header
 
 #### Before (v1.x)
+
 ```python
 import requests
 
@@ -35,6 +38,7 @@ response = requests.get(
 ```
 
 #### After (v2.0)
+
 ```python
 import requests
 
@@ -58,6 +62,7 @@ response = requests.get(
 #### Migration Steps
 
 1. **Update Authentication Flow**:
+
    ```python
    class JanusGraphClient:
        def __init__(self, base_url, username, password):
@@ -66,7 +71,7 @@ response = requests.get(
            self.password = password
            self.access_token = None
            self.refresh_token = None
-       
+
        def authenticate(self):
            """Get JWT tokens"""
            response = requests.post(
@@ -79,7 +84,7 @@ response = requests.get(
            data = response.json()
            self.access_token = data['access_token']
            self.refresh_token = data['refresh_token']
-       
+
        def refresh_access_token(self):
            """Refresh expired access token"""
            response = requests.post(
@@ -88,11 +93,11 @@ response = requests.get(
            )
            data = response.json()
            self.access_token = data['access_token']
-       
+
        def _get_headers(self):
            """Get headers with auth token"""
            return {'Authorization': f'Bearer {self.access_token}'}
-       
+
        def query(self, gremlin_query):
            """Execute query with authentication"""
            try:
@@ -117,6 +122,7 @@ response = requests.get(
    - Use environment variables or secret managers for services
 
 3. **Handle Token Expiration**:
+
    ```python
    def make_request_with_retry(self, method, endpoint, **kwargs):
        """Make request with automatic token refresh"""
@@ -140,11 +146,13 @@ response = requests.get(
 ### 2. Error Response Format
 
 #### What Changed
+
 - Standardized error response structure
 - Added trace IDs for debugging
 - More detailed error information
 
 #### Before (v1.x)
+
 ```json
 {
   "error": "Invalid query syntax"
@@ -152,6 +160,7 @@ response = requests.get(
 ```
 
 #### After (v2.0)
+
 ```json
 {
   "error": {
@@ -170,13 +179,14 @@ response = requests.get(
 #### Migration Steps
 
 1. **Update Error Handling**:
+
    ```python
    # Before (v1.x)
    try:
        response = client.query(query)
    except Exception as e:
        print(f"Error: {e}")
-   
+
    # After (v2.0)
    try:
        response = client.query(query)
@@ -190,11 +200,12 @@ response = requests.get(
    ```
 
 2. **Log Trace IDs**:
+
    ```python
    import logging
-   
+
    logger = logging.getLogger(__name__)
-   
+
    try:
        response = client.query(query)
    except requests.exceptions.HTTPError as e:
@@ -214,6 +225,7 @@ response = requests.get(
 ### 3. HTTPS Required
 
 #### What Changed
+
 - HTTP endpoints removed
 - All communication must use HTTPS
 - TLS 1.2+ required
@@ -221,24 +233,26 @@ response = requests.get(
 #### Migration Steps
 
 1. **Update Base URLs**:
+
    ```python
    # Before
    BASE_URL = 'http://localhost:8080'
-   
+
    # After
    BASE_URL = 'https://localhost:8443'
    ```
 
 2. **Configure TLS Certificates**:
+
    ```python
    import requests
-   
+
    # For development with self-signed certificates
    response = requests.get(
        'https://localhost:8443/health',
        verify='/path/to/ca-cert.pem'  # Or False for dev only
    )
-   
+
    # For production
    response = requests.get(
        'https://api.example.com/health',
@@ -251,10 +265,12 @@ response = requests.get(
 ### 4. Pagination Changes
 
 #### What Changed
+
 - Standardized pagination format
 - Added total count and page information
 
 #### Before (v1.x)
+
 ```json
 {
   "vertices": [...],
@@ -263,6 +279,7 @@ response = requests.get(
 ```
 
 #### After (v2.0)
+
 ```json
 {
   "data": [...],
@@ -447,6 +464,7 @@ auth_response = client.post('/auth/login', json={
 **Symptom**: All requests return 401 Unauthorized
 
 **Solution**:
+
 ```python
 # Ensure token is included in headers
 headers = {'Authorization': f'Bearer {access_token}'}
@@ -466,6 +484,7 @@ if time.time() > decoded['exp']:
 **Symptom**: SSL verification fails
 
 **Solution**:
+
 ```python
 # For development (NOT for production)
 import urllib3
@@ -481,6 +500,7 @@ response = requests.get(url, verify='/path/to/ca-bundle.crt')
 **Symptom**: 429 Too Many Requests
 
 **Solution**:
+
 ```python
 import time
 from functools import wraps
@@ -560,12 +580,13 @@ response = session.get(url, headers=headers)
 
 - **Documentation**: [docs/api/](../api/)
 - **Migration Issues**: [GitHub Issues](https://github.com/your-org/hcd-janusgraph/issues)
-- **Email**: support@example.com
+- **Email**: <support@example.com>
 - **Slack**: #janusgraph-migration
 
 ### Reporting Problems
 
 When reporting migration issues, include:
+
 1. v1.x version you're migrating from
 2. Error messages and stack traces
 3. Code snippets showing the issue
@@ -591,5 +612,5 @@ When reporting migration issues, include:
 
 ---
 
-**Last Updated**: 2026-01-28  
+**Last Updated**: 2026-01-28
 **Version**: 2.0.0

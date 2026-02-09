@@ -7,10 +7,12 @@ This directory contains comprehensive API documentation for the HCD JanusGraph p
 ## Documentation Structure
 
 ### 1. [OpenAPI Specification](./openapi.yaml)
-**Format:** YAML  
+
+**Format:** YAML
 **Purpose:** Complete REST API specification following OpenAPI 3.0.3 standard
 
 **Contents:**
+
 - Health check endpoints
 - Vertex CRUD operations
 - Edge CRUD operations
@@ -22,12 +24,14 @@ This directory contains comprehensive API documentation for the HCD JanusGraph p
 - Rate limiting details
 
 **Use Cases:**
+
 - Generate API clients in multiple languages
 - API testing and validation
 - Interactive API documentation (Swagger UI)
 - Contract testing
 
 **Tools:**
+
 ```bash
 # View in Swagger UI
 docker run -p 8080:8080 -e SWAGGER_JSON=/docs/openapi.yaml \
@@ -43,10 +47,12 @@ swagger-cli validate openapi.yaml
 ---
 
 ### 2. [Gremlin API Reference](./gremlin-api.md)
-**Format:** Markdown  
+
+**Format:** Markdown
 **Purpose:** Comprehensive guide to Gremlin graph traversal language
 
 **Contents:**
+
 - Connection setup (Python, Java, Node.js)
 - Basic traversals (vertices, edges, counts)
 - CRUD operations with examples
@@ -58,6 +64,7 @@ swagger-cli validate openapi.yaml
 - Best practices and common pitfalls
 
 **Sections:**
+
 1. **Connection** - Establishing connections to JanusGraph
 2. **Basic Traversals** - Fundamental graph operations
 3. **Vertex Operations** - Create, read, update, delete vertices
@@ -70,6 +77,7 @@ swagger-cli validate openapi.yaml
 10. **Best Practices** - Production-ready code patterns
 
 **Code Examples:**
+
 - 50+ working code examples
 - Python, Groovy, and raw Gremlin syntax
 - Real-world use cases (social networks, recommendations)
@@ -77,10 +85,12 @@ swagger-cli validate openapi.yaml
 ---
 
 ### 3. [Integration Guide](./integration-guide.md)
-**Format:** Markdown  
+
+**Format:** Markdown
 **Purpose:** Practical integration examples and patterns
 
 **Contents:**
+
 - Quick start guide
 - Authentication methods (API keys, JWT, WebSocket)
 - Complete Python integration example (social network)
@@ -93,6 +103,7 @@ swagger-cli validate openapi.yaml
 
 **Featured Example:**
 Complete `SocialNetworkGraph` class demonstrating:
+
 - Connection management
 - User creation and management
 - Friendship relationships
@@ -101,6 +112,7 @@ Complete `SocialNetworkGraph` class demonstrating:
 - Error handling and logging
 
 **Production Patterns:**
+
 - Connection pooling
 - Batch operations
 - Query optimization
@@ -173,18 +185,18 @@ from docs.api.examples import SocialNetworkGraph
 graph = SocialNetworkGraph()
 try:
     graph.connect()
-    
+
     # Create users
     alice_id = graph.create_user('Alice', 28, 'alice@example.com', 'NYC')
     bob_id = graph.create_user('Bob', 32, 'bob@example.com', 'NYC')
-    
+
     # Create friendship
     graph.create_friendship(alice_id, bob_id, 2020)
-    
+
     # Find friends
     friends = graph.find_friends(alice_id)
     print(f"Alice's friends: {friends}")
-    
+
 finally:
     graph.disconnect()
 ```
@@ -194,12 +206,14 @@ finally:
 ## API Endpoints Summary
 
 ### Health & Status
+
 - `GET /health` - Health check
 - `GET /health/ready` - Readiness probe
 - `GET /health/live` - Liveness probe
 - `GET /metrics` - System metrics
 
 ### Vertices
+
 - `GET /vertices` - List vertices
 - `POST /vertices` - Create vertex
 - `GET /vertices/{id}` - Get vertex
@@ -207,16 +221,19 @@ finally:
 - `DELETE /vertices/{id}` - Delete vertex
 
 ### Edges
+
 - `GET /edges` - List edges
 - `POST /edges` - Create edge
 - `GET /edges/{id}` - Get edge
 - `DELETE /edges/{id}` - Delete edge
 
 ### Queries
+
 - `POST /queries/gremlin` - Execute Gremlin query
 - `POST /queries/cypher` - Execute Cypher query
 
 ### Schema
+
 - `GET /schema` - Get schema
 - `GET /schema/vertex-labels` - List vertex labels
 - `POST /schema/vertex-labels` - Create vertex label
@@ -230,16 +247,19 @@ finally:
 All API endpoints (except health checks) require authentication using one of:
 
 ### 1. API Key
+
 ```bash
 curl -H "X-API-Key: your-api-key" http://localhost:8182/v1/vertices
 ```
 
 ### 2. JWT Bearer Token
+
 ```bash
 curl -H "Authorization: Bearer your-jwt-token" http://localhost:8182/v1/vertices
 ```
 
 ### 3. WebSocket Authentication
+
 ```python
 from gremlin_python.driver import client
 
@@ -259,6 +279,7 @@ gremlin_client = client.Client(
 - **Per IP Address:** 100 requests/minute
 
 Rate limit headers:
+
 ```
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 950
@@ -283,6 +304,7 @@ All errors follow RFC 7807 Problem Details format:
 ```
 
 Common status codes:
+
 - `200` - Success
 - `201` - Created
 - `204` - No Content
@@ -298,7 +320,9 @@ Common status codes:
 ## Code Examples
 
 ### Python Examples
+
 See [Integration Guide](./integration-guide.md) for:
+
 - Social network implementation
 - Error handling patterns
 - Connection pooling
@@ -306,7 +330,9 @@ See [Integration Guide](./integration-guide.md) for:
 - Production best practices
 
 ### Gremlin Examples
+
 See [Gremlin API Reference](./gremlin-api.md) for:
+
 - Basic CRUD operations
 - Complex traversals
 - Graph algorithms
@@ -318,6 +344,7 @@ See [Gremlin API Reference](./gremlin-api.md) for:
 ## Tools and Utilities
 
 ### API Testing
+
 ```bash
 # Using curl
 curl -X GET http://localhost:8182/health
@@ -330,6 +357,7 @@ http GET http://localhost:8182/v1/vertices X-API-Key:your-key
 ```
 
 ### Code Generation
+
 ```bash
 # Generate Python client
 openapi-generator-cli generate -i openapi.yaml -g python
@@ -342,6 +370,7 @@ openapi-generator-cli generate -i openapi.yaml -g typescript-axios
 ```
 
 ### Documentation Viewing
+
 ```bash
 # Swagger UI
 docker run -p 8080:8080 -e SWAGGER_JSON=/docs/openapi.yaml \
@@ -359,6 +388,7 @@ docker run -p 8080:80 -e SPEC_URL=/docs/openapi.yaml \
 ## Performance Guidelines
 
 ### Query Optimization
+
 1. Use indexed properties in `has()` steps
 2. Limit results early in traversals
 3. Use batch operations for bulk inserts
@@ -366,6 +396,7 @@ docker run -p 8080:80 -e SPEC_URL=/docs/openapi.yaml \
 5. Profile queries with `.profile()`
 
 ### Best Practices
+
 1. Always close connections
 2. Use context managers
 3. Handle errors gracefully
@@ -379,6 +410,7 @@ docker run -p 8080:80 -e SPEC_URL=/docs/openapi.yaml \
 ## Monitoring and Observability
 
 ### Metrics Available
+
 - Vertex/edge counts
 - Query execution times
 - Error rates
@@ -386,13 +418,17 @@ docker run -p 8080:80 -e SPEC_URL=/docs/openapi.yaml \
 - System resource usage
 
 ### Distributed Tracing
+
 All API calls include trace IDs for distributed tracing:
-- Jaeger UI: http://localhost:16686
+
+- Jaeger UI: <http://localhost:16686>
 - Trace ID in response headers: `X-Trace-Id`
 - Trace ID in error responses: `traceId` field
 
 ### Logging
+
 Structured logs include:
+
 - Request ID
 - Trace ID
 - User ID
@@ -404,20 +440,23 @@ Structured logs include:
 ## Support and Resources
 
 ### Documentation
+
 - [Architecture Documentation](../architecture/README.md)
 - Deployment Guide (see Getting Started)
 - Troubleshooting (see [Operations Runbook](../operations/operations-runbook.md))
 - `SECURITY.md` (root) - Security guidelines
 
 ### External Resources
+
 - [JanusGraph Documentation](https://docs.janusgraph.org/)
 - [Apache TinkerPop](https://tinkerpop.apache.org/)
 - [Gremlin Recipes](https://tinkerpop.apache.org/docs/current/recipes/)
 - [OpenAPI Specification](https://swagger.io/specification/)
 
 ### Community
+
 - GitHub Issues: [Project Repository]
-- Email: support@example.com
+- Email: <support@example.com>
 - Slack: [Community Slack]
 - Stack Overflow: Tag `janusgraph`
 
@@ -426,6 +465,7 @@ Structured logs include:
 ## Version History
 
 ### v1.0.0 (Current)
+
 - Initial API release
 - REST endpoints for CRUD operations
 - Gremlin query execution
@@ -434,6 +474,7 @@ Structured logs include:
 - Comprehensive documentation
 
 ### Upcoming Features
+
 - GraphQL API support
 - Bulk import/export endpoints
 - Advanced analytics endpoints
@@ -448,6 +489,6 @@ This documentation is part of the HCD JanusGraph project and is licensed under t
 
 ---
 
-**Last Updated:** 2026-01-28  
-**API Version:** 1.0.0  
+**Last Updated:** 2026-01-28
+**API Version:** 1.0.0
 **Documentation Version:** 1.0.0

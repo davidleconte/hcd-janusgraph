@@ -8,10 +8,10 @@ Created: 2026-01-28
 Author: Security Remediation Team
 """
 
+import logging
 import os
 import sys
-from typing import Optional, Dict, Any
-import logging
+from typing import Any, Dict, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,40 +26,40 @@ class SecretsManager:
     def __init__(self, backend: str = "env"):
         """
         Initialize secrets manager with specified backend.
-        
+
         Args:
             backend: One of 'env', 'vault', 'aws' (default: 'env')
         """
         self.backend = backend.lower()
         self._client = None
-        
+
         if self.backend == "vault":
             self._init_vault()
         elif self.backend == "aws":
             self._init_aws()
         elif self.backend != "env":
             raise ValueError(f"Unsupported backend: {backend}")
-        
+
         logger.info("Secrets manager initialized with backend: %s", self.backend)
 
     def _init_vault(self) -> None:
         """Initialize HashiCorp Vault client"""
         try:
             import hvac
-            
+
             vault_addr = os.getenv("VAULT_ADDR", "http://localhost:8200")
             vault_token = os.getenv("VAULT_TOKEN")
-            
+
             if not vault_token:
                 raise ValueError("VAULT_TOKEN environment variable not set")
-            
+
             self._client = hvac.Client(url=vault_addr, token=vault_token)
-            
+
             if not self._client.is_authenticated():
                 raise ValueError("Vault authentication failed")
-            
+
             logger.info("Connected to Vault at %s", vault_addr)
-            
+
         except ImportError:
             logger.error("hvac library not installed. Install with: pip install hvac")
             raise
@@ -72,12 +72,12 @@ class SecretsManager:
         try:
             import boto3
             from botocore.exceptions import ClientError
-            
+
             region = os.getenv("AWS_REGION", "us-east-1")
             self._client = boto3.client("secretsmanager", region_name=region)
-            
+
             logger.info("Connected to AWS Secrets Manager in %s", region)
-            
+
         except ImportError:
             logger.error("boto3 library not installed. Install with: pip install boto3")
             raise
@@ -88,14 +88,14 @@ class SecretsManager:
     def get_secret(self, secret_name: str, default: Optional[str] = None) -> Optional[str]:
         """
         Retrieve secret value from configured backend.
-        
+
         Args:
             secret_name: Name/path of the secret
             default: Default value if secret not found
-            
+
         Returns:
             Secret value or default
-            
+
         Raises:
             ValueError: If secret not found and no default provided
         """
@@ -126,15 +126,15 @@ class SecretsManager:
             # Vault path format: secret/data/path/to/secret
             response = self._client.secrets.kv.v2.read_secret_version(path=secret_path)
             data = response["data"]["data"]
-            
+
             # If secret_path contains a key (e.g., "myapp/db:password"), extract it
             if ":" in secret_path:
                 path, key = secret_path.rsplit(":", 1)
                 return data.get(key)
-            
+
             # Otherwise return the whole secret data
             return data.get("value") or str(data)
-            
+
         except Exception as e:
             logger.error("Failed to read from Vault: %s", e)
             if default is not None:
@@ -145,23 +145,24 @@ class SecretsManager:
         """Get secret from AWS Secrets Manager"""
         try:
             from botocore.exceptions import ClientError
-            
+
             response = self._client.get_secret_value(SecretId=secret_name)
-            
+
             # Secrets can be string or binary
             if "SecretString" in response:
                 return response["SecretString"]
             else:
                 import base64
+
                 return base64.b64decode(response["SecretBinary"]).decode("utf-8")
-                
+
         except ClientError as e:
             error_code = e.response["Error"]["Code"]
             if error_code == "ResourceNotFoundException":
                 logger.error("Secret '%s' not found in AWS Secrets Manager", secret_name)
             else:
                 logger.error("AWS Secrets Manager error: %s", e)
-            
+
             if default is not None:
                 return default
             raise ValueError(f"Secret '{secret_name}' not found in AWS Secrets Manager")
@@ -169,20 +170,20 @@ class SecretsManager:
     def set_secret(self, secret_name: str, secret_value: str) -> bool:
         """
         Store secret in configured backend.
-        
+
         Args:
             secret_name: Name/path of the secret
             secret_value: Secret value to store
-            
+
         Returns:
             True if successful
-            
+
         Note:
             Not supported for 'env' backend
         """
         if self.backend == "env":
             raise NotImplementedError("Cannot set secrets in environment backend")
-        
+
         try:
             if self.backend == "vault":
                 return self._set_in_vault(secret_name, secret_value)
@@ -196,8 +197,7 @@ class SecretsManager:
         """Store secret in HashiCorp Vault"""
         try:
             self._client.secrets.kv.v2.create_or_update_secret(
-                path=secret_path,
-                secret={"value": secret_value}
+                path=secret_path, secret={"value": secret_value}
             )
             logger.info("Secret '%s' stored in Vault", secret_path)
             return True
@@ -209,27 +209,21 @@ class SecretsManager:
         """Store secret in AWS Secrets Manager"""
         try:
             from botocore.exceptions import ClientError
-            
+
             try:
                 # Try to update existing secret
-                self._client.update_secret(
-                    SecretId=secret_name,
-                    SecretString=secret_value
-                )
+                self._client.update_secret(SecretId=secret_name, SecretString=secret_value)
                 logger.info("Secret '%s' updated in AWS Secrets Manager", secret_name)
             except ClientError as e:
                 if e.response["Error"]["Code"] == "ResourceNotFoundException":
                     # Create new secret
-                    self._client.create_secret(
-                        Name=secret_name,
-                        SecretString=secret_value
-                    )
+                    self._client.create_secret(Name=secret_name, SecretString=secret_value)
                     logger.info("Secret '%s' created in AWS Secrets Manager", secret_name)
                 else:
                     raise
-            
+
             return True
-            
+
         except Exception as e:
             logger.error("Failed to store in AWS Secrets Manager: %s", e)
             raise
@@ -237,19 +231,16 @@ class SecretsManager:
     def get_all_secrets(self, prefix: str = "") -> Dict[str, str]:
         """
         Retrieve all secrets with optional prefix.
-        
+
         Args:
             prefix: Filter secrets by prefix
-            
+
         Returns:
             Dictionary of secret names and values
         """
         if self.backend == "env":
             # Return all environment variables matching prefix
-            return {
-                k: v for k, v in os.environ.items()
-                if k.startswith(prefix)
-            }
+            return {k: v for k, v in os.environ.items() if k.startswith(prefix)}
         elif self.backend == "vault":
             # List and retrieve all secrets under path
             try:
@@ -281,22 +272,28 @@ class SecretsManager:
 def main():
     """CLI interface for secrets management"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Secrets Management Utility")
-    parser.add_argument("--backend", choices=["env", "vault", "aws"], default="env",
-                       help="Secrets backend to use")
-    parser.add_argument("--get", metavar="SECRET_NAME",
-                       help="Retrieve a secret")
-    parser.add_argument("--set", nargs=2, metavar=("SECRET_NAME", "SECRET_VALUE"),
-                       help="Store a secret")
-    parser.add_argument("--list", metavar="PREFIX", nargs="?", const="",
-                       help="List all secrets (optionally with prefix)")
-    
+    parser.add_argument(
+        "--backend", choices=["env", "vault", "aws"], default="env", help="Secrets backend to use"
+    )
+    parser.add_argument("--get", metavar="SECRET_NAME", help="Retrieve a secret")
+    parser.add_argument(
+        "--set", nargs=2, metavar=("SECRET_NAME", "SECRET_VALUE"), help="Store a secret"
+    )
+    parser.add_argument(
+        "--list",
+        metavar="PREFIX",
+        nargs="?",
+        const="",
+        help="List all secrets (optionally with prefix)",
+    )
+
     args = parser.parse_args()
-    
+
     try:
         sm = SecretsManager(backend=args.backend)
-        
+
         if args.get:
             value = sm.get_secret(args.get)
             print(value)
@@ -309,7 +306,7 @@ def main():
                 print(f"{name}: {'*' * 8}")  # Don't print actual values
         else:
             parser.print_help()
-            
+
     except Exception as e:
         logger.error("Error: %s", e)
         sys.exit(1)

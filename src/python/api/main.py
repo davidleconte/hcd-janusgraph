@@ -22,16 +22,15 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, Field
-from slowapi import Limiter
-from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
-
 from gremlin_python.driver import serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import P, T
+from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from src.python.config.settings import Settings, get_settings
 
@@ -58,9 +57,7 @@ def _configure_logging(settings: Settings) -> None:
             rename_fields={"asctime": "timestamp", "levelname": "level"},
         )
     else:
-        formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s - %(message)s")
 
     handler.setFormatter(formatter)
     root.addHandler(handler)
@@ -76,6 +73,7 @@ logger = logging.getLogger(__name__)
 
 class ErrorResponse(BaseModel):
     """Standard error envelope returned by all error handlers."""
+
     error: str
     detail: str
     status_code: int
@@ -84,12 +82,14 @@ class ErrorResponse(BaseModel):
 
 class PaginationParams(BaseModel):
     """Reusable pagination parameters."""
+
     offset: int = Field(0, ge=0, description="Number of items to skip")
     limit: int = Field(50, ge=1, le=500, description="Maximum items to return")
 
 
 class HealthResponse(BaseModel):
     """Health check response"""
+
     status: str
     timestamp: str
     services: Dict[str, bool]
@@ -97,11 +97,13 @@ class HealthResponse(BaseModel):
 
 class LivenessResponse(BaseModel):
     """Liveness probe – confirms process is alive."""
+
     status: str = "ok"
 
 
 class UBORequest(BaseModel):
     """Request for UBO discovery"""
+
     company_id: str = Field(..., description="Company ID to analyze")
     include_indirect: bool = Field(True, description="Include indirect ownership")
     max_depth: int = Field(10, description="Maximum ownership chain depth", ge=1, le=20)
@@ -112,6 +114,7 @@ class UBORequest(BaseModel):
 
 class UBOOwner(BaseModel):
     """Ultimate Beneficial Owner"""
+
     person_id: str
     name: str
     ownership_percentage: float
@@ -121,6 +124,7 @@ class UBOOwner(BaseModel):
 
 class UBOResponse(BaseModel):
     """UBO discovery response"""
+
     target_entity_id: str
     target_entity_name: str
     ubos: List[UBOOwner]
@@ -132,6 +136,7 @@ class UBOResponse(BaseModel):
 
 class StructuringAlertRequest(BaseModel):
     """Request for structuring detection"""
+
     account_id: Optional[str] = Field(None, description="Specific account to analyze")
     time_window_days: int = Field(7, description="Days to analyze", ge=1, le=90)
     threshold_amount: float = Field(10000.0, description="CTR threshold amount")
@@ -142,6 +147,7 @@ class StructuringAlertRequest(BaseModel):
 
 class StructuringAlert(BaseModel):
     """Structuring pattern alert"""
+
     account_id: str
     account_holder: str
     total_amount: float
@@ -153,6 +159,7 @@ class StructuringAlert(BaseModel):
 
 class StructuringResponse(BaseModel):
     """Structuring detection response"""
+
     alerts: List[StructuringAlert]
     total_alerts: int
     analysis_period: str
@@ -161,6 +168,7 @@ class StructuringResponse(BaseModel):
 
 class NetworkNode(BaseModel):
     """Node in ownership network"""
+
     id: str
     label: str
     name: str
@@ -169,6 +177,7 @@ class NetworkNode(BaseModel):
 
 class NetworkEdge(BaseModel):
     """Edge in ownership network"""
+
     source: str
     target: str
     label: str
@@ -177,6 +186,7 @@ class NetworkEdge(BaseModel):
 
 class NetworkResponse(BaseModel):
     """Ownership network for visualization"""
+
     nodes: List[NetworkNode]
     edges: List[NetworkEdge]
     center_entity: str
@@ -184,6 +194,7 @@ class NetworkResponse(BaseModel):
 
 class GraphStatsResponse(BaseModel):
     """Graph statistics"""
+
     vertex_count: int
     edge_count: int
     person_count: int
@@ -271,6 +282,7 @@ async def lifespan(app: FastAPI):
     _configure_logging(settings)
 
     from src.python.utils.startup_validation import validate_startup
+
     result = validate_startup(strict=False)
     if result.has_errors:
         for issue in result.issues:
@@ -280,6 +292,7 @@ async def lifespan(app: FastAPI):
         logger.warning("Startup validation: %s", issue.message)
 
     from src.python.utils.tracing import TracingConfig, initialize_tracing
+
     tracing_config = TracingConfig(
         service_name="graph-analytics-api",
         enabled=settings.tracing_enabled,
@@ -288,6 +301,7 @@ async def lifespan(app: FastAPI):
 
     try:
         from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
         FastAPIInstrumentor.instrument_app(app)
     except Exception:
         logger.debug("opentelemetry-instrumentation-fastapi not installed, skipping")
@@ -410,9 +424,7 @@ def graph_stats(request: Request):
         "transaction_count": g.V().hasLabel("transaction").count().next(),
     }
 
-    return GraphStatsResponse(
-        **stats, last_updated=datetime.now(timezone.utc).isoformat()
-    )
+    return GraphStatsResponse(**stats, last_updated=datetime.now(timezone.utc).isoformat())
 
 
 # ===========================================================================
@@ -440,9 +452,7 @@ def discover_ubo(request: Request, body: UBORequest):
 
     company = g.V().has("company_id", body.company_id).valueMap(True).toList()
     if not company:
-        raise HTTPException(
-            status_code=404, detail=f"Company not found: {body.company_id}"
-        )
+        raise HTTPException(status_code=404, detail=f"Company not found: {body.company_id}")
 
     company_info = _flatten_value_map(company[0])
 
@@ -475,9 +485,7 @@ def discover_ubo(request: Request, body: UBORequest):
     risk_score = 0.0
     if not ubos:
         risk_score += 20
-        high_risk_indicators.append(
-            "No beneficial owners identified above threshold"
-        )
+        high_risk_indicators.append("No beneficial owners identified above threshold")
 
     query_time = (time.time() - start_time) * 1000
 
@@ -509,9 +517,7 @@ def get_ownership_network(
     g = get_graph_connection()
 
     if not g.V().has("company_id", company_id).hasNext():
-        raise HTTPException(
-            status_code=404, detail=f"Company not found: {company_id}"
-        )
+        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
 
     nodes: List[NetworkNode] = []
     edges: List[NetworkEdge] = []
@@ -524,21 +530,14 @@ def get_ownership_network(
         NetworkNode(
             id=company_id,
             label="company",
-            name=company_flat.get(
-                "legal_name", company_flat.get("company_name", "Unknown")
-            ),
+            name=company_flat.get("legal_name", company_flat.get("company_name", "Unknown")),
             type="company",
         )
     )
     visited.add(company_id)
 
     owners = (
-        g.V()
-        .has("company_id", company_id)
-        .inE("beneficial_owner")
-        .outV()
-        .valueMap(True)
-        .toList()
+        g.V().has("company_id", company_id).inE("beneficial_owner").outV().valueMap(True).toList()
     )
 
     for owner in owners:
@@ -557,11 +556,7 @@ def get_ownership_network(
                     type="person",
                 )
             )
-            edges.append(
-                NetworkEdge(
-                    source=person_id, target=company_id, label="beneficial_owner"
-                )
-            )
+            edges.append(NetworkEdge(source=person_id, target=company_id, label="beneficial_owner"))
 
     return NetworkResponse(nodes=nodes, edges=edges, center_entity=company_id)
 
@@ -621,8 +616,7 @@ def detect_structuring(request: Request, body: StructuringAlertRequest):
             if threshold_low <= avg_amount < body.threshold_amount:
                 risk_score = min(
                     100,
-                    (txn_count * 10)
-                    + ((body.threshold_amount - avg_amount) / 100),
+                    (txn_count * 10) + ((body.threshold_amount - avg_amount) / 100),
                 )
                 alerts.append(
                     StructuringAlert(

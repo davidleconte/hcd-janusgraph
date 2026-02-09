@@ -1,8 +1,9 @@
 # Production Deployment Guide
+
 ## Banking Compliance & Fraud Detection System
 
-**Version:** 1.0  
-**Date:** 2026-01-28  
+**Version:** 1.0
+**Date:** 2026-01-28
 **Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 
 ---
@@ -11,7 +12,7 @@
 
 This guide provides step-by-step instructions for deploying the banking compliance and fraud detection system to production. The system delivers $750K annual value through AI-powered AML compliance and fraud prevention.
 
-**Deployment Time:** 2-4 hours  
+**Deployment Time:** 2-4 hours
 **Prerequisites:** Docker, Conda, 16GB RAM, 50GB disk space
 
 ---
@@ -79,6 +80,7 @@ sleep 60
 ```
 
 **Expected Output:**
+
 ```
 hcd is up and running
 Listening for CQL clients on port 9042
@@ -107,6 +109,7 @@ curl -X GET "http://localhost:9200/_cat/plugins?v"
 ```
 
 **Expected Output:**
+
 ```
 name              component version
 opensearch-node   jvector   3.3.4
@@ -132,6 +135,7 @@ curl -X POST "http://localhost:8182" \
 ```
 
 **Expected Output:**
+
 ```
 {"result":{"data":[0],"meta":{}}}
 ```
@@ -176,6 +180,7 @@ print(f'gremlin_python: {__version__.version}')
 ```
 
 **Expected Output:**
+
 ```
 ✅ All dependencies installed
 PyTorch: 2.1.0
@@ -201,6 +206,7 @@ docker-compose exec janusgraph bin/gremlin.sh \
 ```
 
 **Expected Output:**
+
 ```
 [Person, Account, Transaction, Address, Phone]
 ```
@@ -276,6 +282,7 @@ docker-compose exec janusgraph bin/gremlin.sh \
 ```
 
 **Expected Output:**
+
 ```
 [100]  # or number of persons loaded
 ```
@@ -324,6 +331,7 @@ python scripts/testing/test_phase5_setup.py
 ```
 
 **Expected Output:**
+
 ```
 ========================================
 PHASE 5 SETUP VERIFICATION
@@ -350,6 +358,7 @@ python banking/aml/sanctions_screening.py
 ```
 
 **Expected Output:**
+
 ```
 ========================================
 SANCTIONS SCREENING MODULE - TEST
@@ -365,6 +374,7 @@ python banking/fraud/fraud_detection.py
 ```
 
 **Expected Output:**
+
 ```
 ========================================
 FRAUD DETECTION MODULE - TEST
@@ -455,6 +465,7 @@ PYTHON
 ```
 
 **Expected Performance:**
+
 - Embedding generation: <50ms
 - Vector search: <20ms
 
@@ -499,6 +510,7 @@ PYTHON
 **Problem:** OpenSearch fails to start or is not accessible
 
 **Solutions:**
+
 ```bash
 # Check logs
 docker-compose logs opensearch
@@ -522,6 +534,7 @@ sudo chown -R 1000:1000 data/opensearch
 **Problem:** Cannot connect to JanusGraph
 
 **Solutions:**
+
 ```bash
 # Check if HCD is ready
 docker-compose exec hcd nodetool status
@@ -538,6 +551,7 @@ docker-compose restart janusgraph
 **Problem:** Dependencies not installing
 
 **Solutions:**
+
 ```bash
 # Clean conda cache
 conda clean --all
@@ -620,12 +634,13 @@ docker-compose up -d
 
 Following this guide will deploy a production-ready banking compliance and fraud detection system delivering:
 
-✅ **$750K annual value**  
-✅ **93% detection accuracy**  
-✅ **Sub-second performance**  
-✅ **Full regulatory compliance**  
+✅ **$750K annual value**
+✅ **93% detection accuracy**
+✅ **Sub-second performance**
+✅ **Full regulatory compliance**
 
 **Next Steps:**
+
 1. Complete deployment checklist
 2. Run all validation tests
 3. Monitor for 24 hours
@@ -635,6 +650,6 @@ Following this guide will deploy a production-ready banking compliance and fraud
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-28  
+**Document Version:** 1.0
+**Last Updated:** 2026-01-28
 **Status:** Production Ready

@@ -1,8 +1,8 @@
 # Project Handoff Documentation
 
-**Project**: HCD JanusGraph - Security & Performance Remediation  
-**Version**: 2.0.0  
-**Date**: 2026-01-28  
+**Project**: HCD JanusGraph - Security & Performance Remediation
+**Version**: 2.0.0
+**Date**: 2026-01-28
 **Status**: ✅ PRODUCTION READY
 
 ---
@@ -56,6 +56,7 @@ This document provides comprehensive handoff information for the HCD JanusGraph 
 ### Purpose
 
 HCD JanusGraph provides a scalable, secure graph database platform for complex relationship analysis, supporting use cases including:
+
 - Anti-Money Laundering (AML) detection
 - Fraud detection and prevention
 - Social network analysis
@@ -65,24 +66,28 @@ HCD JanusGraph provides a scalable, secure graph database platform for complex r
 ### Technology Stack
 
 **Core Components:**
+
 - **JanusGraph 1.0.0**: Distributed graph database
 - **HCD 1.2.3** (Cassandra): Storage backend
 - **Python 3.8-3.11**: Client libraries and utilities
 - **Gremlin**: Graph traversal language
 
 **Security:**
+
 - JWT authentication with MFA support
 - RBAC with 5 default roles
 - TLS/SSL encryption (all communications)
 - Comprehensive audit logging
 
 **Monitoring:**
+
 - Prometheus: Metrics collection
 - Grafana: Visualization and dashboards
 - Jaeger: Distributed tracing
 - Loki: Log aggregation
 
 **Development:**
+
 - GitHub Actions: CI/CD pipeline
 - Pre-commit hooks: Code quality
 - pytest: Testing framework
@@ -95,8 +100,8 @@ HCD JanusGraph provides a scalable, secure graph database platform for complex r
 - **Phase 3** (Weeks 5-9): Advanced features + optimization
 - **Phase 4** (Weeks 10-12): Code quality + documentation
 
-**Total Duration**: 12 weeks  
-**Total Investment**: $12.19 in API costs  
+**Total Duration**: 12 weeks
+**Total Investment**: $12.19 in API costs
 **Team Size**: 1 senior engineer (David Leconte)
 
 ---
@@ -188,11 +193,13 @@ Internet
 **Location**: `src/python/security/`
 
 **Components:**
+
 - `auth.py`: JWT token generation and validation
 - `mfa.py`: TOTP-based multi-factor authentication
 - `rbac.py`: Role-based access control engine
 
 **Key Features:**
+
 - JWT tokens (15-min access, 7-day refresh)
 - 5 default roles (admin, developer, analyst, user, auditor)
 - 15+ granular permissions
@@ -200,6 +207,7 @@ Internet
 - Context-aware policy evaluation
 
 **Configuration:**
+
 ```yaml
 # config/security.yml
 jwt:
@@ -224,11 +232,13 @@ rbac:
 **Location**: `src/python/performance/`
 
 **Components:**
+
 - `query_cache.py`: LRU-based query caching
 - `query_profiler.py`: Performance profiling and analysis
 - `benchmark.py`: Load testing and benchmarking
 
 **Key Features:**
+
 - 70-90% cache hit rate
 - Automatic cache invalidation
 - Query profiling with optimization hints
@@ -236,6 +246,7 @@ rbac:
 - Load testing capabilities
 
 **Configuration:**
+
 ```yaml
 # config/performance.yml
 cache:
@@ -255,17 +266,20 @@ profiler:
 **Location**: `src/python/utils/tracing.py`
 
 **Components:**
+
 - OpenTelemetry SDK integration
 - Jaeger exporter
 - Automatic instrumentation
 
 **Key Features:**
+
 - End-to-end request tracing
 - Automatic span creation
 - Context propagation
 - Integration with Prometheus
 
 **Configuration:**
+
 ```yaml
 # config/tracing/otel-collector-config.yml
 receivers:
@@ -281,7 +295,7 @@ exporters:
     endpoint: jaeger:14250
     tls:
       insecure: true
-  
+
   prometheus:
     endpoint: 0.0.0.0:8889
 ```
@@ -291,12 +305,14 @@ exporters:
 **Location**: `config/monitoring/`
 
 **Components:**
+
 - Prometheus metrics collection
 - Grafana dashboards
 - Alert rules
 - Log aggregation (Loki)
 
 **Key Metrics:**
+
 - Query latency (P50, P95, P99)
 - Throughput (QPS)
 - Error rate
@@ -304,6 +320,7 @@ exporters:
 - Resource utilization
 
 **Dashboards:**
+
 1. System Overview
 2. Query Performance
 3. Security Metrics
@@ -354,6 +371,7 @@ exporters:
 ### Compliance
 
 **GDPR Compliance:**
+
 - Data retention policies (7-90 days)
 - Right to erasure implemented
 - Data portability supported
@@ -361,6 +379,7 @@ exporters:
 - Consent management
 
 **SOC 2 Type II:**
+
 - 100% control coverage
 - Continuous monitoring
 - Incident response procedures
@@ -374,12 +393,14 @@ exporters:
 ### Query Performance
 
 **Improvements:**
+
 - 70% faster query response times
 - 4x throughput increase
 - 50% memory reduction
 - 70-90% cache hit rate
 
 **Optimization Techniques:**
+
 1. **Query Caching**: LRU cache with TTL
 2. **Index Optimization**: Composite and mixed indexes
 3. **Connection Pooling**: Reuse connections
@@ -389,6 +410,7 @@ exporters:
 ### Infrastructure Optimization
 
 **JVM Tuning:**
+
 ```bash
 # config/janusgraph/jvm-server.options
 -Xms4G
@@ -399,6 +421,7 @@ exporters:
 ```
 
 **Cassandra Tuning:**
+
 ```yaml
 # config/janusgraph/janusgraph-hcd.properties
 storage.cql.read-consistency-level=QUORUM
@@ -415,6 +438,7 @@ cache.db-cache-clean-wait=20
 ### Daily Operations
 
 **Morning Checklist:**
+
 1. Check system health: `curl https://api/health`
 2. Review overnight alerts
 3. Check error rates in Grafana
@@ -422,20 +446,23 @@ cache.db-cache-clean-wait=20
 5. Review audit logs for anomalies
 
 **Monitoring:**
-- Grafana dashboards: https://grafana:3000
-- Prometheus: https://prometheus:9090
-- Jaeger: https://jaeger:16686
+
+- Grafana dashboards: <https://grafana:3000>
+- Prometheus: <https://prometheus:9090>
+- Jaeger: <https://jaeger:16686>
 - Logs: `docker-compose logs -f`
 
 ### Backup & Recovery
 
 **Automated Backups:**
+
 - **Frequency**: Daily at 2 AM UTC
 - **Retention**: 30 days
 - **Encryption**: GPG (AES-256)
 - **Location**: `/backups/` volume
 
 **Manual Backup:**
+
 ```bash
 # Full backup
 ./scripts/backup/backup_volumes.sh
@@ -444,12 +471,13 @@ cache.db-cache-clean-wait=20
 ./scripts/backup/restore_volumes.sh /backups/backup-2026-01-28.tar.gz.gpg
 ```
 
-**Recovery Time Objective (RTO)**: 4 hours  
+**Recovery Time Objective (RTO)**: 4 hours
 **Recovery Point Objective (RPO)**: 24 hours
 
 ### Incident Response
 
 **Severity Levels:**
+
 - **P0 (Critical)**: System down, data loss
 - **P1 (High)**: Major functionality impaired
 - **P2 (Medium)**: Minor functionality impaired
@@ -499,6 +527,7 @@ feature/xxx (feature branches)
 ```
 
 **Branch Naming:**
+
 - `feature/xxx`: New features
 - `bugfix/xxx`: Bug fixes
 - `hotfix/xxx`: Production hotfixes
@@ -595,18 +624,21 @@ curl https://api/health
 ### Key Metrics
 
 **System Health:**
+
 - CPU usage < 80%
 - Memory usage < 85%
 - Disk usage < 80%
 - Network latency < 50ms
 
 **Application Performance:**
+
 - Query latency P95 < 200ms
 - Error rate < 1%
 - Cache hit rate > 70%
 - Throughput > 300 QPS
 
 **Security:**
+
 - Failed auth attempts < 10/min
 - Rate limit violations < 5/min
 - Audit log gaps = 0
@@ -615,18 +647,21 @@ curl https://api/health
 ### Alert Rules
 
 **Critical Alerts (P0):**
+
 - System down
 - Database unreachable
 - Certificate expired
 - Backup failed
 
 **High Priority Alerts (P1):**
+
 - Error rate > 5%
 - Latency P95 > 1000ms
 - Disk usage > 90%
 - Memory usage > 95%
 
 **Medium Priority Alerts (P2):**
+
 - Cache hit rate < 50%
 - Failed auth attempts > 20/min
 - Slow queries > 10/min
@@ -665,11 +700,13 @@ curl https://api/health
 #### Issue 1: High Query Latency
 
 **Symptoms:**
+
 - P95 latency > 1000ms
 - Slow dashboard loading
 - User complaints
 
 **Diagnosis:**
+
 ```bash
 # Check query profiler
 curl https://api/metrics/queries/slow
@@ -682,6 +719,7 @@ docker exec hcd nodetool status
 ```
 
 **Solutions:**
+
 1. Clear cache: `curl -X POST https://api/cache/clear`
 2. Add indexes: Review slow queries and add indexes
 3. Scale horizontally: Add more JanusGraph instances
@@ -690,11 +728,13 @@ docker exec hcd nodetool status
 #### Issue 2: Authentication Failures
 
 **Symptoms:**
+
 - 401 Unauthorized errors
 - Users unable to login
 - Token validation failures
 
 **Diagnosis:**
+
 ```bash
 # Check JWT secret
 echo $JWT_SECRET_KEY
@@ -707,6 +747,7 @@ docker-compose logs auth-service
 ```
 
 **Solutions:**
+
 1. Verify JWT secret is set correctly
 2. Check token expiration times
 3. Verify MFA configuration
@@ -715,11 +756,13 @@ docker-compose logs auth-service
 #### Issue 3: Memory Issues
 
 **Symptoms:**
+
 - OOM errors
 - Slow performance
 - Container restarts
 
 **Diagnosis:**
+
 ```bash
 # Check memory usage
 docker stats
@@ -732,6 +775,7 @@ curl https://api/metrics/cache/size
 ```
 
 **Solutions:**
+
 1. Increase JVM heap: Edit `jvm-server.options`
 2. Reduce cache size: Edit `performance.yml`
 3. Add more memory to containers
@@ -772,29 +816,33 @@ curl https://api/metrics/cache/size
 ### Core Team
 
 **Project Lead:**
+
 - Name: David Leconte
-- Email: bob@ibm.com
+- Email: <bob@ibm.com>
 - Slack: @ibm-bob
 - Timezone: UTC
 
 **Security Team:**
-- Email: security@example.com
+
+- Email: <security@example.com>
 - Slack: #security
 - On-call: PagerDuty
 
 **Operations Team:**
-- Email: ops@example.com
+
+- Email: <ops@example.com>
 - Slack: #operations
 - On-call: PagerDuty
 
 **Development Team:**
-- Email: dev@example.com
+
+- Email: <dev@example.com>
 - Slack: #development
 
 ### Escalation Path
 
 1. **L1 Support**: Slack #janusgraph-support
-2. **L2 Support**: Email ops@example.com
+2. **L2 Support**: Email <ops@example.com>
 3. **L3 Support**: On-call engineer (PagerDuty)
 4. **Emergency**: Call +1-{PHONE-NUMBER}
 
@@ -907,11 +955,12 @@ curl https://api/metrics/cache/size
 
 ### Project Completion
 
-**Completed By**: David Leconte  
-**Date**: 2026-01-28  
+**Completed By**: David Leconte
+**Date**: 2026-01-28
 **Status**: ✅ PRODUCTION READY
 
 **Acceptance Criteria Met:**
+
 - [x] All P0 issues resolved
 - [x] Security compliance achieved
 - [x] Performance targets met
@@ -921,14 +970,14 @@ curl https://api/metrics/cache/size
 
 ### Handoff Acceptance
 
-**Accepted By**: ___________________  
-**Date**: ___________________  
+**Accepted By**: ___________________
+**Date**: ___________________
 **Signature**: ___________________
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2026-01-28  
+**Document Version**: 1.0
+**Last Updated**: 2026-01-28
 **Next Review**: 2026-04-28
 
 ---

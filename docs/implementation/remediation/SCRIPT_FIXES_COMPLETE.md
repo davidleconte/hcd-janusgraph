@@ -1,7 +1,7 @@
 # Script Security Fixes - Complete Report
 
-**Date:** 2026-01-29  
-**Status:** ✅ Complete  
+**Date:** 2026-01-29
+**Status:** ✅ Complete
 **Severity:** CRITICAL & HIGH Issues Resolved
 
 ---
@@ -11,6 +11,7 @@
 All CRITICAL and HIGH severity issues identified in the shell script audit have been successfully resolved. The fixes address security vulnerabilities, operational safety, and code reliability issues across 5 critical scripts.
 
 ### Issues Fixed: 7/7 (100%)
+
 - **CRITICAL:** 1/1 ✅
 - **HIGH:** 6/6 ✅
 
@@ -20,16 +21,18 @@ All CRITICAL and HIGH severity issues identified in the shell script audit have 
 
 ### 1. ✅ CRITICAL: JMX Port Exposure (Security)
 
-**File:** `scripts/...`  
-**Issue:** Line 108 exposed JMX port 7199 externally, creating security vulnerability  
+**File:** `scripts/...`
+**Issue:** Line 108 exposed JMX port 7199 externally, creating security vulnerability
 **Impact:** Remote attackers could access JMX interface without authentication
 
 **Fix Applied:**
+
 ```bash
 # REMOVED: -p 17199:7199 \  # JMX - Use SSH tunnel instead
 ```
 
 **Verification:**
+
 - JMX port no longer exposed in container configuration
 - Access requires SSH tunnel as documented in security guidelines
 - Aligns with enterprise security best practices
@@ -38,13 +41,15 @@ All CRITICAL and HIGH severity issues identified in the shell script audit have 
 
 ### 2. ✅ HIGH: Jupyter Script Syntax Error
 
-**File:** `scripts/...`  
+**File:** `scripts/...`
 **Issues:**
+
 - Line 45: Duplicate `fi` statement causing syntax error
 - Line 52: Incorrect Dockerfile path
 - Lines 56-58: Hardcoded volume paths instead of using `$PROJECT_ROOT`
 
 **Fixes Applied:**
+
 ```bash
 # 1. Removed duplicate fi (line 45)
 # 2. Fixed Dockerfile path
@@ -57,6 +62,7 @@ dockerfile: $PROJECT_ROOT/docker/jupyter/Dockerfile
 ```
 
 **Verification:**
+
 - Script passes shellcheck validation
 - Dockerfile path correctly resolves
 - Volume mounts use proper project-relative paths
@@ -65,13 +71,15 @@ dockerfile: $PROJECT_ROOT/docker/jupyter/Dockerfile
 
 ### 3. ✅ HIGH: Backup/Restore Naming Mismatch
 
-**Files:** 
+**Files:**
+
 - `scripts/...`
 - `scripts/...`
 
 **Issue:** Backup creates timestamped files, restore expects non-timestamped files
 
 **Original Behavior:**
+
 ```bash
 # Backup creates:
 hcd_20260128_103000/
@@ -95,6 +103,7 @@ JG_BACKUP="$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
 ```
 
 **Benefits:**
+
 - Eliminates manual file renaming
 - Supports multiple backup versions
 - Lists available backups if parameters missing
@@ -104,7 +113,7 @@ JG_BACKUP="$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
 
 ### 4. ✅ HIGH: Undefined Variable in Python Script
 
-**File:** `src/python/init/initialize_graph.py`  
+**File:** `src/python/init/initialize_graph.py`
 **Issue:** Line 100 referenced undefined `data_script` variable
 
 **Fix Applied:**
@@ -136,6 +145,7 @@ graph.tx().commit()
 ```
 
 **Verification:**
+
 - Variable properly defined before use
 - Sample data includes vertices, edges, and properties
 - Follows same pattern as `schema_script`
@@ -145,8 +155,9 @@ graph.tx().commit()
 
 ### 5. ✅ HIGH: Dangerous Cleanup Script
 
-**File:** `scripts/...`  
+**File:** `scripts/...`
 **Issues:**
+
 - Deleted ALL containers/volumes system-wide
 - No confirmation prompt
 - No scoping to project resources
@@ -154,6 +165,7 @@ graph.tx().commit()
 **Fix Applied:**
 
 **1. Added Confirmation Prompt:**
+
 ```bash
 echo "⚠️  WARNING: This will remove:"
 echo "  - All project containers (janusgraph, hcd, opensearch, vault, etc.)"
@@ -169,6 +181,7 @@ fi
 ```
 
 **2. Project-Scoped Cleanup:**
+
 ```bash
 # Define project prefixes
 PROJECT_PREFIXES=("janusgraph" "hcd" "opensearch" "vault" "prometheus" "grafana" "alertmanager" "jupyter")
@@ -180,6 +193,7 @@ done
 ```
 
 **Benefits:**
+
 - Requires explicit "DELETE" confirmation
 - Only removes project-specific resources
 - Preserves other Podman containers/volumes
@@ -190,12 +204,13 @@ done
 
 ### 6. ✅ HIGH: Vault Token Logging to Stdout
 
-**File:** `scripts/...`  
+**File:** `scripts/...`
 **Issue:** Lines 225-231 printed sensitive tokens and passwords to stdout
 
 **Fix Applied:**
 
 **1. Created Secure Credentials Log:**
+
 ```bash
 CREDENTIALS_LOG="$PROJECT_ROOT/.vault-credentials.log"
 chmod 600 "$CREDENTIALS_LOG" 2>/dev/null || true
@@ -218,6 +233,7 @@ chmod 400 "$CREDENTIALS_LOG"
 ```
 
 **2. Modified Summary Output:**
+
 ```bash
 echo "🔑 Credentials Location:"
 echo "  • Keys file: $VAULT_KEYS_FILE"
@@ -229,6 +245,7 @@ echo "  • After securing, delete: rm $CREDENTIALS_LOG"
 ```
 
 **Security Benefits:**
+
 - Credentials never appear in terminal output
 - Log file has restrictive permissions (400 - read-only)
 - Clear instructions for secure handling
@@ -260,6 +277,7 @@ echo "  • After securing, delete: rm $CREDENTIALS_LOG"
 ## Testing Recommendations
 
 ### 1. Security Testing
+
 ```bash
 # Verify JMX port not exposed
 podman ps | grep hcd-server
@@ -271,6 +289,7 @@ podman ps | grep hcd-server
 ```
 
 ### 2. Operational Testing
+
 ```bash
 # Test backup/restore workflow
 ./scripts/backup/backup_volumes.sh
@@ -284,6 +303,7 @@ TIMESTAMP=$(ls /backups/janusgraph/ | grep hcd_ | head -1 | cut -d_ -f2-)
 ```
 
 ### 3. Functionality Testing
+
 ```bash
 # Test Jupyter script
 ./scripts/deployment/start_jupyter.sh
@@ -326,16 +346,19 @@ python -c "from src.python.init.initialize_graph import load_sample_data; print(
 ## Remaining Recommendations
 
 ### Priority 1: Before Production
+
 1. **External Security Audit** - Validate all security fixes
 2. **End-to-End Testing** - Test complete deployment workflow
 3. **Disaster Recovery Drill** - Validate backup/restore procedures
 
 ### Priority 2: Enhancements
+
 1. **Automated Testing** - Add integration tests for scripts
 2. **Monitoring** - Add script execution monitoring
 3. **Documentation** - Update runbooks with new procedures
 
 ### Priority 3: Future Improvements
+
 1. **Script Linting** - Add shellcheck to CI/CD pipeline
 2. **Credential Rotation** - Automate periodic rotation
 3. **Audit Logging** - Log all script executions
@@ -358,6 +381,7 @@ python -c "from src.python.init.initialize_graph import load_sample_data; print(
 All CRITICAL and HIGH severity issues have been successfully resolved. The system is now significantly more secure, reliable, and production-ready. The overall production readiness score has improved from **B- (72/100)** to **A (95/100)**.
 
 **Next Steps:**
+
 1. Conduct end-to-end deployment testing
 2. Schedule external security audit
 3. Update operational runbooks
@@ -365,6 +389,6 @@ All CRITICAL and HIGH severity issues have been successfully resolved. The syste
 
 ---
 
-**Report Generated:** 2026-01-29T02:16:00Z  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Advanced Mode)  
+**Report Generated:** 2026-01-29T02:16:00Z
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Advanced Mode)
 **Status:** ✅ All Issues Resolved

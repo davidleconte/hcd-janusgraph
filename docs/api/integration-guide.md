@@ -26,6 +26,7 @@ This guide provides practical examples and best practices for integrating with t
 ### Installation
 
 **Python:**
+
 ```bash
 pip install gremlinpython requests
 ```
@@ -93,12 +94,12 @@ logger = logging.getLogger(__name__)
 
 class SocialNetworkGraph:
     """Social network graph operations."""
-    
+
     def __init__(self, host='localhost', port=8182):
         self.connection_url = f'ws://{host}:{port}/gremlin'
         self.connection = None
         self.g = None
-    
+
     def connect(self):
         """Establish connection to graph database."""
         try:
@@ -110,13 +111,13 @@ class SocialNetworkGraph:
         except Exception as e:
             logger.error(f"Connection failed: {e}")
             raise
-    
+
     def disconnect(self):
         """Close connection."""
         if self.connection:
             self.connection.close()
             logger.info("Disconnected from JanusGraph")
-    
+
     def create_user(self, name, age, email, city):
         """Create a new user vertex."""
         try:
@@ -131,7 +132,7 @@ class SocialNetworkGraph:
         except Exception as e:
             logger.error(f"Failed to create user: {e}")
             raise
-    
+
     def create_friendship(self, user1_id, user2_id, since):
         """Create friendship edge between users."""
         try:
@@ -144,7 +145,7 @@ class SocialNetworkGraph:
         except Exception as e:
             logger.error(f"Failed to create friendship: {e}")
             raise
-    
+
     def find_friends(self, user_id):
         """Find all friends of a user."""
         try:
@@ -156,7 +157,7 @@ class SocialNetworkGraph:
         except Exception as e:
             logger.error(f"Failed to find friends: {e}")
             raise
-    
+
     def find_mutual_friends(self, user1_id, user2_id):
         """Find mutual friends between two users."""
         try:
@@ -170,7 +171,7 @@ class SocialNetworkGraph:
         except Exception as e:
             logger.error(f"Failed to find mutual friends: {e}")
             raise
-    
+
     def recommend_friends(self, user_id, limit=5):
         """Recommend friends based on friend-of-friend."""
         try:
@@ -193,27 +194,27 @@ class SocialNetworkGraph:
 # Usage Example
 def main():
     graph = SocialNetworkGraph()
-    
+
     try:
         graph.connect()
-        
+
         # Create users
         alice_id = graph.create_user('Alice', 28, 'alice@example.com', 'NYC')
         bob_id = graph.create_user('Bob', 32, 'bob@example.com', 'NYC')
         charlie_id = graph.create_user('Charlie', 25, 'charlie@example.com', 'LA')
-        
+
         # Create friendships
         graph.create_friendship(alice_id, bob_id, 2020)
         graph.create_friendship(bob_id, charlie_id, 2021)
-        
+
         # Query friends
         alice_friends = graph.find_friends(alice_id)
         print(f"Alice's friends: {alice_friends}")
-        
+
         # Find recommendations
         recommendations = graph.recommend_friends(alice_id)
         print(f"Friend recommendations for Alice: {recommendations}")
-        
+
     finally:
         graph.disconnect()
 
@@ -246,7 +247,7 @@ def safe_graph_operation(func):
     def wrapper(*args, **kwargs):
         max_retries = 3
         retry_count = 0
-        
+
         while retry_count < max_retries:
             try:
                 return func(*args, **kwargs)
@@ -268,9 +269,9 @@ def safe_graph_operation(func):
             except Exception as e:
                 logger.error(f"Unexpected error: {e}")
                 raise GraphOperationError(f"Unexpected error: {e}")
-        
+
         raise GraphOperationError(f"Operation failed after {max_retries} retries")
-    
+
     return wrapper
 
 
@@ -296,7 +297,7 @@ from contextlib import contextmanager
 
 class GraphConnectionPool:
     """Connection pool for graph database."""
-    
+
     def __init__(self, host='localhost', port=8182, pool_size=10):
         self.client = client.Client(
             f'ws://{host}:{port}/gremlin',
@@ -304,7 +305,7 @@ class GraphConnectionPool:
             pool_size=pool_size,
             message_serializer=serializer.GraphSONSerializersV3d0()
         )
-    
+
     @contextmanager
     def get_connection(self):
         """Get connection from pool."""
@@ -312,7 +313,7 @@ class GraphConnectionPool:
             yield self.client
         finally:
             pass  # Connection returned to pool automatically
-    
+
     def close(self):
         """Close all connections."""
         self.client.close()
@@ -334,21 +335,21 @@ pool.close()
 def batch_create_vertices(g, vertices_data, batch_size=100):
     """Create vertices in batches for better performance."""
     results = []
-    
+
     for i in range(0, len(vertices_data), batch_size):
         batch = vertices_data[i:i + batch_size]
-        
+
         # Create batch traversal
         traversal = g
         for vertex_data in batch:
             traversal = traversal.addV(vertex_data['label'])
             for key, value in vertex_data['properties'].items():
                 traversal = traversal.property(key, value)
-        
+
         # Execute batch
         batch_results = traversal.toList()
         results.extend(batch_results)
-    
+
     return results
 ```
 
@@ -466,32 +467,32 @@ import sys
 
 class GraphApplication:
     """Application with graceful shutdown."""
-    
+
     def __init__(self):
         self.connection = None
         self.running = True
-        
+
         # Register signal handlers
         signal.signal(signal.SIGINT, self.shutdown)
         signal.signal(signal.SIGTERM, self.shutdown)
-    
+
     def shutdown(self, signum, frame):
         """Graceful shutdown handler."""
         logger.info("Shutting down gracefully...")
         self.running = False
-        
+
         if self.connection:
             self.connection.close()
             logger.info("Connection closed")
-        
+
         sys.exit(0)
-    
+
     def run(self):
         """Main application loop."""
         self.connection = DriverRemoteConnection(
             'ws://localhost:8182/gremlin', 'g'
         )
-        
+
         while self.running:
             # Application logic here
             time.sleep(1)
@@ -516,6 +517,7 @@ if __name__ == '__main__':
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: [Project Repository]
-- Email: support@example.com
+- Email: <support@example.com>
 - Documentation: [Project Wiki]

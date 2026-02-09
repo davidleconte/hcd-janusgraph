@@ -20,17 +20,17 @@ EXCEPTIONS="README.md|CHANGELOG.md|LICENSE|CONTRIBUTING.md|CODE_OF_CONDUCT.md|SE
 find docs -name "*.md" -type f | while read -r file; do
     filename=$(basename "$file")
     dirname=$(dirname "$file")
-    
+
     # Skip exceptions
     if echo "$filename" | grep -qE "^($EXCEPTIONS)$"; then
         continue
     fi
-    
+
     # Check if filename needs renaming (has uppercase or underscore)
     if echo "$filename" | grep -qE '[A-Z_]'; then
         new_filename=$(to_kebab_case "$filename")
         new_path="$dirname/$new_filename"
-        
+
         if [ "$file" != "$new_path" ]; then
             echo "Renaming: $file -> $new_path"
             git mv "$file" "$new_path" 2>/dev/null || mv "$file" "$new_path"

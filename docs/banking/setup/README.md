@@ -7,11 +7,13 @@ This directory contains setup and configuration documentation for the banking co
 ### Setup Guides
 
 **00_OVERVIEW.md**
+
 - Banking module architecture overview
 - Component relationships
 - Integration points with JanusGraph and OpenSearch
 
 **01_AML_PHASE1_SETUP.md**
+
 - Anti-Money Laundering (AML) module setup
 - Phase 1 implementation guide
 - Data loading and schema configuration
@@ -19,16 +21,19 @@ This directory contains setup and configuration documentation for the banking co
 ## Related Documentation
 
 ### Main Banking Documentation
+
 - **User Guide:** [`../user-guide.md`](../user-guide.md)
 - **API Reference:** [API Reference](../../api/README.md)
 - **Architecture:** [Architecture](../architecture/README.md)
 
 ### Implementation Documentation
+
 - **Phase 5:** Phase 5 (Vector AI)
 - **Phase 8:** Phase 8 Complete
 - **Production Deployment:** Production Deployment Guide
 
 ### Code Modules
+
 - **AML Detection:** [`../../aml/`](../../aml/)
 - **Fraud Detection:** [`../../fraud/`](../../fraud/)
 - **Data Generators:** [`../../data_generators/`](../../data_generators/)
@@ -50,11 +55,12 @@ This directory contains setup and configuration documentation for the banking co
 ## Support
 
 For issues or questions:
+
 - Review troubleshooting sections in setup guides
 - Check main project Troubleshooting Guide
 - Consult [`../user-guide.md`](../user-guide.md) for common scenarios
 
 ---
 
-**Last Updated:** 2026-01-28  
+**Last Updated:** 2026-01-28
 **Status:** Active Documentation

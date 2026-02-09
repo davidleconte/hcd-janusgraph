@@ -1,8 +1,8 @@
 # Event-Sourced Dual Ingestion Architecture
 
-**Date:** 2026-02-04  
-**Version:** 1.0  
-**Status:** Proposed  
+**Date:** 2026-02-04
+**Version:** 1.0
+**Status:** Proposed
 **Author:** David Leconte
 
 ---
@@ -52,6 +52,7 @@ This document describes the recommended architecture for ensuring data consisten
 ```
 
 **Issues:**
+
 - No automatic synchronization mechanism
 - Manual coordination required during data loading
 - Risk of stale embeddings, orphaned data, duplicate entities
@@ -118,6 +119,7 @@ This document describes the recommended architecture for ensuring data consisten
 | Tiered storage | Native | Limited | **Pulsar** (76% cost savings) |
 
 **Key_Shared Advantage**: Enables entity-level ordering with parallel consumers.
+
 - All events for `entity_123` → same consumer (ordered)
 - All events for `entity_456` → different consumer (parallel)
 
@@ -177,26 +179,26 @@ class EntityEvent:
     Unified event schema for all entity operations.
     Same event goes to both JanusGraph and OpenSearch consumers.
     """
-    
+
     # Core identifiers - SAME everywhere
     entity_id: str          # UUID - links all systems
     event_id: str           # For deduplication (sequence_id)
     event_type: str         # 'create', 'update', 'delete'
-    
+
     # Entity classification
     entity_type: str        # 'person', 'account', 'transaction', 'company'
-    
+
     # Entity data
     payload: Dict[str, Any] # Full entity data
-    
+
     # Embedding data (for Leg 2 - OpenSearch)
     text_for_embedding: Optional[str] = None  # Text to embed (name, description)
-    
+
     # Metadata
     timestamp: datetime = None
     version: int = 1        # Optimistic concurrency control
     source: str = None      # 'script', 'notebook', 'api'
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.utcnow()
@@ -329,11 +331,11 @@ class EntityProducer:
     Shared producer class for all data generators and notebooks.
     Routes events to appropriate topics based on entity_type.
     """
-    
+
     def __init__(self, pulsar_url: str = "pulsar://localhost:6650"):
         self.client = pulsar.Client(pulsar_url)
         self.producers = {}  # Lazy-loaded per topic
-    
+
     def _get_producer(self, entity_type: str):
         topic = f"persistent://banking/{entity_type}s/events"
         if topic not in self.producers:
@@ -345,18 +347,18 @@ class EntityProducer:
                 batching_max_publish_delay_ms=100
             )
         return self.producers[topic]
-    
+
     def send(self, event: EntityEvent):
         """Route event to appropriate topic."""
         producer = self._get_producer(event.entity_type)
         msg = event.to_pulsar_message()
-        
+
         producer.send(
             content=json.dumps(msg['payload']).encode('utf-8'),
             partition_key=msg['partition_key'],
             sequence_id=hash(msg['sequence_id']) % (2**63)  # Pulsar needs int
         )
-    
+
     def close(self):
         for producer in self.producers.values():
             producer.close()
@@ -371,10 +373,10 @@ class PersonGenerator(BaseGenerator):
     def __init__(self, producer: EntityProducer, seed: int = None):
         super().__init__(seed)
         self.producer = producer
-    
+
     def generate(self) -> Person:
         person = self._create_person()
-        
+
         # Publish event
         event = EntityEvent(
             entity_id=person.person_id,
@@ -385,7 +387,7 @@ class PersonGenerator(BaseGenerator):
             source="PersonGenerator"
         )
         self.producer.send(event)
-        
+
         return person
 ```
 
@@ -428,7 +430,7 @@ class GraphConsumer:
     Consumer for loading entities into JanusGraph/HCD.
     Uses Key_Shared subscription for parallel processing with entity-level ordering.
     """
-    
+
     def __init__(
         self,
         pulsar_url: str = "pulsar://localhost:6650",
@@ -437,7 +439,7 @@ class GraphConsumer:
     ):
         self.pulsar = Client(pulsar_url)
         self.g = self._connect_janusgraph(janusgraph_url)
-        
+
         if topics is None:
             topics = [
                 "persistent://banking/persons/events",
@@ -445,17 +447,17 @@ class GraphConsumer:
                 "persistent://banking/transactions/events",
                 "persistent://banking/companies/events"
             ]
-        
+
         self.consumer = self.pulsar.subscribe(
             topics,
             subscription_name='graph-loaders',
             consumer_type=ConsumerType.KeyShared,  # Entity-level ordering
             receiver_queue_size=1000
         )
-        
+
         self.batch = []
         self.batch_size = 100
-    
+
     def process_forever(self):
         """Main processing loop."""
         while True:
@@ -463,42 +465,42 @@ class GraphConsumer:
                 msg = self.consumer.receive(timeout_millis=100)
                 event = json.loads(msg.data())
                 self.batch.append((msg, event))
-                
+
                 if len(self.batch) >= self.batch_size:
                     self._flush_batch()
-                    
+
             except pulsar.Timeout:
                 if self.batch:
                     self._flush_batch()
-    
+
     def _flush_batch(self):
         """Process batch of events in single transaction."""
         try:
             tx = self.g.tx()
             gtx = tx.begin()
-            
+
             for msg, event in self.batch:
                 self._process_event(gtx, event)
-            
+
             tx.commit()
-            
+
             # ACK all messages after successful commit
             for msg, _ in self.batch:
                 self.consumer.acknowledge(msg)
-            
+
             logger.info(f"Committed batch of {len(self.batch)} events")
-            
+
         except Exception as e:
             logger.error(f"Batch failed: {e}")
             tx.rollback()
-            
+
             # Negative ACK for retry
             for msg, _ in self.batch:
                 self.consumer.negative_acknowledge(msg)
-        
+
         finally:
             self.batch = []
-    
+
     def _process_event(self, g, event: dict):
         """Process single event within transaction."""
         entity_id = event['entity_id']
@@ -506,30 +508,30 @@ class GraphConsumer:
         entity_type = event['entity_type']
         payload = event['payload']
         version = event['version']
-        
+
         if event_type == 'create':
             # Create vertex with entity_id as lookup key
             vertex = g.addV(entity_type) \
                 .property('entity_id', entity_id) \
                 .property('version', version)
-            
+
             for key, value in payload.items():
                 vertex = vertex.property(key, value)
-            
+
             vertex.next()
-            
+
         elif event_type == 'update':
             # Optimistic concurrency: check version before update
             g.V().has(entity_type, 'entity_id', entity_id) \
                 .has('version', version - 1) \
                 .property('version', version)
-            
+
             for key, value in payload.items():
                 g.V().has(entity_type, 'entity_id', entity_id) \
                     .property(key, value)
-            
+
             g.V().has(entity_type, 'entity_id', entity_id).next()
-            
+
         elif event_type == 'delete':
             g.V().has(entity_type, 'entity_id', entity_id).drop().iterate()
 ```
@@ -550,7 +552,7 @@ class VectorConsumer:
     Consumer for loading embeddings into OpenSearch.
     Generates embeddings from text_for_embedding field.
     """
-    
+
     def __init__(
         self,
         pulsar_url: str = "pulsar://localhost:6650",
@@ -565,56 +567,56 @@ class VectorConsumer:
             use_ssl=False
         )
         self.generator = EmbeddingGenerator(model_name=embedding_model)
-        
+
         if topics is None:
             # Only subscribe to topics that need embeddings
             topics = [
                 "persistent://banking/persons/events",
                 "persistent://banking/companies/events"
             ]
-        
+
         self.consumer = self.pulsar.subscribe(
             topics,
             subscription_name='vector-loaders',
             consumer_type=ConsumerType.KeyShared
         )
-        
+
         self.batch = []
         self.batch_size = 100
-    
+
     def process_forever(self):
         """Main processing loop."""
         while True:
             try:
                 msg = self.consumer.receive(timeout_millis=100)
                 event = json.loads(msg.data())
-                
+
                 # Skip events without text_for_embedding
                 if event.get('text_for_embedding'):
                     self.batch.append((msg, event))
                 else:
                     self.consumer.acknowledge(msg)
-                
+
                 if len(self.batch) >= self.batch_size:
                     self._flush_batch()
-                    
+
             except pulsar.Timeout:
                 if self.batch:
                     self._flush_batch()
-    
+
     def _flush_batch(self):
         """Process batch of events with bulk indexing."""
         try:
             # Generate embeddings for batch
             texts = [e['text_for_embedding'] for _, e in self.batch]
             embeddings = self.generator.encode(texts, batch_size=len(texts))
-            
+
             # Prepare bulk actions
             actions = []
             for i, (msg, event) in enumerate(self.batch):
                 entity_id = event['entity_id']
                 event_type = event['event_type']
-                
+
                 if event_type == 'delete':
                     actions.append({
                         '_op_type': 'delete',
@@ -625,7 +627,7 @@ class VectorConsumer:
                     embedding = embeddings[i]
                     if isinstance(embedding, np.ndarray):
                         embedding = embedding.tolist()
-                    
+
                     actions.append({
                         '_op_type': 'index',
                         '_index': self._get_index(event['entity_type']),
@@ -637,26 +639,26 @@ class VectorConsumer:
                             **event['payload']
                         }
                     })
-            
+
             # Bulk index
             success, errors = helpers.bulk(self.opensearch, actions, refresh=True)
-            
+
             # ACK all messages
             for msg, _ in self.batch:
                 self.consumer.acknowledge(msg)
-            
+
             logger.info(f"Indexed {success} documents")
             if errors:
                 logger.warning(f"Encountered {len(errors)} errors")
-            
+
         except Exception as e:
             logger.error(f"Batch failed: {e}")
             for msg, _ in self.batch:
                 self.consumer.negative_acknowledge(msg)
-        
+
         finally:
             self.batch = []
-    
+
     def _get_index(self, entity_type: str) -> str:
         """Map entity type to OpenSearch index."""
         return f"{entity_type}_vectors"
@@ -713,18 +715,18 @@ class VectorConsumer:
 ```python
 class ConsumerWithRetry:
     """Consumer with retry and dead letter queue handling."""
-    
+
     def process(self, msg):
         try:
             event = json.loads(msg.data())
             self.handle(event)
             self.consumer.acknowledge(msg)
-            
+
         except TemporaryError as e:
             # Negative ACK - Pulsar will redeliver after delay
             logger.warning(f"Temporary error, will retry: {e}")
             self.consumer.negative_acknowledge(msg)
-            
+
         except PermanentError as e:
             # Send to dead letter queue, then ACK original
             logger.error(f"Permanent error, sending to DLQ: {e}")
@@ -744,7 +746,7 @@ def screen_and_enrich(customer_name: str) -> List[Dict]:
     1. Vector search in OpenSearch to find similar entities
     2. Enrich with graph context from JanusGraph using SAME entity_id
     """
-    
+
     # Step 1: Vector search in OpenSearch
     embedding = generator.encode(customer_name)
     matches = opensearch.search(
@@ -761,12 +763,12 @@ def screen_and_enrich(customer_name: str) -> List[Dict]:
             }
         }
     )
-    
+
     # Step 2: Enrich with graph data using SAME entity_id
     enriched_results = []
     for hit in matches['hits']['hits']:
         entity_id = hit['_id']  # Same ID in both systems!
-        
+
         # Get graph context from JanusGraph
         graph_context = g.V().has('entity_id', entity_id) \
             .project('entity', 'connections', 'transactions') \
@@ -774,13 +776,13 @@ def screen_and_enrich(customer_name: str) -> List[Dict]:
             .by(both().valueMap(True).fold()) \
             .by(outE('transfer').valueMap(True).fold()) \
             .toList()
-        
+
         enriched_results.append({
             'vector_match': hit['_source'],
             'similarity_score': hit['_score'],
             'graph_context': graph_context[0] if graph_context else None
         })
-    
+
     return enriched_results
 ```
 
@@ -897,8 +899,8 @@ volumes:
 
 ---
 
-**Document Status**: Proposed  
-**Last Updated**: 2026-02-04  
+**Document Status**: Proposed
+**Last Updated**: 2026-02-04
 **Next Review**: After implementation begins
 
 Co-Authored-By: David Leconte <team@example.com>

@@ -11,6 +11,7 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
 ## Completed Tasks
 
 ### 1. SSL/TLS Configuration ✅
+
 - **Status:** Complete
 - **Files Modified:**
   - `docker-compose.yml` - Enabled TLS by default
@@ -23,6 +24,7 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
   - TLS enabled for JanusGraph, HCD, and Gremlin Server
 
 ### 2. HashiCorp Vault Integration ✅
+
 - **Status:** Complete (with minor fix needed)
 - **Files Created:**
   - `config/...` - Vault configuration
@@ -39,6 +41,7 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
   - Policy creation script ready
 
 ### 3. Documentation ✅
+
 - **Status:** Complete
 - **Files Created:**
   - `docs/...` - Implementation guide (619 lines)
@@ -46,6 +49,7 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
   - `docs/...` - 6-week roadmap (847 lines)
 
 ### 4. Utility Scripts ✅
+
 - **Status:** Complete
 - **Files Created:**
   - `scripts/...` - Aggressive cleanup for Podman
@@ -53,9 +57,11 @@ Week 1 security hardening implementation is 100% complete. SSL/TLS is fully conf
 ## Issues Encountered and Resolutions
 
 ### Issue 1: KV v2 Policy Path Mismatch
+
 **Root Cause:** KV version 2 stores secrets at `janusgraph/data/*` internally, but the CLI accesses them via `janusgraph/*`. Initial policy only granted access to `janusgraph/*`.
 
 **Error Message:**
+
 ```
 Error making API request.
 Code: 403. Errors:
@@ -63,17 +69,20 @@ Code: 403. Errors:
 ```
 
 **Solution:** Updated policy to include correct KV v2 paths:
+
 - `janusgraph/data/*` - Actual secret storage path
 - `janusgraph/metadata/*` - Metadata access
 - `sys/internal/ui/mounts` - UI mount information (required by CLI)
 - `sys/internal/ui/mounts/*` - Specific mount details
 
 ### Issue 2: Missing VAULT_APP_TOKEN Variable
+
 **Root Cause:** The `init_vault.sh` script wrote the APP_TOKEN to `.env` but not to `.vault-keys`, causing the fix script's sed replacement to fail silently.
 
 **Solution:** Updated fix script to check if VAULT_APP_TOKEN exists and append it if missing, rather than only attempting replacement.
 
 **Final Verification (✅ Working):**
+
 ```bash
 source ./scripts/security/vault_access.sh
 podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/admin
@@ -92,27 +101,32 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/adm
 ## Technical Challenges Overcome
 
 ### 1. Podman-Specific Issues
+
 - **Volume Permissions:** Switched from named volumes to local directories with 777 permissions
 - **SELinux Context:** Added `:Z` suffix to volume mounts
 - **Heredoc Limitations:** Changed policy creation from heredoc to file-based approach
 
 ### 2. Certificate Management
+
 - **Glob Pattern:** Fixed certificate bundle creation pattern
 - **Path Resolution:** Corrected Dockerfile relative paths
 
 ### 3. Script Safety
+
 - **Terminal Exit:** Made `set -euo pipefail` conditional on execution vs sourcing
 - **Error Handling:** Added proper error checking and cleanup
 
 ## Security Improvements Achieved
 
 ### Before Week 1
+
 - ❌ No SSL/TLS encryption
 - ❌ Credentials in plain text files
 - ❌ No secrets management
 - ❌ Weak certificate handling
 
 ### After Week 1
+
 - ✅ SSL/TLS enabled by default
 - ✅ Credentials stored in HashiCorp Vault
 - ✅ Automated certificate generation
@@ -137,11 +151,13 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/adm
 | Overall | B+ (83/100) | A- (90/100) | A (95/100) |
 
 **Remaining to reach A grade:**
+
 - Complete Week 2 monitoring enhancements (+5 points)
 
 ## Files Modified Summary
 
 ### Configuration Files (5)
+
 1. `docker-compose.yml` - TLS enabled
 2. `config/compose/docker-compose.full.yml` - Vault added
 3. `config/vault/config.hcl` - Vault config
@@ -149,6 +165,7 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/adm
 5. `.gitignore` - Protected secrets
 
 ### Scripts (5)
+
 1. `scripts/security/generate_certificates.sh` - Certificate generation
 2. `scripts/security/init_vault.sh` - Vault initialization
 3. `scripts/security/vault_access.sh` - Access helper
@@ -156,11 +173,13 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/adm
 5. `scripts/utils/cleanup_podman.sh` - Cleanup utility
 
 ### Documentation (3)
+
 1. `docs/implementation/remediation/WEEK1_SECURITY_IMPLEMENTATION.md`
 2. `docs/implementation/remediation/WEEK1_TROUBLESHOOTING.md`
 3. `docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md`
 
 ### Dependencies (1)
+
 1. `requirements.txt` - Added hvac==2.1.0
 
 **Total Files:** 14 files (5 config, 5 scripts, 3 docs, 1 dependency)
@@ -177,6 +196,7 @@ All Week 1 objectives have been successfully completed and verified:
 6. ✅ Comprehensive documentation created
 
 **Verified Commands:**
+
 ```bash
 # List all secrets
 podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv list janusgraph/
@@ -192,23 +212,27 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 ```
 
 ### Week 2 (Monitoring Enhancement)
+
 - Set up AlertManager for Prometheus
 - Create JanusGraph metrics exporter
 - Configure Slack/email notifications
 - Add custom dashboards for banking metrics
 
 ### Testing Recommendations
+
 1. **SSL/TLS Testing:**
+
    ```bash
    # Test JanusGraph TLS connection
    openssl s_client -connect localhost:8182 -CAfile config/certs/ca/ca-cert.pem
    ```
 
 2. **Vault Testing:**
+
    ```bash
    # List all secrets
    podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv list janusgraph/
-   
+
    # Get each secret
    podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/admin
    podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/hcd
@@ -216,14 +240,15 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
    ```
 
 3. **Integration Testing:**
+
    ```bash
    # Start full stack with TLS and Vault
    cd config/compose
    podman-compose -f docker-compose.full.yml up -d
-   
+
    # Check all services
    podman ps
-   
+
    # Test JanusGraph connection
    python3 -c "from gremlin_python.driver import client; \
                c = client.Client('wss://localhost:8182/gremlin', 'g'); \
@@ -233,18 +258,21 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 ## Lessons Learned
 
 ### Podman vs Docker
+
 - Podman requires explicit SELinux context (`:Z`)
 - Named volumes have permission issues in rootless mode
 - Local directory mounts with 777 permissions work better
 - Heredoc in `podman exec` has limitations
 
 ### Vault Best Practices
+
 - Always create policies before tokens
 - Use root token only for initial setup
 - Store unseal keys securely (not in git)
 - Use renewable tokens with appropriate TTL
 
 ### Certificate Management
+
 - Generate all certificates at once
 - Create bundle for easy distribution
 - Use consistent naming conventions
@@ -253,6 +281,7 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 ## Conclusion
 
 Week 1 security hardening is successfully completed with one minor fix required. The system now has:
+
 - ✅ Production-grade SSL/TLS encryption
 - ✅ Enterprise secrets management with HashiCorp Vault
 - ✅ Automated certificate generation and rotation
@@ -263,7 +292,7 @@ Week 1 security hardening is successfully completed with one minor fix required.
 
 ---
 
-**Report Generated:** 2026-01-29  
-**Implementation Time:** 4 days  
-**Issues Resolved:** 7 (certificate bundle, Dockerfile path, Vault permissions, container conflicts, policy creation, terminal exit, port conflict)  
+**Report Generated:** 2026-01-29
+**Implementation Time:** 4 days
+**Issues Resolved:** 7 (certificate bundle, Dockerfile path, Vault permissions, container conflicts, policy creation, terminal exit, port conflict)
 **Documentation:** 1,795 lines across 3 comprehensive guides

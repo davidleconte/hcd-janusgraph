@@ -66,7 +66,7 @@ echo "Generating random credentials..."
 for var in "${CREDENTIALS[@]}"; do
     # Generate 32-character random string (alphanumeric)
     PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-    
+
     # Use appropriate sed syntax for macOS vs Linux
     if [ -n "$SED_EXT" ]; then
         sed -i '' "s|${var}=CHANGE_ME_STRONG_PASSWORD_HERE|${var}=${PASSWORD}|g" "$PROJECT_ROOT/.env"

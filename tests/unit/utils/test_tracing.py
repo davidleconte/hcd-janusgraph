@@ -1,17 +1,18 @@
 """Tests for distributed tracing module."""
 
 import os
+from unittest.mock import MagicMock, PropertyMock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
 
 from src.python.utils.tracing import (
+    TracedGremlinClient,
     TracingConfig,
     TracingManager,
-    initialize_tracing,
     get_tracer,
+    initialize_tracing,
     trace_function,
     trace_gremlin_query,
-    TracedGremlinClient,
 )
 
 
@@ -55,7 +56,9 @@ class TestTracingManager:
     @patch("src.python.utils.tracing.BatchSpanProcessor")
     @patch("src.python.utils.tracing.TracerProvider")
     @patch("src.python.utils.tracing.trace")
-    def test_enabled_initializes(self, mock_trace, mock_tp, mock_bsp, mock_jaeger, mock_otlp, mock_req):
+    def test_enabled_initializes(
+        self, mock_trace, mock_tp, mock_bsp, mock_jaeger, mock_otlp, mock_req
+    ):
         cfg = TracingConfig(enabled=True)
         mgr = TracingManager(config=cfg)
         mock_tp.assert_called_once()

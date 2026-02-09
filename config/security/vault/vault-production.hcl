@@ -12,7 +12,7 @@ listener "tcp" {
   tls_disable   = false
   tls_cert_file = "/vault/certs/vault.crt"
   tls_key_file  = "/vault/certs/vault.key"
-  
+
   # Disable client certificate verification for simplicity
   # Enable in high-security environments
   tls_require_and_verify_client_cert = false
@@ -23,7 +23,7 @@ listener "tcp" {
 storage "raft" {
   path    = "/vault/data"
   node_id = "vault_node_1"
-  
+
   # Performance tuning
   performance_multiplier = 1
 }

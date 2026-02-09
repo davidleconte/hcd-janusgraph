@@ -24,6 +24,7 @@ def check_janusgraph() -> bool:
     try:
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
         from gremlin_python.process.anonymous_traversal import traversal
+
         host = os.getenv("JANUSGRAPH_HOST", "localhost")
         port = os.getenv("JANUSGRAPH_PORT", "18182")
         conn = DriverRemoteConnection(f"ws://{host}:{port}/gremlin", "g")
@@ -38,11 +39,16 @@ def check_janusgraph() -> bool:
 def check_opensearch() -> bool:
     try:
         from opensearchpy import OpenSearch
+
         client = OpenSearch(
-            hosts=[{"host": os.getenv("OPENSEARCH_HOST", "localhost"),
-                   "port": int(os.getenv("OPENSEARCH_PORT", "9200"))}],
+            hosts=[
+                {
+                    "host": os.getenv("OPENSEARCH_HOST", "localhost"),
+                    "port": int(os.getenv("OPENSEARCH_PORT", "9200")),
+                }
+            ],
             use_ssl=os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true",
-            verify_certs=False
+            verify_certs=False,
         )
         client.info()
         return True
@@ -55,7 +61,9 @@ OS_AVAILABLE = check_opensearch()
 
 skip_no_jg = pytest.mark.skipif(not JG_AVAILABLE, reason="JanusGraph unavailable")
 skip_no_os = pytest.mark.skipif(not OS_AVAILABLE, reason="OpenSearch unavailable")
-skip_no_services = pytest.mark.skipif(not (JG_AVAILABLE and OS_AVAILABLE), reason="Services unavailable")
+skip_no_services = pytest.mark.skipif(
+    not (JG_AVAILABLE and OS_AVAILABLE), reason="Services unavailable"
+)
 
 
 @pytest.fixture
@@ -67,7 +75,10 @@ def test_id() -> str:
 def jg_client():
     from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
     from gremlin_python.process.anonymous_traversal import traversal
-    conn = DriverRemoteConnection(f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g")
+
+    conn = DriverRemoteConnection(
+        f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g"
+    )
     yield traversal().withRemote(conn)
     conn.close()
 
@@ -75,9 +86,11 @@ def jg_client():
 @pytest.fixture
 def os_client():
     from opensearchpy import OpenSearch
+
     yield OpenSearch(
         hosts=[{"host": "localhost", "port": int(os.getenv("OPENSEARCH_PORT", "9200"))}],
-        use_ssl=False, verify_certs=False
+        use_ssl=False,
+        verify_certs=False,
     )
 
 
@@ -96,18 +109,25 @@ class TestIDConsistency:
     def test_entity_id_propagation(self, test_id, jg_client, os_client):
         """Test same entity_id appears in both systems."""
         # Write to JanusGraph
-        jg_client.addV("person").property("entity_id", test_id).property("name", f"Test {test_id}").iterate()
-        
+        jg_client.addV("person").property("entity_id", test_id).property(
+            "name", f"Test {test_id}"
+        ).iterate()
+
         # Write to OpenSearch
-        os_client.index(index="e2e-test", id=test_id, body={"entity_id": test_id, "name": f"Test {test_id}"}, refresh=True)
-        
+        os_client.index(
+            index="e2e-test",
+            id=test_id,
+            body={"entity_id": test_id, "name": f"Test {test_id}"},
+            refresh=True,
+        )
+
         # Verify both
         jg_result = jg_client.V().has("entity_id", test_id).values("name").toList()
         assert len(jg_result) == 1
-        
+
         os_result = os_client.get(index="e2e-test", id=test_id)
         assert os_result["found"] and os_result["_source"]["entity_id"] == test_id
-        
+
         # Cleanup
         jg_client.V().has("entity_id", test_id).drop().iterate()
         os_client.delete(index="e2e-test", id=test_id, ignore=[404])
@@ -118,15 +138,17 @@ class TestStreamingFlow:
     def test_mock_streaming(self, test_id, jg_client, os_client):
         """Simulate dual-write pattern."""
         event = {"entity_id": test_id, "name": "Stream Test", "risk_score": 0.3}
-        
-        jg_client.addV("person").property("entity_id", event["entity_id"]).property("name", event["name"]).iterate()
+
+        jg_client.addV("person").property("entity_id", event["entity_id"]).property(
+            "name", event["name"]
+        ).iterate()
         os_client.index(index="e2e-test", id=event["entity_id"], body=event, refresh=True)
-        
+
         # Verify consistency
         jg_name = jg_client.V().has("entity_id", test_id).values("name").next()
         os_name = os_client.get(index="e2e-test", id=test_id)["_source"]["name"]
         assert jg_name == os_name == "Stream Test"
-        
+
         # Cleanup
         jg_client.V().has("entity_id", test_id).drop().iterate()
         os_client.delete(index="e2e-test", id=test_id, ignore=[404])

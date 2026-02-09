@@ -3,15 +3,20 @@
 
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.python.api.main import (
-    HealthResponse, UBORequest, UBOOwner, UBOResponse,
-    StructuringAlertRequest, StructuringAlert, StructuringResponse
+    HealthResponse,
+    StructuringAlert,
+    StructuringAlertRequest,
+    StructuringResponse,
+    UBOOwner,
+    UBORequest,
+    UBOResponse,
 )
 
 
@@ -22,7 +27,7 @@ class TestPydanticModels:
         response = HealthResponse(
             status="healthy",
             timestamp="2026-02-06T12:00:00Z",
-            services={"janusgraph": True, "opensearch": True}
+            services={"janusgraph": True, "opensearch": True},
         )
         assert response.status == "healthy"
         assert response.services["janusgraph"] is True
@@ -36,10 +41,7 @@ class TestPydanticModels:
 
     def test_ubo_request_custom(self):
         request = UBORequest(
-            company_id="comp-456",
-            include_indirect=False,
-            max_depth=5,
-            ownership_threshold=50.0
+            company_id="comp-456", include_indirect=False, max_depth=5, ownership_threshold=50.0
         )
         assert request.max_depth == 5
         assert request.ownership_threshold == 50.0
@@ -50,7 +52,7 @@ class TestPydanticModels:
             name="John Doe",
             ownership_percentage=30.0,
             ownership_type="direct",
-            chain_length=1
+            chain_length=1,
         )
         assert owner.name == "John Doe"
         assert owner.ownership_percentage == 30.0
@@ -69,7 +71,7 @@ class TestPydanticModels:
             transaction_count=5,
             time_window="7 days",
             risk_score=0.85,
-            pattern_type="just_below_threshold"
+            pattern_type="just_below_threshold",
         )
         assert alert.risk_score == 0.85
         assert alert.pattern_type == "just_below_threshold"
@@ -82,13 +84,10 @@ class TestPydanticModels:
             transaction_count=5,
             time_window="7 days",
             risk_score=0.85,
-            pattern_type="smurfing"
+            pattern_type="smurfing",
         )
         response = StructuringResponse(
-            alerts=[alert],
-            total_alerts=1,
-            analysis_period="7 days",
-            query_time_ms=42.5
+            alerts=[alert], total_alerts=1, analysis_period="7 days", query_time_ms=42.5
         )
         assert response.total_alerts == 1
         assert response.query_time_ms == 42.5
@@ -101,6 +100,7 @@ class TestAPIConfiguration:
 
     def test_default_janusgraph_config(self):
         from src.python.config.settings import get_settings
+
         settings = get_settings()
         assert settings.janusgraph_host == "localhost"
         assert isinstance(settings.janusgraph_port, int)
@@ -112,7 +112,9 @@ class TestHealthEndpoints:
     @pytest.fixture(autouse=True)
     def client(self):
         from fastapi.testclient import TestClient
+
         from src.python.api.main import app
+
         self.client = TestClient(app)
 
     def test_liveness_returns_200(self):

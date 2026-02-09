@@ -1,7 +1,7 @@
 # Unified Data Flow Documentation
 
-**Created**: 2026-02-06  
-**Version**: 1.0  
+**Created**: 2026-02-06
+**Version**: 1.0
 **Status**: Active
 
 ---
@@ -15,7 +15,7 @@ Complete data flow from synthetic generation to queryable graph and vector searc
 3. **JanusGraph + HCD** → Graph storage with ACID properties
 4. **OpenSearch** → Vector embeddings for semantic search
 
-**Key Guarantee**: 1:1 ID mapping across all systems (Pulsar partition key = JanusGraph entity_id = OpenSearch _id)
+**Key Guarantee**: 1:1 ID mapping across all systems (Pulsar partition key = JanusGraph entity_id = OpenSearch_id)
 
 ---
 
@@ -85,45 +85,45 @@ flowchart TB
         AG[Account Generator]
         TG[Transaction Generator]
         SO[StreamingOrchestrator]
-        
+
         PG --> SO
         CG --> SO
         AG --> SO
         TG --> SO
     end
-    
+
     subgraph Pulsar["Apache Pulsar"]
         PT1[persons-events]
         PT2[accounts-events]
         PT3[transactions-events]
         PT4[companies-events]
-        
+
         SO --> PT1
         SO --> PT2
         SO --> PT3
         SO --> PT4
     end
-    
+
     subgraph GraphPath["Graph Storage Path"]
         GC[GraphConsumer]
         JG[(JanusGraph)]
         HCD[(HCD/Cassandra)]
-        
+
         PT1 & PT2 & PT3 & PT4 --> GC
         GC --> JG
         JG --> HCD
     end
-    
+
     subgraph VectorPath["Vector Storage Path"]
         VC[VectorConsumer]
         EMB[Embedding Model]
         OS[(OpenSearch)]
-        
+
         PT1 & PT2 & PT3 & PT4 --> VC
         VC --> EMB
         EMB --> OS
     end
-    
+
     style Pulsar fill:#f9f,stroke:#333
     style GraphPath fill:#bbf,stroke:#333
     style VectorPath fill:#bfb,stroke:#333
@@ -147,13 +147,13 @@ sequenceDiagram
     participant VC as VectorConsumer
     participant EMB as Embedding Model
     participant OS as OpenSearch
-    
+
     Gen->>Orch: Generate Entity
     Orch->>Prod: Create EntityEvent
     Note over Prod: entity_id = partition_key
     Prod->>Pulsar: Publish (topic, partition_key)
     Pulsar-->>Prod: ACK
-    
+
     par Graph Path
         Pulsar->>GC: Deliver Message
         GC->>JG: Gremlin addV/addE
@@ -192,23 +192,23 @@ flowchart LR
     subgraph Generator
         ID1[entity_id: person-a1b2c3d4]
     end
-    
+
     subgraph Pulsar
         ID2[partition_key: person-a1b2c3d4]
     end
-    
+
     subgraph JanusGraph
         ID3["V().has('entity_id', 'person-a1b2c3d4')"]
     end
-    
+
     subgraph OpenSearch
         ID4["_id: person-a1b2c3d4"]
     end
-    
+
     ID1 --> ID2
     ID2 --> ID3
     ID2 --> ID4
-    
+
     style ID1 fill:#ffd,stroke:#333
     style ID2 fill:#f9f,stroke:#333
     style ID3 fill:#bbf,stroke:#333
@@ -268,19 +268,19 @@ flowchart TB
         COM[communications-events]
         TR[trades-events]
     end
-    
+
     subgraph GraphLoaders["graph-loaders subscription"]
         GL1[GraphConsumer 1]
         GL2[GraphConsumer 2]
         GLN[GraphConsumer N]
     end
-    
+
     subgraph VectorLoaders["vector-loaders subscription"]
         VL1[VectorConsumer 1]
         VL2[VectorConsumer 2]
         VLN[VectorConsumer N]
     end
-    
+
     Topics --> GraphLoaders
     Topics --> VectorLoaders
 ```
@@ -297,24 +297,24 @@ flowchart TB
         P[Pulsar Topic]
         C[Consumer]
         S[(Storage)]
-        
+
         P --> C
         C --> S
     end
-    
+
     subgraph Error["Error Flow"]
         E[Processing Error]
         R{Retry Count}
         DLQ[Dead Letter Queue]
         Alert[Alert System]
-        
+
         C --> E
         E --> R
         R -->|< 3 retries| C
         R -->|>= 3 retries| DLQ
         DLQ --> Alert
     end
-    
+
     style DLQ fill:#fbb,stroke:#333
 ```
 
@@ -350,7 +350,7 @@ stateDiagram-v2
     WALWrite --> Replication
     Replication --> ConsumerACK
     ConsumerACK --> [*]
-    
+
     Processing --> DLQ: Error (3 retries)
     GraphWrite --> NegativeACK: Txn Failed
     NegativeACK --> EventReceived: Redelivery
@@ -391,6 +391,6 @@ stateDiagram-v2
 
 ---
 
-**Document Status**: Active  
-**Last Updated**: 2026-02-06  
+**Document Status**: Active
+**Last Updated**: 2026-02-06
 **Version**: 1.0

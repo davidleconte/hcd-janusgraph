@@ -1,7 +1,7 @@
 # Week 1 Implementation Troubleshooting Guide
 
-**Date:** 2026-01-28  
-**Version:** 1.0  
+**Date:** 2026-01-28
+**Version:** 1.0
 **Status:** Active
 
 ## Common Issues and Solutions
@@ -9,6 +9,7 @@
 ### Issue 1: Container Name Already in Use
 
 **Error:**
+
 ```
 Error: creating container storage: the container name "hcd-server" is already in use
 ```
@@ -16,6 +17,7 @@ Error: creating container storage: the container name "hcd-server" is already in
 **Cause:** Previous containers still exist from earlier runs.
 
 **Solution:**
+
 ```bash
 # Stop all running containers
 podman-compose down
@@ -36,6 +38,7 @@ podman-compose up -d
 ### Issue 2: Vault Permission Denied
 
 **Error:**
+
 ```
 failed to persist keyring: mkdir /vault/data/core: permission denied
 ```
@@ -44,11 +47,13 @@ failed to persist keyring: mkdir /vault/data/core: permission denied
 
 **Solution Applied:**
 The docker-compose.full.yml has been updated with:
+
 - `user: "0:0"` - Run Vault as root
 - `:Z` suffix on volumes - SELinux context for Podman
 - `SKIP_SETCAP=true` - Skip capability setting
 
 **If issue persists:**
+
 ```bash
 # Stop Vault
 podman stop vault-server
@@ -69,6 +74,7 @@ podman logs vault-server
 ### Issue 3: Certificate Bundle Creation Failed
 
 **Error:**
+
 ```
 cat: /path/to/config/certs/*/*-cert.pem: No such file or directory
 ```
@@ -77,11 +83,13 @@ cat: /path/to/config/certs/*/*-cert.pem: No such file or directory
 
 **Solution Applied:**
 Script updated to use correct pattern and ignore errors:
+
 ```bash
 cat "$CERT_DIR"/*/*.pem > "$CERT_DIR/all-certs-bundle.pem" 2>/dev/null || true
 ```
 
 **Manual fix if needed:**
+
 ```bash
 # Create bundle manually
 cd config/certs
@@ -95,11 +103,13 @@ cat janusgraph/janusgraph-cert.pem \
 ### Issue 4: Podman-Compose Not Found
 
 **Error:**
+
 ```
 command not found: podman-compose
 ```
 
 **Solution:**
+
 ```bash
 # Install podman-compose
 pip3 install podman-compose
@@ -114,11 +124,13 @@ podman play kube docker-compose.yml
 ### Issue 5: Port Already in Use
 
 **Error:**
+
 ```
 Error: cannot listen on the TCP port: listen tcp :8200: bind: address already in use
 ```
 
 **Solution:**
+
 ```bash
 # Find process using the port
 lsof -i :8200
@@ -133,6 +145,7 @@ kill -9 <PID>
 ### Issue 6: TLS Handshake Failures
 
 **Error:**
+
 ```
 SSL routines:ssl3_get_record:wrong version number
 ```
@@ -140,6 +153,7 @@ SSL routines:ssl3_get_record:wrong version number
 **Cause:** Trying to connect with HTTPS to HTTP endpoint or vice versa.
 
 **Solution:**
+
 ```bash
 # Check if service is actually using TLS
 podman logs janusgraph-server | grep -i tls
@@ -156,11 +170,13 @@ podman exec janusgraph-server ls -la /etc/janusgraph/certs/
 ### Issue 7: Vault Unsealing Fails
 
 **Error:**
+
 ```
 Error unsealing: Error making API request
 ```
 
 **Solution:**
+
 ```bash
 # Check Vault status
 podman exec vault-server vault status
@@ -181,11 +197,13 @@ podman exec vault-server vault status
 ### Issue 8: Cannot Connect to Services
 
 **Error:**
+
 ```
 curl: (7) Failed to connect to localhost port 8182: Connection refused
 ```
 
 **Solution:**
+
 ```bash
 # Check if containers are running
 podman-compose ps
@@ -206,11 +224,13 @@ podman exec janusgraph-server curl -k https://localhost:8182
 ### Issue 9: Keystore Password Incorrect
 
 **Error:**
+
 ```
 keytool error: java.io.IOException: Keystore was tampered with, or password was incorrect
 ```
 
 **Solution:**
+
 ```bash
 # Check password in .env file
 cat .env | grep KEYSTORE_PASSWORD
@@ -228,11 +248,13 @@ keytool -list \
 ### Issue 10: SELinux Denials (Linux only)
 
 **Error:**
+
 ```
 Permission denied (SELinux)
 ```
 
 **Solution:**
+
 ```bash
 # Check SELinux status
 getenforce
@@ -327,6 +349,6 @@ If issues persist:
 
 ---
 
-**Document Owner:** DevOps Team  
-**Last Updated:** 2026-01-28  
+**Document Owner:** DevOps Team
+**Last Updated:** 2026-01-28
 **Next Review:** As issues arise

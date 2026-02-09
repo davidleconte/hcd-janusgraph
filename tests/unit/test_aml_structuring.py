@@ -2,17 +2,19 @@
 """Tests for AML Structuring Detection module."""
 
 import sys
-from pathlib import Path
-from decimal import Decimal
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from decimal import Decimal
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from banking.aml.structuring_detection import (
-    StructuringPattern, StructuringAlert, StructuringDetector
+    StructuringAlert,
+    StructuringDetector,
+    StructuringPattern,
 )
 
 
@@ -32,7 +34,7 @@ class TestStructuringPattern:
             risk_level="high",
             indicators=["just_below_threshold", "similar_amounts"],
             detected_at="2026-02-06T12:00:00Z",
-            metadata={}
+            metadata={},
         )
         assert pattern.pattern_id == "pat-123"
         assert pattern.pattern_type == "smurfing"
@@ -53,7 +55,7 @@ class TestStructuringPattern:
                 risk_level="medium",
                 indicators=[],
                 detected_at="2026-01-01",
-                metadata={}
+                metadata={},
             )
             assert pattern.pattern_type == pattern_type
 
@@ -74,7 +76,7 @@ class TestStructuringAlert:
             risk_level="high",
             indicators=["just_below_threshold"],
             detected_at="2026-02-06",
-            metadata={}
+            metadata={},
         )
         alert = StructuringAlert(
             alert_id="alert-123",
@@ -84,7 +86,7 @@ class TestStructuringAlert:
             accounts_involved=["acc-1"],
             total_amount=Decimal("9500.00"),
             recommendation="investigate",
-            timestamp="2026-02-06T12:00:00Z"
+            timestamp="2026-02-06T12:00:00Z",
         )
         assert alert.alert_id == "alert-123"
         assert alert.severity == "high"
@@ -105,14 +107,14 @@ class TestStructuringDetector:
         assert StructuringDetector.MEDIUM_CONFIDENCE_THRESHOLD == 0.70
 
     def test_detector_initialization(self):
-        with patch('banking.aml.structuring_detection.DriverRemoteConnection'):
+        with patch("banking.aml.structuring_detection.DriverRemoteConnection"):
             detector = StructuringDetector.__new__(StructuringDetector)
             detector.ctr_threshold = Decimal("10000.00")
             detector.suspicious_threshold = Decimal("9000.00")
             assert detector.ctr_threshold == Decimal("10000.00")
 
     def test_custom_ctr_threshold(self):
-        with patch('banking.aml.structuring_detection.DriverRemoteConnection'):
+        with patch("banking.aml.structuring_detection.DriverRemoteConnection"):
             # Test that custom threshold can be set
             custom_threshold = Decimal("5000.00")
             detector = StructuringDetector.__new__(StructuringDetector)

@@ -11,8 +11,12 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.python.utils.startup_validation import (
-    StartupValidationError, ValidationResult, _is_default_password,
-    _check_password_strength, validate_passwords, validate_startup
+    StartupValidationError,
+    ValidationResult,
+    _check_password_strength,
+    _is_default_password,
+    validate_passwords,
+    validate_startup,
 )
 
 

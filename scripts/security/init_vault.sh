@@ -67,11 +67,11 @@ VAULT_KEYS_FILE="$PROJECT_ROOT/.vault-keys"
 cat > "$VAULT_KEYS_FILE" <<EOF
 # HashiCorp Vault Initialization Keys
 # Generated: $(date)
-# 
+#
 # ⚠️  CRITICAL SECURITY WARNING ⚠️
 # These keys provide access to all secrets in Vault
 # Store them securely and NEVER commit to version control
-# 
+#
 # Unseal Keys (need 3 of 5 to unseal):
 VAULT_UNSEAL_KEY_1=$UNSEAL_KEY_1
 VAULT_UNSEAL_KEY_2=$UNSEAL_KEY_2

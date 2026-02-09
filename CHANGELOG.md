@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - **Documentation Quality Improvements**
   - FAQ.md with common questions and answers
   - Markdownlint configuration (`.markdownlint.json`)
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Markdown link check configuration
 
 ### Changed
+
 - OLAP guide enhanced with "Why OpenSearch vs Spark" section
 - Notebooks guide updated with OpenSearch aggregation details
 - System architecture updated with OLAP notes
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2026-02-09
 
 ### Added
+
 - **Centralized Configuration** via `pydantic-settings` (`src/python/config/settings.py`)
 - **Resilience Utilities** — `CircuitBreaker` and `retry_with_backoff` (`src/python/utils/resilience.py`)
 - **FastAPI Hardening** — rate limiting (`slowapi`), structured JSON logging, liveness/readiness probes, global error handlers, JWT/API key authentication middleware
@@ -33,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `banking/__init__.py` package marker
 
 ### Changed
+
 - `JanusGraphClient` now requires `username`/`password` for authentication
 - `CircuitBreaker` uses `CircuitBreakerConfig` dataclass instead of keyword args
 - Module-level constants in `src/python/api/main.py` replaced with `get_settings()`
@@ -41,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PII removed from 90+ files
 
 ### Fixed
+
 - All 572 unit/integration tests passing
 - Test serialization fixed (`GraphSONSerializersV3d0` for JanusGraph custom types)
 - Stale `__class__` double-underscore test case removed (pattern intentionally unblocked for Gremlin `__` traversals)
@@ -48,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.1] - 2026-02-09
 
 ### Fixed
+
 - **CRITICAL**: TypeError in `fraud_detection.py` `check_velocity()` — missing required args
 - **CRITICAL**: Gremlin `__` anonymous traversals falsely blocked by query validation regex
 - **CRITICAL**: 118 deprecated `datetime.utcnow()` calls replaced with `datetime.now(timezone.utc)` across 30 files
@@ -58,11 +64,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Naive `datetime.now()` in test fixture (`conftest.py`) now timezone-aware
 
 ### Removed
+
 - `__main__` demo blocks from 9 library modules (-374 lines)
 - PII (phone numbers, personal emails) from 90 files (166 instances)
 - Redundant `requirements*.txt` files (8 files replaced with pointers to `pyproject.toml`)
 
 ### Added
+
 - `banking/__init__.py` — package now installable via `uv pip install -e ".[all]"`
 - `[tool.setuptools.packages.find]` in `pyproject.toml` for proper package discovery
 - `detect-secrets` hook in `.pre-commit-config.yaml` with `.secrets.baseline`
@@ -74,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-01-29
 
 ### Changed - Data Models (BREAKING CHANGES)
+
 - **BREAKING**: Entity models now use inherited `id` field from BaseEntity instead of entity-specific IDs
   - `Person.person_id` → `Person.id`
   - `Company.company_id` → `Company.id`
@@ -84,12 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - See `banking/data_generators/utils/data_models.py` for updated BaseEntity structure
 
 ### Added - Week 4: Test Coverage Improvements
+
 - Comprehensive unit tests for Validator class (276 lines, 100% coverage)
 - Fixed all data generator tests (44/46 passing, 96% success rate)
 - Enhanced test fixtures in conftest.py with better documentation
 - Added `small_orchestrator` fixture for backward compatibility
 
 ### Added - Week 1: Security Hardening
+
 - **SSL/TLS enabled by default** in docker-compose.yml
 - HashiCorp Vault container integration for secrets management
 - Vault initialization script (scripts/security/init_vault.sh)
@@ -100,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Production readiness roadmap (6-week plan)
 
 ### Added - Code Quality
+
 - Comprehensive input validation with Validator class
 - Shared authentication utility (src/python/utils/auth.py)
 - Enhanced security validation for all user inputs
@@ -123,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - config/monitoring/grafana/dashboards/prometheus-system.json
 
 ### Fixed
+
 - **P0 CRITICAL**: Replaced all GitHub organization placeholders (13 occurrences)
 - **P0 CRITICAL**: Replaced all email placeholders (6 occurrences)
 - **P0 CRITICAL**: Updated CODEOWNERS with actual GitHub username
@@ -132,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 46 files updated with full signature format
 
 ### Changed - Security (BREAKING CHANGES)
+
 - **BREAKING**: SSL/TLS now enabled by default for all services
 - **BREAKING**: HCD now uses port 9142 (TLS) as default, 9042 for backward compatibility
 - **BREAKING**: JanusGraph requires TLS certificates in /etc/janusgraph/certs/
@@ -141,6 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - .gitignore updated to exclude .vault-keys and vault data
 
 ### Changed - Code Quality
+
 - Updated signature globally to include full IBM title and contact details
 - Added timestamps to 10 Python files
 - Project restructured from 43 root files to 8 organized directories
@@ -155,6 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Query logging now sanitizes bindings to prevent sensitive data exposure
 
 ### Security
+
 - Enhanced Gremlin query validation with SQL injection and XSS detection
 - Added path traversal detection in file path validation
 - Improved password strength requirements (min 12 chars, complexity rules)
@@ -164,7 +180,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No hardcoded secrets in codebase
 - Security reporting procedures documented
 
-
 ---
-
-

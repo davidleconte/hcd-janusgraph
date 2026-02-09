@@ -4,7 +4,7 @@
 # Author: David LECONTE - IBM Worldwide
 #
 # PRODUCTION configuration with security hardening
-# 
+#
 # USAGE: docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 #
 # REQUIREMENTS:
@@ -149,5 +149,5 @@ services:
 # 3. Initialize Vault after deployment:
 #    ./scripts/security/init_vault.sh
 #
-# 4. Deploy with: 
+# 4. Deploy with:
 #    docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d

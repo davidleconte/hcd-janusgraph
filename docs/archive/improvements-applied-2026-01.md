@@ -13,6 +13,7 @@ All critical issues identified in the analysis have been fixed and improvements 
 **Issue**: `Dockerfile.hcd` referenced Java 17 but base image uses Java 11
 
 **Fix**: Updated `Dockerfile.hcd` line 26
+
 ```diff
 - JAVA_HOME=/usr/local/openjdk-17 \
 + JAVA_HOME=/usr/local/openjdk-11 \
@@ -27,6 +28,7 @@ All critical issues identified in the analysis have been fixed and improvements 
 **Issue**: `podman-compose.yml` referenced non-existent `janusgraph.properties`, actual file is `janusgraph-hcd.properties`
 
 **Fix**: Updated `podman-compose.yml` lines 47, 65
+
 ```diff
 - ./janusgraph.properties:/etc/opt/janusgraph/janusgraph.properties:ro
 + ./janusgraph-hcd.properties:/etc/opt/janusgraph/janusgraph-hcd.properties:ro
@@ -43,12 +45,14 @@ All critical issues identified in the analysis have been fixed and improvements 
 **Fix**: Added to both deployment configurations:
 
 **`podman-compose-full.yml`** - Added environment variables:
+
 ```yaml
 - index.search.backend=lucene
 - index.search.directory=/var/lib/janusgraph/index
 ```
 
 **`deploy_full_stack.sh`** - Added environment variables:
+
 ```bash
 -e index.search.backend=lucene \
 -e index.search.directory=/var/lib/janusgraph/index \
@@ -81,7 +85,6 @@ Applied to both schema initialization and data loading in `run_tests.sh`
 
 **Impact**: Schema initialization and data loading will now execute correctly
 
-
 **Impact**: Schema initialization and data loading will now execute correctly
 
 ---
@@ -105,7 +108,8 @@ RUN pip3 install --no-cache-dir cqlsh cassandra-driver
 # No PATH modification needed - cqlsh installed globally
 ```
 
-**Impact**: 
+**Impact**:
+
 - Cleaner, faster build (no 87MB download)
 - HCD-only approach as requested (no Apache Cassandra binaries)
 - No dependency on specific Cassandra version availability
@@ -125,7 +129,8 @@ RUN pip3 install --no-cache-dir cqlsh cassandra-driver
 + graph.allow-custom-vid-types=false
 ```
 
-**Impact**: 
+**Impact**:
+
 - Data loading works with standard Gremlin `addV()` syntax
 - No "Must provide vertex id" errors
 - Sample data (11 vertices, 19 edges) loads successfully
@@ -137,7 +142,9 @@ RUN pip3 install --no-cache-dir cqlsh cassandra-driver
 **Issue**: Hardcoded podman machine names, ports, and paths throughout scripts
 
 ### Created `.env.example`
+
 Template configuration file with all customizable parameters:
+
 ```bash
 # Podman Configuration
 PODMAN_CONNECTION=podman-wxd
@@ -164,6 +171,7 @@ NETWORK_NAME=hcd-janusgraph-network
 ### Updated All Scripts
 
 **`deploy_full_stack.sh`**:
+
 - Load `.env` if exists
 - Set defaults for all parameters
 - Use variables instead of hardcoded values
@@ -171,19 +179,23 @@ NETWORK_NAME=hcd-janusgraph-network
 - Parameterized: connection, platform, ports, network name
 
 **`run_tests.sh`**:
+
 - Load `.env` if exists
 - Use `$PODMAN_CONNECTION` throughout
 - More portable across different podman setups
 
 **`start_jupyter.sh`**:
+
 - Load `.env` if exists
 - Parameterized: connection, platform, port, network
 
 **`stop_full_stack.sh`**:
+
 - Load `.env` if exists
 - Use `$PODMAN_CONNECTION` for all commands
 
-**Impact**: 
+**Impact**:
+
 - Easy customization without editing scripts
 - Portable across different environments
 - Single source of truth for configuration
@@ -196,17 +208,20 @@ NETWORK_NAME=hcd-janusgraph-network
 ### Quick Start
 
 1. **Copy environment template** (optional):
+
    ```bash
    cp .env.example .env
    # Edit .env to customize ports, machine name, etc.
    ```
 
 2. **Deploy full stack**:
+
    ```bash
    ./deploy_full_stack.sh
    ```
 
 3. **Run tests**:
+
    ```bash
    ./run_tests.sh
    ```
@@ -251,11 +266,13 @@ After these fixes:
 ### Recommended Test Sequence
 
 1. **Rebuild HCD image** (JAVA_HOME fix):
+
    ```bash
    podman --remote --connection podman-wxd build -t localhost/hcd:1.2.3 -f Dockerfile.hcd .
    ```
 
 2. **Deploy stack**:
+
    ```bash
    ./deploy_full_stack.sh
    ```
@@ -263,11 +280,13 @@ After these fixes:
 3. **Wait for services** (2-3 minutes for HCD to fully start)
 
 4. **Run automated tests**:
+
    ```bash
    ./run_tests.sh
    ```
 
 5. **Verify results**:
+
    ```bash
    cat TEST_RESULTS.md
    # Should show: "✅ ALL TESTS PASSED"
@@ -276,6 +295,7 @@ After these fixes:
 ### Manual Verification
 
 **Test mixed index**:
+
 ```bash
 podman exec janusgraph-server ./bin/gremlin.sh << 'EOF'
 :remote connect tinkerpop.server conf/remote.yaml
@@ -286,6 +306,7 @@ EOF
 ```
 
 **Test configuration**:
+
 ```bash
 # Check JanusGraph properties
 podman exec janusgraph-server env | grep janusgraph
@@ -301,16 +322,19 @@ podman exec hcd-server java -version
 ## Additional Improvements Made
 
 ### Code Quality
+
 - Consistent variable usage across all scripts
 - Proper error handling maintained
 - Better user feedback with configuration display
 
 ### Documentation
+
 - Clear usage instructions
 - Environment variable documentation
 - Testing guidelines
 
 ### Maintainability
+
 - Single source of truth (.env file)
 - Easy to update ports/settings
 - No scattered hardcoded values
@@ -357,6 +381,7 @@ podman exec hcd-server java -version
 **Before fixes**: 10/12 tests failing (schema init failed, data loading failed)
 
 **After fixes**: All components working
+
 - ✅ Schema initialized: 3 vertex labels, 4 edge labels, 9 properties, 4 indexes
 - ✅ Data loaded: 11 vertices (5 people, 3 companies, 3 products)
 - ✅ Edges created: 19 edges (6 knows, 5 worksFor, 3 created, 5 uses)

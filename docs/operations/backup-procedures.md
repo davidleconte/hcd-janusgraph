@@ -1,7 +1,7 @@
 # Backup and Restore Guide
 
-**File**: docs/BACKUP.md  
-**Created**: 2026-01-28T11:07:00.123  
+**File**: docs/BACKUP.md
+**Created**: 2026-01-28T11:07:00.123
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -21,6 +21,7 @@ This guide covers backup and restore procedures for the HCD + JanusGraph stack.
 ### Backup Frequency
 
 **Recommended Schedule**:
+
 - Daily: Full backup (automated via cron)
 - Hourly: Incremental snapshots
 - Before deployments: Manual backup
@@ -34,6 +35,7 @@ This guide covers backup and restore procedures for the HCD + JanusGraph stack.
 bash scripts/backup/backup_volumes.sh
 
 This creates:
+
 - HCD snapshot
 - JanusGraph data archive
 - GraphML export
@@ -43,6 +45,7 @@ Backup location: /backups/janusgraph/
 ### Backup Contents
 
 timestamp_YYYYMMDD_HHMMSS/
+
 - hcd/: HCD data files
 - janusgraph.tar.gz: JanusGraph data
 - graph.graphml: Graph export
@@ -59,7 +62,7 @@ crontab -e
 
 Add daily backup at 2 AM:
 
-0 2 * * * /path/to/scripts/backup/backup_volumes.sh
+0 2 ** * /path/to/scripts/backup/backup_volumes.sh
 
 ### Backup Retention
 
@@ -96,6 +99,7 @@ Storage class: STANDARD_IA (Infrequent Access) for cost savings.
 bash scripts/backup/restore_volumes.sh /backups/janusgraph/hcd_20260128_103000
 
 Steps:
+
 1. Prompts for confirmation
 2. Stops all services
 3. Restores HCD data
@@ -110,6 +114,7 @@ After restore completes:
 bash scripts/testing/run_tests.sh
 
 Check:
+
 - All tests pass
 - Expected data present
 - Services healthy
@@ -120,7 +125,7 @@ Check:
 
 ### RTO/RPO
 
-**Recovery Time Objective (RTO)**: 1 hour  
+**Recovery Time Objective (RTO)**: 1 hour
 **Recovery Point Objective (RPO)**: 24 hours (daily backups)
 
 ### Recovery Steps
@@ -148,12 +153,15 @@ Best practice: Test restore monthly.
 After backup:
 
 # Check backup exists
+
 ls -lh /backups/janusgraph/
 
 # Verify archive integrity
+
 tar -tzf /backups/janusgraph/janusgraph_*.tar.gz > /dev/null
 
 # Check GraphML export
+
 wc -l /backups/janusgraph/graph_*.graphml
 
 ---
@@ -190,6 +198,7 @@ podman exec hcd-server nodetool refresh janusgraph edgestore
 ### Backup Fails
 
 Check:
+
 - Disk space available
 - Podman containers running
 - Permissions on backup directory
@@ -201,6 +210,7 @@ tail -f ~/.adal/bash_logs/*.log
 ### Restore Fails
 
 Common issues:
+
 - Services not stopped properly
 - Insufficient disk space
 - Permission errors
@@ -210,6 +220,7 @@ Solution: Check logs and retry.
 ### S3 Upload Fails
 
 Verify:
+
 - AWS credentials configured
 - S3 bucket exists
 - Network connectivity

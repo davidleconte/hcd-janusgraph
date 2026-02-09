@@ -1,7 +1,7 @@
 # Documentation Standards
 
-**Version:** 1.0  
-**Last Updated:** 2026-02-07  
+**Version:** 1.0
+**Last Updated:** 2026-02-07
 **Status:** Active
 
 This document defines the standards and best practices for all project documentation.
@@ -26,6 +26,7 @@ This document defines the standards and best practices for all project documenta
 ### General Rules
 
 **Use kebab-case for all documentation files:**
+
 - ✅ `user-guide.md`
 - ✅ `api-reference.md`
 - ✅ `phase-8-complete.md`
@@ -34,6 +35,7 @@ This document defines the standards and best practices for all project documenta
 - ❌ `user_guide.md` (snake_case)
 
 **Exceptions:**
+
 - `README.md` - Always uppercase (standard convention)
 - `LICENSE` - Always uppercase (standard convention)
 - `CHANGELOG.md` - Uppercase acceptable for root-level files
@@ -44,6 +46,7 @@ This document defines the standards and best practices for all project documenta
 ### Specific Naming Patterns
 
 **Guides:**
+
 ```
 user-guide.md
 developer-guide.md
@@ -52,6 +55,7 @@ troubleshooting-guide.md
 ```
 
 **References:**
+
 ```
 api-reference.md
 configuration-reference.md
@@ -59,6 +63,7 @@ command-reference.md
 ```
 
 **Plans:**
+
 ```
 implementation-plan.md
 remediation-plan.md
@@ -66,6 +71,7 @@ migration-plan.md
 ```
 
 **Reports:**
+
 ```
 audit-report.md
 performance-report.md
@@ -73,6 +79,7 @@ security-assessment.md
 ```
 
 **Phase Documentation:**
+
 ```
 phase-1-complete.md
 phase-2-week-3-status.md
@@ -129,6 +136,7 @@ docs/
 4. **Group by purpose** not by format
 
 **Examples:**
+
 - ✅ `api/`, `architecture/`, `compliance/`
 - ✅ `implementation/`, `operations/`
 - ❌ `API/`, `Architecture/` (uppercase)
@@ -155,8 +163,8 @@ Every documentation file should include:
 ```markdown
 # Document Title
 
-**Date:** YYYY-MM-DD  
-**Version:** X.Y  
+**Date:** YYYY-MM-DD
+**Version:** X.Y
 **Status:** Draft | Active | Deprecated
 
 Brief overview of the document's purpose and scope.
@@ -186,8 +194,8 @@ Content here...
 
 ---
 
-**Last Updated:** YYYY-MM-DD  
-**Maintained By:** Team/Person  
+**Last Updated:** YYYY-MM-DD
+**Maintained By:** Team/Person
 **Review Frequency:** Monthly/Quarterly
 ```
 
@@ -240,17 +248,20 @@ Use proper heading hierarchy:
 ### Formatting Conventions
 
 **Commands and Code:**
+
 ```bash
 # Use code blocks for commands
 docker-compose up -d
 ```
 
 **File Paths:**
+
 - Use backticks: `path/to/file.md`
 - Use relative paths when possible
 - Be consistent with path separators
 
 **Emphasis:**
+
 - **Bold** for important terms and UI elements
 - *Italic* for emphasis (use sparingly)
 - `Code` for inline code, commands, and file names
@@ -284,6 +295,7 @@ services:
 ### Lists
 
 **Unordered Lists:**
+
 ```markdown
 - Item 1
 - Item 2
@@ -293,6 +305,7 @@ services:
 ```
 
 **Ordered Lists:**
+
 ```markdown
 1. First step
 2. Second step
@@ -300,6 +313,7 @@ services:
 ```
 
 **Task Lists:**
+
 ```markdown
 - [x] Completed task
 - [ ] Pending task
@@ -318,6 +332,7 @@ Use tables for structured data:
 ```
 
 **Alignment:**
+
 ```markdown
 | Left | Center | Right |
 |:-----|:------:|------:|
@@ -375,10 +390,12 @@ if result.is_match:
 ```
 
 **Expected Output:**
+
 ```
 Match found: John Doe
 Confidence: 0.92
 ```
+
 ```
 
 ---
@@ -395,6 +412,7 @@ Setup Guide (see getting-started)
 ```
 
 **Link to specific sections:**
+
 ```markdown
 Installation Section
 [Configuration](banking/guides/user-guide.md#configuration)
@@ -403,6 +421,7 @@ Installation Section
 ### External Links
 
 **Use descriptive text:**
+
 ```markdown
 ✅ [JanusGraph Documentation](https://docs.janusgraph.org/)
 ❌ [Click here](https://docs.janusgraph.org/)
@@ -464,9 +483,9 @@ When deprecating documentation:
 ```markdown
 # Old Feature Guide (DEPRECATED)
 
-**Status:** Deprecated  
-**Deprecated Date:** 2026-01-28  
-**Removal Date:** 2026-07-28  
+**Status:** Deprecated
+**Deprecated Date:** 2026-01-28
+**Removal Date:** 2026-07-28
 **Migration:** See [New Feature Guide](new-feature-guide.md)
 
 > **Warning:** This documentation is deprecated and will be removed on 2026-07-28.
@@ -499,8 +518,8 @@ Before publishing new documentation, verify:
 ```markdown
 # deployment-guide.md
 
-**Date:** 2026-01-28  
-**Version:** 2.0  
+**Date:** 2026-01-28
+**Version:** 2.0
 **Status:** Active
 
 This guide provides step-by-step instructions for deploying the HCD + JanusGraph platform to production.
@@ -523,6 +542,7 @@ cp .env.example .env
 ```
 
 Edit `.env` and set:
+
 - `CASSANDRA_PASSWORD` - Strong password
 - `OPENSEARCH_PASSWORD` - Strong password
 
@@ -534,6 +554,7 @@ bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
 **Expected Output:**
+
 ```
 ✓ Starting HCD...
 ✓ Starting JanusGraph...
@@ -556,6 +577,7 @@ All services should show "healthy" status.
 **Issue:** Services fail to start
 
 **Solution:** Check logs:
+
 ```bash
 docker-compose logs -f
 ```
@@ -568,9 +590,10 @@ docker-compose logs -f
 
 ---
 
-**Last Updated:** 2026-02-07  
-**Maintained By:** DevOps Team  
+**Last Updated:** 2026-02-07
+**Maintained By:** DevOps Team
 **Review Frequency:** Monthly
+
 ```
 
 ---
@@ -616,6 +639,7 @@ rg "TODO|FIXME" --type py --type md \
 ```
 
 **Directories to exclude from audits:**
+
 - `docs/archive/` - Historical documents
 - `docs/implementation/remediation/archive/` - Completed remediation records
 - `docs/implementation/audits/archive/` - Past audit reports
@@ -640,6 +664,6 @@ For questions about documentation standards:
 
 ---
 
-**Maintained By:** Documentation Team  
-**Review Frequency:** Quarterly  
+**Maintained By:** Documentation Team
+**Review Frequency:** Quarterly
 **Next Review:** 2026-04-28

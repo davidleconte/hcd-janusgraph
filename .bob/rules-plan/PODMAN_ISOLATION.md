@@ -1,7 +1,7 @@
 # Podman Container Isolation Rules
 
-**Source:** Based on [`/Users/david.leconte/Documents/Work/Labs/Adal/podman-architecture/PODMAN_ARCHITECTURE.md`](/Users/david.leconte/Documents/Work/Labs/Adal/podman-architecture/PODMAN_ARCHITECTURE.md)  
-**Date:** 2026-01-30  
+**Source:** Based on [`/Users/david.leconte/Documents/Work/Labs/Adal/podman-architecture/PODMAN_ARCHITECTURE.md`](/Users/david.leconte/Documents/Work/Labs/Adal/podman-architecture/PODMAN_ARCHITECTURE.md)
+**Date:** 2026-01-30
 **Status:** MANDATORY for all deployments
 
 ---
@@ -24,12 +24,14 @@ podman network create hcd-janusgraph-network
 ```
 
 **Benefits:**
+
 - Containers in janusgraph-demo cannot reach other projects
 - Each project has its own DNS namespace
 - No IP conflicts between projects
 - Clean network-level separation
 
 **Verification:**
+
 ```bash
 podman network inspect janusgraph-demo-network | grep Subnet
 # Should show unique subnet like 10.89.5.0/24
@@ -52,12 +54,14 @@ prometheus-data
 ```
 
 **Benefits:**
+
 - No shared volumes between projects
 - Data persists independently
 - Easy per-project backup
 - No accidental data mixing
 
 **Verification:**
+
 ```bash
 podman volume ls --filter "label=project=janusgraph-demo"
 # Should show only janusgraph-demo volumes
@@ -80,12 +84,14 @@ podman pod create --name janusgraph-demo-pod
 ```
 
 **Recommended Allocation:**
+
 - HCD: 4GB RAM, 2 CPUs
 - JanusGraph: 4GB RAM, 2 CPUs
 - Monitoring: 2GB RAM, 1 CPU
 - Total: 10GB RAM, 5 CPUs
 
 **Verification:**
+
 ```bash
 podman pod stats janusgraph-demo-pod
 # Should show resource usage within limits
@@ -109,6 +115,7 @@ HOST_JUPYTER_PORT=18888 \
 ```
 
 **Default Ports:**
+
 ```
 9042 → 9042 (HCD CQL)
 8182 → 8182 (JanusGraph Gremlin)
@@ -118,6 +125,7 @@ HOST_JUPYTER_PORT=18888 \
 ```
 
 **Custom Ports (if conflicts):**
+
 ```
 19042 → 9042 (HCD CQL)
 18182 → 8182 (JanusGraph Gremlin)
@@ -150,12 +158,14 @@ podman pod create --name janusgraph-demo-pod
 ```
 
 **Benefits:**
+
 - Easy to list resources per project
 - Bulk operations per project (start/stop all)
 - No accidental cross-project operations
 - Clear resource ownership
 
 **Verification:**
+
 ```bash
 # List all janusgraph-demo resources
 podman ps --filter "label=project=janusgraph-demo"
@@ -362,6 +372,7 @@ Before considering deployment successful, verify:
 - [ ] Volumes are isolated (no cross-project access)
 
 **Verification Script:**
+
 ```bash
 #!/bin/bash
 # scripts/deployment/verify_isolation.sh
@@ -476,6 +487,6 @@ volumes:
 
 ---
 
-**Last Updated:** 2026-01-30  
-**Status:** MANDATORY - Must be followed for all deployments  
+**Last Updated:** 2026-01-30
+**Status:** MANDATORY - Must be followed for all deployments
 **Enforcement:** Automated validation required before production

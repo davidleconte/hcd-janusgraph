@@ -1,8 +1,9 @@
 """Tests for resilience utilities: CircuitBreaker and retry_with_backoff."""
 
 import time
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from src.python.utils.resilience import (
     CircuitBreaker,
@@ -21,7 +22,9 @@ class TestCircuitBreakerConfig:
         assert cfg.half_open_max_calls == 1
 
     def test_custom(self):
-        cfg = CircuitBreakerConfig(failure_threshold=3, recovery_timeout=10.0, half_open_max_calls=2)
+        cfg = CircuitBreakerConfig(
+            failure_threshold=3, recovery_timeout=10.0, half_open_max_calls=2
+        )
         assert cfg.failure_threshold == 3
 
 

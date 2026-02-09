@@ -1,8 +1,9 @@
 # Week 1 Security Implementation - Complete Guide
+
 **Ready-to-Apply Code for All Remaining Tasks**
 
-**Date:** 2026-01-28  
-**Status:** Implementation Guide  
+**Date:** 2026-01-28
+**Status:** Implementation Guide
 **Purpose:** Complete code examples for all remaining security tasks
 
 ---
@@ -97,7 +98,7 @@ class JanusGraphClient:
         # Validate inputs
         host = validate_hostname(host)
         port = validate_port(port)
-        
+
         if timeout <= 0:
             raise ValidationError(f"Invalid timeout: {timeout} (must be positive)")
 
@@ -128,7 +129,7 @@ class JanusGraphClient:
         # Build URL with SSL
         protocol = "wss" if use_ssl else "ws"
         self.url = f"{protocol}://{host}:{port}/gremlin"
-        
+
         self._client: Optional[client.Client] = None
 
         logger.info(
@@ -152,7 +153,7 @@ class JanusGraphClient:
 
         try:
             logger.info("Connecting to JanusGraph at %s (SSL: %s)", self.url, self.use_ssl)
-            
+
             # Configure SSL context if using SSL
             ssl_context = None
             if self.use_ssl:
@@ -172,9 +173,9 @@ class JanusGraphClient:
                 password=self.password,
                 message_serializer=serializer.GraphSONSerializersV3d0(),
             )
-            
+
             logger.info("Successfully connected to JanusGraph at %s", self.url)
-            
+
         except TimeoutError as e:
             logger.error("Connection timeout to %s: %s", self.url, e)
             raise TimeoutError(f"Connection to {self.url} timed out") from e
@@ -210,15 +211,15 @@ class JanusGraphClient:
         try:
             # Log query (first 100 chars only for security)
             logger.debug("Executing query: %s", query[:100])
-            
+
             if bindings:
                 result = self._client.submit(query, bindings).all().result()
             else:
                 result = self._client.submit(query).all().result()
-            
+
             logger.debug("Query returned %d results", len(result))
             return result
-            
+
         except GremlinServerError as e:
             logger.error("Query execution failed: %s", e)
             raise QueryError(f"Gremlin query error: {e}", query=query) from e
@@ -290,7 +291,7 @@ def __init__(
 ):
     """
     Initialize OpenSearch client with security.
-    
+
     Args:
         host: OpenSearch host
         port: OpenSearch port
@@ -299,20 +300,20 @@ def __init__(
         use_ssl: Use SSL/TLS - default True
         verify_certs: Verify SSL certificates - default True
         ca_certs: Path to CA certificate bundle
-    
+
     Raises:
         ValueError: If authentication credentials not provided
     """
     # Validate inputs
     host = validate_hostname(host)
     port = validate_port(port)
-    
+
     # Get credentials from environment if not provided
     if not username:
         username = os.getenv('OPENSEARCH_USERNAME')
     if not password:
         password = os.getenv('OPENSEARCH_PASSWORD')
-    
+
     # Require authentication
     if not username or not password:
         raise ValueError(
@@ -320,14 +321,14 @@ def __init__(
             "Set OPENSEARCH_USERNAME and OPENSEARCH_PASSWORD environment variables "
             "or pass credentials to constructor."
         )
-    
+
     auth = (username, password)
-    
+
     # Configure SSL options
     ssl_options = {}
     if use_ssl and ca_certs:
         ssl_options['ca_certs'] = ca_certs
-    
+
     self.client = OpenSearch(
         hosts=[{'host': host, 'port': port}],
         http_auth=auth,
@@ -336,9 +337,9 @@ def __init__(
         ssl_show_warn=False,
         **ssl_options
     )
-    
+
     logger.info(f"Connected to OpenSearch at {host}:{port} (SSL: {use_ssl})")
-    
+
     # Verify connection
     info = self.client.info()
     logger.info(f"OpenSearch version: {info['version']['number']}")
@@ -354,7 +355,7 @@ def __init__(
 # =============================================================================
 # HCD + JanusGraph Banking Compliance System - Environment Configuration
 # =============================================================================
-# 
+#
 # SECURITY NOTICE:
 # - Never commit .env file to version control
 # - Use strong passwords (min 16 characters, mixed case, numbers, symbols)
@@ -478,7 +479,7 @@ def __init__(
 ):
     """
     Initialize sanctions screener with secure configuration.
-    
+
     Args:
         opensearch_host: OpenSearch host
         opensearch_port: OpenSearch port
@@ -488,11 +489,11 @@ def __init__(
         index_name: OpenSearch index name for sanctions
     """
     self.index_name = index_name
-    
+
     # Initialize embedding generator
     logger.info(f"Initializing embedding generator: {embedding_model}")
     self.generator = EmbeddingGenerator(model_name=embedding_model)
-    
+
     # Initialize vector search client with authentication
     logger.info(f"Connecting to OpenSearch: {opensearch_host}:{opensearch_port}")
     self.search_client = VectorSearchClient(
@@ -503,7 +504,7 @@ def __init__(
         use_ssl=True,  # Secure by default
         verify_certs=True
     )
-    
+
     # Create index if not exists
     self._ensure_index_exists()
 ```
@@ -527,7 +528,7 @@ def __init__(
 ):
     """
     Initialize fraud detector with secure configuration.
-    
+
     Args:
         janusgraph_host: JanusGraph host
         janusgraph_port: JanusGraph port
@@ -544,11 +545,11 @@ def __init__(
     self.graph_url = f"wss://{janusgraph_host}:{janusgraph_port}/gremlin"
     self.janusgraph_username = janusgraph_username
     self.janusgraph_password = janusgraph_password
-    
+
     # Initialize embedding generator
     logger.info(f"Initializing embedding generator: {embedding_model}")
     self.generator = EmbeddingGenerator(model_name=embedding_model)
-    
+
     # Initialize vector search with authentication
     logger.info(f"Connecting to OpenSearch: {opensearch_host}:{opensearch_port}")
     self.search_client = VectorSearchClient(
@@ -559,7 +560,7 @@ def __init__(
         use_ssl=True,
         verify_certs=True
     )
-    
+
     self.fraud_index = 'fraud_cases'
     self._ensure_fraud_index()
 ```
@@ -579,7 +580,7 @@ def __init__(
 ):
     """
     Initialize structuring detector with secure configuration.
-    
+
     Args:
         janusgraph_host: JanusGraph host
         janusgraph_port: JanusGraph port
@@ -592,7 +593,7 @@ def __init__(
     self.janusgraph_password = janusgraph_password
     self.ctr_threshold = ctr_threshold or self.CTR_THRESHOLD
     self.suspicious_threshold = self.ctr_threshold * Decimal('0.9')
-    
+
     logger.info(f"Initialized StructuringDetector: threshold=${self.ctr_threshold}")
 ```
 
@@ -617,21 +618,24 @@ All services in the HCD + JanusGraph banking compliance system require authentic
    ```
 
 2. Generate secure passwords:
+
    ```bash
    # Generate 32-character random password
    openssl rand -base64 32
    ```
 
 3. Update `.env` with your credentials:
+
    ```bash
    JANUSGRAPH_USERNAME=admin
    JANUSGRAPH_PASSWORD=your_secure_password_here
-   
+
    OPENSEARCH_USERNAME=admin
    OPENSEARCH_PASSWORD=your_secure_password_here
    ```
 
 4. Verify `.env` is in `.gitignore`:
+
    ```bash
    grep "^\.env$" .gitignore || echo ".env" >> .gitignore
    ```
@@ -639,6 +643,7 @@ All services in the HCD + JanusGraph banking compliance system require authentic
 ## Password Requirements
 
 **Minimum Requirements:**
+
 - Length: 16 characters
 - Complexity: Mix of uppercase, lowercase, numbers, symbols
 - No dictionary words
@@ -646,6 +651,7 @@ All services in the HCD + JanusGraph banking compliance system require authentic
 - Unique per service
 
 **Recommended:**
+
 - Length: 32+ characters
 - Generated randomly
 - Stored in password manager
@@ -692,6 +698,7 @@ client = VectorSearchClient(
 ### 1. Use Secrets Management
 
 **AWS Secrets Manager:**
+
 ```python
 import boto3
 import json
@@ -708,6 +715,7 @@ os.environ['JANUSGRAPH_PASSWORD'] = secrets['janusgraph_password']
 ```
 
 **HashiCorp Vault:**
+
 ```python
 import hvac
 
@@ -734,6 +742,7 @@ NEW_PASSWORD=$(openssl rand -base64 32)
 ### 3. Audit Logging
 
 Enable authentication audit logs:
+
 ```python
 import logging
 
@@ -754,6 +763,7 @@ Error: Authentication required: username and password must be provided
 ```
 
 **Solution:**
+
 1. Check `.env` file exists
 2. Verify credentials are set
 3. Ensure no typos in variable names
@@ -766,6 +776,7 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 ```
 
 **Solution:**
+
 1. Verify service is running
 2. Check firewall rules
 3. Verify SSL/TLS configuration
@@ -787,22 +798,26 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 ## Compliance
 
 ### GDPR/CCPA
+
 - Credentials are PII - handle accordingly
 - Implement data retention policies
 - Enable audit trails
 - Support data deletion requests
 
 ### PCI DSS
+
 - Strong authentication required
 - Encrypt credentials in transit and at rest
 - Regular security audits
 - Access control and monitoring
 
 ### SOC 2
+
 - Document authentication procedures
 - Implement change management
 - Regular access reviews
 - Incident response procedures
+
 ```
 
 ---
@@ -833,12 +848,12 @@ from src.python.utils.log_sanitizer import PIISanitizer, sanitize_for_logging
 
 class TestInputValidation:
     """Test input validation functions."""
-    
+
     def test_validate_account_id_valid(self):
         """Test valid account ID."""
         assert validate_account_id("ACC-12345") == "ACC-12345"
         assert validate_account_id("ACCOUNT-ABC123") == "ACCOUNT-ABC123"
-    
+
     def test_validate_account_id_invalid(self):
         """Test invalid account ID."""
         with pytest.raises(ValidationError):
@@ -847,14 +862,14 @@ class TestInputValidation:
             validate_account_id("abc")  # Too short
         with pytest.raises(ValidationError):
             validate_account_id("a" * 100)  # Too long
-    
+
     def test_validate_amount_valid(self):
         """Test valid amounts."""
         from decimal import Decimal
         assert validate_amount(100.50) == Decimal('100.50')
         assert validate_amount(0.01) == Decimal('0.01')
         assert validate_amount(1000000) == Decimal('1000000')
-    
+
     def test_validate_amount_invalid(self):
         """Test invalid amounts."""
         with pytest.raises(ValidationError):
@@ -863,12 +878,12 @@ class TestInputValidation:
             validate_amount(0)  # Below minimum
         with pytest.raises(ValidationError):
             validate_amount(10_000_000_000)  # Above maximum
-    
+
     def test_validate_gremlin_query_valid(self):
         """Test valid Gremlin queries."""
         assert validate_gremlin_query("g.V().count()") == "g.V().count()"
         assert validate_gremlin_query("g.V().has('name', 'John')") == "g.V().has('name', 'John')"
-    
+
     def test_validate_gremlin_query_dangerous(self):
         """Test dangerous Gremlin queries are blocked."""
         with pytest.raises(ValidationError, match="dangerous operation"):
@@ -879,7 +894,7 @@ class TestInputValidation:
 
 class TestLogSanitization:
     """Test PII sanitization in logs."""
-    
+
     def test_sanitize_email(self):
         """Test email redaction."""
         sanitizer = PIISanitizer()
@@ -887,7 +902,7 @@ class TestLogSanitization:
         result = sanitizer.sanitize(text)
         assert "[EMAIL_REDACTED]" in result
         assert "john.doe@example.com" not in result
-    
+
     def test_sanitize_ssn(self):
         """Test SSN redaction."""
         sanitizer = PIISanitizer()
@@ -895,7 +910,7 @@ class TestLogSanitization:
         result = sanitizer.sanitize(text)
         assert "[SSN_REDACTED]" in result
         assert "123-45-6789" not in result
-    
+
     def test_sanitize_credit_card(self):
         """Test credit card redaction."""
         sanitizer = PIISanitizer()
@@ -903,7 +918,7 @@ class TestLogSanitization:
         result = sanitizer.sanitize(text)
         assert "[CARD_REDACTED]" in result
         assert "4532-1234-5678-9010" not in result
-    
+
     def test_sanitize_account_id(self):
         """Test account ID redaction."""
         sanitizer = PIISanitizer()
@@ -911,7 +926,7 @@ class TestLogSanitization:
         result = sanitizer.sanitize(text)
         assert "[ACCOUNT_REDACTED]" in result
         assert "ACC-12345" not in result
-    
+
     def test_sanitize_multiple_pii(self):
         """Test multiple PII types in one string."""
         sanitizer = PIISanitizer()
@@ -925,28 +940,28 @@ class TestLogSanitization:
 
 class TestAuthentication:
     """Test authentication requirements."""
-    
+
     def test_janusgraph_requires_auth(self):
         """Test JanusGraph client requires authentication."""
         from src.python.client.janusgraph_client import JanusGraphClient
         from src.python.client.exceptions import ValidationError
-        
+
         # Clear environment variables
         os.environ.pop('JANUSGRAPH_USERNAME', None)
         os.environ.pop('JANUSGRAPH_PASSWORD', None)
-        
+
         # Should raise error without credentials
         with pytest.raises(ValidationError, match="Authentication required"):
             JanusGraphClient(host="localhost", port=8182)
-    
+
     def test_opensearch_requires_auth(self):
         """Test OpenSearch client requires authentication."""
         from src.python.utils.vector_search import VectorSearchClient
-        
+
         # Clear environment variables
         os.environ.pop('OPENSEARCH_USERNAME', None)
         os.environ.pop('OPENSEARCH_PASSWORD', None)
-        
+
         # Should raise error without credentials
         with pytest.raises(ValueError, match="Authentication required"):
             VectorSearchClient(host="localhost", port=9200)
@@ -954,11 +969,11 @@ class TestAuthentication:
 
 class TestSSLTLS:
     """Test SSL/TLS configuration."""
-    
+
     def test_janusgraph_ssl_default(self):
         """Test JanusGraph uses SSL by default."""
         from src.python.client.janusgraph_client import JanusGraphClient
-        
+
         client = JanusGraphClient(
             host="localhost",
             port=8182,
@@ -967,11 +982,11 @@ class TestSSLTLS:
         )
         assert client.use_ssl is True
         assert "wss://" in client.url
-    
+
     def test_opensearch_ssl_default(self):
         """Test OpenSearch uses SSL by default."""
         from src.python.utils.vector_search import VectorSearchClient
-        
+
         # This will fail without valid credentials, but we can check the default
         try:
             client = VectorSearchClient(
@@ -994,12 +1009,12 @@ if __name__ == "__main__":
 
 This guide provides complete, production-ready code for all remaining Week 1 security tasks:
 
-✅ **JanusGraphClient** - Authentication, SSL/TLS, query validation  
-✅ **VectorSearchClient** - Authentication, SSL/TLS, certificate validation  
-✅ **Banking Modules** - Secure client usage  
-✅ **.env.example** - Secure configuration template  
-✅ **Authentication Guide** - Complete setup documentation  
-✅ **Security Tests** - Comprehensive test suite  
+✅ **JanusGraphClient** - Authentication, SSL/TLS, query validation
+✅ **VectorSearchClient** - Authentication, SSL/TLS, certificate validation
+✅ **Banking Modules** - Secure client usage
+✅ **.env.example** - Secure configuration template
+✅ **Authentication Guide** - Complete setup documentation
+✅ **Security Tests** - Comprehensive test suite
 
 **All code is ready to apply directly with no modifications needed.**
 

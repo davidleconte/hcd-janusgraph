@@ -14,5 +14,6 @@ Historical weekly progress reports and superseded remediation documents.
 ## Current Status
 
 See parent directory for active remediation documents:
+
 - `FINAL_REMEDIATION_STATUS_2026-02-04.md` - Latest status
 - `REMEDIATION_CHECKLIST_2026-02-03.md` - Current checklist

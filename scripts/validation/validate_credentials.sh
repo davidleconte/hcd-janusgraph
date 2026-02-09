@@ -24,7 +24,7 @@ check_placeholder() {
     local file=$1
     local pattern=$2
     local description=$3
-    
+
     if [ -f "$file" ]; then
         if grep -q "$pattern" "$file" 2>/dev/null; then
             echo -e "${RED}[ERROR]${NC} $description found in $file"
@@ -40,7 +40,7 @@ check_default_password() {
     local file=$1
     local var_name=$2
     local default_values=("changeit" "password" "admin" "secret" "test" "demo" "YOUR_" "CHANGE_ME" "placeholder")
-    
+
     if [ -f "$file" ]; then
         for default in "${default_values[@]}"; do
             if grep -qE "^${var_name}=.*${default}" "$file" 2>/dev/null; then
@@ -62,7 +62,7 @@ if [ -f ".env" ]; then
     check_placeholder ".env" "YOUR_SECURE_PASSWORD" "Placeholder password"
     check_placeholder ".env" "CHANGE_THIS" "Placeholder value"
     check_placeholder ".env" "YOUR_.*_HERE" "Placeholder value"
-    
+
     # Check specific variables for default values
     check_default_password ".env" "JANUSGRAPH_PASSWORD"
     check_default_password ".env" "HCD_KEYSTORE_PASSWORD"
@@ -70,7 +70,7 @@ if [ -f ".env" ]; then
     check_default_password ".env" "VAULT_TOKEN"
     check_default_password ".env" "GRAFANA_ADMIN_PASSWORD"
     check_default_password ".env" "POSTGRES_PASSWORD"
-    
+
     # Check for empty critical variables
     CRITICAL_VARS=("JANUSGRAPH_PASSWORD" "HCD_KEYSTORE_PASSWORD")
     for var in "${CRITICAL_VARS[@]}"; do

@@ -62,20 +62,20 @@ log_error() {
 # Check prerequisites
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
+
     # Check if podman is accessible
     if ! podman --remote --connection "$PODMAN_CONNECTION" ps >/dev/null 2>&1; then
         log_error "Cannot connect to Podman. Check connection: $PODMAN_CONNECTION"
         exit 1
     fi
-    
+
     # Check if GPG is installed (for encryption)
     if [ "$ENCRYPTION_ENABLED" = "true" ]; then
         if ! command -v gpg &> /dev/null; then
             log_error "GPG not installed. Install with: apt-get install gnupg"
             exit 1
         fi
-        
+
         # Check if GPG key exists
         if ! gpg --list-keys "$GPG_RECIPIENT" &> /dev/null; then
             log_warning "GPG key for $GPG_RECIPIENT not found"
@@ -83,7 +83,7 @@ check_prerequisites() {
             log_info "Or import existing key: gpg --import key.asc"
         fi
     fi
-    
+
     # Check if AWS CLI is installed (if S3 backup enabled)
     if [ -n "$S3_BUCKET" ]; then
         if ! command -v aws &> /dev/null; then
@@ -92,7 +92,7 @@ check_prerequisites() {
             S3_BUCKET=""
         fi
     fi
-    
+
     log_success "Prerequisites check completed"
 }
 
@@ -107,14 +107,14 @@ create_backup_dir() {
 # Backup HCD data
 backup_hcd() {
     log_info "Backing up HCD data..."
-    
+
     # Create HCD snapshot
     log_info "Creating HCD snapshot..."
     podman --remote --connection "$PODMAN_CONNECTION" exec hcd-server \
         /opt/hcd/bin/nodetool snapshot janusgraph || {
         log_warning "HCD snapshot failed (non-critical)"
     }
-    
+
     # Export HCD data
     log_info "Exporting HCD data..."
     podman --remote --connection "$PODMAN_CONNECTION" exec hcd-server \
@@ -122,44 +122,44 @@ backup_hcd() {
         log_error "Failed to create HCD data archive"
         return 1
     }
-    
+
     # Copy from container
     podman --remote --connection "$PODMAN_CONNECTION" cp \
         hcd-server:/tmp/hcd_data.tar.gz "$TEMP_DIR/hcd_data.tar.gz"
-    
+
     # Cleanup container temp file
     podman --remote --connection "$PODMAN_CONNECTION" exec hcd-server \
         rm -f /tmp/hcd_data.tar.gz
-    
+
     log_success "HCD data backed up: $(du -h "$TEMP_DIR/hcd_data.tar.gz" | cut -f1)"
 }
 
 # Backup JanusGraph data
 backup_janusgraph() {
     log_info "Backing up JanusGraph data..."
-    
+
     # Export JanusGraph data
     podman --remote --connection "$PODMAN_CONNECTION" exec janusgraph-server \
         tar -czf /tmp/janusgraph_data.tar.gz /var/lib/janusgraph 2>/dev/null || {
         log_error "Failed to create JanusGraph data archive"
         return 1
     }
-    
+
     # Copy from container
     podman --remote --connection "$PODMAN_CONNECTION" cp \
         janusgraph-server:/tmp/janusgraph_data.tar.gz "$TEMP_DIR/janusgraph_data.tar.gz"
-    
+
     # Cleanup container temp file
     podman --remote --connection "$PODMAN_CONNECTION" exec janusgraph-server \
         rm -f /tmp/janusgraph_data.tar.gz
-    
+
     log_success "JanusGraph data backed up: $(du -h "$TEMP_DIR/janusgraph_data.tar.gz" | cut -f1)"
 }
 
 # Export graph to GraphML
 export_graphml() {
     log_info "Exporting graph to GraphML..."
-    
+
     # Use Python script if available
     if [ -f "$SCRIPT_DIR/export_graph.py" ]; then
         python3 "$SCRIPT_DIR/export_graph.py" \
@@ -178,7 +178,7 @@ export_graphml() {
 # Create backup metadata
 create_metadata() {
     log_info "Creating backup metadata..."
-    
+
     cat > "$TEMP_DIR/backup_metadata.json" <<EOF
 {
   "backup_name": "$BACKUP_NAME",
@@ -203,7 +203,7 @@ create_metadata() {
   "retention_days": $RETENTION_DAYS
 }
 EOF
-    
+
     log_success "Metadata created"
 }
 
@@ -213,9 +213,9 @@ encrypt_backup() {
         log_warning "Encryption disabled, skipping..."
         return 0
     fi
-    
+
     log_info "Encrypting backup files..."
-    
+
     # Encrypt each file
     for file in "$TEMP_DIR"/*.tar.gz "$TEMP_DIR"/*.graphml 2>/dev/null; do
         if [ -f "$file" ]; then
@@ -232,31 +232,31 @@ encrypt_backup() {
             log_success "Encrypted: $(basename "$file").gpg"
         fi
     done
-    
+
     # Encrypt metadata
     gpg --encrypt --recipient "$GPG_RECIPIENT" \
         --trust-model always \
         --output "$TEMP_DIR/backup_metadata.json.gpg" \
         "$TEMP_DIR/backup_metadata.json"
     rm -f "$TEMP_DIR/backup_metadata.json"
-    
+
     log_success "All files encrypted"
 }
 
 # Create final backup archive
 create_final_archive() {
     log_info "Creating final backup archive..."
-    
+
     local archive_name="${BACKUP_NAME}.tar.gz"
     if [ "$ENCRYPTION_ENABLED" = "true" ]; then
         archive_name="${BACKUP_NAME}_encrypted.tar.gz"
     fi
-    
+
     tar -czf "$BACKUP_DIR/$archive_name" -C "$TEMP_DIR" . || {
         log_error "Failed to create final archive"
         return 1
     }
-    
+
     log_success "Final archive created: $BACKUP_DIR/$archive_name"
     log_info "Archive size: $(du -h "$BACKUP_DIR/$archive_name" | cut -f1)"
 }
@@ -267,14 +267,14 @@ upload_to_s3() {
         log_info "S3 backup not configured, skipping..."
         return 0
     fi
-    
+
     log_info "Uploading to S3: s3://$S3_BUCKET/..."
-    
+
     local archive_name="${BACKUP_NAME}.tar.gz"
     if [ "$ENCRYPTION_ENABLED" = "true" ]; then
         archive_name="${BACKUP_NAME}_encrypted.tar.gz"
     fi
-    
+
     # Upload with server-side encryption
     if [ -n "$S3_KMS_KEY" ]; then
         aws s3 cp "$BACKUP_DIR/$archive_name" \
@@ -296,34 +296,34 @@ upload_to_s3() {
             return 1
         }
     fi
-    
+
     log_success "Uploaded to S3"
 }
 
 # Cleanup old backups
 cleanup_old_backups() {
     log_info "Cleaning up old backups (older than $RETENTION_DAYS days)..."
-    
+
     # Local cleanup
     find "$BACKUP_DIR" -name "backup_*.tar.gz" -type f -mtime +$RETENTION_DAYS -delete
     local deleted_count=$(find "$BACKUP_DIR" -name "backup_*.tar.gz" -type f -mtime +$RETENTION_DAYS | wc -l)
-    
+
     if [ "$deleted_count" -gt 0 ]; then
         log_success "Deleted $deleted_count old local backups"
     else
         log_info "No old local backups to delete"
     fi
-    
+
     # S3 cleanup (if configured)
     if [ -n "$S3_BUCKET" ]; then
         log_info "Cleaning up old S3 backups..."
         local cutoff_date=$(date -d "$RETENTION_DAYS days ago" +%Y-%m-%d 2>/dev/null || date -v -${RETENTION_DAYS}d +%Y-%m-%d)
-        
+
         aws s3 ls "s3://$S3_BUCKET/janusgraph/" --region "$S3_REGION" | \
         while read -r line; do
             local file_date=$(echo "$line" | awk '{print $1}')
             local file_name=$(echo "$line" | awk '{print $4}')
-            
+
             if [[ "$file_date" < "$cutoff_date" ]]; then
                 aws s3 rm "s3://$S3_BUCKET/janusgraph/$file_name" --region "$S3_REGION"
                 log_info "Deleted old S3 backup: $file_name"
@@ -342,12 +342,12 @@ cleanup_temp() {
 # Verify backup integrity
 verify_backup() {
     log_info "Verifying backup integrity..."
-    
+
     local archive_name="${BACKUP_NAME}.tar.gz"
     if [ "$ENCRYPTION_ENABLED" = "true" ]; then
         archive_name="${BACKUP_NAME}_encrypted.tar.gz"
     fi
-    
+
     # Test archive integrity
     if tar -tzf "$BACKUP_DIR/$archive_name" >/dev/null 2>&1; then
         log_success "Backup archive integrity verified"
@@ -355,7 +355,7 @@ verify_backup() {
         log_error "Backup archive is corrupted!"
         return 1
     fi
-    
+
     # Calculate checksum
     local checksum=$(sha256sum "$BACKUP_DIR/$archive_name" | awk '{print $1}')
     echo "$checksum  $archive_name" > "$BACKUP_DIR/${archive_name}.sha256"
@@ -373,24 +373,24 @@ main() {
     echo "Encryption: $ENCRYPTION_ENABLED"
     echo "Retention: $RETENTION_DAYS days"
     echo ""
-    
+
     # Execute backup steps
     check_prerequisites
     create_backup_dir
-    
+
     backup_hcd || log_error "HCD backup failed"
     backup_janusgraph || log_error "JanusGraph backup failed"
     export_graphml
-    
+
     create_metadata
     encrypt_backup
     create_final_archive
     verify_backup
-    
+
     upload_to_s3
     cleanup_old_backups
     cleanup_temp
-    
+
     echo ""
     echo "=========================================="
     echo -e "${GREEN}✅ Backup Completed Successfully${NC}"

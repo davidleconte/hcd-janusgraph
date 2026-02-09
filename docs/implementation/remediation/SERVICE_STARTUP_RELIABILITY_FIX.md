@@ -1,8 +1,8 @@
 # Service Startup Reliability Fix
 
-**Date:** 2026-01-29  
-**Status:** Complete  
-**Severity:** Critical  
+**Date:** 2026-01-29
+**Status:** Complete
+**Severity:** Critical
 **Impact:** All deployments
 
 ## Problem Summary
@@ -30,11 +30,13 @@ Services were failing to start reliably due to multiple systemic issues:
 **File:** `scripts/deployment/deploy_full_stack.sh`
 
 **Problem:** Used manual `podman run` commands instead of `podman-compose`:
+
 - Lines 103-110: Manual HCD container creation
 - Lines 118-135: Manual JanusGraph container creation
 - Lines 150-196: Manual visualization container creation
 
 **Impact:**
+
 - Ignored compose file configuration
 - No project isolation (COMPOSE_PROJECT_NAME not applied)
 - No dependency ordering
@@ -45,6 +47,7 @@ Services were failing to start reliably due to multiple systemic issues:
 **File:** `config/monitoring/alertmanager.yml`
 
 **Problem:** Slack configs active without webhook URL (lines 81-92, 112-123, 139-147, 169-172):
+
 ```yaml
 slack_configs:
   - channel: '#janusgraph-alerts'
@@ -52,6 +55,7 @@ slack_configs:
 ```
 
 **Error:**
+
 ```
 ERROR: no Slack API URL nor App token set either inline or in a file
 ```
@@ -61,12 +65,14 @@ ERROR: no Slack API URL nor App token set either inline or in a file
 ### 3. Vault Initialization
 
 **Problem:** Vault starting unsealed but not initialized:
+
 ```
 core: security barrier not initialized
 core: seal configuration missing, not initialized
 ```
 
 **Impact:**
+
 - Vault container marked unhealthy
 - Dependent services unable to start (health check failures)
 - Manual initialization required each deployment
@@ -76,6 +82,7 @@ core: seal configuration missing, not initialized
 **Problem:** No `COMPOSE_PROJECT_NAME` set during deployment
 
 **Expected:** All resources prefixed with project name:
+
 - Containers: `janusgraph-demo_hcd-server_1`
 - Networks: `janusgraph-demo_hcd-janusgraph-network`
 - Volumes: `janusgraph-demo_hcd-data`
@@ -83,6 +90,7 @@ core: seal configuration missing, not initialized
 **Actual:** Default Podman naming without isolation
 
 **Impact:**
+
 - Name conflicts with other projects on same Podman machine
 - Volume data mixing between projects
 - Network isolation failures
@@ -117,6 +125,7 @@ done
 ```
 
 **Staged Startup:**
+
 1. Clean existing containers
 2. Build images (with cache for speed)
 3. Start core services (HCD, Vault)
@@ -126,6 +135,7 @@ done
 7. Display access info
 
 **Exit Codes:**
+
 - 0: Success (all services healthy)
 - 1: Failure (one or more services not running)
 
@@ -134,11 +144,13 @@ done
 **File:** `config/monitoring/alertmanager.yml`
 
 **Changes:**
+
 - Commented out all `slack_configs` blocks (4 locations)
 - Kept email notifications functional
 - Added comments explaining Slack is optional
 
 **Before:**
+
 ```yaml
 receivers:
   - name: 'team-notifications'
@@ -148,6 +160,7 @@ receivers:
 ```
 
 **After:**
+
 ```yaml
 receivers:
   - name: 'team-notifications'
@@ -164,6 +177,7 @@ receivers:
 **Purpose:** Complete stack reset when needed
 
 **Features:**
+
 - Prompts for confirmation (data loss warning)
 - Removes all project containers
 - Removes volumes (with warning)
@@ -171,6 +185,7 @@ receivers:
 - Safe to run anytime
 
 **Usage:**
+
 ```bash
 bash scripts/deployment/cleanup_and_reset.sh
 # Prompts: "This will remove ... Continue? (yes/no):"
@@ -193,6 +208,7 @@ bash scripts/deployment/deploy_with_compose.sh
 ```
 
 **Expected Output:**
+
 ```
 1. Cleaning up existing containers... ✅
 2. Building container images... ✅
@@ -211,6 +227,7 @@ bash scripts/deployment/deploy_with_compose.sh
 ```
 
 **Timing:** 3-5 minutes total
+
 - Build: 30-60s (with cache)
 - HCD startup: 60s
 - Vault init: 10s
@@ -317,6 +334,7 @@ bash scripts/deployment/deploy_with_compose.sh
 ### For New Deployments
 
 Just use the new script - no migration needed:
+
 ```bash
 bash scripts/deployment/deploy_with_compose.sh
 ```
@@ -326,11 +344,13 @@ bash scripts/deployment/deploy_with_compose.sh
 ### 1. Always Use Project Name
 
 **In `.env` or environment:**
+
 ```bash
 export COMPOSE_PROJECT_NAME=janusgraph-demo
 ```
 
 **All podman-compose commands:**
+
 ```bash
 podman-compose -p $COMPOSE_PROJECT_NAME [command]
 ```
@@ -338,11 +358,13 @@ podman-compose -p $COMPOSE_PROJECT_NAME [command]
 ### 2. Always Use Compose
 
 **DON'T:**
+
 ```bash
 podman run -d --name hcd-server ...  # Manual container creation
 ```
 
 **DO:**
+
 ```bash
 cd config/compose
 podman-compose -p janusgraph-demo up -d
@@ -351,6 +373,7 @@ podman-compose -p janusgraph-demo up -d
 ### 3. Validate Before Completion
 
 Every deployment script should:
+
 1. Wait for services to start
 2. Check health status
 3. Report failures
@@ -359,6 +382,7 @@ Every deployment script should:
 ### 4. Document Dependencies
 
 In docker-compose.full.yml:
+
 ```yaml
 depends_on:
   service:
@@ -385,16 +409,19 @@ depends_on:
 ## Testing Results
 
 **Test 1: Fresh Deployment**
+
 - Status: ⏳ In Progress
 - Command: `bash scripts/deployment/deploy_with_compose.sh`
 - Expected: All services healthy in <5 minutes
 
 **Test 2: Repeated Deployment**
+
 - Status: Pending
 - Command: Run deployment script twice
 - Expected: Second run handles existing containers gracefully
 
 **Test 3: Cleanup and Redeploy**
+
 - Status: Pending
 - Command: `cleanup_and_reset.sh` → `deploy_with_compose.sh`
 - Expected: Clean slate, all services start
@@ -404,6 +431,7 @@ depends_on:
 1. **Vault Keys Security**: Keys saved to `.vault-keys/` which is gitignored. Back up these files securely.
 
 2. **Build Cache**: New script uses cache for faster builds. For clean rebuild:
+
    ```bash
    cd config/compose
    podman-compose -p janusgraph-demo build --no-cache
@@ -416,14 +444,15 @@ depends_on:
    - Set `SLACK_WEBHOOK_URL` in `.env`
    - Redeploy: `podman-compose -p janusgraph-demo up -d alertmanager`
 
-5. **Monitoring Access**: 
-   - Prometheus: http://localhost:9090
-   - Grafana: http://localhost:3001 (admin/admin)
-   - AlertManager: http://localhost:9093
+5. **Monitoring Access**:
+   - Prometheus: <http://localhost:9090>
+   - Grafana: <http://localhost:3001> (admin/admin)
+   - AlertManager: <http://localhost:9093>
 
 ---
 
 **Audit Trail:**
+
 - Created: 2026-01-29
 - Author: David Leconte (SylphAI CLI)
 - Issue: Service startup failures

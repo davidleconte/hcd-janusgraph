@@ -1,8 +1,8 @@
 # David Leconte Remediation Plan - January 30, 2026
 
-**Date:** 2026-01-30  
-**Priority:** CRITICAL  
-**Status:** READY FOR EXECUTION  
+**Date:** 2026-01-30
+**Priority:** CRITICAL
+**Status:** READY FOR EXECUTION
 **Estimated Time:** 2-3 days
 
 ---
@@ -10,10 +10,12 @@
 ## Quick Reference
 
 **Related Documents:**
+
 - [Comprehensive Audit](../implementation/audits/COMPREHENSIVE_PROJECT_AUDIT_2026-01-30.md) - Full analysis
 - [Detailed Remediation](../implementation/audits/REMEDIATION_PLAN_2026-01-30.md) - Complete instructions
 
 **Issues Summary:**
+
 - 🔴 4 Critical (Python env, dependencies, Podman isolation, notebooks)
 - 🟡 7 Major (validation, scripts, documentation)
 - 🟢 10 Minor (config files, hooks)
@@ -78,6 +80,7 @@ pytest --version
 ```
 
 **Verification:**
+
 ```bash
 # Should all pass
 echo $CONDA_DEFAULT_ENV  # Should output: janusgraph-analysis
@@ -414,12 +417,15 @@ podman-compose -p janusgraph-demo up jupyter
 
 # Access at http://localhost:8888
 ```
+
 README_EOF
 
 git add notebooks-exploratory/README.md
 
 # 5. Update banking/notebooks README
+
 cat > banking/notebooks/README.md << 'BANKING_README_EOF'
+
 # Banking Domain Notebooks
 
 Specialized Jupyter notebooks for banking compliance and analytics use cases.
@@ -435,6 +441,7 @@ Specialized Jupyter notebooks for banking compliance and analytics use cases.
 ## Purpose
 
 Production-ready demonstrations of:
+
 - AML/BSA compliance workflows
 - Fraud detection patterns
 - Customer analytics
@@ -449,9 +456,11 @@ See Banking User Guide for detailed instructions.
 cd config/compose
 podman-compose -p janusgraph-demo up jupyter
 ```
+
 BANKING_README_EOF
 
 git add banking/notebooks/README.md
+
 ```
 
 ---
@@ -475,6 +484,7 @@ pytest tests/ -v --maxfail=1
 ```
 
 **Expected Results:**
+
 - ✅ All validation scripts pass
 - ✅ Python 3.11 in conda env
 - ✅ Podman resources have project prefix

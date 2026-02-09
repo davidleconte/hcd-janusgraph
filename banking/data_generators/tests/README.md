@@ -69,31 +69,37 @@ cd banking/data_generators/tests
 ### Test Categories
 
 **Smoke Tests** (quick validation):
+
 ```bash
 ./run_tests.sh smoke
 ```
 
 **Unit Tests** (all unit tests):
+
 ```bash
 ./run_tests.sh unit
 ```
 
 **Integration Tests** (requires running services):
+
 ```bash
 ./run_tests.sh integration
 ```
 
 **Performance Benchmarks**:
+
 ```bash
 ./run_tests.sh performance
 ```
 
 **All Tests**:
+
 ```bash
 ./run_tests.sh all
 ```
 
 **With Coverage Report**:
+
 ```bash
 ./run_tests.sh coverage
 ```
@@ -109,21 +115,25 @@ Add `-v` or `--verbose` for detailed output:
 ### Direct Pytest Usage
 
 Run specific test files:
+
 ```bash
 pytest test_core/test_person_generator.py -v
 ```
 
 Run specific test classes:
+
 ```bash
 pytest test_core/test_person_generator.py::TestPersonGeneratorFunctional -v
 ```
 
 Run specific test methods:
+
 ```bash
 pytest test_core/test_person_generator.py::TestPersonGeneratorFunctional::test_required_fields_present -v
 ```
 
 Run tests by marker:
+
 ```bash
 pytest -m "not slow"              # Exclude slow tests
 pytest -m "benchmark"             # Only benchmark tests
@@ -143,6 +153,7 @@ Tests are marked with the following pytest markers:
 Common fixtures available in all tests (defined in `conftest.py`):
 
 ### Generator Fixtures
+
 - `person_generator` - PersonGenerator instance
 - `company_generator` - CompanyGenerator instance
 - `account_generator` - AccountGenerator instance
@@ -153,6 +164,7 @@ Common fixtures available in all tests (defined in `conftest.py`):
 - `document_generator` - DocumentGenerator instance
 
 ### Entity Fixtures
+
 - `sample_person` - Single generated person
 - `sample_persons` - List of 10 persons
 - `sample_company` - Single generated company
@@ -163,6 +175,7 @@ Common fixtures available in all tests (defined in `conftest.py`):
 - `sample_transactions` - List of 20 transactions
 
 ### Orchestrator Fixtures
+
 - `small_orchestrator` - Orchestrator with small config (10/5/20 entities)
 - `medium_orchestrator` - Orchestrator with medium config (100/50/200 entities)
 
@@ -171,11 +184,13 @@ Common fixtures available in all tests (defined in `conftest.py`):
 Target coverage: **>90%** across all modules
 
 Generate coverage report:
+
 ```bash
 ./run_tests.sh coverage
 ```
 
 View HTML coverage report:
+
 ```bash
 open htmlcov/index.html  # macOS
 xdg-open htmlcov/index.html  # Linux
@@ -190,27 +205,27 @@ import pytest
 
 class TestMyGeneratorSmoke:
     """Smoke tests - basic functionality"""
-    
+
     def test_initialization(self, my_generator):
         assert my_generator is not None
 
 class TestMyGeneratorFunctional:
     """Functional tests - correct behavior"""
-    
+
     def test_required_fields(self, sample_entity):
         assert sample_entity.id
         assert sample_entity.name
 
 class TestMyGeneratorEdgeCases:
     """Edge case tests"""
-    
+
     def test_boundary_conditions(self, my_generator):
         # Test edge cases
         pass
 
 class TestMyGeneratorPerformance:
     """Performance tests"""
-    
+
     @pytest.mark.benchmark
     def test_generation_speed(self, my_generator, benchmark):
         result = benchmark(my_generator.generate)
@@ -224,7 +239,7 @@ def test_with_fixtures(self, person_generator, sample_accounts):
     """Test using multiple fixtures"""
     person = person_generator.generate()
     account = sample_accounts[0]
-    
+
     assert person.person_id
     assert account.account_id
 ```
@@ -381,24 +396,28 @@ jobs:
 ### Common Issues
 
 **Import errors**:
+
 ```bash
 # Ensure package is installed in development mode
 pip install -e .
 ```
 
 **Fixture not found**:
+
 ```bash
 # Ensure conftest.py is in the tests directory
 # Check fixture name spelling
 ```
 
 **Slow tests timing out**:
+
 ```bash
 # Increase timeout
 pytest --timeout=300
 ```
 
 **Integration tests failing**:
+
 ```bash
 # Check services are running
 docker-compose ps

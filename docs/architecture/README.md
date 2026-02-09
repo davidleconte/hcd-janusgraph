@@ -9,6 +9,7 @@ An Architecture Decision Record (ADR) is a document that captures an important a
 ## ADR Format
 
 Each ADR follows this structure:
+
 - **Title**: Short noun phrase
 - **Status**: Proposed, Accepted, Deprecated, Superseded
 - **Context**: Forces at play (technical, political, social, project)

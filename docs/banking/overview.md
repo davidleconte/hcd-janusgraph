@@ -1,7 +1,7 @@
 # Banking Platform Overview
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Purpose
 
@@ -27,18 +27,18 @@ flowchart LR
         A[Accounts]
         T[Transactions]
     end
-    
+
     subgraph Analysis
         AML[AML Engine]
         FRAUD[Fraud Engine]
         SANC[Sanctions]
     end
-    
+
     subgraph Output
         ALERT[Alerts]
         REP[Reports]
     end
-    
+
     P & C & A & T --> AML & FRAUD & SANC
     AML & FRAUD & SANC --> ALERT & REP
 ```

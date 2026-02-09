@@ -2,7 +2,7 @@
 
 **Date**: 2026-01-28
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Contact**: team@example.com
+**Contact**: <team@example.com>
 
 ## Overview
 
@@ -11,18 +11,21 @@ Phase 1 focuses on setting up OpenSearch 3.4+ with JVector plugin and preparing 
 ## Components
 
 ### 1. OpenSearch 3.4+
+
 - Latest stable release
 - Single-node setup for development
 - Security disabled for easier testing
 - Exposed on port 9200
 
 ### 2. JVector Plugin
+
 - Installed from Maven Central
 - High-dimensional vector search capability
 - Supports DiskANN algorithm
 - Billion-scale vector indexing
 
 ### 3. Banking Schema Extension
+
 - New vertex labels for banking entities
 - New edge labels for relationships
 - Properties for AML-specific attributes
@@ -39,6 +42,7 @@ Phase 1 focuses on setting up OpenSearch 3.4+ with JVector plugin and preparing 
 ## Next Phase
 
 Phase 2: Structuring/Smurfing Detection
+
 - Synthetic data generator
 - Detection queries
 - Analysis notebook

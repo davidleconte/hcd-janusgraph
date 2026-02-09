@@ -1,8 +1,8 @@
 # TLS/SSL Deployment Guide
 
-**Created**: 2026-01-28  
-**Author**: Security Audit Team  
-**Version**: 1.0  
+**Created**: 2026-01-28
+**Author**: Security Audit Team
+**Version**: 1.0
 **Status**: Production Ready
 
 ## Overview
@@ -33,16 +33,18 @@ This guide provides step-by-step instructions for deploying the HCD + JanusGraph
 ### Environment Setup
 
 1. **Copy environment template**:
+
    ```bash
    cp .env.example .env
    chmod 600 .env
    ```
 
 2. **Set TLS passwords** in `.env`:
+
    ```bash
    # Generate strong passwords
    openssl rand -base64 32
-   
+
    # Update .env with generated passwords
    HCD_KEYSTORE_PASSWORD=<generated-password>
    HCD_TRUSTSTORE_PASSWORD=<generated-password>
@@ -51,6 +53,7 @@ This guide provides step-by-step instructions for deploying the HCD + JanusGraph
    ```
 
 3. **Configure certificate details** in `.env`:
+
    ```bash
    TLS_COUNTRY=US
    TLS_STATE=California
@@ -74,6 +77,7 @@ Run the automated certificate generation script:
 ```
 
 This script will:
+
 - Create a Root CA certificate
 - Generate service certificates for:
   - HCD (Cassandra)
@@ -126,12 +130,14 @@ keytool -list -v -keystore config/certs/hcd-server.keystore.jks \
 The TLS configuration is in `config/janusgraph/cassandra-tls.yaml`:
 
 **Key Settings**:
+
 - Client-to-node encryption: **enabled**
 - Node-to-node encryption: **all**
 - TLS protocol: **TLSv1.2**
 - Client authentication: **optional**
 
 **Ports**:
+
 - Standard CQL: `9042` (disabled in TLS mode)
 - TLS CQL: `9142` (enabled)
 - Inter-node: `7000` (disabled in TLS mode)
@@ -142,23 +148,27 @@ The TLS configuration is in `config/janusgraph/cassandra-tls.yaml`:
 The TLS configuration is in `config/janusgraph/janusgraph-server-tls.yaml`:
 
 **Key Settings**:
+
 - WebSocket TLS: **enabled**
 - TLS protocol: **TLSv1.2**
 - Client authentication: **optional**
 - Keystore/Truststore: **JKS format**
 
 **Backend Connection**:
+
 - Uses TLS to connect to HCD on port `9142`
 - Configuration in `config/janusgraph/janusgraph-hcd-tls.properties`
 
 ### Monitoring Stack TLS Configuration
 
 **Grafana**:
+
 - HTTPS enabled on port `3443`
 - Certificate: `config/certs/grafana.crt`
 - Key: `config/certs/grafana.key`
 
 **Prometheus**:
+
 - HTTPS enabled on port `9443`
 - Web config: `config/monitoring/prometheus-web-config.yml`
 - Certificate: `config/certs/prometheus.crt`
@@ -221,6 +231,7 @@ docker-compose ps
 ### Step 2: Verify TLS Connections
 
 **HCD (Cassandra)**:
+
 ```bash
 # Test TLS connection with cqlsh
 docker exec -it hcd-server cqlsh \
@@ -233,6 +244,7 @@ docker exec -it hcd-server cqlsh \
 ```
 
 **JanusGraph**:
+
 ```bash
 # Test TLS WebSocket connection
 curl -k https://localhost:8182?gremlin=g.V().count()
@@ -241,6 +253,7 @@ curl -k https://localhost:8182?gremlin=g.V().count()
 ```
 
 **Grafana**:
+
 ```bash
 # Test HTTPS connection
 curl -k https://localhost:3443/api/health
@@ -249,6 +262,7 @@ curl -k https://localhost:3443/api/health
 ```
 
 **Prometheus**:
+
 ```bash
 # Test HTTPS connection
 curl -k https://localhost:9443/-/healthy
@@ -274,6 +288,7 @@ openssl s_client -connect localhost:8182 -showcerts
 ### Step 4: Test Client Connections
 
 **Python Client**:
+
 ```python
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
@@ -297,6 +312,7 @@ print(f"Vertex count: {count}")
 ```
 
 **Java Client**:
+
 ```java
 Cluster cluster = Cluster.build()
     .addContactPoint("localhost")
@@ -321,6 +337,7 @@ ResultSet results = client.submit("g.V().count()");
 **Symptom**: `SSL certificate problem: unable to get local issuer certificate`
 
 **Solution**:
+
 ```bash
 # Regenerate certificates
 rm -rf config/certs/*
@@ -335,6 +352,7 @@ docker-compose -f docker-compose.yml -f docker-compose.tls.yml restart
 **Symptom**: `Connection refused` or `Connection timeout`
 
 **Solution**:
+
 ```bash
 # Check service logs
 docker-compose logs hcd
@@ -352,6 +370,7 @@ sudo iptables -L -n | grep -E '9142|8182'
 **Symptom**: `Keystore was tampered with, or password was incorrect`
 
 **Solution**:
+
 ```bash
 # Verify password in .env matches keystore
 keytool -list -keystore config/certs/hcd-server.keystore.jks \
@@ -365,6 +384,7 @@ keytool -list -keystore config/certs/hcd-server.keystore.jks \
 **Symptom**: `Certificate has expired`
 
 **Solution**:
+
 ```bash
 # Check certificate expiration
 openssl x509 -in config/certs/hcd-server.crt -noout -dates
@@ -381,6 +401,7 @@ docker-compose -f docker-compose.yml -f docker-compose.tls.yml restart
 Enable debug logging for TLS troubleshooting:
 
 **HCD**:
+
 ```bash
 # Add to docker-compose.tls.yml
 environment:
@@ -388,6 +409,7 @@ environment:
 ```
 
 **JanusGraph**:
+
 ```bash
 # Add to docker-compose.tls.yml
 environment:
@@ -524,6 +546,7 @@ openssl x509 -in config/certs/hcd-server.crt -noout -dates
 ### Support
 
 For issues or questions:
+
 1. Check logs: `docker-compose logs <service>`
 2. Review troubleshooting section above
 3. Consult service-specific documentation
@@ -590,6 +613,6 @@ PROMETHEUS_HTTPS_PORT=9443
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2026-01-28  
+**Document Version**: 1.0
+**Last Updated**: 2026-01-28
 **Next Review**: 2026-04-28

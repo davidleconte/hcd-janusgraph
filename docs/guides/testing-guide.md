@@ -26,12 +26,13 @@ podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/nodetool st
 ```
 
 **Expected output:**
+
 ```
 Datacenter: datacenter1
 =======================
 Status=Up/Down
 |/ State=Normal/Leaving/Joining/Moving
---  Address    Load       Tokens  Owns    Host ID                               Rack 
+--  Address    Load       Tokens  Owns    Host ID                               Rack
 UN  10.89.6.6  98.03 KiB  16      100.0%  a64ee549-b842-4b7a-b200-3388b32a0992  rack1
 ```
 
@@ -45,6 +46,7 @@ podman --remote --connection podman-wxd exec -it hcd-server /opt/hcd/bin/cqlsh
 ```
 
 Inside cqlsh, run:
+
 ```sql
 -- List all keyspaces
 DESCRIBE KEYSPACES;
@@ -99,6 +101,7 @@ podman --remote --connection podman-wxd logs janusgraph-server | tail -100
 ```
 
 **Look for:**
+
 ```
 ✅ "Gremlin Server configured with worker thread pool"
 ✅ "Channel started at port 8182"
@@ -113,6 +116,7 @@ podman --remote --connection podman-wxd exec janusgraph-server cat /opt/janusgra
 ```
 
 **Expected output:**
+
 ```
 gremlin.graph=org.janusgraph.core.JanusGraphFactory
 storage.backend=cql
@@ -130,6 +134,7 @@ podman --remote --connection podman-wxd exec -it janusgraph-server ./bin/gremlin
 ```
 
 Inside Gremlin console:
+
 ```groovy
 // Connect to remote server
 :remote connect tinkerpop.server conf/remote.yaml
@@ -170,6 +175,7 @@ podman --remote --connection podman-wxd exec janusgraph-server \
 ```
 
 **Expected output:**
+
 ```
 Creating schema...
 Created vertex labels: person, company, product
@@ -206,6 +212,7 @@ podman --remote --connection podman-wxd exec janusgraph-server \
 ```
 
 **Expected output:**
+
 ```
 Loading sample data...
 Created 5 people
@@ -234,6 +241,7 @@ EOF
 ```
 
 **Expected output:**
+
 ```
 ==>11              // 11 vertices
 ==>19              // 19 edges
@@ -275,6 +283,7 @@ chmod +x test_janusgraph_client.py
 ```
 
 **Expected output:**
+
 ```
 JanusGraph Python Test Client
 ============================================================
@@ -335,6 +344,7 @@ EOF
 ```
 
 Then verify in HCD:
+
 ```bash
 podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/cqlsh << 'EOF'
 USE janusgraph;
@@ -513,6 +523,7 @@ EOF
 **Symptom**: `ConnectionRefusedError` or timeout
 
 **Solution**:
+
 ```bash
 # 1. Check JanusGraph is running
 podman --remote --connection podman-wxd ps | grep janusgraph
@@ -532,6 +543,7 @@ podman --remote --connection podman-wxd logs janusgraph-server | tail -50
 **Symptom**: Python client or queries return 0 vertices
 
 **Solution**:
+
 ```bash
 # 1. Check if data was actually loaded
 podman --remote --connection podman-wxd exec janusgraph-server ./bin/gremlin.sh << 'EOF'
@@ -551,6 +563,7 @@ podman --remote --connection podman-wxd exec janusgraph-server \
 **Symptom**: Error when re-running schema initialization
 
 **Solution**:
+
 ```bash
 # Option 1: Drop keyspace and recreate
 podman --remote --connection podman-wxd exec hcd-server /opt/hcd/bin/cqlsh << 'EOF'
@@ -579,6 +592,7 @@ EOF
 **Symptom**: HCD container exits with gossip error
 
 **Solution**:
+
 ```bash
 # This is expected for single-node setup
 # Verify auto_bootstrap is disabled in Dockerfile

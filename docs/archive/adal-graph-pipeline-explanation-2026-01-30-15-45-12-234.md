@@ -1,4 +1,5 @@
 # Complete Data Generation and Graph Loading Pipeline
+
 **Timestamp:** 2026-01-30 15:45:12.234
 **Topic:** HCD+JanusGraph Data Generation & Graph Loading Architecture
 **Session:** Turn 9
@@ -8,6 +9,7 @@
 ## Architecture Overview
 
 The project has a **3-stage pipeline**:
+
 1. **Generation** - Synthetic data creation via orchestrator
 2. **Export** - JSON serialization of entities
 3. **Loading** - JanusGraph ingestion via Gremlin
@@ -19,6 +21,7 @@ The project has a **3-stage pipeline**:
 ### Orchestration Architecture
 
 **Master Orchestrator** (`banking/data_generators/orchestration/master_orchestrator.py`):
+
 ```
 MasterOrchestrator
 ├── Core Generators (3)
@@ -42,18 +45,19 @@ MasterOrchestrator
 ### Generation Flow (3 Phases)
 
 #### Phase 1: Core Entities (Lines 251-297)
+
 ```python
 def _generate_core_entities(self):
     # 1. Generate persons (100 default)
     for i in range(self.config.person_count):
         person = self.person_gen.generate()  # Creates Person object
         self.persons.append(person)
-    
+
     # 2. Generate companies (20 default)
     for i in range(self.config.company_count):
         company = self.company_gen.generate()  # Creates Company object
         self.companies.append(company)
-    
+
     # 3. Generate accounts (200 default)
     for i in range(self.config.account_count):
         # 80% person accounts, 20% company accounts
@@ -73,6 +77,7 @@ def _generate_core_entities(self):
 ```
 
 **Key Points:**
+
 - **Person Generator**: Creates realistic person profiles (name, SSN, address, risk score)
 - **Company Generator**: Creates company profiles (EIN, industry, officers)
 - **Account Generator**: Creates accounts AND establishes ownership relationships
@@ -80,34 +85,37 @@ def _generate_core_entities(self):
 - Stores entities in memory lists: `self.persons`, `self.companies`, `self.accounts`
 
 #### Phase 2: Events (Lines 299-371)
+
 ```python
 def _generate_events(self):
     # 1. Generate transactions (10,000 default)
     for i in range(self.config.transaction_count):
         from_account = random.choice(self.accounts)
         to_account = random.choice(self.accounts)
-        
+
         transaction = self.transaction_gen.generate(
             from_account_id=from_account.id,
             to_account_id=to_account.id  # Creates transfer edge
         )
         self.transactions.append(transaction)
-    
+
     # 2. Generate communications (5,000 default)
     for i in range(self.config.communication_count):
         communication = self.communication_gen.generate()
         self.communications.append(communication)
-    
+
     # 3. Generate trades, travel, documents...
 ```
 
 **Key Points:**
+
 - **Transaction Generator**: Creates financial transactions between accounts
 - **Communication Generator**: Creates emails, phone calls, messages
 - **Dependency Management**: Requires accounts to exist first (referential integrity)
 - Creates **relationship metadata** (amounts, timestamps, channels)
 
 #### Phase 3: Patterns (Lines 373-447)
+
 ```python
 def _generate_patterns(self):
     # Inject suspicious patterns into existing data
@@ -121,6 +129,7 @@ def _generate_patterns(self):
 ```
 
 **Key Points:**
+
 - **Pattern Injection**: Modifies existing entities with suspicious behaviors
 - **Ground Truth Labels**: Marks entities for AML/fraud detection testing
 - Creates complex multi-entity patterns (mule networks, fraud rings)
@@ -137,12 +146,13 @@ def _export_json(self):
     path = self.config.output_dir / "persons.json"
     with open(path, 'w') as f:
         json.dump([p.dict() for p in self.persons], f, indent=2, default=str)
-    
+
     # Export companies, accounts, transactions, communications...
     # Each entity type in separate file
 ```
 
 **Output Structure:**
+
 ```
 output/
 ├── persons.json          # Person vertices
@@ -155,6 +165,7 @@ output/
 ```
 
 **Example `persons.json` (simplified):**
+
 ```json
 [
   {
@@ -173,6 +184,7 @@ output/
 ```
 
 **Example `transactions.json` (simplified):**
+
 ```json
 [
   {
@@ -196,6 +208,7 @@ output/
 **Two Loading Approaches:**
 
 #### Approach 1: Direct Gremlin (Demo Scripts)
+
 **File**: `scripts/init/load_data.py`
 
 ```python
@@ -225,12 +238,14 @@ g.tx().commit()
 ```
 
 **Process:**
+
 1. **Connect** to JanusGraph via Gremlin Server (WebSocket)
 2. **Create vertices** using `addV(label).property(key, value)`
 3. **Create edges** using `addE(label).from(source).to(target)`
 4. **Commit transactions** using `g.tx().commit()`
 
 #### Approach 2: Structured Loader (AML Data)
+
 **File**: `banking/data/aml/load_structuring_data_v2.py`
 
 ```python
@@ -238,15 +253,15 @@ class ImprovedAMLLoader:
     def create_vertex(self, label, properties):
         """Create vertex with error handling"""
         prop_str = ''.join([
-            f".property('{k}', {self._format_value(v)})" 
+            f".property('{k}', {self._format_value(v)})"
             for k, v in properties.items()
         ])
         query = f"g.addV('{label}'){prop_str}.next()"
-        
+
         result = self.gc.submit(query).all().result()
         return True
-    
-    def create_edge(self, from_label, from_prop, from_val, 
+
+    def create_edge(self, from_label, from_prop, from_val,
                     edge_label, to_label, to_prop, to_val):
         """Create edge with error handling"""
         query = f"""
@@ -262,6 +277,7 @@ class ImprovedAMLLoader:
 ```
 
 **Features:**
+
 - **Error handling**: Detects duplicates, missing vertices
 - **Type formatting**: Handles strings, floats, booleans correctly
 - **Existence checks**: Prevents duplicate vertex creation
@@ -270,6 +286,7 @@ class ImprovedAMLLoader:
 ### Graph Structure Mapping
 
 **Vertex Types (Labels):**
+
 ```
 person          → Person entities
 company         → Company entities
@@ -282,6 +299,7 @@ document        → Document records
 ```
 
 **Edge Types (Labels):**
+
 ```
 owns_account    → Person/Company --owns--> Account
 knows           → Person --knows--> Person
@@ -296,6 +314,7 @@ traveled_to     → Person --traveled_to--> Location
 ### Complete Flow Example: Structuring Pattern
 
 **1. Generation** (Orchestrator):
+
 ```python
 # Create beneficiary
 beneficiary = PersonGenerator().generate()
@@ -329,6 +348,7 @@ for mule, mule_account in mules:
 ```
 
 **2. Export** (JSON):
+
 ```json
 // persons.json
 [
@@ -356,6 +376,7 @@ for mule, mule_account in mules:
 ```
 
 **3. Loading** (JanusGraph):
+
 ```python
 # Create person vertices
 for person_data in persons_json:
@@ -398,6 +419,7 @@ for txn_data in transactions_json:
 ```
 
 **4. Final Graph Structure** (in JanusGraph):
+
 ```
 ┌──────────┐
 │ Person   │ Alice (P000001, risk=0.95)
@@ -429,26 +451,31 @@ for txn_data in transactions_json:
 ## Key Architectural Principles
 
 ### 1. **Separation of Concerns**
+
 - **Generation**: Pure Python object creation (no graph knowledge)
 - **Export**: Serialization to portable format (JSON)
 - **Loading**: Graph-specific ingestion (Gremlin traversal)
 
 ### 2. **Referential Integrity**
+
 - Generation follows dependency order: Persons → Companies → Accounts → Transactions
 - Foreign keys maintained: `owner_id`, `from_account_id`, `to_account_id`
 - Loader validates references before creating edges
 
 ### 3. **Determinism**
+
 - All generators accept `seed` parameter
 - Reproducible datasets for testing
 - Same seed → identical graph structure
 
 ### 4. **Type Safety**
+
 - Pydantic models enforce schema validation
 - Prevents invalid data at generation time
 - Type checking at serialization/deserialization
 
 ### 5. **Error Resilience**
+
 - Loaders handle duplicate detection
 - Skip existing vertices/edges gracefully
 - Continue on non-critical errors
@@ -458,15 +485,18 @@ for txn_data in transactions_json:
 ## Performance Characteristics
 
 **Generation** (Master Orchestrator):
+
 - **Speed**: ~1,000-2,000 records/second
 - **Memory**: Holds all entities in RAM
 - **Bottleneck**: Random selection of related entities
 
 **Export** (JSON):
+
 - **Speed**: ~10,000 records/second
 - **Bottleneck**: Disk I/O for large files
 
 **Loading** (JanusGraph):
+
 - **Speed**: ~100-500 records/second
 - **Bottleneck**: Network latency + transaction commits
 - **Optimization**: Batch operations, async commits
@@ -476,6 +506,7 @@ for txn_data in transactions_json:
 ## Usage Examples
 
 ### Generate + Export
+
 ```python
 from banking.data_generators.orchestration import MasterOrchestrator, GenerationConfig
 
@@ -495,6 +526,7 @@ stats = orchestrator.generate_all()
 ```
 
 ### Load to JanusGraph
+
 ```python
 from banking.data.aml.load_structuring_data_v2 import ImprovedAMLLoader
 
@@ -504,6 +536,7 @@ loader.load_sample_data()  # Loads demo structuring pattern
 ```
 
 ### Query Loaded Graph
+
 ```python
 from gremlin_python.driver import client
 
@@ -566,6 +599,7 @@ result = gc.submit(query).all().result()
 ```
 
 This architecture provides:
+
 - ✅ **Testability**: Generate deterministic test data
 - ✅ **Scalability**: Generate millions of records
 - ✅ **Flexibility**: Multiple export formats (JSON, CSV, Parquet planned)
@@ -577,6 +611,7 @@ This architecture provides:
 ## Key Files in Pipeline
 
 ### Generation
+
 - `banking/data_generators/orchestration/master_orchestrator.py` - Main orchestrator
 - `banking/data_generators/core/` - Core entity generators (Person, Company, Account)
 - `banking/data_generators/events/` - Event generators (Transaction, Communication, etc.)
@@ -584,11 +619,13 @@ This architecture provides:
 - `banking/data_generators/utils/data_models.py` - Pydantic models
 
 ### Loading
+
 - `scripts/init/load_data.py` - Simple demo loader
 - `banking/data/aml/load_structuring_data_v2.py` - Production AML loader
 - `src/python/client/janusgraph_client.py` - JanusGraph client wrapper
 
 ### Configuration
+
 - `GenerationConfig` - Controls counts, dates, patterns
 - `GenerationStats` - Tracks generation performance
 

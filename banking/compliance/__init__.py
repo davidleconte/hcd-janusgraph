@@ -8,6 +8,6 @@ This module provides compliance-related functionality including:
 - Regulatory alert generation
 """
 
-from banking.compliance.audit_logger import AuditLogger, AuditEvent, AuditEventType
+from banking.compliance.audit_logger import AuditEvent, AuditEventType, AuditLogger
 
 __all__ = ["AuditLogger", "AuditEvent", "AuditEventType"]

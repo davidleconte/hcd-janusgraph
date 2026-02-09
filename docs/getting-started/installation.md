@@ -1,7 +1,7 @@
 # Installation Guide
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## System Requirements
 
@@ -66,6 +66,7 @@ pip install -e ".[dev,streaming,security,ml]"
 ### gremlinpython version error
 
 If you see `.discard()` errors:
+
 ```bash
 pip install "gremlinpython<3.8.0"
 ```

@@ -18,7 +18,7 @@ config:
       anonymous_auth_enabled: false
       xff:
         enabled: false
-        
+
     # Authentication backends
     authc:
       basic_internal_auth_domain:
@@ -31,7 +31,7 @@ config:
           challenge: true
         authentication_backend:
           type: intern
-          
+
     # Authorization configuration
     authz:
       roles_from_myldap:

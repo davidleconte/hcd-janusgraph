@@ -103,18 +103,18 @@ echo "" >> "$RESULTS"
 if [ "$VCOUNT" = "0" ] || [ -z "$VCOUNT" ]; then
     echo "Initializing schema..."
     SCHEMA_OUT=$(podman --remote --connection $PODMAN_CONNECTION exec janusgraph-server ./bin/gremlin.sh -e /tmp/init_schema_remote.groovy 2>&1)
-    
-    
+
+
     if echo "$SCHEMA_OUT" | grep -q "Schema committed"; then
         log_pass "Schema initialized"
     else
         log_fail "Schema initialization failed"
         echo "Error: $SCHEMA_OUT" | tail -20 >> "$RESULTS"
     fi
-    
+
     echo "Loading data..."
     DATA_OUT=$(podman --remote --connection $PODMAN_CONNECTION exec janusgraph-server ./bin/gremlin.sh -e /tmp/load_data_remote.groovy 2>&1)
-    
+
     if echo "$DATA_OUT" | grep -q "Data loading complete"; then
         log_pass "Sample data loaded"
     else

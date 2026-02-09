@@ -1,7 +1,7 @@
 # Deployment Guide
 
-**File**: docs/DEPLOYMENT.md  
-**Created**: 2026-01-28T10:36:45.123  
+**File**: docs/DEPLOYMENT.md
+**Created**: 2026-01-28T10:36:45.123
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -65,6 +65,7 @@ watch podman ps
 ### GitHub Actions Deployment
 
 Use the manual workflow trigger:
+
 1. Go to Actions → Deploy to Production
 2. Enter version (e.g., v1.0.0)
 3. Type "CONFIRM"

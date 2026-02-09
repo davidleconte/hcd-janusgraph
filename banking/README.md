@@ -24,5 +24,5 @@ See `docs/00_OVERVIEW.md` for comprehensive implementation plan.
 ---
 
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Contact**: team@example.com
+**Contact**: <team@example.com>
 **Date**: 2026-01-28

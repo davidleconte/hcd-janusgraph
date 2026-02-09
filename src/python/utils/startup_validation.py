@@ -20,6 +20,7 @@ from typing import List, Optional
 
 class ValidationSeverity(Enum):
     """Severity levels for validation issues."""
+
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
@@ -28,6 +29,7 @@ class ValidationSeverity(Enum):
 @dataclass
 class ValidationIssue:
     """A single validation issue."""
+
     message: str
     severity: ValidationSeverity
     variable: Optional[str] = None
@@ -37,21 +39,27 @@ class ValidationIssue:
 @dataclass
 class ValidationResult:
     """Result of startup validation."""
+
     issues: List[ValidationIssue] = field(default_factory=list)
-    
+
     @property
     def has_errors(self) -> bool:
         return any(i.severity == ValidationSeverity.ERROR for i in self.issues)
-    
+
     def add_error(self, message: str, variable: str = None, recommendation: str = None):
-        self.issues.append(ValidationIssue(message, ValidationSeverity.ERROR, variable, recommendation))
-    
+        self.issues.append(
+            ValidationIssue(message, ValidationSeverity.ERROR, variable, recommendation)
+        )
+
     def add_warning(self, message: str, variable: str = None, recommendation: str = None):
-        self.issues.append(ValidationIssue(message, ValidationSeverity.WARNING, variable, recommendation))
+        self.issues.append(
+            ValidationIssue(message, ValidationSeverity.WARNING, variable, recommendation)
+        )
 
 
 class StartupValidationError(Exception):
     """Raised when startup validation fails."""
+
     def __init__(self, result: ValidationResult):
         self.result = result
         errors = [i for i in result.issues if i.severity == ValidationSeverity.ERROR]
@@ -60,14 +68,23 @@ class StartupValidationError(Exception):
 
 
 DEFAULT_PASSWORD_PATTERNS = [
-    r"^changeit$", r"^password$", r"^admin$", r"^secret$",
-    r"^123456", r"YOUR_.*_HERE", r"CHANGE_?ME", r"PLACEHOLDER",
+    r"^changeit$",
+    r"^password$",
+    r"^admin$",
+    r"^secret$",
+    r"^123456",
+    r"YOUR_.*_HERE",
+    r"CHANGE_?ME",
+    r"PLACEHOLDER",
 ]
 
 PASSWORD_VARIABLES = [
-    "JANUSGRAPH_PASSWORD", "HCD_KEYSTORE_PASSWORD",
-    "OPENSEARCH_ADMIN_PASSWORD", "GRAFANA_ADMIN_PASSWORD",
-    "VAULT_TOKEN", "DB_PASSWORD",
+    "JANUSGRAPH_PASSWORD",
+    "HCD_KEYSTORE_PASSWORD",
+    "OPENSEARCH_ADMIN_PASSWORD",
+    "GRAFANA_ADMIN_PASSWORD",
+    "VAULT_TOKEN",
+    "DB_PASSWORD",
 ]
 
 
@@ -103,7 +120,7 @@ def validate_passwords(result: ValidationResult, strict: bool = True) -> None:
             result.add_error(
                 "Default/placeholder password detected",
                 variable=var,
-                recommendation=f"Set a strong password: export {var}='your-secure-password'"
+                recommendation=f"Set a strong password: export {var}='your-secure-password'",
             )
             continue
         if strict:
@@ -128,7 +145,7 @@ def validate_startup(strict: bool = False, exit_on_error: bool = False) -> Valid
     result = ValidationResult()
     validate_passwords(result, strict=strict)
     validate_production_mode(result)
-    
+
     if result.has_errors:
         if exit_on_error:
             print_validation_report(result)
@@ -142,20 +159,20 @@ def print_validation_report(result: ValidationResult) -> None:
     print("\n" + "=" * 50)
     print("STARTUP VALIDATION REPORT")
     print("=" * 50)
-    
+
     errors = [i for i in result.issues if i.severity == ValidationSeverity.ERROR]
     warnings = [i for i in result.issues if i.severity == ValidationSeverity.WARNING]
-    
+
     if errors:
         print(f"\n❌ ERRORS ({len(errors)}):")
         for issue in errors:
             print(f"   {issue.message} ({issue.variable})")
-    
+
     if warnings:
         print(f"\n⚠️  WARNINGS ({len(warnings)}):")
         for issue in warnings:
             print(f"   {issue.message} ({issue.variable})")
-    
+
     if not errors and not warnings:
         print("\n✅ All validations passed!")
     print("=" * 50)

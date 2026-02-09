@@ -1,8 +1,9 @@
 """Tests for VectorSearchClient (mocked OpenSearch)."""
 
+from unittest.mock import MagicMock, call, patch
+
 import numpy as np
 import pytest
-from unittest.mock import MagicMock, patch, call
 
 from src.python.utils.vector_search import (
     VectorSearchClient,

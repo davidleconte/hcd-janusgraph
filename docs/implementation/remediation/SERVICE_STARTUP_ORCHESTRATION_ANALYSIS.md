@@ -1,7 +1,7 @@
 # Service Startup Orchestration Analysis
 
-**Date:** 2026-01-29  
-**File Analyzed:** `config/...`  
+**Date:** 2026-01-29
+**File Analyzed:** `config/...`
 **Status:** ✅ CORRECT - Well-orchestrated with proper dependencies
 
 ---
@@ -19,6 +19,7 @@ The service startup orchestration is **correctly configured** with proper depend
 ### Tier 1: Foundation Layer (No Dependencies)
 
 #### 1. HCD Server (Cassandra)
+
 ```yaml
 hcd-server:
   healthcheck:
@@ -30,6 +31,7 @@ hcd-server:
 ```
 
 **Status:** ✅ CORRECT
+
 - No dependencies (starts first)
 - Health check validates cluster status
 - 5 retries with 30s intervals = up to 150s startup time
@@ -40,6 +42,7 @@ hcd-server:
 ### Tier 2: Core Services (Depend on HCD)
 
 #### 2. JanusGraph Server
+
 ```yaml
 janusgraph-server:
   command: >
@@ -61,6 +64,7 @@ janusgraph-server:
 ```
 
 **Status:** ✅ EXCELLENT
+
 - **Waits for HCD health check** before starting
 - **Additional 20s sleep** for HCD stabilization
 - **90s start_period** allows time for graph initialization
@@ -68,6 +72,7 @@ janusgraph-server:
 - Proper dependency chain: HCD → JanusGraph
 
 **Why This Works:**
+
 1. `depends_on` with `condition: service_healthy` ensures HCD is ready
 2. 20s sleep provides buffer for HCD to stabilize connections
 3. 90s start_period prevents premature health check failures
@@ -78,6 +83,7 @@ janusgraph-server:
 ### Tier 3: Application Services (Depend on JanusGraph)
 
 #### 3. Jupyter Lab
+
 ```yaml
 jupyter:
   depends_on:
@@ -86,11 +92,13 @@ jupyter:
 ```
 
 **Status:** ⚠️ GOOD (Could be improved)
+
 - Depends on JanusGraph
 - No health check condition (uses default)
 - Will start after JanusGraph container starts (not necessarily healthy)
 
 **Recommendation:** Add health check condition
+
 ```yaml
 depends_on:
   janusgraph-server:
@@ -98,6 +106,7 @@ depends_on:
 ```
 
 #### 4. JanusGraph Visualizer
+
 ```yaml
 janusgraph-visualizer:
   depends_on:
@@ -107,6 +116,7 @@ janusgraph-visualizer:
 **Status:** ⚠️ GOOD (Same as Jupyter)
 
 #### 5. GraphExp
+
 ```yaml
 graphexp:
   depends_on:
@@ -120,6 +130,7 @@ graphexp:
 ### Tier 4: Monitoring Stack
 
 #### 6. Prometheus
+
 ```yaml
 prometheus:
   depends_on:
@@ -132,11 +143,13 @@ prometheus:
 ```
 
 **Status:** ✅ CORRECT
+
 - Depends on HCD (for metrics scraping)
 - Has health check
 - Fast startup (10s intervals)
 
 #### 7. AlertManager
+
 ```yaml
 alertmanager:
   healthcheck:
@@ -147,11 +160,13 @@ alertmanager:
 ```
 
 **Status:** ✅ CORRECT
+
 - No dependencies (independent service)
 - Has health check
 - Can start in parallel with other services
 
 #### 8. JanusGraph Exporter
+
 ```yaml
 janusgraph-exporter:
   depends_on:
@@ -166,11 +181,13 @@ janusgraph-exporter:
 ```
 
 **Status:** ✅ EXCELLENT
+
 - Waits for JanusGraph health check
 - Has own health check
 - Proper dependency chain
 
 #### 9. Grafana
+
 ```yaml
 grafana:
   depends_on:
@@ -183,6 +200,7 @@ grafana:
 ```
 
 **Status:** ✅ CORRECT
+
 - Depends on Prometheus (for data source)
 - Has health check
 - Proper dependency chain
@@ -192,6 +210,7 @@ grafana:
 ### Tier 5: Security & Clients
 
 #### 10. Vault
+
 ```yaml
 vault:
   healthcheck:
@@ -203,11 +222,13 @@ vault:
 ```
 
 **Status:** ✅ CORRECT
+
 - No dependencies (independent service)
 - Has health check
 - Can start in parallel
 
 #### 11. CQLsh Client
+
 ```yaml
 cqlsh-client:
   depends_on:
@@ -216,6 +237,7 @@ cqlsh-client:
 ```
 
 **Status:** ✅ CORRECT
+
 - Depends on HCD
 - Kept alive for interactive use
 - No health check needed (utility container)
@@ -241,7 +263,7 @@ Time →
       │ Jupyter, Visualizer, GraphExp      │ (Tier 3: Apps)
       │ JanusGraph Exporter                │
       └────────────────────────────────────┘
-      
+
       ┌────────────────────────────────────┐
       │ Vault (parallel)                   │ (Tier 5: Security)
       │ Prometheus → Grafana               │ (Tier 4: Monitoring)
@@ -255,12 +277,14 @@ Time →
 ## Critical Path Analysis
 
 ### Longest Startup Path
+
 ```
 HCD (150s) → JanusGraph (20s sleep + 90s start) → Apps
 Total: ~260s (4.3 minutes) worst case
 ```
 
 ### Typical Startup Path
+
 ```
 HCD (60s) → JanusGraph (20s + 30s) → Apps
 Total: ~110s (1.8 minutes) typical case
@@ -292,14 +316,14 @@ Total: ~110s (1.8 minutes) typical case
 1. **Application Services Missing Health Check Conditions**
    - Jupyter, Visualizer, GraphExp use basic `depends_on`
    - Should use `condition: service_healthy`
-   
+
    **Impact:** Low - Services may start before JanusGraph is ready
    **Risk:** Connection errors on first access (self-healing with restart)
 
 2. **No OpenSearch in Dependency Chain**
    - OpenSearch not present in docker-compose.full.yml
    - May be in separate compose file
-   
+
    **Impact:** None if not used, Medium if required
    **Risk:** JanusGraph may fail if configured for OpenSearch backend
 
@@ -361,6 +385,7 @@ jupyter:
 ### Priority 3: Document Startup Time
 
 Add to deployment script:
+
 ```bash
 echo "Expected startup time:"
 echo "  - HCD: 60-150s"
@@ -377,12 +402,14 @@ echo "Waiting 90 seconds for services to stabilize..."
 **Overall Assessment:** ✅ PRODUCTION READY
 
 The service startup orchestration is **well-designed** with:
+
 - ✅ Correct dependency chains
 - ✅ Proper health checks on critical services
 - ✅ Appropriate wait times and buffers
 - ✅ Restart policies for resilience
 
 **Minor improvements recommended** but not blocking:
+
 - Add health check conditions to application services
 - Add health checks to Jupyter/Visualizer/GraphExp
 - Document expected startup times
@@ -391,6 +418,6 @@ The service startup orchestration is **well-designed** with:
 
 ---
 
-**Analysis Date:** 2026-01-29T04:11:00Z  
-**Analyst:** David Leconte (Advanced Mode)  
+**Analysis Date:** 2026-01-29T04:11:00Z
+**Analyst:** David Leconte (Advanced Mode)
 **Status:** ✅ Approved for Production

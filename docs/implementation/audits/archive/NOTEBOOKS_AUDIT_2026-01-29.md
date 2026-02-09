@@ -1,8 +1,8 @@
 # Notebooks Audit Report
 
-**Date:** 2026-01-29  
-**Auditor:** David Leconte (SylphAI CLI)  
-**Scope:** All Jupyter notebooks in project  
+**Date:** 2026-01-29
+**Auditor:** David Leconte (SylphAI CLI)
+**Scope:** All Jupyter notebooks in project
 **Total Notebooks:** 10
 
 ---
@@ -11,9 +11,9 @@
 
 **Overall Status:** ⚠️ REQUIRES ATTENTION
 
-**Critical Issues Found:** 8  
-**High Priority Issues:** 12  
-**Medium Priority Issues:** 15  
+**Critical Issues Found:** 8
+**High Priority Issues:** 12
+**Medium Priority Issues:** 15
 **Low Priority Issues:** 8
 
 **Recommendation:** Notebooks need significant updates for production readiness, particularly around connection configuration, dependency management, and documentation.
@@ -22,14 +22,14 @@
 
 ## Audit Criteria
 
-✅ **Connection Configuration** - Correct service names and ports  
-✅ **Import Paths** - Proper Python path handling  
-✅ **Dependencies** - All required packages documented  
-✅ **Data Availability** - Data files exist or generation documented  
-✅ **Security** - No hardcoded credentials  
-✅ **Error Handling** - Proper try/except blocks  
-✅ **Documentation** - Clear prerequisites and setup  
-✅ **Testing** - Notebooks can run end-to-end  
+✅ **Connection Configuration** - Correct service names and ports
+✅ **Import Paths** - Proper Python path handling
+✅ **Dependencies** - All required packages documented
+✅ **Data Availability** - Data files exist or generation documented
+✅ **Security** - No hardcoded credentials
+✅ **Error Handling** - Proper try/except blocks
+✅ **Documentation** - Clear prerequisites and setup
+✅ **Testing** - Notebooks can run end-to-end
 
 ---
 
@@ -40,9 +40,11 @@
 **Status:** ✅ GOOD
 
 **Issues Found:**
+
 - None - This is the only notebook that works correctly
 
 **Positives:**
+
 - ✅ Correct connection string (`ws://janusgraph-server:8182/gremlin`)
 - ✅ Simple, focused demo
 - ✅ No custom module dependencies
@@ -57,11 +59,13 @@
 **Status:** ⚠️ NEEDS REVIEW
 
 **Issues Found:**
+
 - ❌ **CRITICAL**: Connection string may use `localhost` instead of `janusgraph-server`
 - ⚠️ No error handling for connection failures
 - ⚠️ No prerequisites documented
 
 **Recommendations:**
+
 1. Verify connection string uses container names
 2. Add error handling
 3. Document prerequisites
@@ -73,11 +77,13 @@
 **Status:** ⚠️ NEEDS REVIEW
 
 **Issues Found:**
+
 - ❌ **CRITICAL**: Connection configuration not checked
 - ⚠️ Complex queries without explanation
 - ⚠️ No performance considerations documented
 
 **Recommendations:**
+
 1. Verify connection string
 2. Add query explanations
 3. Document expected execution times
@@ -89,11 +95,13 @@
 **Status:** ⚠️ NEEDS REVIEW
 
 **Issues Found:**
+
 - ❌ **CRITICAL**: Imports custom modules without setup instructions
 - ⚠️ Connection string not verified
 - ⚠️ Data file paths not documented
 
 **Recommendations:**
+
 1. Add setup section
 2. Verify connections
 3. Document data requirements
@@ -105,6 +113,7 @@
 **Status:** ❌ BROKEN
 
 **Critical Issues:**
+
 ```python
 # ISSUE 1: Wrong import paths
 sys.path.insert(0, '../../src/python')  # Won't work in container
@@ -123,6 +132,7 @@ screener = SanctionsScreener(
 ```
 
 **Recommendations:**
+
 1. **FIX IMPORTS**: Add banking modules to PYTHONPATH in Jupyter container
 2. **FIX CONNECTION**: Use `opensearch` (container name) not `localhost`
 3. **ADD SETUP**: Document conda env and dependencies
@@ -135,6 +145,7 @@ screener = SanctionsScreener(
 **Status:** ❌ BROKEN
 
 **Critical Issues:**
+
 ```python
 # ISSUE 1: Wrong import paths (same as 01)
 sys.path.insert(0, '../../src/python')
@@ -155,6 +166,7 @@ transactions_df = pd.read_csv('../../banking/data/aml/aml_data_transactions.csv'
 ```
 
 **Recommendations:**
+
 1. Fix all connection strings
 2. Add data generation script
 3. Fix import paths
@@ -199,6 +211,7 @@ transactions_df = pd.read_csv('../../banking/data/aml/aml_data_transactions.csv'
 ### 1. Connection Configuration ❌ CRITICAL
 
 **Problem:**
+
 ```python
 # WRONG - Uses localhost
 janusgraph_host='localhost'
@@ -206,6 +219,7 @@ opensearch_host='localhost'
 ```
 
 **Solution:**
+
 ```python
 # CORRECT - Uses container names
 janusgraph_host='janusgraph-server'
@@ -219,18 +233,21 @@ opensearch_host='opensearch'
 ### 2. Import Paths ❌ CRITICAL
 
 **Problem:**
+
 ```python
 sys.path.insert(0, '../../src/python')  # Doesn't exist
 sys.path.insert(0, '../../banking')     # Wrong from /workspace/notebooks
 ```
 
 **Solution 1: Fix Jupyter Dockerfile**
+
 ```dockerfile
 # Add to docker/jupyter/Dockerfile
 ENV PYTHONPATH="/workspace:/workspace/banking:/workspace/src/python:$PYTHONPATH"
 ```
 
 **Solution 2: Fix notebooks**
+
 ```python
 import sys
 import os
@@ -246,12 +263,14 @@ sys.path.insert(0, os.path.join(project_root, 'banking'))
 ### 3. Missing Data Files ❌ CRITICAL
 
 **Problem:**
+
 ```python
 # File doesn't exist
 transactions_df = pd.read_csv('../../banking/data/aml/aml_data_transactions.csv')
 ```
 
 **Solution:** Create data generation script:
+
 ```bash
 # Create script: banking/data/aml/generate_demo_data.py
 python banking/data/aml/generate_demo_data.py
@@ -264,6 +283,7 @@ python banking/data/aml/generate_demo_data.py
 **Problem:** Custom modules not available in Jupyter container
 
 **Solution:** Update `requirements.txt`:
+
 ```
 # Add to requirements.txt
 cassandra-driver>=3.25.0
@@ -278,6 +298,7 @@ sentence-transformers>=2.2.0  # For embeddings
 **Problem:** No try/except blocks for connections
 
 **Solution:**
+
 ```python
 try:
     screener = SanctionsScreener(
@@ -298,6 +319,7 @@ except Exception as e:
 **Problem:** No setup instructions
 
 **Solution:** Add to each notebook:
+
 ```markdown
 ## Prerequisites
 
@@ -312,21 +334,24 @@ podman ps | grep janusgraph-demo_
 ```
 
 **Conda Environment:**
+
 ```bash
 conda activate janusgraph-analysis
 ```
 
 **Python Packages:**
+
 ```bash
 uv pip install -r requirements.txt
 ```
+
 ```
 
 ---
 
 ### 7. Security Issues ⚠️ MEDIUM
 
-**Problem:** 
+**Problem:**
 - OpenSearch credentials may be needed
 - No validation of OPENSEARCH_ADMIN_PASSWORD
 
@@ -426,12 +451,14 @@ screener = SanctionsScreener(
 **Goal:** Make notebooks runnable
 
 1. **Update Jupyter Dockerfile**
+
    ```dockerfile
    # Add PYTHONPATH
    ENV PYTHONPATH="/workspace:/workspace/banking:/workspace/src/python:$PYTHONPATH"
    ```
 
 2. **Update requirements.txt**
+
    ```
    cassandra-driver>=3.25.0
    opensearch-py>=2.0.0
@@ -441,6 +468,7 @@ screener = SanctionsScreener(
    ```
 
 3. **Rebuild Jupyter Container**
+
    ```bash
    cd config/compose
    podman-compose -p janusgraph-demo build jupyter
@@ -455,6 +483,7 @@ screener = SanctionsScreener(
    - Search/replace: `localhost` → `opensearch`, `janusgraph-server`
 
 2. **Create Data Generation Scripts**
+
    ```bash
    banking/data/aml/generate_demo_data.py
    banking/data/fraud/generate_demo_data.py
@@ -509,6 +538,7 @@ screener = SanctionsScreener(
 **File:** All banking notebooks
 
 **Change:**
+
 ```python
 # OLD
 janusgraph_host='localhost'
@@ -524,6 +554,7 @@ opensearch_host='opensearch'
 **File:** All banking notebooks
 
 **Add at top:**
+
 ```python
 import sys
 import os
@@ -539,11 +570,12 @@ sys.path.insert(0, '/workspace/src/python')
 **File:** All notebooks
 
 **Add after imports:**
+
 ```python
 def check_services():
     """Validate required services are running"""
     checks = []
-    
+
     # Check JanusGraph
     try:
         gc = client.Client('ws://janusgraph-server:8182/gremlin', 'g')
@@ -551,7 +583,7 @@ def check_services():
         checks.append("✅ JanusGraph")
     except:
         checks.append("❌ JanusGraph")
-    
+
     # Check OpenSearch (for banking demos)
     try:
         from opensearchpy import OpenSearch
@@ -560,11 +592,11 @@ def check_services():
         checks.append("✅ OpenSearch")
     except:
         checks.append("❌ OpenSearch")
-    
+
     print("Service Check:")
     for check in checks:
         print(f"  {check}")
-    
+
     if "❌" in "".join(checks):
         raise RuntimeError("Some services are not available")
 
@@ -577,16 +609,19 @@ check_services()
 ## Tracking & Metrics
 
 ### Current State
+
 - **Working Notebooks:** 1/10 (10%)
 - **Broken Notebooks:** 6/10 (60%)
 - **Needs Review:** 3/10 (30%)
 
 ### Target State (After Remediation)
+
 - **Working Notebooks:** 10/10 (100%)
 - **Tested:** 10/10 (100%)
 - **Documented:** 10/10 (100%)
 
 ### Success Criteria
+
 - ✅ All notebooks run end-to-end without errors
 - ✅ All prerequisites documented
 - ✅ All data files available or generated
@@ -622,6 +657,6 @@ check_services()
 
 ---
 
-**Audit Status:** COMPLETE  
-**Next Review:** After remediation (Phase 1-2 complete)  
+**Audit Status:** COMPLETE
+**Next Review:** After remediation (Phase 1-2 complete)
 **Owner:** Development Team

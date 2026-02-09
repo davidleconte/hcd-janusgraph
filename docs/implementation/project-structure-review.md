@@ -1,7 +1,7 @@
 # Project Structure Review and Documentation Audit
 
-**Date:** 2026-01-28  
-**Reviewer:** David Leconte  
+**Date:** 2026-01-28
+**Reviewer:** David Leconte
 **Scope:** Complete folder structure and documentation (.md) organization audit
 
 ---
@@ -11,6 +11,7 @@
 This review analyzes the project's folder structure and documentation organization against industry best practices. The project demonstrates **good overall organization** with clear separation of concerns, but has **23 documentation placement issues** requiring attention.
 
 **Key Findings:**
+
 - ✅ **Strengths:** Clear module separation, comprehensive documentation coverage
 - ⚠️ **Issues:** Root directory clutter (35+ .md files), inconsistent documentation hierarchy
 - 🎯 **Priority:** Consolidate root-level documentation, standardize naming conventions
@@ -113,11 +114,13 @@ banking/
 ### 2.1 Critical Issues (Priority 1)
 
 #### Issue #1: Root Directory Clutter
-**Severity:** HIGH  
-**Location:** `/` (root directory)  
+
+**Severity:** HIGH
+**Location:** `/` (root directory)
 **Problem:** 35+ markdown files in root directory
 
 **Current State:**
+
 ```
 Root directory contains:
 - AGENTS.md
@@ -140,6 +143,7 @@ Root directory contains:
 ```
 
 **Recommendation:**
+
 ```
 Move to appropriate subdirectories:
 - Audit reports → docs/audits/
@@ -154,11 +158,13 @@ Move to appropriate subdirectories:
 ---
 
 #### Issue #2: Duplicate Documentation Hierarchy
-**Severity:** HIGH  
-**Location:** `banking/docs/` vs `docs/banking/`  
+
+**Severity:** HIGH
+**Location:** `banking/docs/` vs `docs/banking/`
 **Problem:** Two separate documentation locations for banking domain
 
 **Current State:**
+
 ```
 banking/docs/
 ├── 00_OVERVIEW.md
@@ -170,6 +176,7 @@ docs/banking/
 ```
 
 **Recommendation:**
+
 ```
 Consolidate to single location:
 1. Move banking/docs/* → docs/banking/setup/
@@ -182,11 +189,13 @@ Consolidate to single location:
 ---
 
 #### Issue #3: Inconsistent Naming Conventions
-**Severity:** MEDIUM  
-**Location:** Multiple directories  
+
+**Severity:** MEDIUM
+**Location:** Multiple directories
 **Problem:** Mixed naming styles (UPPERCASE, lowercase, PascalCase)
 
 **Examples:**
+
 ```
 ❌ Inconsistent:
 - PHASE8_COMPLETE.md
@@ -201,6 +210,7 @@ Consolidate to single location:
 ```
 
 **Recommendation:**
+
 ```
 Standardize on kebab-case for all documentation files:
 - PHASE8_COMPLETE.md → phase8-complete.md
@@ -216,11 +226,13 @@ Standardize on kebab-case for all documentation files:
 ### 2.2 Medium Priority Issues (Priority 2)
 
 #### Issue #4: Banking Documentation Over-Crowding
-**Severity:** MEDIUM  
-**Location:** `docs/banking/`  
+
+**Severity:** MEDIUM
+**Location:** `docs/banking/`
 **Problem:** 27 files in single directory without sub-organization
 
 **Current State:**
+
 ```
 docs/banking/
 ├── advanced-analytics-olap-guide.md
@@ -237,6 +249,7 @@ docs/banking/
 ```
 
 **Recommendation:**
+
 ```
 Organize into subdirectories:
 
@@ -272,11 +285,13 @@ docs/banking/
 ---
 
 #### Issue #5: Missing Documentation Index
-**Severity:** MEDIUM  
-**Location:** `docs/`  
+
+**Severity:** MEDIUM
+**Location:** `docs/`
 **Problem:** No central index or navigation guide for documentation
 
 **Recommendation:**
+
 ```
 Create docs/index.md with:
 1. Documentation map
@@ -286,6 +301,7 @@ Create docs/index.md with:
 ```
 
 **Example Structure:**
+
 ```markdown
 # Documentation Index
 
@@ -316,11 +332,13 @@ Create docs/index.md with:
 ---
 
 #### Issue #6: Inconsistent README Placement
-**Severity:** MEDIUM  
-**Location:** Multiple directories  
+
+**Severity:** MEDIUM
+**Location:** Multiple directories
 **Problem:** Some subdirectories have README.md, others don't
 
 **Current State:**
+
 ```
 ✅ Has README.md:
 - banking/
@@ -341,6 +359,7 @@ Create docs/index.md with:
 ```
 
 **Recommendation:**
+
 ```
 Add README.md to all major directories with:
 1. Purpose and scope
@@ -356,11 +375,13 @@ Add README.md to all major directories with:
 ### 2.3 Low Priority Issues (Priority 3)
 
 #### Issue #7: Gemini-Generated Files in Root
-**Severity:** LOW  
-**Location:** `/` (root directory)  
+
+**Severity:** LOW
+**Location:** `/` (root directory)
 **Problem:** Legacy Gemini-generated files cluttering root
 
 **Files:**
+
 ```
 - gemini_deploy_full_stack.sh
 - gemini_generate_secure_env.sh
@@ -370,6 +391,7 @@ Add README.md to all major directories with:
 ```
 
 **Recommendation:**
+
 ```
 Move to archive:
 docs/archive/gemini/
@@ -385,11 +407,13 @@ docs/archive/gemini/
 ---
 
 #### Issue #8: Test Documentation Location
-**Severity:** LOW  
-**Location:** `tests/`  
+
+**Severity:** LOW
+**Location:** `tests/`
 **Problem:** No README.md explaining test structure and execution
 
 **Recommendation:**
+
 ```
 Create tests/README.md with:
 1. Test structure overview
@@ -404,11 +428,13 @@ Create tests/README.md with:
 ---
 
 #### Issue #9: Scripts Documentation
-**Severity:** LOW  
-**Location:** `scripts/`  
+
+**Severity:** LOW
+**Location:** `scripts/`
 **Problem:** No central documentation for script usage
 
 **Recommendation:**
+
 ```
 Create scripts/README.md with:
 1. Script categories (backup, deployment, monitoring, etc.)
@@ -505,38 +531,40 @@ hcd-tarball-janusgraph/
 
 ### Phase 1: Critical Cleanup (Week 1)
 
-**Effort:** 4-6 hours  
+**Effort:** 4-6 hours
 **Impact:** HIGH
 
 1. **Consolidate Root Documentation**
+
    ```bash
    # Create new directories
    mkdir -p docs/implementation/{phases,remediation,audits}
    mkdir -p docs/archive/gemini
-   
+
    # Move audit reports
    mv AUDIT_REPORT*.md docs/implementation/audits/
    mv audit_comparison.md docs/implementation/audits/
    mv EXECUTIVE_SUMMARY.md docs/implementation/audits/
-   
+
    # Move phase summaries
    mv PHASE*.md docs/implementation/phases/
-   
+
    # Move remediation plans
    mv REMEDIATION_PLAN.md docs/implementation/remediation/
    mv remediation_plan_Gemini_.md docs/archive/gemini/
-   
+
    # Move Gemini files
    mv gemini_*.sh docs/archive/gemini/
    mv project_audit_and_plan_Gemini_.md docs/archive/gemini/
    ```
 
 2. **Consolidate Banking Documentation**
+
    ```bash
    # Remove duplicate directory
    mv banking/docs/* docs/banking/setup/
    rmdir banking/docs/
-   
+
    # Update references
    find . -type f -name "*.md" -exec sed -i 's|banking/docs/|docs/banking/setup/|g' {} +
    find . -type f -name "*.py" -exec sed -i 's|banking/docs/|docs/banking/setup/|g' {} +
@@ -548,6 +576,7 @@ hcd-tarball-janusgraph/
    - Update navigation
 
 **Deliverables:**
+
 - ✅ Clean root directory (5-7 files only)
 - ✅ Consolidated banking docs
 - ✅ All links working
@@ -556,14 +585,15 @@ hcd-tarball-janusgraph/
 
 ### Phase 2: Organization Improvements (Week 2)
 
-**Effort:** 6-8 hours  
+**Effort:** 6-8 hours
 **Impact:** MEDIUM
 
 1. **Organize Banking Documentation**
+
    ```bash
    cd docs/banking
    mkdir -p guides architecture implementation/{phases/phase5,phases/phase8,deployment} planning
-   
+
    # Move files to appropriate subdirectories
    mv *-guide.md guides/
    mv *-reference.md guides/
@@ -579,21 +609,22 @@ hcd-tarball-janusgraph/
    - Include search tips
 
 3. **Add Missing READMEs**
+
    ```bash
    # Create README templates
    for dir in banking/aml banking/fraud banking/data src/python tests; do
      cat > $dir/README.md << 'EOF'
    # [Directory Name]
-   
+
    ## Purpose
    [Brief description]
-   
+
    ## Contents
    [List of key files/subdirectories]
-   
+
    ## Usage
    [Basic usage examples]
-   
+
    ## Documentation
    [Links to related docs]
    EOF
@@ -601,6 +632,7 @@ hcd-tarball-janusgraph/
    ```
 
 **Deliverables:**
+
 - ✅ Organized banking documentation
 - ✅ Central documentation index
 - ✅ README in all major directories
@@ -609,16 +641,17 @@ hcd-tarball-janusgraph/
 
 ### Phase 3: Standardization (Week 3)
 
-**Effort:** 4-6 hours  
+**Effort:** 4-6 hours
 **Impact:** MEDIUM
 
 1. **Standardize File Naming**
+
    ```bash
    # Rename files to kebab-case
    cd docs/banking
    rename 's/_/-/g' *.md
    rename 's/([A-Z])/-\L$1/g' *.md
-   
+
    # Update all references
    find . -type f \( -name "*.md" -o -name "*.py" \) -exec sed -i 's/PHASE8_COMPLETE/phase8-complete/g' {} +
    ```
@@ -635,6 +668,7 @@ hcd-tarball-janusgraph/
    - Add structure guidelines
 
 **Deliverables:**
+
 - ✅ Consistent file naming
 - ✅ Documentation standards guide
 - ✅ Updated AGENTS.md
@@ -643,7 +677,7 @@ hcd-tarball-janusgraph/
 
 ### Phase 4: Enhancement (Week 4)
 
-**Effort:** 2-4 hours  
+**Effort:** 2-4 hours
 **Impact:** LOW
 
 1. **Create Script Documentation**
@@ -662,6 +696,7 @@ hcd-tarball-janusgraph/
    - Update references
 
 **Deliverables:**
+
 - ✅ Complete script documentation
 - ✅ Complete test documentation
 - ✅ Clean archive structure
@@ -671,12 +706,14 @@ hcd-tarball-janusgraph/
 ## 5. Implementation Checklist
 
 ### Pre-Implementation
+
 - [ ] Backup current documentation structure
 - [ ] Create git branch: `docs/structure-reorganization`
 - [ ] Notify team of upcoming changes
 - [ ] Review and approve reorganization plan
 
 ### Phase 1: Critical Cleanup
+
 - [ ] Create new directory structure
 - [ ] Move audit reports to `docs/implementation/audits/`
 - [ ] Move phase summaries to `docs/implementation/phases/`
@@ -689,6 +726,7 @@ hcd-tarball-janusgraph/
 - [ ] Commit changes: "docs: consolidate root documentation"
 
 ### Phase 2: Organization Improvements
+
 - [ ] Create banking documentation subdirectories
 - [ ] Move files to appropriate subdirectories
 - [ ] Create `docs/index.md`
@@ -698,6 +736,7 @@ hcd-tarball-janusgraph/
 - [ ] Commit changes: "docs: organize banking documentation"
 
 ### Phase 3: Standardization
+
 - [ ] Rename files to kebab-case
 - [ ] Update all file references
 - [ ] Create `docs/documentation-standards.md`
@@ -706,6 +745,7 @@ hcd-tarball-janusgraph/
 - [ ] Commit changes: "docs: standardize naming conventions"
 
 ### Phase 4: Enhancement
+
 - [ ] Create `scripts/README.md`
 - [ ] Create `tests/README.md`
 - [ ] Add archive documentation
@@ -714,6 +754,7 @@ hcd-tarball-janusgraph/
 - [ ] Commit changes: "docs: add missing documentation"
 
 ### Post-Implementation
+
 - [ ] Merge branch to main
 - [ ] Update team documentation
 - [ ] Update onboarding materials
@@ -725,6 +766,7 @@ hcd-tarball-janusgraph/
 ## 6. Metrics and Success Criteria
 
 ### Current State Metrics
+
 - **Root .md files:** 35+
 - **Documentation directories:** 8
 - **Banking docs files:** 27 (single directory)
@@ -733,6 +775,7 @@ hcd-tarball-janusgraph/
 - **Documentation index:** None
 
 ### Target State Metrics
+
 - **Root .md files:** 5-7 (86% reduction)
 - **Documentation directories:** 12+ (organized)
 - **Banking docs files:** 27 (organized into 4 subdirectories)
@@ -741,6 +784,7 @@ hcd-tarball-janusgraph/
 - **Documentation index:** Complete
 
 ### Success Criteria
+
 1. ✅ Root directory has ≤7 .md files
 2. ✅ All documentation follows kebab-case naming
 3. ✅ Every major directory has README.md
@@ -757,15 +801,18 @@ hcd-tarball-janusgraph/
 ## 7. Risk Assessment
 
 ### Low Risk
+
 - Moving files (git preserves history)
 - Creating new directories
 - Adding README files
 
 ### Medium Risk
+
 - Updating file references (automated with sed)
 - Renaming files (may break some links)
 
 ### Mitigation Strategies
+
 1. **Backup:** Create git branch before changes
 2. **Testing:** Run link checker after each phase
 3. **Automation:** Use scripts for bulk operations
@@ -777,6 +824,7 @@ hcd-tarball-janusgraph/
 ## 8. Maintenance Guidelines
 
 ### Ongoing Practices
+
 1. **New Documentation:** Always place in appropriate subdirectory
 2. **Naming:** Use kebab-case for all new files
 3. **READMEs:** Add README.md to new directories
@@ -784,6 +832,7 @@ hcd-tarball-janusgraph/
 5. **Index:** Update `docs/index.md` for major additions
 
 ### Quarterly Reviews
+
 - Review documentation structure
 - Check for orphaned files
 - Update documentation index
@@ -791,6 +840,7 @@ hcd-tarball-janusgraph/
 - Gather user feedback
 
 ### Annual Audits
+
 - Comprehensive structure review
 - Archive outdated documentation
 - Update standards as needed
@@ -809,6 +859,7 @@ The project has a **solid foundation** with clear module separation and comprehe
 5. **Inconsistent naming conventions** (mixed case styles)
 
 The proposed 4-phase remediation plan will:
+
 - ✅ Reduce root .md files by 86%
 - ✅ Consolidate duplicate documentation
 - ✅ Organize banking docs into logical subdirectories
@@ -816,7 +867,7 @@ The proposed 4-phase remediation plan will:
 - ✅ Add missing READMEs
 - ✅ Create central documentation index
 
-**Estimated Total Effort:** 16-24 hours over 4 weeks  
+**Estimated Total Effort:** 16-24 hours over 4 weeks
 **Expected Impact:** HIGH - Significantly improved documentation discoverability and maintainability
 
 ---
@@ -824,19 +875,21 @@ The proposed 4-phase remediation plan will:
 ## 10. References
 
 ### Industry Best Practices
+
 - [GitHub Documentation Best Practices](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
 - [Google Documentation Style Guide](https://developers.google.com/style)
 - [Write the Docs - Documentation Guide](https://www.writethedocs.org/guide/)
 - [Divio Documentation System](https://documentation.divio.com/)
 
 ### Project-Specific Documents
+
 - `AGENTS.md` (root) - Project-specific patterns
 - `docs/...` - Contribution guidelines
 - `docs/...` - System architecture
 
 ---
 
-**Review Status:** ✅ COMPLETE  
-**Next Action:** Review and approve remediation plan  
-**Owner:** Project Lead  
+**Review Status:** ✅ COMPLETE
+**Next Action:** Review and approve remediation plan
+**Owner:** Project Lead
 **Due Date:** 2026-02-04

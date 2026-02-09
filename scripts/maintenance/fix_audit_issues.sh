@@ -139,7 +139,7 @@ SCRIPT
     chmod +x scripts/setup/download_hcd.sh
     CHANGES_MADE+=("Created scripts/setup/download_hcd.sh")
     echo -e "  ${GREEN}✓${NC} Created download script"
-    
+
     # Move binary to vendor
     mkdir -p vendor
     mv hcd-1.2.3-bin.tar.gz vendor/ 2>/dev/null || true

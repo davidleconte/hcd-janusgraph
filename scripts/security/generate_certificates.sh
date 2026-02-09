@@ -41,16 +41,16 @@ echo ""
 # Function to generate CA certificate
 generate_ca() {
     echo "1️⃣  Generating Root Certificate Authority (CA)..."
-    
+
     # Generate CA private key
     openssl genrsa -out "$CERT_DIR/ca/ca-key.pem" 4096
-    
+
     # Generate CA certificate
     openssl req -new -x509 -days $VALIDITY_DAYS \
         -key "$CERT_DIR/ca/ca-key.pem" \
         -out "$CERT_DIR/ca/ca-cert.pem" \
         -subj "/C=$COUNTRY/ST=$STATE/L=$CITY/O=$ORG/OU=$OU/CN=Root CA"
-    
+
     echo -e "${GREEN}✅ Root CA generated${NC}"
     echo ""
 }
@@ -60,20 +60,20 @@ generate_service_cert() {
     local service=$1
     local cn=$2
     local san=$3
-    
+
     echo "🔧 Generating certificate for $service..."
-    
+
     local service_dir="$CERT_DIR/$service"
-    
+
     # Generate private key
     openssl genrsa -out "$service_dir/${service}-key.pem" 2048
-    
+
     # Create certificate signing request (CSR)
     openssl req -new \
         -key "$service_dir/${service}-key.pem" \
         -out "$service_dir/${service}.csr" \
         -subj "/C=$COUNTRY/ST=$STATE/L=$CITY/O=$ORG/OU=$OU/CN=$cn"
-    
+
     # Create SAN configuration
     cat > "$service_dir/${service}-san.cnf" <<EOF
 [req]
@@ -97,7 +97,7 @@ subjectAltName = @alt_names
 [alt_names]
 $san
 EOF
-    
+
     # Sign certificate with CA
     openssl x509 -req -days $VALIDITY_DAYS \
         -in "$service_dir/${service}.csr" \
@@ -107,15 +107,15 @@ EOF
         -out "$service_dir/${service}-cert.pem" \
         -extensions v3_req \
         -extfile "$service_dir/${service}-san.cnf"
-    
+
     # Create full chain certificate
     cat "$service_dir/${service}-cert.pem" "$CERT_DIR/ca/ca-cert.pem" \
         > "$service_dir/${service}-fullchain.pem"
-    
+
     # Set proper permissions
     chmod 600 "$service_dir/${service}-key.pem"
     chmod 644 "$service_dir/${service}-cert.pem"
-    
+
     echo -e "${GREEN}✅ Certificate generated for $service${NC}"
     echo ""
 }
@@ -124,11 +124,11 @@ EOF
 create_java_keystore() {
     local service=$1
     local password=$2
-    
+
     echo "☕ Creating Java keystore for $service..."
-    
+
     local service_dir="$CERT_DIR/$service"
-    
+
     # Convert PEM to PKCS12
     openssl pkcs12 -export \
         -in "$service_dir/${service}-cert.pem" \
@@ -138,7 +138,7 @@ create_java_keystore() {
         -CAfile "$CERT_DIR/ca/ca-cert.pem" \
         -caname "root" \
         -password "pass:$password"
-    
+
     # Convert PKCS12 to JKS
     keytool -importkeystore \
         -deststorepass "$password" \
@@ -149,7 +149,7 @@ create_java_keystore() {
         -srcstorepass "$password" \
         -alias "$service" \
         -noprompt
-    
+
     # Import CA certificate into truststore
     keytool -import \
         -trustcacerts \
@@ -158,7 +158,7 @@ create_java_keystore() {
         -keystore "$service_dir/${service}-truststore.jks" \
         -storepass "$password" \
         -noprompt
-    
+
     echo -e "${GREEN}✅ Java keystore created for $service${NC}"
     echo ""
 }
@@ -167,39 +167,39 @@ create_java_keystore() {
 main() {
     echo "Starting certificate generation..."
     echo ""
-    
+
     # Generate Root CA
     generate_ca
-    
+
     # Generate JanusGraph certificates
     echo "2️⃣  Generating JanusGraph certificates..."
     generate_service_cert "janusgraph" "janusgraph-server" \
         "DNS.1 = janusgraph-server\nDNS.2 = janusgraph\nDNS.3 = localhost\nIP.1 = 127.0.0.1"
-    
+
     # Get keystore password from environment or use default
     KEYSTORE_PASSWORD="${SSL_KEYSTORE_PASSWORD:-changeit}"
     create_java_keystore "janusgraph" "$KEYSTORE_PASSWORD"
-    
+
     # Generate HCD certificates
     echo "3️⃣  Generating HCD certificates..."
     generate_service_cert "hcd" "hcd-server" \
         "DNS.1 = hcd-server\nDNS.2 = hcd\nDNS.3 = localhost\nIP.1 = 127.0.0.1"
     create_java_keystore "hcd" "$KEYSTORE_PASSWORD"
-    
+
     # Generate OpenSearch certificates
     echo "4️⃣  Generating OpenSearch certificates..."
     generate_service_cert "opensearch" "opensearch" \
         "DNS.1 = opensearch\nDNS.2 = opensearch-node1\nDNS.3 = localhost\nIP.1 = 127.0.0.1"
-    
+
     # Generate Grafana certificates
     echo "5️⃣  Generating Grafana certificates..."
     generate_service_cert "grafana" "grafana" \
         "DNS.1 = grafana\nDNS.2 = localhost\nIP.1 = 127.0.0.1"
-    
+
     # Create combined certificate bundle
     echo "6️⃣  Creating certificate bundle..."
     cat "$CERT_DIR"/*/*.pem > "$CERT_DIR/all-certs-bundle.pem" 2>/dev/null || true
-    
+
     # Generate certificate information file
     cat > "$CERT_DIR/README.md" <<EOF
 # TLS/SSL Certificates
@@ -275,11 +275,11 @@ To renew certificates before expiration:
 
 Then restart all services to load new certificates.
 EOF
-    
+
     # Set proper permissions
     chmod 700 "$CERT_DIR/ca"
     chmod 600 "$CERT_DIR/ca/ca-key.pem"
-    
+
     # Summary
     echo ""
     echo "=================================="
@@ -301,7 +301,7 @@ EOF
     echo "   3. Update client connections to use HTTPS/TLS"
     echo "   4. Test encrypted connections"
     echo ""
-    
+
     # Add to .gitignore
     if ! grep -q "config/certs" "$PROJECT_ROOT/.gitignore" 2>/dev/null; then
         echo "config/certs/" >> "$PROJECT_ROOT/.gitignore"

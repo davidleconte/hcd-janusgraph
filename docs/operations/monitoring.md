@@ -1,7 +1,7 @@
 # Monitoring Guide
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Monitoring Stack
 
@@ -12,13 +12,13 @@ flowchart LR
         OS[OpenSearch]
         P[Pulsar]
     end
-    
+
     subgraph Monitoring
         Prom[Prometheus]
         Graf[Grafana]
         Alert[AlertManager]
     end
-    
+
     JG --> Prom
     OS --> Prom
     P --> Prom
@@ -30,9 +30,9 @@ flowchart LR
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| Prometheus | http://localhost:9090 | - |
-| Grafana | http://localhost:3001 | admin/admin |
-| AlertManager | http://localhost:9093 | - |
+| Prometheus | <http://localhost:9090> | - |
+| Grafana | <http://localhost:3001> | admin/admin |
+| AlertManager | <http://localhost:9093> | - |
 
 ## Deploy Monitoring
 
@@ -43,15 +43,18 @@ flowchart LR
 ## Key Metrics
 
 ### JanusGraph
+
 - `janusgraph_vertices_total`
 - `janusgraph_edges_total`
 - `janusgraph_query_duration_seconds`
 
 ### OpenSearch
+
 - `opensearch_cluster_health`
 - `opensearch_indices_count`
 
 ### Pulsar
+
 - `pulsar_messages_in`
 - `pulsar_messages_out`
 - `pulsar_backlog`
@@ -59,6 +62,7 @@ flowchart LR
 ## Alert Rules
 
 31 pre-configured alerts across 6 categories:
+
 - System Health (8 rules)
 - JanusGraph (4 rules)
 - Security (8 rules)

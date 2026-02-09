@@ -1,7 +1,7 @@
 # Network Isolation Analysis - Podman Environment
 
-**Date:** 2026-01-29  
-**Podman Machine:** podman-wxd  
+**Date:** 2026-01-29
+**Podman Machine:** podman-wxd
 **Status:** ⚠️ PARTIAL ISOLATION - Needs Improvement
 
 ---
@@ -10,7 +10,7 @@
 
 The current configuration provides **partial isolation** through a dedicated bridge network (`hcd-janusgraph-network`), but **does NOT use pods** for complete isolation. Services can potentially interact with other projects on the same Podman machine.
 
-**Risk Level:** MEDIUM  
+**Risk Level:** MEDIUM
 **Recommendation:** Implement pod-based isolation or use project-specific naming prefixes
 
 ---
@@ -20,6 +20,7 @@ The current configuration provides **partial isolation** through a dedicated bri
 ### Network Configuration
 
 **Docker Compose (docker-compose.full.yml):**
+
 ```yaml
 networks:
   hcd-janusgraph-network:
@@ -27,6 +28,7 @@ networks:
 ```
 
 **Deployment Script (deploy_full_stack.sh):**
+
 ```bash
 NETWORK_NAME="${NETWORK_NAME:-hcd-janusgraph-network}"
 ```
@@ -36,6 +38,7 @@ NETWORK_NAME="${NETWORK_NAME:-hcd-janusgraph-network}"
 ### Container Naming
 
 **Current Names:**
+
 - `hcd-server`
 - `janusgraph-server`
 - `jupyter-lab`
@@ -108,6 +111,7 @@ podman run --pod janusgraph-pod ...
 ```
 
 **Benefits:**
+
 - Complete network isolation
 - Shared localhost within pod
 - Single network namespace
@@ -124,6 +128,7 @@ podman run --pod janusgraph-pod ...
 **Risk:** Another project tries to create `prometheus` container
 
 **Current Behavior:**
+
 ```bash
 Error: container name "prometheus" is already in use
 ```
@@ -139,6 +144,7 @@ Error: container name "prometheus" is already in use
 **Risk:** Another project tries to use port 8182
 
 **Current Behavior:**
+
 ```bash
 Error: port 8182 is already allocated
 ```
@@ -154,6 +160,7 @@ Error: port 8182 is already allocated
 **Risk:** Another project creates volume named `hcd-data`
 
 **Current Behavior:**
+
 - Podman reuses existing volume
 - Data from different projects mixed
 - Potential data corruption
@@ -169,6 +176,7 @@ Error: port 8182 is already allocated
 **Risk:** Another project creates `hcd-janusgraph-network`
 
 **Current Behavior:**
+
 - Podman reuses existing network
 - Services from different projects on same network
 - Potential security breach
@@ -203,11 +211,13 @@ services:
 ```
 
 **Pros:**
+
 - Easy to implement
 - Backward compatible with compose
 - Clear project ownership
 
 **Cons:**
+
 - Requires updating all references
 - Still not true pod isolation
 
@@ -235,12 +245,14 @@ podman run --pod janusgraph-demo-pod ...
 ```
 
 **Pros:**
+
 - Complete isolation
 - Kubernetes-compatible
 - Shared localhost within pod
 - Single network namespace
 
 **Cons:**
+
 - Requires rewriting deployment scripts
 - Not compatible with docker-compose
 - More complex management
@@ -262,12 +274,14 @@ podman-compose -p janusgraph-demo up -d
 ```
 
 **Pros:**
+
 - Built-in compose feature
 - Automatic prefixing
 - Easy to implement
 - Maintains compose compatibility
 
 **Cons:**
+
 - Longer names
 - Requires updating scripts to use project name
 
@@ -288,6 +302,7 @@ podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
 ```
 
 **Benefits:**
+
 - Quick to implement (1 line change)
 - Automatic resource prefixing
 - Prevents all naming conflicts
@@ -362,12 +377,14 @@ podman exec janusgraph-server ping other-project-container
 **Current State:** ⚠️ PARTIAL ISOLATION
 
 **Risks:**
+
 - Name conflicts: HIGH
-- Port conflicts: MEDIUM  
+- Port conflicts: MEDIUM
 - Volume conflicts: LOW but CRITICAL impact
 - Network conflicts: LOW but HIGH impact
 
 **Recommended Action:**
+
 1. **Immediate:** Add compose project name (`-p janusgraph-demo`)
 2. **Short-term:** Update documentation with conflict prevention
 3. **Long-term:** Migrate to pod-based deployment
@@ -376,6 +393,6 @@ podman exec janusgraph-server ping other-project-container
 
 ---
 
-**Analysis Date:** 2026-01-29T04:15:00Z  
-**Analyst:** David Leconte (Advanced Mode)  
+**Analysis Date:** 2026-01-29T04:15:00Z
+**Analyst:** David Leconte (Advanced Mode)
 **Status:** ⚠️ Needs Improvement

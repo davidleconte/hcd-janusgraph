@@ -19,11 +19,11 @@ All audit events are logged in structured JSON format with:
 
 import json
 import logging
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional
-from dataclasses import dataclass, asdict
 
 
 class AuditEventType(Enum):
@@ -275,14 +275,10 @@ class AuditLogger:
     ) -> None:
         """Log authorization event"""
         event_type = (
-            AuditEventType.AUTHZ_GRANTED
-            if result == "granted"
-            else AuditEventType.AUTHZ_DENIED
+            AuditEventType.AUTHZ_GRANTED if result == "granted" else AuditEventType.AUTHZ_DENIED
         )
 
-        severity = (
-            AuditSeverity.WARNING if result == "denied" else AuditSeverity.INFO
-        )
+        severity = AuditSeverity.WARNING if result == "denied" else AuditSeverity.INFO
 
         event = AuditEvent(
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -314,9 +310,7 @@ class AuditLogger:
 
         event = AuditEvent(
             timestamp=datetime.now(timezone.utc).isoformat(),
-            event_type=event_type_map.get(
-                request_type, AuditEventType.GDPR_DATA_REQUEST
-            ),
+            event_type=event_type_map.get(request_type, AuditEventType.GDPR_DATA_REQUEST),
             severity=AuditSeverity.INFO,
             user=user,
             resource=f"gdpr_subject:{subject_id}",
@@ -401,9 +395,7 @@ class AuditLogger:
 
         event = AuditEvent(
             timestamp=datetime.now(timezone.utc).isoformat(),
-            event_type=event_type_map.get(
-                event_type, AuditEventType.SECURITY_POLICY_VIOLATION
-            ),
+            event_type=event_type_map.get(event_type, AuditEventType.SECURITY_POLICY_VIOLATION),
             severity=AuditSeverity.CRITICAL,
             user=user,
             resource=resource,

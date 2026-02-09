@@ -42,7 +42,7 @@ echo ""
 print_status() {
     local status=$1
     local message=$2
-    
+
     if [ "$status" == "ok" ]; then
         echo -e "${GREEN}✅${NC} $message"
     elif [ "$status" == "warning" ]; then
@@ -69,14 +69,14 @@ echo ""
 echo "2. Checking cluster status..."
 if $NODETOOL status > /dev/null 2>&1; then
     print_status "ok" "Nodetool accessible"
-    
+
     # Get status output
     STATUS_OUTPUT=$($NODETOOL status)
-    
+
     # Check for UN (Up Normal) nodes
     UN_COUNT=$(echo "$STATUS_OUTPUT" | grep -c "^UN" || true)
     DN_COUNT=$(echo "$STATUS_OUTPUT" | grep -c "^DN" || true)
-    
+
     echo "   Nodes UP: $UN_COUNT"
     if [ $DN_COUNT -gt 0 ]; then
         print_status "error" "Nodes DOWN: $DN_COUNT"
@@ -104,7 +104,7 @@ echo ""
 echo "4. Checking keyspace: $KEYSPACE..."
 if echo "DESCRIBE KEYSPACE $KEYSPACE;" | $CQLSH $HCD_HOST $HCD_PORT > /dev/null 2>&1; then
     print_status "ok" "Keyspace exists"
-    
+
     # Get replication info
     REPLICATION=$(echo "SELECT replication FROM system_schema.keyspaces WHERE keyspace_name='$KEYSPACE';" | $CQLSH $HCD_HOST $HCD_PORT -e "EXPAND ON" 2>/dev/null | grep -A5 "replication" | tail -1 || true)
     if [ -n "$REPLICATION" ]; then
@@ -121,7 +121,7 @@ TABLE_COUNT=$(echo "SELECT COUNT(*) FROM system_schema.tables WHERE keyspace_nam
 
 if [ "$TABLE_COUNT" -gt 0 ]; then
     print_status "ok" "Found $TABLE_COUNT tables in $KEYSPACE"
-    
+
     # Check for critical JanusGraph tables
     CRITICAL_TABLES=("edgestore" "graphindex" "janusgraph_ids" "system_properties")
     for table in "${CRITICAL_TABLES[@]}"; do
@@ -146,7 +146,7 @@ if [ -n "$DISK_OUTPUT" ]; then
     if [ -n "$TOTAL_SPACE" ]; then
         print_status "ok" "Disk usage: $TOTAL_SPACE"
     fi
-    
+
     # Extract total SSTable count
     SSTABLE_COUNT=$(echo "$DISK_OUTPUT" | grep "Total number of SSTables:" | awk '{print $5}')
     if [ -n "$SSTABLE_COUNT" ]; then
@@ -191,11 +191,11 @@ INFO_OUTPUT=$($NODETOOL info 2>/dev/null || echo "")
 if [ -n "$INFO_OUTPUT" ]; then
     HEAP_USED=$(echo "$INFO_OUTPUT" | grep "Heap Memory (MB)" | awk '{print $5}')
     HEAP_MAX=$(echo "$INFO_OUTPUT" | grep "Heap Memory (MB)" | awk '{print $7}')
-    
+
     if [ -n "$HEAP_USED" ] && [ -n "$HEAP_MAX" ]; then
         HEAP_PCT=$(awk "BEGIN {printf \"%.1f\", ($HEAP_USED/$HEAP_MAX)*100}")
         echo "   Heap: ${HEAP_USED}MB / ${HEAP_MAX}MB (${HEAP_PCT}%)"
-        
+
         if (( $(echo "$HEAP_PCT > 90" | bc -l) )); then
             print_status "error" "High memory usage (>90%)"
         elif (( $(echo "$HEAP_PCT > 75" | bc -l) )); then

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+
 - GraphQL API endpoint
 - Batch query execution
 - Async query support
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Security & Performance Enhancements
 
 #### Authentication & Authorization
+
 - **JWT Authentication**: Token-based authentication with 15-minute access tokens
   - `POST /auth/login` - User authentication
   - `POST /auth/refresh` - Token refresh
@@ -39,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Context-aware policy evaluation
 
 #### Performance Features
+
 - **Query Caching**: LRU-based caching with 70-90% hit rate
   - Configurable TTL (default: 5 minutes)
   - Automatic cache invalidation on writes
@@ -58,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 429 status code when exceeded
 
 #### Monitoring & Observability
+
 - **Distributed Tracing**: OpenTelemetry + Jaeger integration
   - Automatic span creation for all API calls
   - `X-Trace-Id` header for request correlation
@@ -70,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `GET /health/live` - Liveness probe
 
 #### Security Features
+
 - **TLS/SSL**: All communications encrypted
 - **Input Validation**: Comprehensive validation for all inputs
 - **Audit Logging**: Complete audit trail for all operations
@@ -78,12 +83,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed - Breaking Changes
 
 #### Authentication (BREAKING)
+
 - **Removed**: Basic authentication
 - **Required**: JWT token for all API calls
 - **Migration**: Update clients to use `/auth/login` and include `Authorization` header
 
 #### Response Format (BREAKING)
+
 - **Standardized Error Responses**:
+
   ```json
   {
     "error": {
@@ -96,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
 - **Pagination Format**:
+
   ```json
   {
     "data": [],
@@ -109,6 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
 #### Query Endpoints
+
 - **Changed**: `/query` endpoint now requires authentication
 - **Added**: Query validation before execution
 - **Added**: Query timeout parameter (default: 30s, max: 300s)
@@ -147,17 +157,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.0] - 2026-01-15
 
 ### Added
+
 - **Batch Operations**: Support for batch vertex/edge creation
 - **Query Optimization**: Automatic query optimization hints
 - **Connection Pooling**: Improved connection management
 - **Logging**: Structured logging with correlation IDs
 
 ### Changed
+
 - **Performance**: 30% improvement in query execution time
 - **Error Messages**: More descriptive error messages
 - **Documentation**: Updated API documentation with examples
 
 ### Fixed
+
 - **Memory Usage**: Reduced memory footprint by 40%
 - **Connection Leaks**: Fixed connection leak in error scenarios
 - **Query Timeout**: Fixed timeout handling for long-running queries
@@ -171,6 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Core Endpoints
 
 **Graph Operations**
+
 - `GET /graph/vertices` - List vertices
 - `POST /graph/vertices` - Create vertex
 - `GET /graph/vertices/{id}` - Get vertex by ID
@@ -184,11 +198,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DELETE /graph/edges/{id}` - Delete edge
 
 **Query Operations**
+
 - `POST /query` - Execute Gremlin query
 - `POST /query/batch` - Execute multiple queries
 - `GET /query/history` - Query execution history
 
 **Schema Operations**
+
 - `GET /schema` - Get graph schema
 - `POST /schema/vertex-labels` - Create vertex label
 - `POST /schema/edge-labels` - Create edge label
@@ -196,6 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `POST /schema/indexes` - Create index
 
 **Admin Operations**
+
 - `GET /admin/stats` - Graph statistics
 - `POST /admin/backup` - Trigger backup
 - `POST /admin/restore` - Restore from backup
@@ -208,6 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Version Strategy
 
 We use semantic versioning (MAJOR.MINOR.PATCH):
+
 - **MAJOR**: Breaking changes
 - **MINOR**: New features (backward compatible)
 - **PATCH**: Bug fixes (backward compatible)
@@ -215,6 +233,7 @@ We use semantic versioning (MAJOR.MINOR.PATCH):
 ### Version Header
 
 Include API version in requests:
+
 ```
 X-API-Version: 2.0.0
 ```
@@ -234,6 +253,7 @@ X-API-Version: 2.0.0
 See [Migration Guide v1 to v2](../migration/v1-to-v2.md) for detailed instructions.
 
 **Quick Summary:**
+
 1. Update authentication to use JWT tokens
 2. Update error handling for new format
 3. Add `Authorization` header to all requests
@@ -243,6 +263,7 @@ See [Migration Guide v1 to v2](../migration/v1-to-v2.md) for detailed instructio
 ### v2.0 to v3.0 (Future)
 
 Planned breaking changes:
+
 - Remove deprecated basic authentication
 - Remove legacy error format
 - Update query syntax
@@ -253,12 +274,14 @@ Planned breaking changes:
 ## Response Codes
 
 ### Success Codes
+
 - `200 OK` - Request successful
 - `201 Created` - Resource created
 - `202 Accepted` - Request accepted (async)
 - `204 No Content` - Successful deletion
 
 ### Client Error Codes
+
 - `400 Bad Request` - Invalid request format
 - `401 Unauthorized` - Authentication required
 - `403 Forbidden` - Insufficient permissions
@@ -268,6 +291,7 @@ Planned breaking changes:
 - `429 Too Many Requests` - Rate limit exceeded
 
 ### Server Error Codes
+
 - `500 Internal Server Error` - Server error
 - `502 Bad Gateway` - Upstream service error
 - `503 Service Unavailable` - Service temporarily unavailable
@@ -350,12 +374,13 @@ X-RateLimit-Reset: 1640995200
 
 - **Documentation**: [docs/api/](.)
 - **Issues**: [GitHub Issues](https://github.com/your-org/hcd-janusgraph/issues)
-- **Email**: support@example.com
+- **Email**: <support@example.com>
 - **Slack**: #janusgraph-api
 
 ### Reporting Security Issues
 
-Email security@example.com with:
+Email <security@example.com> with:
+
 - Description of vulnerability
 - Steps to reproduce
 - Potential impact
@@ -373,5 +398,5 @@ Email security@example.com with:
 
 ---
 
-**Last Updated**: 2026-01-28  
+**Last Updated**: 2026-01-28
 **Maintained By**: API Team

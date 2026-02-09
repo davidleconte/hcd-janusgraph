@@ -9,4 +9,4 @@ Date: 2026-02-04
 
 from banking.fraud.fraud_detection import FraudDetector
 
-__all__ = ['FraudDetector']
+__all__ = ["FraudDetector"]

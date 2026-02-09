@@ -1,10 +1,11 @@
 # HCD + JanusGraph Banking Compliance System
+
 # Technical Specifications Document
 
-**Version:** 1.0.0  
-**Date:** 2026-01-30  
-**Status:** Complete Outline/Template  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (David Leconte)  
+**Version:** 1.0.0
+**Date:** 2026-01-30
+**Status:** Complete Outline/Template
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (David Leconte)
 **Project:** Hierarchical Content Delivery + JanusGraph Banking Compliance System
 
 ---
@@ -48,9 +49,11 @@ This technical specifications document provides a complete architectural and imp
 ## 1.1 Architecture Overview
 
 ### 1.1.1 System Purpose
+
 Enterprise-grade graph database solution for banking compliance, AML detection, fraud detection, and customer 360° view.
 
 ### 1.1.2 Architecture Style
+
 - Microservices-based containerized architecture
 - Event-driven for real-time detection
 - Graph-native data model
@@ -84,6 +87,7 @@ Enterprise-grade graph database solution for banking compliance, AML detection, 
 ## 1.2 Container Specifications
 
 ### 1.2.1 HCD Container
+
 - **Image**: `localhost/hcd:1.2.3`
 - **Base**: Red Hat UBI 8
 - **Resources**: 4GB RAM, 2 CPUs
@@ -91,12 +95,14 @@ Enterprise-grade graph database solution for banking compliance, AML detection, 
 - **Ports**: 9042 (CQL), 9142 (CQL+TLS), 7000/7001 (inter-node)
 
 ### 1.2.2 JanusGraph Container
+
 - **Image**: `docker.io/janusgraph/janusgraph:latest`
 - **Resources**: 4GB RAM, 2 CPUs
 - **Volumes**: db, index, logs
 - **Ports**: 8182 (Gremlin), 8184 (Management)
 
 ### 1.2.3 Monitoring Stack
+
 - **Prometheus**: Metrics collection (2GB RAM, 1 CPU)
 - **Grafana**: Visualization (1GB RAM, 0.5 CPU)
 - **AlertManager**: Alert routing (512MB RAM, 0.5 CPU)
@@ -104,12 +110,14 @@ Enterprise-grade graph database solution for banking compliance, AML detection, 
 ## 1.3 Network Architecture
 
 ### 1.3.1 Network Topology
+
 - **Network Name**: `janusgraph-demo-network`
 - **Subnet**: `10.89.5.0/24`
 - **Gateway**: `10.89.5.1`
 - **Isolation**: Pod-level network namespaces
 
 ### 1.3.2 Port Mapping
+
 | Service | Internal | External | Protocol |
 |---------|----------|----------|----------|
 | JanusGraph | 8182 | 8182 | WebSocket |
@@ -121,11 +129,13 @@ Enterprise-grade graph database solution for banking compliance, AML detection, 
 ## 1.4 Volume Management
 
 ### 1.4.1 Volume Naming Convention
+
 Format: `{project}-{component}-{purpose}`
 
 Example: `janusgraph-demo-hcd-data`
 
 ### 1.4.2 Critical Volumes
+
 - `janusgraph-demo-hcd-data` (100GB) - Cassandra data
 - `janusgraph-demo-janusgraph-db` (50GB) - Graph database
 - `janusgraph-demo-vault-data` (5GB) - Encrypted secrets
@@ -140,6 +150,7 @@ Example: `janusgraph-demo-hcd-data`
 ### 2.1.1 Vertex Types
 
 #### Person Vertex
+
 ```groovy
 label: 'person'
 properties:
@@ -159,6 +170,7 @@ properties:
 ```
 
 #### Company Vertex
+
 ```groovy
 label: 'company'
 properties:
@@ -176,6 +188,7 @@ properties:
 ```
 
 #### Account Vertex
+
 ```groovy
 label: 'account'
 properties:
@@ -191,6 +204,7 @@ properties:
 ```
 
 #### Transaction Vertex
+
 ```groovy
 label: 'transaction'
 properties:
@@ -209,6 +223,7 @@ properties:
 ### 2.1.2 Edge Types
 
 #### OWNS Edge
+
 ```groovy
 label: 'OWNS'
 direction: Person/Company → Account
@@ -220,6 +235,7 @@ properties:
 ```
 
 #### TRANSACTED Edge
+
 ```groovy
 label: 'TRANSACTED'
 direction: Account → Transaction → Account
@@ -230,6 +246,7 @@ properties:
 ```
 
 #### RELATED_TO Edge
+
 ```groovy
 label: 'RELATED_TO'
 direction: Person ↔ Person
@@ -242,6 +259,7 @@ properties:
 ## 2.2 Indexing Strategy
 
 ### 2.2.1 Composite Indexes
+
 - **personByPersonId**: Unique index on personId
 - **personByName**: Composite on lastName + firstName
 - **personByRisk**: Composite on riskLevel + riskScore
@@ -249,11 +267,13 @@ properties:
 - **accountByTypeStatus**: Composite on accountType + status
 
 ### 2.2.2 Mixed Indexes (Elasticsearch)
+
 - **personSearch**: Full-text on firstName, lastName, email
 - **companySearch**: Full-text on legalName, tradeName
 - **transactionSearch**: Full-text on description
 
 ## 2.3 Cardinality Constraints
+
 - **SINGLE**: Most properties (one value per vertex)
 - **LIST**: email, phone (multiple values allowed)
 - **SET**: tags, categories (unique values only)
@@ -265,12 +285,14 @@ properties:
 ## 3.1 Gremlin API
 
 ### 3.1.1 Connection Endpoint
+
 ```
 WebSocket: ws://localhost:8182/gremlin
 WebSocket+TLS: wss://localhost:8182/gremlin
 ```
 
 ### 3.1.2 Authentication
+
 ```python
 headers = {
     'Authorization': f'Bearer {jwt_token}'
@@ -280,11 +302,13 @@ headers = {
 ### 3.1.3 Common Query Patterns
 
 #### Find Person by ID
+
 ```groovy
 g.V().has('person', 'personId', personId)
 ```
 
 #### Find High-Risk Accounts
+
 ```groovy
 g.V().hasLabel('account')
   .has('riskLevel', 'high')
@@ -292,6 +316,7 @@ g.V().hasLabel('account')
 ```
 
 #### Find Transaction Path
+
 ```groovy
 g.V().has('account', 'accountId', sourceId)
   .repeat(outE('TRANSACTED').inV())
@@ -300,6 +325,7 @@ g.V().has('account', 'accountId', sourceId)
 ```
 
 #### Customer 360 View
+
 ```groovy
 g.V().has('person', 'personId', personId)
   .project('person', 'accounts', 'transactions', 'relationships')
@@ -312,11 +338,13 @@ g.V().has('person', 'personId', personId)
 ## 3.2 REST API
 
 ### 3.2.1 Management API
+
 ```
 Base URL: http://localhost:8184
 ```
 
 #### Health Check
+
 ```http
 GET /health
 Response: 200 OK
@@ -330,6 +358,7 @@ Response: 200 OK
 ```
 
 #### Metrics
+
 ```http
 GET /metrics
 Response: 200 OK
@@ -343,6 +372,7 @@ Response: 200 OK
 ## 3.3 Python Client API
 
 ### 3.3.1 Client Initialization
+
 ```python
 from src.python.client.janusgraph_client import JanusGraphClient
 
@@ -354,6 +384,7 @@ client = JanusGraphClient(
 ```
 
 ### 3.3.2 Query Execution
+
 ```python
 # Simple query
 result = client.execute("g.V().count()")
@@ -368,6 +399,7 @@ result = client.execute(
 ## 3.4 Error Handling
 
 ### 3.4.1 Error Codes
+
 | Code | Description | Action |
 |------|-------------|--------|
 | 401 | Unauthorized | Check authentication token |
@@ -376,6 +408,7 @@ result = client.execute(
 | 503 | Service Unavailable | Wait and retry |
 
 ### 3.4.2 Error Response Format
+
 ```json
 {
   "error": {
@@ -396,26 +429,31 @@ result = client.execute(
 **MANDATORY**: See `.bob/rules-plan/PODMAN_ISOLATION.md` (internal planning doc) for complete requirements.
 
 ### 4.1.1 Network Isolation
+
 - Each pod has isolated network namespace
 - Unique subnet per project: `10.89.X.0/24`
 - No cross-pod communication without explicit policy
 
 ### 4.1.2 Volume Isolation
+
 - All volumes prefixed with project name
 - No shared volumes between projects
 - Independent backup/restore per project
 
 ### 4.1.3 Resource Limits
+
 - Explicit CPU/memory limits per pod
 - Prevents resource starvation
 - Monitoring of resource usage
 
 ### 4.1.4 Port Mapping
+
 - Check for conflicts before deployment
 - Document all exposed ports
 - Use non-standard ports when possible
 
 ### 4.1.5 Label-Based Management
+
 - All resources labeled with `project=janusgraph-demo`
 - Easy filtering and cleanup
 - Prevents accidental deletion
@@ -423,6 +461,7 @@ result = client.execute(
 ## 4.2 Pod Specifications
 
 ### 4.2.1 Core Pod
+
 ```bash
 podman pod create \
   --name janusgraph-demo-core \
@@ -434,6 +473,7 @@ podman pod create \
 ```
 
 ### 4.2.2 Monitoring Pod
+
 ```bash
 podman pod create \
   --name janusgraph-demo-monitoring \
@@ -447,16 +487,19 @@ podman pod create \
 ## 4.3 Security Context
 
 ### 4.3.1 Rootless Containers
+
 - All containers run as non-root user
 - User namespace mapping
 - No privileged containers
 
 ### 4.3.2 Capabilities
+
 - Drop all capabilities by default
 - Add only required capabilities
 - Example: `CAP_NET_BIND_SERVICE` for port 80/443
 
 ### 4.3.3 Read-Only Filesystem
+
 - Root filesystem read-only where possible
 - Writable volumes for data only
 - Prevents container modification
@@ -468,18 +511,21 @@ podman pod create \
 ## 5.1 Performance Targets
 
 ### 5.1.1 Throughput Requirements
+
 - **Queries per second**: 1000 QPS (sustained)
 - **Peak load**: 5000 QPS (burst)
 - **Write throughput**: 500 writes/second
 - **Batch operations**: 10,000 vertices/second
 
 ### 5.1.2 Latency Targets
+
 - **Simple queries** (vertex lookup): < 10ms (p95)
 - **Complex queries** (3-hop traversal): < 100ms (p95)
 - **Aggregations**: < 500ms (p95)
 - **Full-text search**: < 50ms (p95)
 
 ### 5.1.3 Concurrent Users
+
 - **Supported users**: 100 concurrent
 - **Peak users**: 500 concurrent (burst)
 - **Connection pool**: 200 connections
@@ -487,11 +533,13 @@ podman pod create \
 ## 5.2 Query Optimization
 
 ### 5.2.1 Index Usage
+
 - Always use indexed properties in `has()` steps
 - Composite indexes for multi-property filters
 - Mixed indexes for full-text search
 
 ### 5.2.2 Query Patterns
+
 ```groovy
 // GOOD: Uses index
 g.V().has('person', 'personId', id)
@@ -504,6 +552,7 @@ g.V().has('person', 'lastName', 'Doe').has('firstName', 'John')
 ```
 
 ### 5.2.3 Batch Operations
+
 ```python
 # Use batch for bulk inserts
 batch = []
@@ -517,12 +566,14 @@ for data in dataset:
 ## 5.3 Caching Strategy
 
 ### 5.3.1 Query Cache
+
 - **Location**: `src/python/performance/query_cache.py`
 - **TTL**: 5 minutes for read queries
 - **Size**: 1000 entries (LRU eviction)
 - **Hit rate target**: > 80%
 
 ### 5.3.2 Vertex Cache
+
 - **JanusGraph cache**: 50% of heap (2GB)
 - **Cache type**: Guava cache
 - **Expiration**: 10 minutes idle time
@@ -530,11 +581,13 @@ for data in dataset:
 ## 5.4 Scalability Parameters
 
 ### 5.4.1 Horizontal Scaling
+
 - **HCD nodes**: 3-node cluster (RF=3)
 - **JanusGraph nodes**: 3-node cluster
 - **Load balancer**: HAProxy or Nginx
 
 ### 5.4.2 Vertical Scaling
+
 - **HCD**: Up to 32GB RAM, 8 CPUs per node
 - **JanusGraph**: Up to 16GB RAM, 4 CPUs per node
 - **Monitoring**: Up to 8GB RAM, 2 CPUs
@@ -546,12 +599,14 @@ for data in dataset:
 ## 6.1 Authentication
 
 ### 6.1.1 JWT Authentication
+
 - **Token lifetime**: 1 hour
 - **Refresh token**: 7 days
 - **Algorithm**: RS256 (RSA with SHA-256)
 - **Key rotation**: Every 90 days
 
 ### 6.1.2 User Management
+
 ```python
 # User creation
 create_user(
@@ -563,6 +618,7 @@ create_user(
 ```
 
 ### 6.1.3 MFA Requirements
+
 - **Mandatory for**: Admin, write access
 - **Optional for**: Read-only users
 - **Methods**: TOTP (Google Authenticator), SMS
@@ -570,6 +626,7 @@ create_user(
 ## 6.2 Authorization
 
 ### 6.2.1 Role-Based Access Control (RBAC)
+
 | Role | Permissions |
 |------|-------------|
 | admin | Full access (read, write, delete, admin) |
@@ -578,6 +635,7 @@ create_user(
 | developer | Read, write (non-production) |
 
 ### 6.2.2 Resource-Level Permissions
+
 ```python
 # Check permission before query
 if not user.has_permission('read', 'person'):
@@ -587,16 +645,19 @@ if not user.has_permission('read', 'person'):
 ## 6.3 Data Encryption
 
 ### 6.3.1 Encryption at Rest
+
 - **Storage**: AES-256 encryption for all volumes
 - **Sensitive fields**: Additional field-level encryption (SSN, account numbers)
 - **Key management**: HashiCorp Vault
 
 ### 6.3.2 Encryption in Transit
+
 - **TLS version**: TLS 1.3 (minimum TLS 1.2)
 - **Cipher suites**: Strong ciphers only (no RC4, 3DES)
 - **Certificate rotation**: Every 90 days
 
 ### 6.3.3 Key Management
+
 ```bash
 # Vault secret storage
 vault kv put janusgraph/encryption \
@@ -607,6 +668,7 @@ vault kv put janusgraph/encryption \
 ## 6.4 Network Security
 
 ### 6.4.1 Firewall Rules
+
 ```bash
 # Allow only required ports
 iptables -A INPUT -p tcp --dport 8182 -j ACCEPT  # JanusGraph
@@ -615,6 +677,7 @@ iptables -A INPUT -j DROP  # Block all others
 ```
 
 ### 6.4.2 Network Policies
+
 - No direct internet access from containers
 - Egress filtering for external APIs
 - Internal-only communication for management ports
@@ -622,11 +685,13 @@ iptables -A INPUT -j DROP  # Block all others
 ## 6.5 Secret Management
 
 ### 6.5.1 HashiCorp Vault
+
 - **Endpoint**: `https://localhost:8200`
 - **Authentication**: AppRole for applications
 - **Secret rotation**: Automatic every 90 days
 
 ### 6.5.2 Secret Types
+
 - Database passwords
 - API keys
 - Encryption keys
@@ -635,18 +700,21 @@ iptables -A INPUT -j DROP  # Block all others
 ## 6.6 Compliance Requirements
 
 ### 6.6.1 GDPR Compliance
+
 - **Right to access**: Customer 360 view API
 - **Right to erasure**: Vertex deletion with cascade
 - **Data portability**: Export to JSON/CSV
 - **Consent management**: Consent vertex type
 
 ### 6.6.2 SOC 2 Type II
+
 - **Access controls**: RBAC with audit logging
 - **Change management**: Git-tracked schema changes
 - **Monitoring**: 24/7 security monitoring
 - **Incident response**: Documented procedures
 
 ### 6.6.3 BSA/AML Compliance
+
 - **SAR filing**: Automated alert generation
 - **CTR reporting**: Transaction monitoring
 - **Record retention**: 5-year minimum
@@ -659,6 +727,7 @@ iptables -A INPUT -j DROP  # Block all others
 ## 7.1 watsonx.data Integration
 
 ### 7.1.1 Spark Connector
+
 ```python
 from pyspark.sql import SparkSession
 
@@ -676,6 +745,7 @@ df = spark.read \
 ```
 
 ### 7.1.2 Data Export
+
 ```python
 # Export vertices to Parquet
 g.V().hasLabel('person') \
@@ -687,6 +757,7 @@ g.V().hasLabel('person') \
 ## 7.2 External System Integration
 
 ### 7.2.1 REST API Integration
+
 ```python
 # Webhook for external alerts
 @app.route('/webhook/alert', methods=['POST'])
@@ -697,6 +768,7 @@ def receive_alert():
 ```
 
 ### 7.2.2 Message Queue Integration
+
 ```python
 # Kafka consumer for real-time transactions
 consumer = KafkaConsumer(
@@ -712,6 +784,7 @@ for message in consumer:
 ## 7.3 Data Ingestion Pipelines
 
 ### 7.3.1 Batch Ingestion
+
 ```bash
 # Daily batch load
 python scripts/deployment/load_production_data.py \
@@ -721,6 +794,7 @@ python scripts/deployment/load_production_data.py \
 ```
 
 ### 7.3.2 Streaming Ingestion
+
 ```python
 # Real-time stream processing
 stream = spark.readStream \
@@ -741,6 +815,7 @@ stream.writeStream \
 ## 8.1 Metrics Collection
 
 ### 8.1.1 JanusGraph Metrics
+
 ```python
 # Custom exporter: scripts/monitoring/janusgraph_exporter.py
 janusgraph_vertices_total = Gauge('janusgraph_vertices_total', 'Total vertices')
@@ -750,11 +825,13 @@ janusgraph_errors_total = Counter('janusgraph_errors_total', 'Total errors', ['e
 ```
 
 ### 8.1.2 HCD Metrics
+
 - **JMX metrics**: Via SSH tunnel to port 7199
 - **Nodetool metrics**: `nodetool status`, `nodetool tpstats`
 - **CQL metrics**: Query latency, throughput
 
 ### 8.1.3 System Metrics
+
 - CPU usage per container
 - Memory usage per container
 - Disk I/O per volume
@@ -763,6 +840,7 @@ janusgraph_errors_total = Counter('janusgraph_errors_total', 'Total errors', ['e
 ## 8.2 Logging Standards
 
 ### 8.2.1 Log Format
+
 ```json
 {
   "timestamp": "2026-01-30T10:00:00Z",
@@ -776,12 +854,14 @@ janusgraph_errors_total = Counter('janusgraph_errors_total', 'Total errors', ['e
 ```
 
 ### 8.2.2 Log Levels
+
 - **ERROR**: System errors, exceptions
 - **WARN**: Degraded performance, retries
 - **INFO**: Normal operations, queries
 - **DEBUG**: Detailed debugging (non-production)
 
 ### 8.2.3 Log Retention
+
 - **ERROR logs**: 90 days
 - **WARN logs**: 30 days
 - **INFO logs**: 7 days
@@ -790,11 +870,13 @@ janusgraph_errors_total = Counter('janusgraph_errors_total', 'Total errors', ['e
 ## 8.3 Tracing Requirements
 
 ### 8.3.1 Distributed Tracing
+
 - **Tool**: OpenTelemetry
 - **Backend**: Jaeger
 - **Sampling**: 10% of requests (100% for errors)
 
 ### 8.3.2 Trace Context
+
 ```python
 from opentelemetry import trace
 
@@ -807,12 +889,14 @@ with tracer.start_as_current_span("query_execution"):
 ## 8.4 Alerting Thresholds
 
 ### 8.4.1 Critical Alerts
+
 - **ServiceDown**: Any service unavailable > 1 minute
 - **HighErrorRate**: Error rate > 5% for 5 minutes
 - **DiskSpaceLow**: < 10% free space
 - **CertificateExpiring**: < 7 days until expiration
 
 ### 8.4.2 Warning Alerts
+
 - **HighCPUUsage**: > 80% for 10 minutes
 - **HighMemoryUsage**: > 85% for 10 minutes
 - **HighQueryLatency**: p95 > 200ms for 5 minutes
@@ -821,12 +905,14 @@ with tracer.start_as_current_span("query_execution"):
 ## 8.5 Dashboard Configurations
 
 ### 8.5.1 Grafana Dashboards
+
 - **System Overview**: CPU, memory, disk, network
 - **JanusGraph Performance**: QPS, latency, errors
 - **Security Monitoring**: Failed auth, suspicious activity
 - **Compliance Dashboard**: Audit events, alerts
 
 ### 8.5.2 Dashboard Location
+
 `config/grafana/dashboards/security-monitoring.json`
 
 ---
@@ -836,6 +922,7 @@ with tracer.start_as_current_span("query_execution"):
 ## 9.1 Environment Configurations
 
 ### 9.1.1 Development Environment
+
 ```yaml
 environment: development
 resources:
@@ -847,6 +934,7 @@ authentication: basic
 ```
 
 ### 9.1.2 Staging Environment
+
 ```yaml
 environment: staging
 resources:
@@ -858,6 +946,7 @@ authentication: jwt
 ```
 
 ### 9.1.3 Production Environment
+
 ```yaml
 environment: production
 resources:
@@ -873,6 +962,7 @@ backup_enabled: true
 ## 9.2 CI/CD Pipeline
 
 ### 9.2.1 Build Stage
+
 ```yaml
 build:
   - name: Build HCD image
@@ -884,6 +974,7 @@ build:
 ```
 
 ### 9.2.2 Test Stage
+
 ```yaml
 test:
   - name: Deploy test environment
@@ -895,6 +986,7 @@ test:
 ```
 
 ### 9.2.3 Deploy Stage
+
 ```yaml
 deploy:
   - name: Tag images
@@ -908,6 +1000,7 @@ deploy:
 ## 9.3 Rollback Procedures
 
 ### 9.3.1 Automated Rollback
+
 ```bash
 # If health checks fail after deployment
 if ! check_health; then
@@ -918,6 +1011,7 @@ fi
 ```
 
 ### 9.3.2 Manual Rollback
+
 ```bash
 # Stop current deployment
 podman-compose -p janusgraph-demo down
@@ -932,12 +1026,14 @@ podman-compose -p janusgraph-demo -f docker-compose.v1.0.0.yml up -d
 ## 9.4 Disaster Recovery
 
 ### 9.4.1 Backup Strategy
+
 - **Frequency**: Hourly incremental, daily full
 - **Retention**: 7 days hourly, 30 days daily, 90 days weekly
 - **Location**: Encrypted S3-compatible storage
 - **Verification**: Weekly restore test
 
 ### 9.4.2 Recovery Procedures
+
 ```bash
 # 1. Stop services
 podman-compose -p janusgraph-demo down
@@ -953,6 +1049,7 @@ python scripts/hcd/validate_deployment.py
 ```
 
 ### 9.4.3 RTO/RPO Targets
+
 - **Recovery Time Objective (RTO)**: 4 hours
 - **Recovery Point Objective (RPO)**: 1 hour
 - **Data Loss Tolerance**: < 1 hour of transactions
@@ -964,11 +1061,13 @@ python scripts/hcd/validate_deployment.py
 ## 10.1 Unit Test Coverage
 
 ### 10.1.1 Coverage Requirements
+
 - **Overall coverage**: > 80%
 - **Critical modules**: > 90%
 - **New code**: 100% coverage required
 
 ### 10.1.2 Test Organization
+
 ```
 tests/
 ├── unit/                    # Unit tests (fast, isolated)
@@ -987,30 +1086,32 @@ tests/
 ## 10.2 Integration Test Scenarios
 
 ### 10.2.1 Data Generator Integration
+
 ```python
 def test_person_generator_integration():
     """Test person generator creates valid vertices"""
     generator = PersonGenerator(seed=42)
     person = generator.generate()
-    
+
     # Create vertex in JanusGraph
     vertex_id = client.create_vertex('person', person)
-    
+
     # Verify vertex exists
     result = client.get_vertex(vertex_id)
     assert result['firstName'] == person['firstName']
 ```
 
 ### 10.2.2 AML Detection Integration
+
 ```python
 def test_structuring_detection():
     """Test AML structuring pattern detection"""
     # Load test data
     load_structuring_pattern_data()
-    
+
     # Run detection query
     results = detect_structuring_patterns()
-    
+
     # Verify alerts generated
     assert len(results) > 0
     assert results[0]['pattern'] == 'structuring'
@@ -1019,6 +1120,7 @@ def test_structuring_detection():
 ## 10.3 Performance Test Benchmarks
 
 ### 10.3.1 Query Performance
+
 ```python
 @pytest.mark.benchmark
 def test_vertex_lookup_performance(benchmark):
@@ -1027,25 +1129,26 @@ def test_vertex_lookup_performance(benchmark):
         client.get_vertex,
         vertex_id='550e8400-e29b-41d4-a716-446655440000'
     )
-    
+
     # Assert p95 latency < 10ms
     assert benchmark.stats['mean'] < 0.010
 ```
 
 ### 10.3.2 Throughput Testing
+
 ```python
 def test_write_throughput():
     """Test write throughput (vertices/second)"""
     start_time = time.time()
     vertices_created = 0
-    
+
     for i in range(10000):
         client.create_vertex('person', generate_person())
         vertices_created += 1
-    
+
     duration = time.time() - start_time
     throughput = vertices_created / duration
-    
+
     # Assert > 500 vertices/second
     assert throughput > 500
 ```
@@ -1053,6 +1156,7 @@ def test_write_throughput():
 ## 10.4 Acceptance Criteria
 
 ### 10.4.1 Functional Acceptance
+
 - [ ] All vertex types can be created
 - [ ] All edge types can be created
 - [ ] Indexes are used correctly
@@ -1061,12 +1165,14 @@ def test_write_throughput():
 - [ ] Authorization enforced
 
 ### 10.4.2 Performance Acceptance
+
 - [ ] Query latency < 100ms (p95)
 - [ ] Throughput > 1000 QPS
 - [ ] Write throughput > 500/sec
 - [ ] Cache hit rate > 80%
 
 ### 10.4.3 Security Acceptance
+
 - [ ] SSL/TLS enabled
 - [ ] Authentication required
 - [ ] Authorization enforced
@@ -1075,6 +1181,7 @@ def test_write_throughput():
 - [ ] No default passwords
 
 ### 10.4.4 Operational Acceptance
+
 - [ ] Monitoring dashboards working
 - [ ] Alerts configured
 - [ ] Backups running
@@ -1089,16 +1196,19 @@ def test_write_throughput():
 ## Appendix A: Configuration Files
 
 ### A.1 Docker Compose
+
 - **Location**: `config/compose/docker-compose.yml`
 - **Purpose**: Container orchestration
 - **Key settings**: Network, volumes, resource limits
 
 ### A.2 JanusGraph Configuration
+
 - **Location**: `config/janusgraph/janusgraph-hcd-tls.properties`
 - **Purpose**: JanusGraph server configuration
 - **Key settings**: Storage backend, index backend, cache
 
 ### A.3 Prometheus Configuration
+
 - **Location**: `config/monitoring/prometheus.yml`
 - **Purpose**: Metrics collection
 - **Key settings**: Scrape targets, retention
@@ -1108,6 +1218,7 @@ def test_write_throughput():
 ### B.1 Common Issues
 
 #### Issue: Container fails to start
+
 ```bash
 # Check logs
 podman logs janusgraph-demo-hcd-server
@@ -1120,6 +1231,7 @@ podman network inspect janusgraph-demo-network
 ```
 
 #### Issue: Query timeout
+
 ```bash
 # Check JanusGraph logs
 podman logs janusgraph-demo-janusgraph-server
@@ -1134,16 +1246,19 @@ g.getManagement().printIndexes()
 ## Appendix C: Reference Architecture
 
 ### C.1 Audit Findings
+
 - See: `docs/...`
 - Critical issues identified: 14
 - Production readiness: C+ (65/100)
 
 ### C.2 Isolation Rules
+
 - See: `.bob/rules-plan/PODMAN_ISOLATION.md` (internal planning doc)
 - Five layers of isolation
 - Mandatory for all deployments
 
 ### C.3 Development Guidelines
+
 - See: `AGENTS.md` (root)
 - Python environment setup
 - Testing requirements

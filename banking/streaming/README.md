@@ -2,7 +2,7 @@
 
 Event-sourced streaming architecture for real-time data ingestion into JanusGraph and OpenSearch.
 
-**Created**: 2026-02-04 (6-Week Implementation)  
+**Created**: 2026-02-04 (6-Week Implementation)
 **Status**: Production Ready ✅
 
 ---
@@ -10,6 +10,7 @@ Event-sourced streaming architecture for real-time data ingestion into JanusGrap
 ## Overview
 
 This module provides Apache Pulsar-based event streaming that enables:
+
 - **Real-time ingestion**: Entities published to Pulsar as events
 - **Dual-leg consumption**: Parallel writes to JanusGraph (graph) and OpenSearch (vector)
 - **ID consistency**: Same UUID across Pulsar, JanusGraph, and OpenSearch
@@ -164,12 +165,12 @@ StreamingConfig(
     account_count=200,
     transaction_count=500,
     communication_count=100,
-    
+
     # Streaming options
     pulsar_url="pulsar://localhost:6650",
     use_mock_producer=False,  # True for testing
     streaming_enabled=True,
-    
+
     # Output
     output_dir=Path("./output"),
     seed=42  # For reproducibility
@@ -241,6 +242,7 @@ EntityEvent.entity_id  ─┬─▶ Pulsar partition_key
 ```
 
 This enables:
+
 - Cross-system joins by ID
 - Deduplication at each layer
 - Consistent audit trails
@@ -289,6 +291,7 @@ dlq.process_with_retry(
 **Root Cause**: Pulsar standalone mode resolves `advertisedAddress` via hostname lookup, which can return stale container IPs on macOS.
 
 **Solution**: The `docker-compose.full.yml` has been configured with:
+
 ```yaml
 environment:
   - _JAVA_OPTIONS=-XX:UseSVE=0  # Apple Silicon JVM fix (JDK-8345296)
@@ -296,6 +299,7 @@ command: bin/pulsar standalone --advertised-address localhost
 ```
 
 If issues persist:
+
 ```bash
 # Stop and remove Pulsar container
 podman stop janusgraph-demo_pulsar_1
@@ -309,7 +313,8 @@ cd config/compose
 podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d pulsar
 ```
 
-**References**: 
+**References**:
+
 - [GitHub Issue #15401](https://github.com/apache/pulsar/issues/15401)
 - [GitHub Issue #23891](https://github.com/apache/pulsar/issues/23891)
 
@@ -318,12 +323,14 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d pulsar
 **Symptom**: OpenSearch integration tests skip or fail with SSL errors.
 
 **Configuration**: OpenSearch runs with security disabled in dev mode:
+
 ```yaml
 environment:
   - plugins.security.disabled=true  # Dev mode - no SSL
 ```
 
 **Environment Variable**: Tests require `OPENSEARCH_USE_SSL=false`:
+
 ```bash
 # Add to conda environment
 conda env config vars set OPENSEARCH_USE_SSL=false
@@ -334,6 +341,7 @@ OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_streaming.py -v
 ```
 
 **Verification**:
+
 ```bash
 curl http://localhost:9200  # Should return cluster info (no https)
 ```
@@ -351,17 +359,20 @@ curl http://localhost:9200  # Should return cluster info (no https)
 ## Changelog
 
 ### Week 1-4: Foundation
+
 - EntityEvent schema
 - EntityProducer with topic routing
 - Entity converter
 - StreamingOrchestrator
 
 ### Week 5: E2E Testing
+
 - Integration test harness
 - JanusGraph/OpenSearch connectivity tests
 - Cross-system consistency tests
 
 ### Week 6: Monitoring & DLQ
+
 - Prometheus metrics
 - DLQHandler with retry/archive
 - Metrics dashboard integration

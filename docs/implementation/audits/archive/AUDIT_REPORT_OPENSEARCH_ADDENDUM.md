@@ -1,8 +1,8 @@
 # OpenSearch Security Audit - Critical Addendum
 
-**Project**: HCD + JanusGraph + OpenSearch Stack  
-**Audit Date**: 2026-01-28  
-**Addendum**: OpenSearch Security Assessment  
+**Project**: HCD + JanusGraph + OpenSearch Stack
+**Audit Date**: 2026-01-28
+**Addendum**: OpenSearch Security Assessment
 **Severity**: 🔴 **CRITICAL**
 
 ---
@@ -20,13 +20,15 @@ OpenSearch is configured with **security completely disabled** and contains **ha
 ## Critical Findings
 
 ### SEC-017: OpenSearch Security Completely Disabled
-**Severity**: 🔴 CRITICAL  
-**CVSS Score**: 10.0 (Critical)  
+
+**Severity**: 🔴 CRITICAL
+**CVSS Score**: 10.0 (Critical)
 **CWE**: CWE-306 (Missing Authentication for Critical Function)
 
 **Location**: `config/compose/docker-compose.banking.yml:17`
 
 **Evidence:**
+
 ```yaml
 environment:
   - plugins.security.disabled=true  # Dev only
@@ -34,6 +36,7 @@ environment:
 ```
 
 **Impact:**
+
 - **Complete unauthorized access** to OpenSearch cluster
 - **No authentication** required for any operation
 - **No authorization** controls
@@ -44,12 +47,14 @@ environment:
 - Cluster administration without credentials
 
 **Attack Scenarios:**
+
 1. Attacker accesses port 9200 and reads all banking/AML data
 2. Attacker modifies or deletes critical financial records
 3. Attacker extracts customer PII and transaction data
 4. Attacker uses cluster as pivot point for lateral movement
 
 **Compliance Violations:**
+
 - GDPR: No access controls on personal data
 - PCI DSS: No authentication on cardholder data
 - SOX: No audit trail for financial data access
@@ -60,18 +65,21 @@ environment:
 ---
 
 ### SEC-018: Hardcoded OpenSearch Admin Password
-**Severity**: 🔴 CRITICAL  
-**CVSS Score**: 9.8 (Critical)  
+
+**Severity**: 🔴 CRITICAL
+**CVSS Score**: 9.8 (Critical)
 **CWE**: CWE-798 (Use of Hard-coded Credentials)
 
 **Location**: `config/compose/docker-compose.banking.yml:18`
 
 **Evidence:**
+
 ```yaml
 - OPENSEARCH_INITIAL_ADMIN_PASSWORD=DevPassword123!
 ```
 
 **Impact:**
+
 - Weak, predictable password exposed in configuration
 - Password visible in version control
 - Password visible in container environment variables
@@ -83,19 +91,22 @@ environment:
 ---
 
 ### SEC-019: OpenSearch Dashboards Security Disabled
-**Severity**: 🔴 CRITICAL  
-**CVSS Score**: 9.1 (Critical)  
+
+**Severity**: 🔴 CRITICAL
+**CVSS Score**: 9.1 (Critical)
 **CWE**: CWE-306 (Missing Authentication)
 
 **Location**: `config/compose/docker-compose.banking.yml:47`
 
 **Evidence:**
+
 ```yaml
 environment:
   - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
 ```
 
 **Impact:**
+
 - Unauthenticated access to OpenSearch Dashboards
 - Ability to view all data visualizations
 - Ability to execute arbitrary queries
@@ -107,13 +118,15 @@ environment:
 ---
 
 ### SEC-020: OpenSearch Ports Publicly Exposed
-**Severity**: 🟠 HIGH  
-**CVSS Score**: 8.6 (High)  
+
+**Severity**: 🟠 HIGH
+**CVSS Score**: 8.6 (High)
 **CWE**: CWE-284 (Improper Access Control)
 
 **Location**: `config/compose/docker-compose.banking.yml:29-31, 49`
 
 **Evidence:**
+
 ```yaml
 ports:
   - "9200:9200"  # OpenSearch API
@@ -122,6 +135,7 @@ ports:
 ```
 
 **Impact:**
+
 - OpenSearch API accessible from any network location
 - Performance Analyzer metrics exposed
 - Dashboards accessible without VPN
@@ -133,19 +147,22 @@ ports:
 ---
 
 ### SEC-021: No TLS/SSL for OpenSearch
-**Severity**: 🟠 HIGH  
-**CVSS Score**: 8.1 (High)  
+
+**Severity**: 🟠 HIGH
+**CVSS Score**: 8.1 (High)
 **CWE**: CWE-319 (Cleartext Transmission of Sensitive Information)
 
 **Location**: `config/compose/docker-compose.banking.yml` (missing TLS config)
 
 **Evidence:**
+
 - HTTP connections only (no HTTPS)
 - No TLS certificates configured
 - No encryption in transit
 - Plaintext communication between services
 
 **Impact:**
+
 - Banking/AML data transmitted in cleartext
 - Credentials transmitted in cleartext
 - Man-in-the-middle attacks possible
@@ -157,19 +174,22 @@ ports:
 ---
 
 ### SEC-022: No OpenSearch Audit Logging
-**Severity**: 🟠 HIGH  
-**CVSS Score**: 7.5 (High)  
+
+**Severity**: 🟠 HIGH
+**CVSS Score**: 7.5 (High)
 **CWE**: CWE-778 (Insufficient Logging)
 
 **Location**: `config/compose/docker-compose.banking.yml` (missing audit config)
 
 **Evidence:**
+
 - No audit logging configuration
 - No access logs
 - No query logs
 - No compliance logging
 
 **Impact:**
+
 - No forensic evidence of data access
 - Cannot detect unauthorized access
 - Cannot track data modifications
@@ -181,18 +201,21 @@ ports:
 ---
 
 ### SEC-023: Insufficient Resource Limits
-**Severity**: 🟡 MEDIUM  
-**CVSS Score**: 6.5 (Medium)  
+
+**Severity**: 🟡 MEDIUM
+**CVSS Score**: 6.5 (Medium)
 **CWE**: CWE-770 (Allocation of Resources Without Limits)
 
 **Location**: `config/compose/docker-compose.banking.yml:16`
 
 **Evidence:**
+
 ```yaml
 - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
 ```
 
 **Impact:**
+
 - Low memory allocation (512MB) for production workload
 - No CPU limits defined
 - Potential resource exhaustion
@@ -218,8 +241,8 @@ ports:
 
 ### Combined Project Risk
 
-**Original Risk**: $530,000 annually  
-**OpenSearch Risk**: $1,600,000 annually  
+**Original Risk**: $530,000 annually
+**OpenSearch Risk**: $1,600,000 annually
 **Total Project Risk**: **$2,130,000 annually**
 
 ---
@@ -227,10 +250,12 @@ ports:
 ## Immediate Remediation Required
 
 ### P0-007: Enable OpenSearch Security (IMMEDIATE)
-**Effort**: 16 hours  
+
+**Effort**: 16 hours
 **Cost**: $2,400
 
 **Tasks:**
+
 1. Enable OpenSearch security plugin (2h)
 2. Configure internal users and roles (3h)
 3. Generate and configure TLS certificates (4h)
@@ -279,10 +304,12 @@ services:
 ---
 
 ### P0-008: Remove Hardcoded OpenSearch Credentials (IMMEDIATE)
-**Effort**: 2 hours  
+
+**Effort**: 2 hours
 **Cost**: $300
 
 **Tasks:**
+
 1. Remove hardcoded password from docker-compose (0.5h)
 2. Add to .env with strong password (0.5h)
 3. Update documentation (0.5h)
@@ -300,10 +327,12 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 ---
 
 ### P0-009: Restrict OpenSearch Port Exposure (IMMEDIATE)
-**Effort**: 2 hours  
+
+**Effort**: 2 hours
 **Cost**: $300
 
 **Tasks:**
+
 1. Remove public port mappings (0.5h)
 2. Configure internal-only access (0.5h)
 3. Document SSH tunnel access (0.5h)
@@ -325,10 +354,12 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 ---
 
 ### P1-009: Enable OpenSearch TLS/SSL (HIGH PRIORITY)
-**Effort**: 12 hours  
+
+**Effort**: 12 hours
 **Cost**: $1,800
 
 **Tasks:**
+
 1. Generate TLS certificates (3h)
 2. Configure OpenSearch TLS (4h)
 3. Configure Dashboards TLS (2h)
@@ -338,10 +369,12 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 ---
 
 ### P1-010: Configure OpenSearch Audit Logging (HIGH PRIORITY)
-**Effort**: 8 hours  
+
+**Effort**: 8 hours
 **Cost**: $1,200
 
 **Tasks:**
+
 1. Enable audit logging (2h)
 2. Configure audit categories (2h)
 3. Set up log retention (2h)
@@ -364,15 +397,15 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 
 ### Revised Project Costs
 
-**Original Estimate**: $90,000 (600 hours)  
-**OpenSearch Addition**: $6,000 (40 hours)  
+**Original Estimate**: $90,000 (600 hours)
+**OpenSearch Addition**: $6,000 (40 hours)
 **Revised Total**: **$96,000 (640 hours)**
 
 ### Revised ROI
 
-**Risk Avoidance**: $2,130,000 (original $530k + OpenSearch $1,600k)  
-**Investment**: $96,000  
-**Net Benefit**: $2,034,000  
+**Risk Avoidance**: $2,130,000 (original $530k + OpenSearch $1,600k)
+**Investment**: $96,000
+**Net Benefit**: $2,034,000
 **ROI**: 2,019% (increased from 392%)
 
 ---
@@ -399,15 +432,17 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 
 ### Phase 1 Extended (Week 1 + 2 days)
 
-**Original Phase 1**: 7 days (120 hours)  
-**OpenSearch Remediation**: 2 days (20 hours for P0 items)  
+**Original Phase 1**: 7 days (120 hours)
+**OpenSearch Remediation**: 2 days (20 hours for P0 items)
 **Extended Phase 1**: **9 days (140 hours)**
 
 **Additional P0 Tasks:**
+
 - Day 8: Enable OpenSearch security (16h)
 - Day 9: Remove credentials + restrict ports (4h)
 
 **Phase 2 Addition:**
+
 - Week 2: OpenSearch TLS/SSL (12h)
 - Week 3: OpenSearch audit logging (8h)
 
@@ -425,7 +460,7 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 6. **GENERATE** strong admin password
 7. **DOCUMENT** security configuration
 
-### Do Not Deploy Until:
+### Do Not Deploy Until
 
 - [ ] OpenSearch security plugin enabled
 - [ ] Authentication configured
@@ -440,12 +475,14 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 
 ## Updated Risk Matrix
 
-### Before OpenSearch Remediation:
+### Before OpenSearch Remediation
+
 - **Critical Risks**: 8 (original) + 4 (OpenSearch) = **12 total**
 - **High Risks**: 5 (original) + 2 (OpenSearch) = **7 total**
 - **Overall Risk**: 🔴 **CRITICAL**
 
-### After OpenSearch Remediation:
+### After OpenSearch Remediation
+
 - **Critical Risks**: 2 (original) + 0 (OpenSearch) = **2 total**
 - **High Risks**: 2 (original) + 0 (OpenSearch) = **2 total**
 - **Overall Risk**: 🟡 **MEDIUM**
@@ -456,7 +493,8 @@ OPENSEARCH_KIBANASERVER_PASSWORD=CHANGE_ME_STRONG_PASSWORD_HERE
 
 The discovery of OpenSearch with **security completely disabled** and **hardcoded credentials** represents a **CRITICAL security gap** that significantly increases project risk from $530,000 to **$2,130,000 annually**.
 
-### Key Findings:
+### Key Findings
+
 - 🔴 **4 Critical** OpenSearch vulnerabilities
 - 🟠 **2 High** OpenSearch vulnerabilities
 - 🟡 **1 Medium** OpenSearch vulnerability
@@ -464,28 +502,30 @@ The discovery of OpenSearch with **security completely disabled** and **hardcode
 - **$6,000** additional remediation cost
 - **2 days** additional timeline
 
-### Immediate Actions Required:
+### Immediate Actions Required
+
 1. Disable OpenSearch service immediately
 2. Enable security plugin
 3. Remove hardcoded credentials
 4. Restrict port exposure
 5. Do not deploy banking use case until secured
 
-### Updated Go/No-Go:
-**Banking Use Case**: ❌ **BLOCKED - CRITICAL SECURITY ISSUES**  
+### Updated Go/No-Go
+
+**Banking Use Case**: ❌ **BLOCKED - CRITICAL SECURITY ISSUES**
 **Core Stack**: ⚠️ **NOT READY - COMPLETE PHASE 1 FIRST**
 
 ---
 
-**Report Classification**: 🔴 CRITICAL - IMMEDIATE ACTION REQUIRED  
-**Distribution**: Executive Leadership, Security Team, Compliance Team  
+**Report Classification**: 🔴 CRITICAL - IMMEDIATE ACTION REQUIRED
+**Distribution**: Executive Leadership, Security Team, Compliance Team
 **Next Review**: After OpenSearch security implementation (48 hours)
 
 ---
 
-**Addendum Prepared By**: Security Audit Team  
-**Date**: 2026-01-28  
-**Version**: 1.0.0 - CRITICAL ADDENDUM  
+**Addendum Prepared By**: Security Audit Team
+**Date**: 2026-01-28
+**Version**: 1.0.0 - CRITICAL ADDENDUM
 **Status**: 🔴 REQUIRES IMMEDIATE ATTENTION
 
 ---

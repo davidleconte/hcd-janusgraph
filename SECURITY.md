@@ -14,6 +14,7 @@ Instead, please report security vulnerabilities by emailing:
 [team@example.com]
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -24,6 +25,7 @@ We will respond within 48 hours and provide regular updates.
 ## Security Measures
 
 This project implements:
+
 - ✅ No secrets in repository
 - ✅ Environment-specific configurations
 - ✅ Docker image scanning
@@ -34,6 +36,7 @@ This project implements:
 ## Best Practices
 
 When contributing:
+
 - Never commit `.env` files
 - Use `.env.example` as template
 - Rotate secrets after any accidental exposure

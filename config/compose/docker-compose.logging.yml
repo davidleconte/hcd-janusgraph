@@ -2,7 +2,7 @@
 # File: docker-compose.logging.yml
 # Created: 2026-01-28
 # Author: Security Remediation Team
-# 
+#
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.logging.yml up -d
 
 version: '3.8'

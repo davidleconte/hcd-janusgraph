@@ -28,7 +28,6 @@ COUNTRIES: Dict[str, str] = {
     "FR": "France",
     "LU": "Luxembourg",
     "NL": "Netherlands",
-    
     # Tax Havens & Offshore Centers
     "KY": "Cayman Islands",
     "BM": "Bermuda",
@@ -44,7 +43,6 @@ COUNTRIES: Dict[str, str] = {
     "MT": "Malta",
     "CY": "Cyprus",
     "IE": "Ireland",
-    
     # High-Risk Jurisdictions
     "RU": "Russia",
     "CN": "China",
@@ -54,7 +52,6 @@ COUNTRIES: Dict[str, str] = {
     "VE": "Venezuela",
     "MM": "Myanmar",
     "AF": "Afghanistan",
-    
     # Other Major Economies
     "CA": "Canada",
     "AU": "Australia",
@@ -102,18 +99,41 @@ COUNTRIES: Dict[str, str] = {
 
 # Tax havens and offshore financial centers
 TAX_HAVENS: List[str] = [
-    "KY", "BM", "VG", "PA", "LI", "MC", "AD", "BS", "BB", "MU", "SC", "MT", "CY", "IE", "LU"
+    "KY",
+    "BM",
+    "VG",
+    "PA",
+    "LI",
+    "MC",
+    "AD",
+    "BS",
+    "BB",
+    "MU",
+    "SC",
+    "MT",
+    "CY",
+    "IE",
+    "LU",
 ]
 
 # High-risk countries for AML/CFT
 HIGH_RISK_COUNTRIES: List[str] = [
-    "RU", "CN", "IR", "KP", "SY", "VE", "MM", "AF", "YE", "SO", "SD", "LY"
+    "RU",
+    "CN",
+    "IR",
+    "KP",
+    "SY",
+    "VE",
+    "MM",
+    "AF",
+    "YE",
+    "SO",
+    "SD",
+    "LY",
 ]
 
 # Major financial centers
-FINANCIAL_CENTERS: List[str] = [
-    "US", "GB", "CH", "SG", "HK", "JP", "DE", "FR", "LU", "NL"
-]
+FINANCIAL_CENTERS: List[str] = ["US", "GB", "CH", "SG", "HK", "JP", "DE", "FR", "LU", "NL"]
 
 
 # ============================================================================
@@ -133,7 +153,6 @@ CURRENCIES: Dict[str, Tuple[str, str]] = {
     "NZD": ("New Zealand Dollar", "NZ$"),
     "SGD": ("Singapore Dollar", "S$"),
     "HKD": ("Hong Kong Dollar", "HK$"),
-    
     # Asian Currencies
     "CNY": ("Chinese Yuan", "¥"),
     "INR": ("Indian Rupee", "₹"),
@@ -143,7 +162,6 @@ CURRENCIES: Dict[str, Tuple[str, str]] = {
     "IDR": ("Indonesian Rupiah", "Rp"),
     "PHP": ("Philippine Peso", "₱"),
     "VND": ("Vietnamese Dong", "₫"),
-    
     # Middle Eastern Currencies
     "SAR": ("Saudi Riyal", "﷼"),
     "AED": ("UAE Dirham", "د.إ"),
@@ -153,7 +171,6 @@ CURRENCIES: Dict[str, Tuple[str, str]] = {
     "OMR": ("Omani Rial", "﷼"),
     "ILS": ("Israeli Shekel", "₪"),
     "TRY": ("Turkish Lira", "₺"),
-    
     # Latin American Currencies
     "BRL": ("Brazilian Real", "R$"),
     "MXN": ("Mexican Peso", "$"),
@@ -161,7 +178,6 @@ CURRENCIES: Dict[str, Tuple[str, str]] = {
     "CLP": ("Chilean Peso", "$"),
     "COP": ("Colombian Peso", "$"),
     "PEN": ("Peruvian Sol", "S/"),
-    
     # European Currencies (non-Euro)
     "SEK": ("Swedish Krona", "kr"),
     "NOK": ("Norwegian Krone", "kr"),
@@ -171,13 +187,11 @@ CURRENCIES: Dict[str, Tuple[str, str]] = {
     "HUF": ("Hungarian Forint", "Ft"),
     "RON": ("Romanian Leu", "lei"),
     "RUB": ("Russian Ruble", "₽"),
-    
     # African Currencies
     "ZAR": ("South African Rand", "R"),
     "EGP": ("Egyptian Pound", "£"),
     "NGN": ("Nigerian Naira", "₦"),
     "KES": ("Kenyan Shilling", "KSh"),
-    
     # Cryptocurrencies
     "BTC": ("Bitcoin", "₿"),
     "ETH": ("Ethereum", "Ξ"),
@@ -295,54 +309,145 @@ TIME_ZONES: Dict[str, str] = {
 # Suspicious keywords for communication analysis
 SUSPICIOUS_KEYWORDS: Dict[str, List[str]] = {
     "insider_trading": [
-        "inside information", "material non-public", "mnpi", "confidential earnings",
-        "merger talks", "acquisition target", "buyout", "takeover", "stock tip",
-        "before announcement", "ahead of news", "pre-release", "embargo",
-        "don't tell anyone", "keep quiet", "between us", "off the record",
-        "buy before", "sell before", "load up", "dump shares", "unload position"
+        "inside information",
+        "material non-public",
+        "mnpi",
+        "confidential earnings",
+        "merger talks",
+        "acquisition target",
+        "buyout",
+        "takeover",
+        "stock tip",
+        "before announcement",
+        "ahead of news",
+        "pre-release",
+        "embargo",
+        "don't tell anyone",
+        "keep quiet",
+        "between us",
+        "off the record",
+        "buy before",
+        "sell before",
+        "load up",
+        "dump shares",
+        "unload position",
     ],
-    
     "money_laundering": [
-        "cash business", "structuring", "smurfing", "layering", "integration",
-        "shell company", "nominee", "beneficial owner", "offshore account",
-        "wire transfer", "bulk cash", "trade-based", "invoice manipulation",
-        "over-invoice", "under-invoice", "round-tripping", "back-to-back",
-        "clean money", "dirty money", "wash", "launder", "placement"
+        "cash business",
+        "structuring",
+        "smurfing",
+        "layering",
+        "integration",
+        "shell company",
+        "nominee",
+        "beneficial owner",
+        "offshore account",
+        "wire transfer",
+        "bulk cash",
+        "trade-based",
+        "invoice manipulation",
+        "over-invoice",
+        "under-invoice",
+        "round-tripping",
+        "back-to-back",
+        "clean money",
+        "dirty money",
+        "wash",
+        "launder",
+        "placement",
     ],
-    
     "fraud": [
-        "fake invoice", "phantom", "ghost employee", "kickback", "bribe",
-        "under the table", "off the books", "slush fund", "secret account",
-        "falsify", "forge", "fabricate", "manipulate records", "cook the books",
-        "ponzi", "pyramid scheme", "advance fee", "419 scam", "phishing"
+        "fake invoice",
+        "phantom",
+        "ghost employee",
+        "kickback",
+        "bribe",
+        "under the table",
+        "off the books",
+        "slush fund",
+        "secret account",
+        "falsify",
+        "forge",
+        "fabricate",
+        "manipulate records",
+        "cook the books",
+        "ponzi",
+        "pyramid scheme",
+        "advance fee",
+        "419 scam",
+        "phishing",
     ],
-    
     "sanctions_evasion": [
-        "sanctions", "embargo", "restricted party", "blocked person", "sdn list",
-        "ofac", "designated national", "prohibited transaction", "unlicensed",
-        "circumvent", "evade", "bypass", "front company", "cutout",
-        "third country", "transshipment", "re-export", "dual-use"
+        "sanctions",
+        "embargo",
+        "restricted party",
+        "blocked person",
+        "sdn list",
+        "ofac",
+        "designated national",
+        "prohibited transaction",
+        "unlicensed",
+        "circumvent",
+        "evade",
+        "bypass",
+        "front company",
+        "cutout",
+        "third country",
+        "transshipment",
+        "re-export",
+        "dual-use",
     ],
-    
     "tax_evasion": [
-        "tax haven", "offshore", "undeclared", "unreported income", "hidden assets",
-        "bearer shares", "nominee director", "trust structure", "foundation",
-        "avoid tax", "evade tax", "minimize tax", "aggressive planning",
-        "transfer pricing", "profit shifting", "base erosion"
+        "tax haven",
+        "offshore",
+        "undeclared",
+        "unreported income",
+        "hidden assets",
+        "bearer shares",
+        "nominee director",
+        "trust structure",
+        "foundation",
+        "avoid tax",
+        "evade tax",
+        "minimize tax",
+        "aggressive planning",
+        "transfer pricing",
+        "profit shifting",
+        "base erosion",
     ],
-    
     "market_manipulation": [
-        "pump and dump", "wash trade", "spoofing", "layering", "front running",
-        "painting the tape", "marking the close", "ramping", "cornering",
-        "squeeze", "manipulate price", "artificial demand", "false market"
+        "pump and dump",
+        "wash trade",
+        "spoofing",
+        "layering",
+        "front running",
+        "painting the tape",
+        "marking the close",
+        "ramping",
+        "cornering",
+        "squeeze",
+        "manipulate price",
+        "artificial demand",
+        "false market",
     ],
-    
     "bribery_corruption": [
-        "bribe", "kickback", "payoff", "grease payment", "facilitation payment",
-        "commission", "consulting fee", "success fee", "finder's fee",
-        "political contribution", "donation", "gift", "hospitality",
-        "foreign official", "government contract", "procurement"
-    ]
+        "bribe",
+        "kickback",
+        "payoff",
+        "grease payment",
+        "facilitation payment",
+        "commission",
+        "consulting fee",
+        "success fee",
+        "finder's fee",
+        "political contribution",
+        "donation",
+        "gift",
+        "hospitality",
+        "foreign official",
+        "government contract",
+        "procurement",
+    ],
 }
 
 # Financial crime indicators
@@ -366,7 +471,7 @@ FINANCIAL_CRIME_INDICATORS: List[str] = [
     "unexplained_wealth",
     "lifestyle_inconsistent_with_income",
     "pep_involvement",
-    "sanctioned_entity_connection"
+    "sanctioned_entity_connection",
 ]
 
 
@@ -390,7 +495,7 @@ HIGH_RISK_INDUSTRIES: List[str] = [
     "trade_finance",
     "private_banking",
     "correspondent_banking",
-    "shell_bank"
+    "shell_bank",
 ]
 
 # Cash-intensive businesses
@@ -409,7 +514,7 @@ CASH_INTENSIVE_BUSINESSES: List[str] = [
     "barbershop",
     "massage_parlor",
     "arcade",
-    "amusement_park"
+    "amusement_park",
 ]
 
 
@@ -432,8 +537,21 @@ STRUCTURING_THRESHOLDS: Dict[str, float] = {
 
 # Round amount thresholds
 ROUND_AMOUNTS: List[float] = [
-    1000, 2000, 5000, 10000, 15000, 20000, 25000, 50000,
-    75000, 100000, 150000, 200000, 250000, 500000, 1000000
+    1000,
+    2000,
+    5000,
+    10000,
+    15000,
+    20000,
+    25000,
+    50000,
+    75000,
+    100000,
+    150000,
+    200000,
+    250000,
+    500000,
+    1000000,
 ]
 
 # Suspicious transaction patterns
@@ -451,7 +569,7 @@ SUSPICIOUS_PATTERNS: List[str] = [
     "shell_companies",
     "related_parties",
     "circular_flow",
-    "back_to_back"
+    "back_to_back",
 ]
 
 
@@ -510,7 +628,7 @@ PEP_CATEGORIES: List[str] = [
     "central_bank_official",
     "international_organization_official",
     "family_member_pep",
-    "close_associate_pep"
+    "close_associate_pep",
 ]
 
 
@@ -519,12 +637,23 @@ PEP_CATEGORIES: List[str] = [
 # ============================================================================
 
 __all__ = [
-    'COUNTRIES', 'TAX_HAVENS', 'HIGH_RISK_COUNTRIES', 'FINANCIAL_CENTERS',
-    'CURRENCIES', 'RESERVE_CURRENCIES', 'CRYPTOCURRENCIES',
-    'LANGUAGES', 'TIME_ZONES',
-    'SUSPICIOUS_KEYWORDS', 'FINANCIAL_CRIME_INDICATORS',
-    'HIGH_RISK_INDUSTRIES', 'CASH_INTENSIVE_BUSINESSES',
-    'STRUCTURING_THRESHOLDS', 'ROUND_AMOUNTS', 'SUSPICIOUS_PATTERNS',
-    'STOCK_EXCHANGES', 'SANCTIONS_LISTS', 'PEP_CATEGORIES'
+    "COUNTRIES",
+    "TAX_HAVENS",
+    "HIGH_RISK_COUNTRIES",
+    "FINANCIAL_CENTERS",
+    "CURRENCIES",
+    "RESERVE_CURRENCIES",
+    "CRYPTOCURRENCIES",
+    "LANGUAGES",
+    "TIME_ZONES",
+    "SUSPICIOUS_KEYWORDS",
+    "FINANCIAL_CRIME_INDICATORS",
+    "HIGH_RISK_INDUSTRIES",
+    "CASH_INTENSIVE_BUSINESSES",
+    "STRUCTURING_THRESHOLDS",
+    "ROUND_AMOUNTS",
+    "SUSPICIOUS_PATTERNS",
+    "STOCK_EXCHANGES",
+    "SANCTIONS_LISTS",
+    "PEP_CATEGORIES",
 ]
-

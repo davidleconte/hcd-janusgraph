@@ -2,15 +2,15 @@
 """Tests for Fraud Detection module."""
 
 import sys
-from pathlib import Path
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from banking.fraud.fraud_detection import FraudAlert, FraudScore, FraudDetector
+from banking.fraud.fraud_detection import FraudAlert, FraudDetector, FraudScore
 
 
 class TestFraudAlert:
@@ -31,7 +31,7 @@ class TestFraudAlert:
             risk_factors=["high_velocity", "new_merchant"],
             similar_cases=[],
             timestamp="2026-02-06T12:00:00Z",
-            metadata={}
+            metadata={},
         )
         assert alert.alert_id == "alert-123"
         assert alert.severity == "high"
@@ -53,7 +53,7 @@ class TestFraudAlert:
                 risk_factors=[],
                 similar_cases=[],
                 timestamp="2026-01-01",
-                metadata={}
+                metadata={},
             )
             assert alert.alert_type == alert_type
 
@@ -70,7 +70,7 @@ class TestFraudScore:
             merchant_score=0.7,
             behavioral_score=0.9,
             risk_level="high",
-            recommendation="review"
+            recommendation="review",
         )
         assert score.overall_score == 0.75
         assert score.risk_level == "high"
@@ -86,7 +86,7 @@ class TestFraudScore:
                 merchant_score=0.5,
                 behavioral_score=0.5,
                 risk_level="medium",
-                recommendation=rec
+                recommendation=rec,
             )
             assert score.recommendation == rec
 

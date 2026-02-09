@@ -19,18 +19,18 @@ echo "==============================================================="
 # 1. Update janusgraph-hcd.properties
 if [ -f "$CONFIG_FILE" ]; then
     echo "Updating $CONFIG_FILE..."
-    
+
     # Backup
     cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
-    
+
     # Update Backend Configuration
     # Note: JanusGraph often uses the 'elasticsearch' driver to talk to OpenSearch.
     # We ensure it points to the correct hostname 'opensearch'.
     sed -i '' 's/index.search.backend=lucene/index.search.backend=elasticsearch/g' "$CONFIG_FILE"
     sed -i '' 's|index.search.directory=/var/lib/janusgraph/index|# index.search.directory=/var/lib/janusgraph/index|g' "$CONFIG_FILE"
-    
+
     # Ensure explicit OpenSearch connection details
-    # We use 'elasticsearch' as the backend interface for compatibility, 
+    # We use 'elasticsearch' as the backend interface for compatibility,
     # but strictly target the OpenSearch service.
     if ! grep -q "index.search.hostname" "$CONFIG_FILE"; then
         cat >> "$CONFIG_FILE" <<EOF
@@ -57,19 +57,19 @@ fi
 # 2. Update .env to reflect OpenSearch
 if [ -f "$ENV_FILE" ]; then
     echo "Updating $ENV_FILE..."
-    
+
     # Ensure OPENSEARCH_ADMIN_PASSWORD exists
     if ! grep -q "OPENSEARCH_ADMIN_PASSWORD" "$ENV_FILE"; then
         echo "OPENSEARCH_ADMIN_PASSWORD=Admin123!" >> "$ENV_FILE"
     fi
-    
+
     # Force the backend env var to match the property file
     if grep -q "JANUSGRAPH_INDEX_BACKEND" "$ENV_FILE"; then
         sed -i '' 's/JANUSGRAPH_INDEX_BACKEND=lucene/JANUSGRAPH_INDEX_BACKEND=elasticsearch/g' "$ENV_FILE"
     else
         echo "JANUSGRAPH_INDEX_BACKEND=elasticsearch" >> "$ENV_FILE"
     fi
-    
+
     echo "✅ Environment variables updated."
 else
     echo "⚠️ .env file not found."

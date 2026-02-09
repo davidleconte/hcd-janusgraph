@@ -1,7 +1,7 @@
 # Gremlin OLAP & Advanced Scenarios Guide
 
-**Date:** 2026-01-28  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS  
+**Date:** 2026-01-28
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 **Purpose:** OLAP operations using Gremlin graph traversals + Ultra-complex realistic scenarios
 
 ---
@@ -21,6 +21,7 @@
 ### Why Gremlin for OLAP?
 
 **Traditional OLAP** (OpenSearch/SQL):
+
 - ✅ Fast aggregations
 - ✅ Time-series analysis
 - ✅ Statistical operations
@@ -28,6 +29,7 @@
 - ❌ No path traversal
 
 **Graph OLAP** (Gremlin):
+
 - ✅ Relationship-based aggregations
 - ✅ Multi-hop path analysis
 - ✅ Network metrics (centrality, clustering)
@@ -35,6 +37,7 @@
 - ❌ Slower for simple aggregations
 
 **Best Practice:** Use both!
+
 - OpenSearch for transaction-level OLAP
 - Gremlin for relationship-based OLAP
 
@@ -66,6 +69,7 @@ g.V().hasLabel('Transaction').
 ```
 
 **Result:**
+
 ```json
 {
   "DEPOSIT": {
@@ -117,6 +121,7 @@ g.V().hasLabel('Transaction').
 ```
 
 **Result:**
+
 ```json
 {
   "ACC_001": {
@@ -186,6 +191,7 @@ g.V().hasLabel('Account').
 ```
 
 **Result:**
+
 ```json
 {
   "account": {
@@ -304,6 +310,7 @@ g.V().hasLabel('Account').
 ```
 
 **Result:**
+
 ```json
 {
   "CHECKING": {
@@ -329,6 +336,7 @@ g.V().hasLabel('Account').
 ### Scenario 1: Trade-Based Money Laundering (TBML)
 
 **Business Problem:** Detect sophisticated TBML schemes:
+
 - Over/under-invoicing
 - Multiple invoices for same shipment
 - Circular trading patterns
@@ -336,6 +344,7 @@ g.V().hasLabel('Account').
 - Mismatched commodity descriptions
 
 **Gremlin Query:**
+
 ```groovy
 // Detect TBML: Circular trading with price manipulation
 g.V().hasLabel('Company').as('origin').
@@ -465,6 +474,7 @@ g.V().hasLabel('Company').as('origin').
 ```
 
 **Expected Output:**
+
 ```json
 {
   "cycle_details": {
@@ -503,6 +513,7 @@ g.V().hasLabel('Company').as('origin').
 ### Scenario 2: Layered Money Laundering Network
 
 **Business Problem:** Detect multi-layered laundering:
+
 - Placement through multiple accounts
 - Complex layering through shell companies
 - Integration through legitimate businesses
@@ -510,6 +521,7 @@ g.V().hasLabel('Company').as('origin').
 - Cryptocurrency mixing
 
 **Gremlin Query:**
+
 ```groovy
 // Detect 5-layer money laundering network
 g.V().hasLabel('Account').
@@ -674,6 +686,7 @@ g.V().hasLabel('Account').
 ### Scenario 3: Insider Trading Network
 
 **Business Problem:** Detect insider trading rings:
+
 - Information flow from corporate insiders
 - Coordinated trading before announcements
 - Family/friend networks
@@ -681,6 +694,7 @@ g.V().hasLabel('Account').
 - Timing patterns
 
 **Gremlin Query:**
+
 ```groovy
 // Detect insider trading network
 g.V().hasLabel('Company').
@@ -907,6 +921,7 @@ g.V().hasLabel('Company').
 ### Best Practice: Combine Both Technologies
 
 **Use OpenSearch for:**
+
 1. Transaction-level aggregations
 2. Time-series analysis
 3. Statistical operations
@@ -914,6 +929,7 @@ g.V().hasLabel('Company').
 5. Vector similarity
 
 **Use Gremlin for:**
+
 1. Relationship analysis
 2. Network detection
 3. Path traversal
@@ -956,7 +972,7 @@ suspicious_txns = os_client.search(
 
 # Extract suspicious company IDs
 suspicious_companies = [
-    bucket['key'] 
+    bucket['key']
     for bucket in suspicious_txns['aggregations']['by_company']['buckets']
     if bucket['trade_count']['value'] >= 5
 ]
@@ -974,7 +990,7 @@ for company_id in suspicious_companies:
         path(). \
         by(__.valueMap('company_name', 'country')). \
         toList()
-    
+
     if cycles:
         print(f"🚨 TBML ALERT: Company {company_id} involved in circular trading")
         print(f"   Cycles detected: {len(cycles)}")
@@ -993,7 +1009,7 @@ for company_id in suspicious_companies:
             }
         }
     )
-    
+
     # Gremlin: Network metrics
     network_metrics = g.V().has('Company', 'company_id', company_id). \
         project('degree', 'shell_connections', 'sanctions_exposure'). \
@@ -1001,14 +1017,14 @@ for company_id in suspicious_companies:
         by(__.out('traded_with').has('is_shell_company', True).count()). \
         by(__.out('has_relationship').hasLabel('SanctionedEntity').count()). \
         next()
-    
+
     # Calculate combined risk score
     price_var = os_metrics['aggregations']['price_variance']['std_deviation']
     volume = os_metrics['aggregations']['volume']['value']
     degree = network_metrics['degree']
     shells = network_metrics['shell_connections']
     sanctions = network_metrics['sanctions_exposure']
-    
+
     risk_score = (
         (price_var / 100) * 30 +  # Price manipulation
         (volume / 1000000) * 20 +  # Volume
@@ -1016,7 +1032,7 @@ for company_id in suspicious_companies:
         shells * 15 +              # Shell companies
         sanctions * 25             # Sanctions exposure
     )
-    
+
     print(f"\n📊 Risk Assessment: {company_id}")
     print(f"   Price Variance: {price_var:.2f}")
     print(f"   Trade Volume: ${volume:,.2f}")
@@ -1024,7 +1040,7 @@ for company_id in suspicious_companies:
     print(f"   Shell Connections: {shells}")
     print(f"   Sanctions Exposure: {sanctions}")
     print(f"   RISK SCORE: {risk_score:.2f}/100")
-    
+
     if risk_score >= 75:
         print(f"   ⚠️  CRITICAL: Immediate investigation required")
 ```
@@ -1065,6 +1081,6 @@ for company_id in suspicious_companies:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-28  
+**Document Version:** 1.0
+**Last Updated:** 2026-01-28
 **Status:** ✅ Complete

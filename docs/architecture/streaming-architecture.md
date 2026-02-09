@@ -1,14 +1,15 @@
 # Real-Time Streaming Pipeline Summary
 
-**Extension to**: `adal_graph_pipeline_explanation_2026-01-30_15-45-12-234.md`  
-**Created**: 2026-01-30  
-**Version**: 2.0  
+**Extension to**: `adal_graph_pipeline_explanation_2026-01-30_15-45-12-234.md`
+**Created**: 2026-01-30
+**Version**: 2.0
 
 ---
 
 ## TL;DR
 
 Real-time streaming extends batch pipeline with event-driven graph loading:
+
 - **Latency**: 115ms (event to queryable graph)
 - **Throughput**: 1K vertices per worker, scalable to 100+ workers
 - **Streaming**: Apache Pulsar with Key_Shared subscription
@@ -40,30 +41,30 @@ flowchart LR
         ATM[ATM Network]
         MA[Mobile Apps]
     end
-    
+
     subgraph Pulsar["Apache Pulsar"]
         P1[Broker 1]
         P2[Broker 2]
         P3[Broker 3]
         BK[(BookKeeper)]
     end
-    
+
     subgraph Loaders["Graph Loaders"]
         GL1[Worker 1]
         GL2[Worker 2]
         GLN[Worker N]
     end
-    
+
     subgraph Storage["JanusGraph + HCD"]
         JG[JanusGraph]
         HCD[(HCD Storage)]
         OS[(OpenSearch)]
     end
-    
+
     Sources --> Pulsar
     Pulsar --> Loaders
     Loaders --> Storage
-    
+
     style Pulsar fill:#f9f,stroke:#333
     style Storage fill:#bbf,stroke:#333
 ```
@@ -71,17 +72,20 @@ flowchart LR
 ### Components
 
 **Pulsar Cluster**:
+
 - Key_Shared subscriptions
 - Message deduplication
 - Geo-replication
 - Tiered storage (S3)
 
 **Graph Loader Workers**:
+
 - 100+ consumers
 - Batch 1000 messages
 - Gremlin transactions
 
 **JanusGraph + HCD**:
+
 - MVCC locking
 - WAL enabled
 - Replication 3x
@@ -104,13 +108,13 @@ sequenceDiagram
     participant JG as JanusGraph
     participant HCD as HCD Storage
     participant OS as OpenSearch
-    
+
     S->>P: Send Event (partition_key, seq_id)
     P->>P: Dedup Check
     P->>BK: Write (3 replicas)
     BK-->>P: ACK
     P-->>S: Producer ACK
-    
+
     C->>P: Subscribe (Key_Shared)
     P->>C: Deliver Batch (1000 msgs)
     C->>JG: Gremlin Transaction
@@ -125,6 +129,7 @@ sequenceDiagram
 ### 1. Event Generation
 
 Transaction events from ATM, mobile, web:
+
 - Event ID (deduplication)
 - Partition Key (ordering by account)
 - Payload (transaction details)
@@ -132,12 +137,14 @@ Transaction events from ATM, mobile, web:
 ### 2. Pulsar Ingestion
 
 Producer sends:
+
 - Partition key for routing
 - Sequence ID for deduplication
 - ZSTD compression
 - Batch 1000 messages
 
 Broker:
+
 - Dedup check
 - Write BookKeeper (3 replicas)
 - ACK after persistence
@@ -145,17 +152,19 @@ Broker:
 ### 3. Consumer Processing
 
 Key_Shared subscription:
+
 - Multiple consumers per partition
 - Same key -> same consumer (ordering)
 - Different keys -> different consumers (parallel)
 
-Batch: 1000 msgs or 100ms timeout  
-Graph write: Atomic Gremlin transaction  
+Batch: 1000 msgs or 100ms timeout
+Graph write: Atomic Gremlin transaction
 ACK: After successful commit
 
 ### 4. Graph Storage
 
 JanusGraph + HCD:
+
 - MVCC for concurrency
 - WAL for durability
 - 3x replication
@@ -186,6 +195,7 @@ JanusGraph + HCD:
 **Kafka**: 100 partitions = max 100 consumers
 
 **Pulsar**: 10 partitions = 1000 consumers via Key_Shared
+
 - All ACC_123 msgs -> Consumer 42 (ordered)
 - All ACC_789 msgs -> Consumer 87 (ordered)
 
@@ -196,12 +206,14 @@ JanusGraph + HCD:
 **Kafka**: Manual checks (extra DB reads)
 
 **Pulsar**: Built-in via sequence ID
+
 - Producer retries auto-dropped
 - No duplicate entities
 
 ### Cost Savings
 
 7-year retention (25 TB):
+
 - Kafka (all SSD): $30,660/year
 - Pulsar (hot+cold): $7,329/year
 - Savings: 76%
@@ -209,12 +221,14 @@ JanusGraph + HCD:
 ### Honest Assessment
 
 **Kafka better for**:
+
 - Ultra-low latency
 - Max throughput
 - Simple partition ordering
 - Kafka ecosystem
 
 **Pulsar better for**:
+
 - Graph data (entity ordering + parallel)
 - Multi-tenant platforms
 - Geo-replication
@@ -229,6 +243,7 @@ JanusGraph + HCD:
 ### Overview
 
 JanusGraph + HCD provides:
+
 - Strong write consistency
 - Tunable read consistency
 
@@ -237,12 +252,14 @@ JanusGraph + HCD provides:
 **Mechanism**: JanusGraph MVCC + HCD WAL
 
 **Flow**:
+
 1. JanusGraph prepares
 2. HCD writes WAL (sync)
 3. HCD ACKs
 4. Crash -> Replay WAL
 
 **Pulsar integration**:
+
 - ACK only after commit
 - Negative ACK on error
 
@@ -253,6 +270,7 @@ JanusGraph + HCD provides:
 **Mechanism**: Schema + strong writes
 
 **Enforcement**:
+
 - Unique constraints
 - Type validation
 - Violations -> rollback
@@ -264,6 +282,7 @@ JanusGraph + HCD provides:
 **Mechanism**: MVCC
 
 **How**:
+
 - Each txn sees snapshot
 - Conflict detection at commit
 
@@ -275,7 +294,7 @@ JanusGraph + HCD provides:
 
 **Mechanism**: WAL + Replication
 
-**HCD**: WAL + 3x replication  
+**HCD**: WAL + 3x replication
 **Pulsar**: BookKeeper 3 replicas
 
 **Result**: No data loss
@@ -307,12 +326,14 @@ Example: 100 workers = 100K writes/sec
 ### Latency
 
 End-to-end:
+
 - Pulsar: 5ms (p99)
 - Consumer: 10ms per batch
 - Graph: 100ms (1000 msgs)
 - **Total**: 115ms
 
 Comparison:
+
 - Batch: Hours
 - Real-time: 115ms
 - **Improvement**: 10,000x
@@ -320,6 +341,7 @@ Comparison:
 ### Cost
 
 7-year retention:
+
 - Hot (30d): $360/year
 - Cold (S3): $6,969/year
 - **Total**: $7,329/year
@@ -342,7 +364,7 @@ class TransactionProducer:
             compression_type=CompressionType.ZSTD,
             batching_enabled=True
         )
-    
+
     def send(self, transaction):
         self.producer.send(
             content=json.dumps(transaction).encode(),
@@ -367,16 +389,16 @@ class GraphLoader:
             consumer_type=ConsumerType.Key_Shared
         )
         self.batch = []
-    
+
     def process(self):
         while True:
             msg = self.consumer.receive()
             event = json.loads(msg.data())
             self.batch.append(event)
-            
+
             if len(self.batch) >= 1000:
                 self._flush()
-            
+
             self.consumer.acknowledge(msg)
 ```
 
@@ -410,16 +432,19 @@ def build_batch_script(events):
 ### Infrastructure
 
 **Pulsar**:
+
 - 3+ brokers
 - 3+ bookies
 - ZooKeeper
 
 **Graph loaders**:
+
 - 10-100 workers
 - Kubernetes
 - Auto-scaling
 
 **JanusGraph + HCD**:
+
 - 3+ servers
 - 3+ RegionServers
 - OpenSearch
@@ -427,6 +452,7 @@ def build_batch_script(events):
 ### Configuration
 
 **Pulsar**:
+
 ```properties
 brokerDeduplicationEnabled=true
 managedLedgerOffloadDriver=aws-s3
@@ -434,6 +460,7 @@ replicationClusters=us-east,us-west
 ```
 
 **Graph loader**:
+
 ```python
 consumer_type=ConsumerType.Key_Shared
 batch_size=1000
@@ -441,6 +468,7 @@ batch_timeout_ms=100
 ```
 
 **JanusGraph**:
+
 ```properties
 storage.backend=hbase
 storage.hbase.consistency-level=STRONG
@@ -455,16 +483,19 @@ storage.hbase.consistency-level=STRONG
 ### Key Metrics
 
 **Pulsar**:
+
 - Message rate
 - Backlog size
 - Dedup rate
 
 **Graph loaders**:
+
 - Batch rate
 - Success/failure rate
 - Retry rate
 
 **JanusGraph**:
+
 - Vertex/edge rate
 - Txn commit/rollback
 - Query latency
@@ -472,11 +503,13 @@ storage.hbase.consistency-level=STRONG
 ### Alerts
 
 **Critical**:
+
 - Backlog > 10M
 - Failure rate > 5%
 - WAL size > 10GB
 
 **Warning**:
+
 - CPU > 80%
 - Batch timeout > 1s
 - Retry rate > 10%
@@ -490,36 +523,42 @@ storage.hbase.consistency-level=STRONG
 ### Producer
 
 **Do**:
+
 - Set partition_key
 - Set sequence_id
 - Use batching
 - Enable compression
 
 **Don't**:
+
 - Skip partition_key
 - Ignore errors
 
 ### Consumer
 
 **Do**:
+
 - Use Key_Shared
 - Batch messages
 - ACK after commit
 - Negative ACK on error
 
 **Don't**:
+
 - ACK before write
 - Process one-by-one
 
 ### Graph Write
 
 **Do**:
+
 - Use fold().coalesce()
 - Batch in single txn
 - Handle conflicts
 - Log txn IDs
 
 **Don't**:
+
 - Create without check
 - Use separate txns
 - Ignore rollback
@@ -538,6 +577,7 @@ storage.hbase.consistency-level=STRONG
 ### Backfill
 
 Historical data:
+
 1. Export from existing
 2. Convert to events
 3. Dedicated topic
@@ -558,16 +598,19 @@ Historical data:
 ### Related Files
 
 **Architecture**:
+
 - `pulsar_architecture.md` - Detailed architecture
 - `pulsar_vs_kafka.md` - Honest comparison
 - `acid_properties.md` - ACID guarantees
 
 **Code**:
+
 - `code_examples/producer.py`
 - `code_examples/consumer.py`
 - `code_examples/gremlin_batch.py`
 
 **Operations**:
+
 - `deployment/` - Configs
 - `operations/troubleshooting.md`
 - `operations/monitoring.md`
@@ -576,24 +619,24 @@ Historical data:
 
 ## FAQ
 
-**Q: Why Pulsar over Kafka?**  
+**Q: Why Pulsar over Kafka?**
 A: Key_Shared provides 10x parallelism with ordering
 
-**Q: Exactly-once guaranteed?**  
+**Q: Exactly-once guaranteed?**
 A: Yes, Pulsar dedup + JanusGraph txns
 
-**Q: Recovery time on crash?**  
+**Q: Recovery time on crash?**
 A: Seconds, no data loss
 
-**Q: Query while writing?**  
+**Q: Query while writing?**
 A: Yes, MVCC allows concurrent reads
 
-**Q: Max throughput?**  
+**Q: Max throughput?**
 A: 100K writes/sec single setup, scales linearly
 
 ---
 
-**Document Status**: Summary Complete  
-**Created**: 2026-01-30  
-**Version**: 2.0  
+**Document Status**: Summary Complete
+**Created**: 2026-01-30
+**Version**: 2.0
 **See also**: `pulsar_architecture.md`, `pulsar_vs_kafka.md`, `acid_properties.md`, `code_examples/`

@@ -1,8 +1,8 @@
 # Banking Use Cases - Technical Specifications
 
-**Project**: IBM HCD + JanusGraph + OpenSearch (JVector) Banking Solutions  
-**Version**: 2.0  
-**Date**: 2026-01-28  
+**Project**: IBM HCD + JanusGraph + OpenSearch (JVector) Banking Solutions
+**Version**: 2.0
+**Date**: 2026-01-28
 **Status**: Implementation Ready
 
 ---
@@ -117,7 +117,7 @@ graph LR
     B --> C[Phase 7<br/>Fraud +<br/>Customer 360]
     C --> D[Phase 8<br/>Trade<br/>Surveillance]
     D --> E[Phase 9<br/>Testing +<br/>Optimization]
-    
+
     style A fill:#e1f5ff
     style B fill:#fff4e1
     style C fill:#ffe1f5
@@ -146,6 +146,7 @@ graph LR
 **Business Impact**: $835M in fines avoided, 90% faster investigations
 
 **Key Features**:
+
 - Structuring detection (already implemented)
 - Ultimate Beneficial Owner (UBO) discovery
 - Layering pattern detection
@@ -154,6 +155,7 @@ graph LR
 - Batch analytics for historical patterns
 
 **Technical Approach**:
+
 - Graph traversals for ownership chains
 - Vector search for name/address matching
 - Behavioral embeddings for pattern detection
@@ -165,6 +167,7 @@ graph LR
 **Business Impact**: $3B+ in fraud losses prevented
 
 **Key Features**:
+
 - Fraud ring identification
 - Insider fraud detection
 - Mule account discovery
@@ -173,6 +176,7 @@ graph LR
 - Behavioral anomaly detection
 
 **Technical Approach**:
+
 - Community detection algorithms
 - Graph clustering (Louvain, Label Propagation)
 - Behavioral embeddings
@@ -184,6 +188,7 @@ graph LR
 **Business Impact**: 25% increase in cross-sell, 15% reduction in churn
 
 **Key Features**:
+
 - Unified customer view
 - Relationship mapping
 - Product recommendations
@@ -192,6 +197,7 @@ graph LR
 - Personalized marketing
 
 **Technical Approach**:
+
 - Graph aggregation queries
 - Collaborative filtering
 - Content-based recommendations
@@ -203,6 +209,7 @@ graph LR
 **Business Impact**: Regulatory compliance, market integrity
 
 **Key Features**:
+
 - Market manipulation detection
 - Insider trading patterns
 - Front-running detection
@@ -211,6 +218,7 @@ graph LR
 - Regulatory reporting
 
 **Technical Approach**:
+
 - Temporal graph analysis
 - Pattern matching algorithms
 - Statistical anomaly detection
@@ -252,6 +260,7 @@ graph LR
 ### Technology Stack
 
 **Existing** (Phases 1-4):
+
 - JanusGraph 1.0.0
 - HCD 1.2.3 / Cassandra
 - Python 3.8-3.11
@@ -259,6 +268,7 @@ graph LR
 - Prometheus, Grafana, Jaeger
 
 **New** (Phase 5+):
+
 - PyTorch 2.1.0
 - sentence-transformers 2.3.1
 - transformers 4.36.0
@@ -297,6 +307,7 @@ graph LR
 **Investment**: $58,000 (240 hours × $240/hour)
 
 **Annual Value**:
+
 - AML efficiency: $3.2M
 - Fraud prevention: $5.0M
 - Customer experience: $1.8M
@@ -312,16 +323,19 @@ graph LR
 ### Required Skills
 
 **Phase 5-6** (Weeks 13-15):
+
 - Senior ML Engineer (PyTorch, NLP)
 - Graph Database Expert (JanusGraph, Gremlin)
 - Python Developer (Backend)
 
 **Phase 7-8** (Weeks 16-17):
+
 - Data Scientist (Fraud detection)
 - Full-stack Developer (Demo app)
 - DevOps Engineer (Deployment)
 
 **Phase 9** (Week 18):
+
 - QA Engineer (Testing)
 - Performance Engineer (Optimization)
 - Technical Writer (Documentation)
@@ -392,10 +406,10 @@ graph LR
 
 ### Resources
 
-- **JanusGraph Docs**: https://docs.janusgraph.org/
-- **OpenSearch Docs**: https://opensearch.org/docs/
-- **sentence-transformers**: https://www.sbert.net/
-- **PyTorch**: https://pytorch.org/docs/
+- **JanusGraph Docs**: <https://docs.janusgraph.org/>
+- **OpenSearch Docs**: <https://opensearch.org/docs/>
+- **sentence-transformers**: <https://www.sbert.net/>
+- **PyTorch**: <https://pytorch.org/docs/>
 
 ### Team Contacts
 

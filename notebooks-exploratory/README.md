@@ -14,6 +14,7 @@ General-purpose Jupyter notebooks for JanusGraph exploration and experimentation
 ## Purpose
 
 These notebooks are for:
+
 - Learning JanusGraph basics
 - Prototyping queries
 - Data exploration

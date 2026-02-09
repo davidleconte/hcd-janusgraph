@@ -10,14 +10,15 @@ Validates compliance logging functionality including:
 """
 
 import json
-import pytest
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from banking.compliance.audit_logger import (
-    AuditLogger,
     AuditEvent,
     AuditEventType,
+    AuditLogger,
     AuditSeverity,
     get_audit_logger,
 )
@@ -476,9 +477,7 @@ class TestAuditLogger:
         audit_logger.log_data_access(
             user="user2", resource="data2", action="read", result="success"
         )
-        audit_logger.log_authentication(
-            user="user3", action="login", result="success"
-        )
+        audit_logger.log_authentication(user="user3", action="login", result="success")
 
         # Verify all events are logged
         log_file = Path(temp_log_dir) / "test_audit.log"
@@ -496,12 +495,13 @@ class TestAuditLogger:
         """Test global audit logger singleton"""
         # Reset global logger for test
         import banking.compliance.audit_logger as audit_module
+
         audit_module._audit_logger = None
-        
+
         # Create logger with temp directory
         logger1 = AuditLogger(log_dir=temp_log_dir)
         audit_module._audit_logger = logger1
-        
+
         logger2 = get_audit_logger()
         assert logger1 is logger2
 

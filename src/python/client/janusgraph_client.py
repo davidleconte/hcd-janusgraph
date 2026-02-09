@@ -14,14 +14,14 @@ from typing import Any, Optional
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.protocol import GremlinServerError
 
-from .exceptions import ConnectionError, QueryError, TimeoutError, ValidationError
+from ..utils.auth import get_credentials, validate_ssl_config
 from ..utils.validation import (
+    validate_file_path,
     validate_gremlin_query,
     validate_hostname,
     validate_port,
-    validate_file_path,
 )
-from ..utils.auth import get_credentials, validate_ssl_config
+from .exceptions import ConnectionError, QueryError, TimeoutError, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class JanusGraphClient:
     def __init__(
         self,
         host: str = "localhost",
-        port: int = int(os.getenv('JANUSGRAPH_PORT', '18182')),
+        port: int = int(os.getenv("JANUSGRAPH_PORT", "18182")),
         username: Optional[str] = None,
         password: Optional[str] = None,
         traversal_source: str = "g",
@@ -81,7 +81,7 @@ class JanusGraphClient:
         # Validate inputs
         host = validate_hostname(host)
         port = validate_port(port, allow_privileged=True)
-        
+
         # Validate timeout
         if not isinstance(timeout, (int, float)):
             raise ValidationError(f"Timeout must be numeric, got {type(timeout).__name__}")
@@ -94,28 +94,26 @@ class JanusGraphClient:
             logger.warning(
                 "Timeout %d seconds is very high. Consider using a lower value.", timeout
             )
-        
+
         # Validate ca_certs file if provided
         if ca_certs:
             try:
                 validate_file_path(ca_certs, must_exist=True)
             except ValidationError as e:
-                raise ValidationError(
-                    f"Invalid CA certificate file: {ca_certs}. {e}"
-                ) from e
+                raise ValidationError(f"Invalid CA certificate file: {ca_certs}. {e}") from e
 
         # Get credentials using shared utility
         try:
             username, password = get_credentials(
                 username=username,
                 password=password,
-                username_env_var='JANUSGRAPH_USERNAME',
-                password_env_var='JANUSGRAPH_PASSWORD',
-                service_name='JanusGraph'
+                username_env_var="JANUSGRAPH_USERNAME",
+                password_env_var="JANUSGRAPH_PASSWORD",
+                service_name="JanusGraph",
             )
         except ValueError as e:
             raise ValidationError(str(e)) from e
-        
+
         # Validate SSL configuration
         validate_ssl_config(use_ssl, verify_certs, ca_certs)
 
@@ -132,7 +130,7 @@ class JanusGraphClient:
         # Build URL with SSL
         protocol = "wss" if use_ssl else "ws"
         self.url = f"{protocol}://{host}:{port}/gremlin"
-        
+
         self._client: Optional[client.Client] = None
 
         logger.info(
@@ -156,7 +154,7 @@ class JanusGraphClient:
 
         try:
             logger.info("Connecting to JanusGraph at %s (SSL: %s)", self.url, self.use_ssl)
-            
+
             # Configure SSL context if using SSL
             ssl_context = None
             if self.use_ssl:
@@ -181,9 +179,9 @@ class JanusGraphClient:
                 self.traversal_source,
                 **connect_kwargs,
             )
-            
+
             logger.info("Successfully connected to JanusGraph at %s", self.url)
-            
+
         except TimeoutError as e:
             logger.error("Connection timeout to %s: %s", self.url, e)
             raise TimeoutError(f"Connection to {self.url} timed out") from e
@@ -219,17 +217,17 @@ class JanusGraphClient:
         try:
             # Log query (first 100 chars only for security)
             logger.debug("Executing query: %s", query[:100])
-            
+
             # Log bindings count but not values (may contain sensitive data)
             if bindings:
                 logger.debug("Query has %d parameter bindings", len(bindings))
                 result = self._client.submit(query, bindings).all().result()
             else:
                 result = self._client.submit(query).all().result()
-            
+
             logger.debug("Query returned %d results", len(result))
             return result
-            
+
         except GremlinServerError as e:
             logger.error("Query execution failed: %s", e)
             raise QueryError(f"Gremlin query error: {e}", query=query) from e

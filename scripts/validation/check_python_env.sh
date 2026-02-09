@@ -66,113 +66,113 @@ check_conda_env_exists() {
 
 check_conda_env_active() {
     log_info "Checking if correct conda environment is active..."
-    
+
     if [[ -z "${CONDA_DEFAULT_ENV:-}" ]]; then
         log_error "No conda environment is active"
         log_info "Activate with: conda activate $REQUIRED_CONDA_ENV"
         return 1
     fi
-    
+
     if [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
         log_error "Wrong conda environment active: $CONDA_DEFAULT_ENV"
         log_info "Expected: $REQUIRED_CONDA_ENV"
         log_info "Activate with: conda activate $REQUIRED_CONDA_ENV"
         return 1
     fi
-    
+
     log_success "Correct conda environment active: $CONDA_DEFAULT_ENV"
     return 0
 }
 
 check_python_version() {
     log_info "Checking Python version..."
-    
+
     if ! command -v python &> /dev/null; then
         log_error "Python is not available in current environment"
         return 1
     fi
-    
+
     local python_version
     python_version=$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-    
+
     if [[ "$python_version" != "$REQUIRED_PYTHON_VERSION" ]]; then
         log_error "Wrong Python version: $python_version (expected: $REQUIRED_PYTHON_VERSION)"
         log_info "Ensure conda environment uses Python $REQUIRED_PYTHON_VERSION"
         return 1
     fi
-    
+
     log_success "Correct Python version: $python_version"
     return 0
 }
 
 check_python_path() {
     log_info "Checking Python path is from conda environment..."
-    
+
     local python_path
     python_path=$(which python)
-    
+
     # Python should be from conda environment, not system or .venv
     if [[ "$python_path" == *".venv"* ]]; then
         log_error "Python is from .venv (should be from conda): $python_path"
         log_info "Remove .venv: rm -rf $PROJECT_ROOT/.venv"
         return 1
     fi
-    
+
     if [[ "$python_path" != *"miniforge"* ]] && [[ "$python_path" != *"conda"* ]] && [[ "$python_path" != *"envs/$REQUIRED_CONDA_ENV"* ]]; then
         log_warning "Python path may not be from conda: $python_path"
         log_info "Expected path containing: miniforge, conda, or envs/$REQUIRED_CONDA_ENV"
     else
         log_success "Python path is correct: $python_path"
     fi
-    
+
     return 0
 }
 
 check_no_venv() {
     log_info "Checking that .venv directory does not exist..."
-    
+
     if [[ -d "$PROJECT_ROOT/.venv" ]]; then
         log_error ".venv directory exists at: $PROJECT_ROOT/.venv"
         log_info "This can cause Python environment conflicts"
         log_info "Remove with: rm -rf $PROJECT_ROOT/.venv"
         return 1
     fi
-    
+
     log_success "No .venv directory found (good!)"
     return 0
 }
 
 check_uv_available() {
     log_info "Checking if uv package manager is available..."
-    
+
     if ! command -v uv &> /dev/null; then
         log_warning "uv is not installed (optional but recommended)"
         log_info "Install with: pip install uv"
         return 0  # Warning, not error
     fi
-    
+
     log_success "uv is available: $(uv --version)"
     return 0
 }
 
 check_critical_packages() {
     log_info "Checking critical Python packages..."
-    
+
     local packages=("gremlinpython" "pydantic" "pytest")
     local missing=()
-    
+
     for pkg in "${packages[@]}"; do
         if ! python -c "import $pkg" 2>/dev/null; then
             missing+=("$pkg")
         fi
     done
-    
+
     if [[ ${#missing[@]} -gt 0 ]]; then
         log_warning "Missing packages: ${missing[*]}"
         log_info "Install with: uv pip install -r requirements.txt"
         return 0  # Warning, not error - packages can be installed
     fi
-    
+
     log_success "All critical packages available"
     return 0
 }
@@ -189,33 +189,33 @@ main() {
     echo "Project: $PROJECT_ROOT"
     echo "Required: conda env '$REQUIRED_CONDA_ENV' with Python $REQUIRED_PYTHON_VERSION"
     echo ""
-    
+
     # Critical checks (fail fast)
     check_conda_available || ((ERRORS++))
     check_no_venv || ((ERRORS++))
-    
+
     # Environment checks
     if check_conda_env_exists; then
         check_conda_env_active || ((ERRORS++))
     else
         ((ERRORS++))
     fi
-    
+
     # Python checks
     if [[ $ERRORS -eq 0 ]]; then
         check_python_version || ((ERRORS++))
         check_python_path || ((ERRORS++))
     fi
-    
+
     # Optional checks (warnings)
     echo ""
     log_info "Running optional checks..."
     check_uv_available
-    
+
     if [[ $ERRORS -eq 0 ]]; then
         check_critical_packages
     fi
-    
+
     # Summary
     echo ""
     echo "=========================================="

@@ -7,12 +7,14 @@ This directory contains the Anti-Money Laundering detection and analysis modules
 ### Core Modules
 
 **enhanced_structuring_detection.py**
+
 - Advanced structuring pattern detection
 - Multi-account analysis
 - Temporal pattern recognition
 - Risk scoring algorithms
 
 **sanctions_screening.py**
+
 - Real-time sanctions list screening
 - Entity matching with fuzzy logic
 - Vector-based similarity search
@@ -21,12 +23,14 @@ This directory contains the Anti-Money Laundering detection and analysis modules
 ## Features
 
 ### Structuring Detection
+
 - Identifies suspicious transaction patterns
 - Detects smurfing and layering activities
 - Analyzes velocity and frequency patterns
 - Generates risk scores and alerts
 
 ### Sanctions Screening
+
 - Screens against OFAC, UN, EU sanctions lists
 - Performs entity name matching
 - Checks beneficial ownership
@@ -39,11 +43,13 @@ This directory contains the Anti-Money Laundering detection and analysis modules
 The `EnhancedStructuringDetector` class provides three complementary detection methods:
 
 #### 1. Graph Pattern Detection (`detect_graph_patterns`)
+
 - **Method:** Gremlin traversal queries
 - **Detects:** Rapid sequences, amount splitting across accounts
 - **Output:** StructuringPattern objects with `detection_method='graph'`
 
 #### 2. Semantic Pattern Detection (`detect_semantic_patterns`) ✅ NEW
+
 - **Method:** Vector embeddings + similarity clustering
 - **Parameters:**
   - `min_similarity` (default: 0.85) - Minimum cosine similarity for clustering
@@ -59,11 +65,13 @@ The `EnhancedStructuringDetector` class provides three complementary detection m
 - **Output:** StructuringPattern objects with `detection_method='vector'`
 
 #### 3. Hybrid Detection (`detect_hybrid_patterns`)
+
 - **Method:** Combines graph and semantic detection
 - **Process:** Runs both methods, deduplicates, merges results
 - **Output:** Combined list of unique patterns
 
 ### Detection Thresholds
+
 | Constant | Value | Description |
 |----------|-------|-------------|
 | STRUCTURING_THRESHOLD | $10,000 | CTR reporting threshold |
@@ -72,6 +80,7 @@ The `EnhancedStructuringDetector` class provides three complementary detection m
 | SEMANTIC_SIMILARITY_THRESHOLD | 0.85 | Description similarity threshold |
 
 ### Usage Example
+
 ```python
 from banking.aml.enhanced_structuring_detection import EnhancedStructuringDetector
 
@@ -103,6 +112,7 @@ for pattern in all_patterns:
 ## Usage
 
 ### Basic Structuring Detection
+
 ```python
 from banking.aml.enhanced_structuring_detection import StructuringDetector
 
@@ -115,6 +125,7 @@ results = detector.detect_structuring(
 ```
 
 ### Sanctions Screening
+
 ```python
 from banking.aml.sanctions_screening import SanctionsScreener
 
@@ -148,6 +159,7 @@ matches = screener.screen_entity(
 ## Testing
 
 Run AML module tests:
+
 ```bash
 cd banking/data_generators/tests
 pytest test_patterns/ -v
@@ -155,5 +167,5 @@ pytest test_patterns/ -v
 
 ---
 
-**Last Updated:** 2026-01-28  
+**Last Updated:** 2026-01-28
 **Status:** Production Ready

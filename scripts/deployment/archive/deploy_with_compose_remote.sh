@@ -105,14 +105,14 @@ if podman exec ${COMPOSE_PROJECT_NAME}_vault_1 vault status 2>&1 | grep -q "not 
     VAULT_INIT=$(podman exec ${COMPOSE_PROJECT_NAME}_vault_1 vault operator init -key-shares=1 -key-threshold=1 -format=json)
     VAULT_UNSEAL_KEY=$(echo "$VAULT_INIT" | jq -r '.unseal_keys_b64[0]')
     VAULT_ROOT_TOKEN=$(echo "$VAULT_INIT" | jq -r '.root_token')
-    
+
     # Save to secure location
     mkdir -p "$PROJECT_ROOT/.vault-keys"
     chmod 700 "$PROJECT_ROOT/.vault-keys"
     echo "$VAULT_UNSEAL_KEY" > "$PROJECT_ROOT/.vault-keys/unseal-key"
     echo "$VAULT_ROOT_TOKEN" > "$PROJECT_ROOT/.vault-keys/root-token"
     chmod 600 "$PROJECT_ROOT/.vault-keys"/*
-    
+
     # Unseal Vault
     podman exec ${COMPOSE_PROJECT_NAME}_vault_1 vault operator unseal "$VAULT_UNSEAL_KEY"
     echo "   ✅ Vault initialized and unsealed"

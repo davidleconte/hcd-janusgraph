@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-**Last Updated:** 2026-02-06  
+**Last Updated:** 2026-02-06
 **Owner:** Documentation Team
 
 ---
@@ -161,6 +161,7 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persisten
 ### Q: What topics are available?
 
 **A:** The banking namespace includes:
+
 - `persons-events`
 - `accounts-events`
 - `transactions-events`
@@ -251,9 +252,9 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 
 **A:**
 
-- **Grafana**: http://localhost:3001 (admin/admin)
-- **Prometheus**: http://localhost:9090
-- **JanusGraph metrics**: http://localhost:8000/metrics
+- **Grafana**: <http://localhost:3001> (admin/admin)
+- **Prometheus**: <http://localhost:9090>
+- **JanusGraph metrics**: <http://localhost:8000/metrics>
 
 ### Q: Why is my query slow?
 

@@ -1,7 +1,7 @@
 # Contributing Guide
 
-**File**: docs/CONTRIBUTING.md  
-**Created**: 2026-01-28T11:09:00.123  
+**File**: docs/CONTRIBUTING.md
+**Created**: 2026-01-28T11:09:00.123
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -33,12 +33,12 @@ We welcome contributions! This guide will help you get started.
 
 ### Clone Your Fork
 
-git clone https://github.com/YOUR_USERNAME/hcd-janusgraph.git
+git clone <https://github.com/YOUR_USERNAME/hcd-janusgraph.git>
 cd hcd-janusgraph
 
 ### Add Upstream
 
-git remote add upstream https://github.com/davidleconte/hcd-janusgraph.git
+git remote add upstream <https://github.com/davidleconte/hcd-janusgraph.git>
 
 ### Install Dependencies
 
@@ -59,6 +59,7 @@ pre-commit install
 git checkout -b feature/my-feature
 
 Branch naming:
+
 - feature/: New features
 - fix/: Bug fixes
 - docs/: Documentation
@@ -68,6 +69,7 @@ Branch naming:
 ### Make Your Changes
 
 Follow coding standards:
+
 - Python: PEP 8 (enforced by black/flake8)
 - Line length: 100 characters
 - Type hints where possible
@@ -164,10 +166,10 @@ Example:
 
 def process_data(input: str) -> dict:
     """Process input data.
-    
+
     Args:
         input: Input string to process
-        
+
     Returns:
         dict: Processed data
     """
@@ -216,6 +218,7 @@ pytest --cov=src tests/
 ### Update README
 
 When adding features, update:
+
 - Feature list
 - Usage examples
 - Dependencies
@@ -235,6 +238,7 @@ For major features, add docs/*.md file.
 ### Reporting Bugs
 
 Use bug report template. Include:
+
 - Environment details
 - Steps to reproduce
 - Expected vs actual behavior
@@ -243,6 +247,7 @@ Use bug report template. Include:
 ### Requesting Features
 
 Use feature request template. Include:
+
 - Use case
 - Proposed solution
 - Alternatives considered
@@ -267,6 +272,7 @@ Use feature request template. Include:
 ### Versioning
 
 We use Semantic Versioning:
+
 - MAJOR: Breaking changes
 - MINOR: New features
 - PATCH: Bug fixes
@@ -288,7 +294,7 @@ Maintainers only:
 
 - GitHub Discussions
 - Issues (with question label)
-- Email: team@example.com
+- Email: <team@example.com>
 
 ### Community
 

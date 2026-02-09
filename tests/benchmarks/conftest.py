@@ -5,9 +5,10 @@ Benchmark Test Configuration
 Shared fixtures for performance benchmarks.
 """
 
-import pytest
 from datetime import datetime, timezone
 from decimal import Decimal
+
+import pytest
 
 
 @pytest.fixture(scope="session")

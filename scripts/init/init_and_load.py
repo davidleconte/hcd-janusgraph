@@ -1,7 +1,8 @@
-from gremlin_python.driver import client
 import time
 
-gc = client.Client('ws://localhost:18182/gremlin', 'g')
+from gremlin_python.driver import client
+
+gc = client.Client("ws://localhost:18182/gremlin", "g")
 
 print("Step 2: Initializing schema...")
 
@@ -37,13 +38,13 @@ mgmt.buildIndex('productByName', Vertex.class).addKey(name).indexOnly(product).b
 mgmt.commit()
 'Schema created'
 """
-    
+
     result = gc.submit(schema_script).all().result()
     print(f"   ✅ Schema initialized: {result}")
     time.sleep(2)
-    
+
     print("\nStep 3: Loading sample data...")
-    
+
     # Create all vertices first
     data_script = """
 alice = g.addV('person').property('name', 'Alice Johnson').property('age', 30).property('email', 'alice@example.com').property('location', 'San Francisco').next()
@@ -86,39 +87,40 @@ g.V(eve).addE('uses').to(g.V(analyticsEngine)).property('since', 2020).next()
 graph.tx().commit()
 'Data loaded'
 """
-    
+
     result = gc.submit(data_script).all().result()
     print(f"   ✅ Data loaded: {result}")
     time.sleep(2)
-    
+
     print("\nStep 4: Verifying...")
-    
-    vertex_count = gc.submit('g.V().count()').all().result()[0]
-    edge_count = gc.submit('g.E().count()').all().result()[0]
-    
+
+    vertex_count = gc.submit("g.V().count()").all().result()[0]
+    edge_count = gc.submit("g.E().count()").all().result()[0]
+
     print(f"\n{'='*50}")
     print(f"✅ Initialization Complete!")
     print(f"{'='*50}")
     print(f"Vertices: {vertex_count}")
     print(f"Edges: {edge_count}")
     print(f"\nSample data:")
-    
+
     people = gc.submit("g.V().hasLabel('person').values('name')").all().result()
     print(f"  People: {people}")
-    
+
     companies = gc.submit("g.V().hasLabel('company').values('name')").all().result()
     print(f"  Companies: {companies}")
-    
+
     products = gc.submit("g.V().hasLabel('product').values('name')").all().result()
     print(f"  Products: {products}")
-    
+
     print(f"\n{'='*50}")
     print("Expected: 11 vertices and 19 edges")
     print(f"{'='*50}\n")
-    
+
 except Exception as e:
     print(f"❌ Error: {e}")
     import traceback
+
     traceback.print_exc()
 finally:
     gc.close()

@@ -17,12 +17,11 @@ Reports are generated from audit logs and provide:
 """
 
 import json
+from collections import Counter, defaultdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-from collections import defaultdict, Counter
-from dataclasses import dataclass, asdict
-
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -84,7 +83,10 @@ class ComplianceReporter:
         self.log_dir = Path(log_dir)
 
     def parse_audit_log(
-        self, log_file: str, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None
+        self,
+        log_file: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
     ) -> List[Dict[str, Any]]:
         """
         Parse audit log file and filter by date range
@@ -146,24 +148,16 @@ class ComplianceReporter:
         unique_resources = len(set(event["resource"] for event in events))
 
         # Count specific event types
-        failed_auth = sum(
-            1 for event in events if event["event_type"] == "auth_failed"
-        )
-        denied_access = sum(
-            1 for event in events if event["event_type"] == "authz_denied"
-        )
+        failed_auth = sum(1 for event in events if event["event_type"] == "auth_failed")
+        denied_access = sum(1 for event in events if event["event_type"] == "authz_denied")
         gdpr_requests = sum(
             1
             for event in events
             if event["event_type"]
             in ["gdpr_data_request", "gdpr_data_deletion", "gdpr_consent_change"]
         )
-        aml_alerts = sum(
-            1 for event in events if event["event_type"] == "aml_alert_generated"
-        )
-        fraud_alerts = sum(
-            1 for event in events if event["event_type"] == "fraud_alert_generated"
-        )
+        aml_alerts = sum(1 for event in events if event["event_type"] == "aml_alert_generated")
+        fraud_alerts = sum(1 for event in events if event["event_type"] == "fraud_alert_generated")
         security_incidents = sum(
             1
             for event in events
@@ -399,18 +393,10 @@ class ComplianceReporter:
         ]
 
         # Calculate statistics
-        total_logins = sum(
-            1 for event in access_events if event["event_type"] == "auth_login"
-        )
-        failed_logins = sum(
-            1 for event in access_events if event["event_type"] == "auth_failed"
-        )
-        access_granted = sum(
-            1 for event in access_events if event["event_type"] == "authz_granted"
-        )
-        access_denied = sum(
-            1 for event in access_events if event["event_type"] == "authz_denied"
-        )
+        total_logins = sum(1 for event in access_events if event["event_type"] == "auth_login")
+        failed_logins = sum(1 for event in access_events if event["event_type"] == "auth_failed")
+        access_granted = sum(1 for event in access_events if event["event_type"] == "authz_granted")
+        access_denied = sum(1 for event in access_events if event["event_type"] == "authz_denied")
         user_changes = sum(
             1
             for event in access_events
@@ -420,9 +406,7 @@ class ComplianceReporter:
 
         # Calculate success rate
         total_auth_attempts = total_logins + failed_logins
-        success_rate = (
-            (total_logins / total_auth_attempts * 100) if total_auth_attempts > 0 else 0
-        )
+        success_rate = (total_logins / total_auth_attempts * 100) if total_auth_attempts > 0 else 0
 
         return {
             "report_type": "SOC 2 Type II - Access Control and Monitoring",
@@ -458,11 +442,7 @@ class ComplianceReporter:
         events = self.parse_audit_log(log_file, start_date, end_date)
 
         # Filter AML events
-        aml_events = [
-            event
-            for event in events
-            if event["event_type"] == "aml_alert_generated"
-        ]
+        aml_events = [event for event in events if event["event_type"] == "aml_alert_generated"]
 
         # Group by severity
         by_severity = defaultdict(list)
@@ -471,9 +451,7 @@ class ComplianceReporter:
 
         # Count SARs filed
         sars_filed = sum(
-            1
-            for event in aml_events
-            if event.get("metadata", {}).get("sar_filed", False)
+            1 for event in aml_events if event.get("metadata", {}).get("sar_filed", False)
         )
 
         return {
@@ -489,9 +467,7 @@ class ComplianceReporter:
                 "low_alerts": len(by_severity.get("info", [])),
                 "sars_filed": sars_filed,
             },
-            "alerts_by_severity": {
-                severity: alerts for severity, alerts in by_severity.items()
-            },
+            "alerts_by_severity": {severity: alerts for severity, alerts in by_severity.items()},
         }
 
     def generate_comprehensive_report(
@@ -524,9 +500,7 @@ class ComplianceReporter:
             "aml_summary": self.generate_aml_report(start_date, end_date, log_file),
         }
 
-    def export_report(
-        self, report: Dict[str, Any], output_file: str, format: str = "json"
-    ) -> None:
+    def export_report(self, report: Dict[str, Any], output_file: str, format: str = "json") -> None:
         """
         Export compliance report to file
 
@@ -579,7 +553,7 @@ class ComplianceReporter:
     <h1>{report['report_type']}</h1>
     <p><strong>Period:</strong> {report['period_start']} to {report['period_end']}</p>
     <p><strong>Generated:</strong> {report['generated_at']}</p>
-    
+
     <h2>Summary Metrics</h2>
     <table>
         <tr><th>Metric</th><th>Value</th></tr>

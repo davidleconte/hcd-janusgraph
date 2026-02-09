@@ -13,18 +13,23 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 -->
 
 ## Feature Description
+
 A clear and concise description of the feature you'd like.
 
 ## Use Case
+
 Why is this feature useful? What problem does it solve?
 
 ## Proposed Solution
+
 How you envision this feature working.
 
 ## Alternatives Considered
+
 Other solutions you've considered.
 
 ## Additional Context
+
 Any other context, mockups, or examples.
 
 ---

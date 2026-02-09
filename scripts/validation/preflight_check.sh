@@ -99,7 +99,7 @@ done
 
 check_python_environment() {
     log_section "1. Python Environment"
-    
+
     # Check .venv doesn't exist
     log_subsection "Checking for .venv directory"
     if [[ -d "$PROJECT_ROOT/.venv" ]]; then
@@ -115,7 +115,7 @@ check_python_environment() {
     else
         log_success "No .venv directory (good!)"
     fi
-    
+
     # Check conda available
     log_subsection "Checking conda"
     if ! command -v conda &> /dev/null; then
@@ -124,7 +124,7 @@ check_python_environment() {
         return
     fi
     log_success "Conda is available"
-    
+
     # Check conda env exists
     if ! conda env list | grep -q "^${REQUIRED_CONDA_ENV} "; then
         log_error "Conda environment '$REQUIRED_CONDA_ENV' does not exist"
@@ -133,7 +133,7 @@ check_python_environment() {
         return
     fi
     log_success "Conda environment exists"
-    
+
     # Check conda env is active
     log_subsection "Checking conda environment activation"
     if [[ -z "${CONDA_DEFAULT_ENV:-}" ]]; then
@@ -146,7 +146,7 @@ check_python_environment() {
     else
         log_success "Correct conda environment active: $CONDA_DEFAULT_ENV"
     fi
-    
+
     # Check Python version
     log_subsection "Checking Python version"
     if command -v python &> /dev/null; then
@@ -162,7 +162,7 @@ check_python_environment() {
         log_error "Python not available"
         ((ERRORS++))
     fi
-    
+
     # Check uv available
     log_subsection "Checking package manager (uv)"
     if command -v uv &> /dev/null; then
@@ -180,9 +180,9 @@ check_python_environment() {
 
 check_environment_config() {
     log_section "2. Environment Configuration"
-    
+
     local env_file="$PROJECT_ROOT/.env"
-    
+
     # Check .env exists
     log_subsection "Checking .env file"
     if [[ ! -f "$env_file" ]]; then
@@ -198,7 +198,7 @@ check_environment_config() {
         return
     fi
     log_success ".env file exists"
-    
+
     # Check COMPOSE_PROJECT_NAME
     log_subsection "Checking COMPOSE_PROJECT_NAME"
     if grep -q "^COMPOSE_PROJECT_NAME=" "$env_file" 2>/dev/null; then
@@ -218,7 +218,7 @@ check_environment_config() {
             ((ERRORS++))
         fi
     fi
-    
+
     # Check PODMAN_CONNECTION
     log_subsection "Checking PODMAN_CONNECTION"
     if grep -q "^PODMAN_CONNECTION=" "$env_file" 2>/dev/null; then
@@ -234,7 +234,7 @@ check_environment_config() {
             ((WARNINGS++))
         fi
     fi
-    
+
     # Check for placeholder passwords
     log_subsection "Checking for placeholder passwords"
     local placeholder_count=0
@@ -244,7 +244,7 @@ check_environment_config() {
     if grep -q "changeit" "$env_file" 2>/dev/null; then
         placeholder_count=$((placeholder_count + 1))
     fi
-    
+
     if [[ $placeholder_count -gt 0 ]]; then
         log_warning "Found placeholder passwords in .env (OK for development)"
         log_info "Update passwords before production deployment"
@@ -260,7 +260,7 @@ check_environment_config() {
 
 check_podman_config() {
     log_section "3. Podman Configuration"
-    
+
     # Check podman available
     log_subsection "Checking Podman"
     if ! command -v podman &> /dev/null; then
@@ -269,7 +269,7 @@ check_podman_config() {
         return
     fi
     log_success "Podman is installed"
-    
+
     # Check podman-compose available
     if ! command -v podman-compose &> /dev/null; then
         log_warning "podman-compose is not installed"
@@ -278,7 +278,7 @@ check_podman_config() {
     else
         log_success "podman-compose is available"
     fi
-    
+
     # Check podman machine connection
     log_subsection "Checking Podman machine connection"
     if podman --remote --connection "$PODMAN_CONNECTION" ps &>/dev/null; then
@@ -288,7 +288,7 @@ check_podman_config() {
         log_info "Start with: podman machine start $PODMAN_CONNECTION"
         ((WARNINGS++))
     fi
-    
+
     # Check for container_name overrides in compose files
     log_subsection "Checking docker-compose files for container_name overrides"
     local compose_dir="$PROJECT_ROOT/config/compose"
@@ -304,7 +304,7 @@ check_podman_config() {
                 fi
             fi
         done
-        
+
         if [[ $total_overrides -gt 0 ]]; then
             log_error "CRITICAL: $total_overrides container_name overrides found"
             log_info "This BREAKS project isolation. Remove all container_name: lines."
@@ -321,11 +321,11 @@ check_podman_config() {
 
 check_build_prerequisites() {
     log_section "4. Build Prerequisites"
-    
+
     # Check HCD tarball exists
     log_subsection "Checking HCD tarball"
     local hcd_dir="$PROJECT_ROOT/hcd-1.2.3"
-    
+
     if [[ -d "$hcd_dir" ]] || [[ -L "$hcd_dir" ]]; then
         # Verify key files exist (follow symlinks)
         if [[ -f "$hcd_dir/bin/hcd" ]]; then
@@ -348,7 +348,7 @@ check_build_prerequisites() {
             ((ERRORS++))
         fi
     fi
-    
+
     # Check Dockerfiles exist
     log_subsection "Checking Dockerfiles"
     local dockerfiles=(
@@ -358,7 +358,7 @@ check_build_prerequisites() {
         "docker/jupyter/Dockerfile"
         "docker/opensearch/Dockerfile"
     )
-    
+
     for df in "${dockerfiles[@]}"; do
         if [[ -f "$PROJECT_ROOT/$df" ]]; then
             log_success "$df exists"
@@ -375,14 +375,14 @@ check_build_prerequisites() {
 
 check_dependencies() {
     log_section "5. Dependencies"
-    
+
     # Check requirements files exist
     log_subsection "Checking requirements files"
     local req_files=(
         "requirements.txt"
         "requirements-dev.txt"
     )
-    
+
     for req in "${req_files[@]}"; do
         if [[ -f "$PROJECT_ROOT/$req" ]]; then
             log_success "$req exists"
@@ -391,12 +391,12 @@ check_dependencies() {
             ((WARNINGS++))
         fi
     done
-    
+
     # Check critical packages (only if Python is available)
     if command -v python &> /dev/null && [[ "${CONDA_DEFAULT_ENV:-}" == "$REQUIRED_CONDA_ENV" ]]; then
         log_subsection "Checking critical Python packages"
         local packages=("gremlinpython" "pydantic" "pytest")
-        
+
         for pkg in "${packages[@]}"; do
             if python -c "import $pkg" 2>/dev/null; then
                 log_success "$pkg is installed"
@@ -414,13 +414,13 @@ check_dependencies() {
 
 check_security() {
     log_section "6. Security"
-    
+
     # Check SSL certificates
     log_subsection "Checking SSL certificates"
     local cert_dir="$PROJECT_ROOT/config/certs/ca"
     if [[ -f "$cert_dir/ca-cert.pem" ]]; then
         log_success "CA certificate exists"
-        
+
         # Check certificate validity
         if command -v openssl &> /dev/null; then
             local expiry
@@ -434,7 +434,7 @@ check_security() {
         log_info "Generate with: ./scripts/security/generate_certificates.sh"
         ((WARNINGS++))
     fi
-    
+
     # Check .gitignore for sensitive files
     log_subsection "Checking .gitignore"
     local gitignore="$PROJECT_ROOT/.gitignore"
@@ -457,7 +457,7 @@ check_security() {
 
 check_ports() {
     log_section "7. Port Availability"
-    
+
     local ports=(
         "19042:HCD CQL"
         "18182:JanusGraph"
@@ -466,11 +466,11 @@ check_ports() {
         "9090:Prometheus"
         "3001:Grafana"
     )
-    
+
     for port_info in "${ports[@]}"; do
         local port="${port_info%%:*}"
         local service="${port_info##*:}"
-        
+
         if lsof -Pi ":$port" -sTCP:LISTEN -t &>/dev/null; then
             local pid
             pid=$(lsof -Pi ":$port" -sTCP:LISTEN -t 2>/dev/null | head -1)
@@ -492,21 +492,21 @@ print_summary() {
     echo "            PREFLIGHT CHECK SUMMARY"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    
+
     if [[ $ERRORS -gt 0 ]]; then
         log_error "ERRORS:   $ERRORS"
     else
         log_success "ERRORS:   0"
     fi
-    
+
     if [[ $WARNINGS -gt 0 ]]; then
         log_warning "WARNINGS: $WARNINGS"
     else
         log_success "WARNINGS: 0"
     fi
-    
+
     echo ""
-    
+
     # Exit decision
     if [[ $ERRORS -gt 0 ]]; then
         log_error "PREFLIGHT CHECK FAILED"
@@ -545,7 +545,7 @@ main() {
     echo "Auto-fix:   $AUTO_FIX"
     echo "Strict:     $STRICT_MODE"
     echo ""
-    
+
     # Run all checks
     check_python_environment
     check_environment_config
@@ -554,7 +554,7 @@ main() {
     check_dependencies
     check_security
     check_ports
-    
+
     # Print summary and exit
     if print_summary; then
         exit 0

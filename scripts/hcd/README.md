@@ -2,12 +2,13 @@
 
 Scripts for managing and validating HCD/Cassandra deployment for JanusGraph.
 
-**Author:** David LECONTE - IBM Worldwide  
+**Author:** David LECONTE - IBM Worldwide
 **Date:** 2026-01-29
 
 ## Overview
 
 This directory contains scripts for:
+
 - Creating JanusGraph keyspace with production settings
 - Validating HCD deployment
 - Monitoring cluster health
@@ -54,11 +55,13 @@ AND durable_writes = true;
 ```
 
 **When to Use:**
+
 - Before first JanusGraph startup
 - When changing replication strategy
 - After cluster expansion (adjust RF)
 
 **Notes:**
+
 - JanusGraph auto-creates keyspace if missing
 - Use this script for explicit control over replication
 - Tables are created automatically by JanusGraph
@@ -68,6 +71,7 @@ AND durable_writes = true;
 **Purpose:** Comprehensive validation of HCD deployment for JanusGraph.
 
 **Prerequisites:**
+
 ```bash
 # Activate conda environment
 conda activate janusgraph-analysis
@@ -104,6 +108,7 @@ python scripts/hcd/validate_deployment.py
 ```
 
 **Validates:**
+
 - ✅ HCD connection
 - ✅ Keyspace existence and configuration
 - ✅ JanusGraph tables created
@@ -111,10 +116,12 @@ python scripts/hcd/validate_deployment.py
 - ✅ Cluster health
 
 **Exit Codes:**
+
 - 0: All validations passed
 - 1: One or more validations failed
 
 **Example Output:**
+
 ```
 ============================================================
 HCD Deployment Validation
@@ -191,11 +198,13 @@ KEYSPACE=my_keyspace bash scripts/hcd/health_check.sh
    - Warnings for >75% usage
 
 **Exit Codes:**
+
 - 0: Healthy (all checks passed)
 - 1: Critical errors
 - 2: Warnings only
 
 **Example Output:**
+
 ```
 ========================================
 HCD Health Check
@@ -250,6 +259,7 @@ Status: HEALTHY - All systems operational
 **Automated Monitoring:**
 
 Add to cron for periodic checks:
+
 ```bash
 # Check every 5 minutes
 */5 * * * * /path/to/scripts/hcd/health_check.sh >> /var/log/hcd-health.log 2>&1
@@ -261,6 +271,7 @@ Add to cron for periodic checks:
 **Integration with Deployment:**
 
 Can be integrated into deployment scripts:
+
 ```bash
 # Wait for HCD to be healthy
 until bash scripts/hcd/health_check.sh; do
@@ -307,6 +318,7 @@ python scripts/hcd/validate_deployment.py
 **Problem:** Validation fails with "Cannot connect to HCD"
 
 **Solution:**
+
 ```bash
 # Check container is running
 podman ps | grep hcd
@@ -324,6 +336,7 @@ podman exec janusgraph-demo_hcd-server_1 nodetool status
 **Problem:** Keyspace not found
 
 **Solution:**
+
 ```bash
 # JanusGraph creates keyspace on first start
 # Start JanusGraph and wait for initialization
@@ -336,6 +349,7 @@ podman exec -i janusgraph-demo_hcd-server_1 cqlsh < scripts/hcd/init_production_
 **Problem:** Health check shows high memory usage
 
 **Solution:**
+
 ```bash
 # Check JVM heap settings
 podman exec janusgraph-demo_hcd-server_1 cat /opt/hcd/conf/cassandra-env.sh | grep MAX_HEAP_SIZE
@@ -353,15 +367,18 @@ podman-compose -p janusgraph-demo restart hcd-server
 ## Dependencies
 
 ### init_production_keyspace.cql
+
 - HCD/Cassandra running
 - cqlsh available in container
 
 ### validate_deployment.py
+
 - Python 3.11+
 - cassandra-driver package
 - Network access to HCD port (9042)
 
 ### health_check.sh
+
 - Bash shell
 - podman CLI (if running from host)
 - nodetool (in container)
@@ -378,7 +395,7 @@ podman-compose -p janusgraph-demo restart hcd-server
 
 1. **Auto-Creation**: JanusGraph automatically creates keyspace and tables on first start. These scripts provide explicit control for production.
 
-2. **Replication Strategy**: 
+2. **Replication Strategy**:
    - Development: SimpleStrategy, RF=1
    - Production: NetworkTopologyStrategy, RF=3+
 
@@ -391,6 +408,7 @@ podman-compose -p janusgraph-demo restart hcd-server
 ## Support
 
 For issues or questions:
+
 - Check logs: `podman logs janusgraph-demo_hcd-server_1`
 - Review documentation: [docs/](../../docs/)
 - Validate deployment: `python scripts/hcd/validate_deployment.py`

@@ -1,7 +1,7 @@
 # Data Generation & Loading Scripts - SAI Compliance Audit
 
-**Date:** 2026-01-30  
-**Status:** CRITICAL ISSUES IDENTIFIED  
+**Date:** 2026-01-30
+**Status:** CRITICAL ISSUES IDENTIFIED
 **Scope:** Data generation, loading, and ETL pipeline scripts
 
 ---
@@ -9,6 +9,7 @@
 ## Executive Summary
 
 ### Critical Findings
+
 - **8 Critical Issues** in data generation/loading scripts
 - **Port Hardcoding:** All scripts use hardcoded port 18182 (incorrect)
 - **No Environment Validation:** Scripts don't check Python environment
@@ -16,6 +17,7 @@
 - **No Container Awareness:** Scripts assume local deployment, not containerized
 
 ### Scripts Audited
+
 1. `banking/data/aml/generate_structuring_data.py` (477 lines)
 2. `banking/data/aml/load_structuring_data.py` (378 lines)
 3. `scripts/deployment/load_production_data.py` (297 lines)
@@ -30,20 +32,24 @@
 **Issue:** All scripts use port `18182` instead of standard `8182`
 
 **Affected Files:**
+
 - `load_structuring_data.py` line 24: `ws://localhost:18182/gremlin`
 - `load_production_data.py` line 45: `janusgraph_port: int = 18182`
 - `load_data.py` line 8: `ws://localhost:18182/gremlin`
 
 **Technical Specifications (Section 1.3.2):**
+
 - JanusGraph Gremlin port: **8182** (not 18182)
 - Management port: 8184
 
 **Impact:**
+
 - Scripts will fail to connect to JanusGraph
 - Port 18182 is non-standard and not documented
 - Breaks containerized deployment
 
 **Correction Required:**
+
 ```python
 # WRONG:
 gc = client.Client('ws://localhost:18182/gremlin', 'g')
@@ -61,15 +67,18 @@ gc = client.Client(f'ws://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin', 'g')
 **Issue:** Scripts don't validate Python environment before execution
 
 **Technical Confrontation Analysis (Section 1.1):**
+
 - Python 3.11 required in conda environment
 - Scripts should fail fast if wrong environment
 
 **Impact:**
+
 - May run with wrong Python version
 - Dependency issues not caught early
 - Silent failures possible
 
 **Correction Required:**
+
 ```python
 #!/usr/bin/env python3
 """
@@ -102,6 +111,7 @@ if os.environ['CONDA_DEFAULT_ENV'] != 'janusgraph-analysis':
 **Issue:** Generated data schema doesn't match technical specifications
 
 **generate_structuring_data.py** creates:
+
 ```python
 person = {
     'person_id': ...,
@@ -116,6 +126,7 @@ person = {
 ```
 
 **Technical Specifications (Section 2.2.1)** requires:
+
 ```python
 person = {
     'personId': ...,        # UUID format
@@ -139,11 +150,13 @@ person = {
 ```
 
 **Impact:**
+
 - Data won't load correctly into JanusGraph
 - Queries will fail (missing properties)
 - Indexes won't work (wrong property names)
 
 **Correction Required:**
+
 1. Update `generate_structuring_data.py` to match spec schema
 2. Convert `risk_score` from float to integer (0-100)
 3. Add `riskLevel` enum calculation
@@ -157,22 +170,26 @@ person = {
 **Issue:** Scripts assume local deployment, not containerized
 
 **Current:**
+
 ```python
 # Hardcoded localhost
 gc = client.Client('ws://localhost:18182/gremlin', 'g')
 ```
 
 **Technical Specifications (Section 1.2, 4.1):**
+
 - Services run in pods with project prefixes
 - Container names: `janusgraph-demo-janusgraph-server`
 - Network: `janusgraph-demo-network`
 
 **Impact:**
+
 - Scripts fail when run from host (can't reach containers)
 - No support for remote deployment
 - Breaks pod-based architecture
 
 **Correction Required:**
+
 ```python
 import os
 
@@ -194,6 +211,7 @@ gc = client.Client(url, 'g')
 **Issue:** No retry logic for transient failures
 
 **Current (load_structuring_data.py line 89):**
+
 ```python
 try:
     self.gc.submit(query, bindings).all().result()
@@ -204,15 +222,18 @@ except GremlinServerError as e:
 ```
 
 **Technical Specifications (Section 3.4):**
+
 - Error code 503: Service Unavailable - Wait and retry
 - Implement exponential backoff
 
 **Impact:**
+
 - Transient network errors cause data loss
 - No way to resume failed loads
 - Poor reliability
 
 **Correction Required:**
+
 ```python
 import time
 from functools import wraps
@@ -247,6 +268,7 @@ def load_person(self, person):
 **Issue:** Loading one vertex at a time (inefficient)
 
 **Current (load_structuring_data.py):**
+
 ```python
 for person in tqdm(persons, desc="Persons"):
     query = "g.addV('person')..."
@@ -255,21 +277,24 @@ for person in tqdm(persons, desc="Persons"):
 ```
 
 **Technical Specifications (Section 5.2.3):**
+
 - Use batch operations for bulk inserts
 - Batch size: 1000 vertices
 
 **Impact:**
+
 - Slow loading (1000+ network round-trips)
 - Cannot meet performance targets
 - Inefficient resource usage
 
 **Correction Required:**
+
 ```python
 def load_persons_batch(self, persons, batch_size=1000):
     """Load persons in batches for better performance"""
     for i in range(0, len(persons), batch_size):
         batch = persons[i:i+batch_size]
-        
+
         # Build batch query
         query = "g"
         for j, person in enumerate(batch):
@@ -280,7 +305,7 @@ def load_persons_batch(self, persons, batch_size=1000):
                 .property('lastName', person{j}_last)
                 .property('riskScore', person{j}_risk)
             """
-        
+
         # Create bindings for entire batch
         bindings = {}
         for j, person in enumerate(batch):
@@ -288,7 +313,7 @@ def load_persons_batch(self, persons, batch_size=1000):
             bindings[f'person{j}_first'] = person['first_name']
             bindings[f'person{j}_last'] = person['last_name']
             bindings[f'person{j}_risk'] = person['risk_score']
-        
+
         # Execute batch
         self.gc.submit(query, bindings).all().result()
 ```
@@ -300,21 +325,25 @@ def load_persons_batch(self, persons, batch_size=1000):
 **Issue:** File paths hardcoded, not configurable
 
 **Current (generate_structuring_data.py line 466):**
+
 ```python
 generator.export_to_json('banking/data/aml/aml_structuring_data.json')
 generator.export_to_csv('banking/data/aml/aml_data')
 ```
 
 **Technical Specifications (Section 9.1):**
+
 - Support multiple environments (dev/staging/prod)
 - Use environment variables for paths
 
 **Impact:**
+
 - Cannot run from different directories
 - Breaks in containerized environment
 - No environment separation
 
 **Correction Required:**
+
 ```python
 import os
 from pathlib import Path
@@ -338,22 +367,26 @@ generator.export_to_csv(DATA_DIR / 'aml_data')
 **Issue:** Using print() instead of proper logging
 
 **Current:**
+
 ```python
 print("🔧 Generating AML synthetic data...")
 print(f"  Creating {self.num_beneficiaries} beneficiaries...")
 ```
 
 **Technical Specifications (Section 8.2):**
+
 - Use structured logging (JSON format)
 - Log levels: ERROR, WARN, INFO, DEBUG
 - Include timestamps, service name
 
 **Impact:**
+
 - Cannot integrate with monitoring
 - No log aggregation
 - Difficult to debug production issues
 
 **Correction Required:**
+
 ```python
 import logging
 import json
@@ -368,7 +401,7 @@ logger = logging.getLogger(__name__)
 
 class StructuredLogger:
     """Structured JSON logger"""
-    
+
     @staticmethod
     def log(level, message, **kwargs):
         log_entry = {
@@ -381,8 +414,8 @@ class StructuredLogger:
         print(json.dumps(log_entry))
 
 # Usage
-StructuredLogger.log('INFO', 'Generating AML data', 
-                     num_beneficiaries=2, 
+StructuredLogger.log('INFO', 'Generating AML data',
+                     num_beneficiaries=2,
                      num_mule_accounts=10)
 ```
 
@@ -393,6 +426,7 @@ StructuredLogger.log('INFO', 'Generating AML data',
 ### Corrected: generate_structuring_data.py
 
 **Key Changes:**
+
 1. Add environment validation
 2. Update schema to match technical specifications
 3. Add structured logging
@@ -406,6 +440,7 @@ StructuredLogger.log('INFO', 'Generating AML data',
 ### Corrected: load_structuring_data.py
 
 **Key Changes:**
+
 1. Fix port configuration (8182 not 18182)
 2. Add container awareness
 3. Implement batch loading
@@ -419,6 +454,7 @@ StructuredLogger.log('INFO', 'Generating AML data',
 ### Corrected: load_production_data.py
 
 **Key Changes:**
+
 1. Fix JanusGraph port
 2. Add environment validation
 3. Add container support
@@ -431,6 +467,7 @@ StructuredLogger.log('INFO', 'Generating AML data',
 ### Corrected: load_data.py
 
 **Key Changes:**
+
 1. Fix port configuration
 2. Add environment variables
 3. Update to match schema
@@ -443,13 +480,14 @@ StructuredLogger.log('INFO', 'Generating AML data',
 ## Validation Requirements
 
 ### Unit Tests Required
+
 ```python
 # tests/unit/test_data_generators.py
 def test_person_schema_matches_spec():
     """Verify generated person matches technical spec"""
     generator = AMLDataGenerator()
     person = generator.create_person()
-    
+
     # Required fields from spec
     assert 'personId' in person
     assert 'firstName' in person
@@ -461,6 +499,7 @@ def test_person_schema_matches_spec():
 ```
 
 ### Integration Tests Required
+
 ```python
 # tests/integration/test_data_loading.py
 def test_load_to_janusgraph():
@@ -468,12 +507,12 @@ def test_load_to_janusgraph():
     # Generate test data
     generator = AMLDataGenerator(num_normal_customers=10)
     data = generator.generate_all_data()
-    
+
     # Load into JanusGraph
     loader = AMLDataLoader()
     loader.connect()
     loader.load_all(data)
-    
+
     # Verify
     person_count = loader.gc.submit("g.V().hasLabel('person').count()").all().result()[0]
     assert person_count == 10
@@ -484,22 +523,26 @@ def test_load_to_janusgraph():
 ## Remediation Roadmap
 
 ### Phase 1: Critical Fixes (Week 1)
+
 - [ ] Fix port configuration (8182)
 - [ ] Add environment validation
 - [ ] Update schema to match specs
 - [ ] Add container awareness
 
 ### Phase 2: Performance (Week 2)
+
 - [ ] Implement batch loading
 - [ ] Add retry logic
 - [ ] Optimize queries
 
 ### Phase 3: Observability (Week 3)
+
 - [ ] Add structured logging
 - [ ] Add metrics collection
 - [ ] Add error tracking
 
 ### Phase 4: Testing (Week 4)
+
 - [ ] Unit tests for generators
 - [ ] Integration tests for loaders
 - [ ] Schema validation tests
@@ -543,16 +586,19 @@ RETRY_BACKOFF=2
 ## Documentation Updates Required
 
 ### Technical Specifications (Section 2.2)
+
 - Add data generation schema examples
 - Document property naming conventions
 - Add validation rules
 
 ### Remediation Plan (Phase 4-6)
+
 - Add data script corrections
 - Document environment variables
 - Add testing requirements
 
 ### README Files
+
 - `banking/data/aml/README.md` - Usage instructions
 - `scripts/deployment/README.md` - Deployment procedures
 
@@ -573,6 +619,6 @@ The data generation and loading scripts have **8 critical issues** that prevent 
 
 ---
 
-**Status:** Audit complete, corrections required before use  
-**Priority:** CRITICAL - Scripts are currently broken  
+**Status:** Audit complete, corrections required before use
+**Priority:** CRITICAL - Scripts are currently broken
 **Next Steps:** Implement Phase 1 corrections immediately

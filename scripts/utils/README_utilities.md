@@ -23,6 +23,7 @@ python scripts/utilities/fix_banking_notebooks.py
 ## Adding New Utilities
 
 When adding new utility scripts:
+
 1. Place Python scripts in this directory
 2. Add docstring with usage instructions
 3. Update this README

@@ -57,15 +57,15 @@ print_header() {
 #######################################
 check_services() {
     print_header "Checking Services"
-    
+
     local services=("hcd-server:9042" "janusgraph-server:8182" "grafana:3001" "prometheus:9090")
     local all_running=true
-    
+
     for service in "${services[@]}"; do
         IFS=':' read -ra parts <<< "${service}"
         local name="${parts[0]}"
         local port="${parts[1]}"
-        
+
         if nc -z localhost "${port}" 2>/dev/null; then
             print_message "${GREEN}" "✓ ${name} is running on port ${port}"
         else
@@ -73,13 +73,13 @@ check_services() {
             all_running=false
         fi
     done
-    
+
     if [[ "${all_running}" == "false" ]]; then
         print_message "${RED}" "ERROR: Not all services are running"
         print_message "${YELLOW}" "Start services with: docker-compose up -d"
         exit 1
     fi
-    
+
     print_message "${GREEN}" "All services are running"
 }
 
@@ -88,24 +88,24 @@ check_services() {
 #######################################
 setup_venv() {
     print_header "Setting Up Python Environment"
-    
+
     if [[ ! -d "${VENV_DIR}" ]]; then
         print_message "${YELLOW}" "Creating virtual environment..."
         python3 -m venv "${VENV_DIR}"
     fi
-    
+
     # Activate virtual environment
     # shellcheck disable=SC1091
     source "${VENV_DIR}/bin/activate"
-    
+
     # Upgrade pip
     print_message "${YELLOW}" "Upgrading pip..."
     pip install --quiet --upgrade pip
-    
+
     # Install requirements
     print_message "${YELLOW}" "Installing test requirements..."
     pip install --quiet -r "${TESTS_DIR}/requirements.txt"
-    
+
     print_message "${GREEN}" "Python environment ready"
 }
 
@@ -114,9 +114,9 @@ setup_venv() {
 #######################################
 setup_reports() {
     print_header "Setting Up Reports Directory"
-    
+
     mkdir -p "${REPORTS_DIR}"
-    
+
     print_message "${GREEN}" "Reports directory: ${REPORTS_DIR}"
 }
 
@@ -125,12 +125,12 @@ setup_reports() {
 #######################################
 run_tests() {
     print_header "Running Integration Tests"
-    
+
     cd "${PROJECT_ROOT}"
-    
+
     # Run pytest with coverage
     print_message "${YELLOW}" "Executing tests..."
-    
+
     # shellcheck disable=SC2086
     pytest ${PYTEST_ARGS} \
         --cov="${PROJECT_ROOT}/src" \
@@ -144,7 +144,7 @@ run_tests() {
             print_message "${RED}" "Tests failed!"
             return 1
         }
-    
+
     print_message "${GREEN}" "Tests completed successfully"
 }
 
@@ -153,9 +153,9 @@ run_tests() {
 #######################################
 generate_report() {
     print_header "Generating Test Report"
-    
+
     local report_file="${REPORTS_DIR}/test_summary.txt"
-    
+
     {
         echo "Integration Test Report"
         echo "======================="
@@ -165,27 +165,27 @@ generate_report() {
         echo ""
         echo "Test Results:"
         echo "-------------"
-        
+
         if [[ -f "${REPORTS_DIR}/junit.xml" ]]; then
             # Parse JUnit XML for summary
             local tests=$(grep -o 'tests="[0-9]*"' "${REPORTS_DIR}/junit.xml" | head -1 | grep -o '[0-9]*')
             local failures=$(grep -o 'failures="[0-9]*"' "${REPORTS_DIR}/junit.xml" | head -1 | grep -o '[0-9]*')
             local errors=$(grep -o 'errors="[0-9]*"' "${REPORTS_DIR}/junit.xml" | head -1 | grep -o '[0-9]*')
-            
+
             echo "Total Tests: ${tests:-0}"
             echo "Failures: ${failures:-0}"
             echo "Errors: ${errors:-0}"
             echo "Passed: $((tests - failures - errors))"
         fi
-        
+
         echo ""
         echo "Coverage Report: ${REPORTS_DIR}/coverage/index.html"
         echo "JUnit Report: ${REPORTS_DIR}/junit.xml"
-        
+
     } > "${report_file}"
-    
+
     cat "${report_file}"
-    
+
     print_message "${GREEN}" "Report saved to: ${report_file}"
 }
 
@@ -194,12 +194,12 @@ generate_report() {
 #######################################
 cleanup() {
     print_header "Cleanup"
-    
+
     # Deactivate virtual environment if active
     if [[ -n "${VIRTUAL_ENV:-}" ]]; then
         deactivate 2>/dev/null || true
     fi
-    
+
     print_message "${GREEN}" "Cleanup complete"
 }
 
@@ -209,26 +209,26 @@ cleanup() {
 main() {
     print_message "${BLUE}" "Integration Test Runner"
     print_message "${BLUE}" "======================="
-    
+
     # Trap cleanup on exit
     trap cleanup EXIT
-    
+
     # Check prerequisites
     if ! command -v python3 &> /dev/null; then
         print_message "${RED}" "ERROR: python3 is not installed"
         exit 1
     fi
-    
+
     if ! command -v nc &> /dev/null; then
         print_message "${YELLOW}" "WARNING: netcat (nc) is not installed, skipping service checks"
     else
         check_services
     fi
-    
+
     # Setup environment
     setup_venv
     setup_reports
-    
+
     # Run tests
     if run_tests; then
         generate_report

@@ -1,7 +1,7 @@
 # Documentation Structure Optimization Plan
 
-**Date:** 2026-01-28  
-**Status:** Proposed  
+**Date:** 2026-01-28
+**Status:** Proposed
 **Priority:** Medium
 
 ## Current State Analysis
@@ -112,6 +112,7 @@ docs/
 ### Phase 1: Create New Subdirectories
 
 Create missing subdirectories:
+
 - `docs/guides/` - User and developer guides
 - Update `docs/operations/README.md` - Operations documentation index
 - Update `docs/implementation/README.md` - Implementation tracking index
@@ -119,6 +120,7 @@ Create missing subdirectories:
 ### Phase 2: Move Files to Appropriate Locations
 
 #### Move to guides/
+
 ```bash
 mv docs/SETUP.md docs/guides/setup-guide.md
 mv docs/TESTING.md docs/guides/testing-guide.md
@@ -127,11 +129,13 @@ mv docs/DEPLOYMENT.md docs/guides/deployment-guide.md
 ```
 
 #### Move to architecture/
+
 ```bash
 mv docs/architecture.md docs/architecture/system-architecture.md
 ```
 
 #### Move to operations/
+
 ```bash
 mv docs/BACKUP.md docs/operations/backup-procedures.md
 mv docs/MONITORING.md docs/operations/monitoring-guide.md
@@ -141,6 +145,7 @@ mv docs/TLS_DEPLOYMENT_GUIDE.md docs/operations/tls-deployment-guide.md
 ```
 
 #### Move to banking/planning/
+
 ```bash
 mv docs/BANKING_USE_CASES_GAP_ANALYSIS.md docs/banking/planning/gap-analysis.md
 mv docs/BANKING_USE_CASES_TECHNICAL_SPEC.md docs/banking/planning/technical-spec.md
@@ -148,6 +153,7 @@ mv docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md docs/banking/planning/techn
 ```
 
 #### Move to implementation/
+
 ```bash
 mv docs/PROJECT_HANDOFF.md docs/implementation/project-handoff.md
 mv docs/project-structure-review.md docs/implementation/project-structure-review.md
@@ -155,6 +161,7 @@ mv docs/P0_FIXES.md docs/implementation/p0-fixes.md
 ```
 
 #### Move to archive/
+
 ```bash
 mv docs/GEMINI_VS_IBM_BOB_ANALYSIS.md docs/archive/gemini-vs-ibm-bob-analysis.md
 ```
@@ -162,6 +169,7 @@ mv docs/GEMINI_VS_IBM_BOB_ANALYSIS.md docs/archive/gemini-vs-ibm-bob-analysis.md
 ### Phase 3: Update All Documentation Links
 
 Update links in all files that reference moved documents:
+
 - README.md
 - docs/index.md
 - All phase summaries
@@ -171,6 +179,7 @@ Update links in all files that reference moved documents:
 ### Phase 4: Create Missing README Files
 
 Create README files for new directories:
+
 - `docs/guides/README.md`
 - Update `docs/operations/README.md`
 - Update `docs/implementation/README.md`
@@ -183,24 +192,28 @@ Update `docs/index.md` with new file locations and improved navigation.
 ## Benefits
 
 ### 1. Improved Organization
+
 - **Before:** 21 files at root level
 - **After:** 4-5 files at root level (80% reduction)
 - Clear separation of concerns
 - Logical grouping of related documents
 
 ### 2. Better Discoverability
+
 - Guides grouped together
 - Operations docs in one place
 - Implementation tracking centralized
 - Banking docs fully consolidated
 
 ### 3. Enhanced Maintainability
+
 - Easier to find and update documents
 - Clear ownership of documentation areas
 - Reduced cognitive load
 - Better scalability
 
 ### 4. Professional Structure
+
 - Industry-standard organization
 - Clear information architecture
 - Intuitive navigation
@@ -209,6 +222,7 @@ Update `docs/index.md` with new file locations and improved navigation.
 ## Implementation Effort
 
 ### Estimated Time
+
 - **Phase 1:** 15 minutes (create directories, READMEs)
 - **Phase 2:** 30 minutes (move files)
 - **Phase 3:** 45 minutes (update links)
@@ -217,6 +231,7 @@ Update `docs/index.md` with new file locations and improved navigation.
 - **Total:** ~2.5 hours
 
 ### Risk Assessment
+
 - **Low Risk:** Using `mv` preserves git history
 - **Validation:** Link checker will verify all links
 - **Rollback:** Git allows easy rollback if needed
@@ -236,6 +251,7 @@ Update `docs/index.md` with new file locations and improved navigation.
 ## Comparison: Before vs After
 
 ### Before (Current)
+
 ```
 docs/ (21 .md files at root)
 ├── [21 mixed-purpose files]
@@ -247,6 +263,7 @@ docs/ (21 .md files at root)
 ```
 
 ### After (Optimized)
+
 ```
 docs/ (4-5 .md files at root)
 ├── index.md
@@ -265,16 +282,20 @@ docs/ (4-5 .md files at root)
 ## Recommendations
 
 ### Immediate Action
+
 Implement this optimization plan to:
+
 1. Reduce root directory clutter by 80%
 2. Improve documentation discoverability
 3. Enhance maintainability
 4. Align with industry best practices
 
 ### Priority
+
 **Medium-High** - While current structure is functional, optimization will significantly improve user experience and maintainability.
 
 ### Next Steps
+
 1. Review and approve this plan
 2. Execute Phase 1-5 sequentially
 3. Validate all links
@@ -290,7 +311,7 @@ Implement this optimization plan to:
 
 ---
 
-**Status:** Awaiting approval for implementation  
-**Estimated Effort:** 2.5 hours  
-**Expected Impact:** High (80% reduction in root clutter)  
+**Status:** Awaiting approval for implementation
+**Estimated Effort:** 2.5 hours
+**Expected Impact:** High (80% reduction in root clutter)
 **Risk Level:** Low (git history preserved, easy rollback)

@@ -1,8 +1,8 @@
 # Week 1: Security Hardening Implementation Guide
 
-**Date:** 2026-01-28  
-**Version:** 1.0  
-**Status:** In Progress  
+**Date:** 2026-01-28
+**Version:** 1.0
+**Status:** In Progress
 **Phase:** Production Readiness - Week 1
 
 ## Overview
@@ -32,6 +32,7 @@ cd /path/to/hcd-tarball-janusgraph
 ```
 
 **Expected Output:**
+
 ```
 🔐 TLS/SSL Certificate Generation
 ====================================
@@ -66,6 +67,7 @@ cd /path/to/hcd-tarball-janusgraph
 ```
 
 **Verification:**
+
 ```bash
 # Check certificate directory structure
 ls -la config/certs/
@@ -90,6 +92,7 @@ The following files have been updated to enable TLS by default:
 4. **config/janusgraph/janusgraph-server-tls.yaml** - Server TLS config
 
 **Create .env file:**
+
 ```bash
 # Copy example to .env
 cp .env.example .env
@@ -119,6 +122,7 @@ curl -k https://localhost:8182?gremlin=g.V().count()
 ```
 
 **Expected Results:**
+
 - All services should be in "Up" state
 - HCD should show "UN" (Up/Normal) status
 - JanusGraph should return a count (likely 0 for new installation)
@@ -157,6 +161,7 @@ podman exec vault-server vault status
 ```
 
 **Expected Output:**
+
 ```
 Key                Value
 ---                -----
@@ -181,6 +186,7 @@ cd ../..
 ```
 
 **Expected Output:**
+
 ```
 🔐 HashiCorp Vault Initialization
 ====================================
@@ -214,6 +220,7 @@ cd ../..
 ```
 
 **CRITICAL:** Save the output! The script creates `.vault-keys` file with:
+
 - 5 unseal keys (need 3 to unseal)
 - Root token (full admin access)
 - Application token (read-only access)
@@ -236,6 +243,7 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault kv get janusgraph/adm
 ```
 
 **Expected Output:**
+
 ```
 ====== Secret Path ======
 janusgraph/data/admin
@@ -299,6 +307,7 @@ open http://localhost:8200/ui
 #### Comprehensive Testing Checklist
 
 **1. TLS Certificate Validation**
+
 ```bash
 # Test certificate chain
 openssl verify -CAfile config/certs/ca/ca-cert.pem \
@@ -315,6 +324,7 @@ keytool -list -v \
 ```
 
 **2. Service Connectivity**
+
 ```bash
 # Test HCD CQL with TLS
 podman exec -it hcd-server cqlsh \
@@ -332,6 +342,7 @@ GREMLIN
 ```
 
 **3. Vault Operations**
+
 ```bash
 # Test secret creation
 podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
@@ -347,6 +358,7 @@ podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
 ```
 
 **4. Integration Testing**
+
 ```bash
 # Run integration tests
 cd banking/data_generators/tests
@@ -370,6 +382,7 @@ EOF
 ```
 
 **5. Performance Testing**
+
 ```bash
 # Test TLS overhead
 time curl -k https://localhost:8182?gremlin=g.V().count()
@@ -381,6 +394,7 @@ time curl -k https://localhost:8182?gremlin=g.V().count()
 #### Troubleshooting
 
 **Issue: Vault container won't start**
+
 ```bash
 # Check logs
 podman logs vault-server
@@ -397,6 +411,7 @@ podman-compose -f config/compose/docker-compose.full.yml restart vault
 ```
 
 **Issue: TLS handshake failures**
+
 ```bash
 # Check certificate validity
 openssl x509 -in config/certs/janusgraph/janusgraph-cert.pem -text -noout
@@ -411,6 +426,7 @@ keytool -list -keystore config/certs/janusgraph/janusgraph-server.keystore.jks \
 ```
 
 **Issue: Cannot retrieve secrets from Vault**
+
 ```bash
 # Check Vault status
 podman exec vault-server vault status
@@ -515,9 +531,9 @@ After completing Week 1:
 
 ## Support and Resources
 
-- **Vault Documentation:** https://www.vaultproject.io/docs
-- **TLS Best Practices:** https://ssl-config.mozilla.org/
-- **JanusGraph Security:** https://docs.janusgraph.org/security/
+- **Vault Documentation:** <https://www.vaultproject.io/docs>
+- **TLS Best Practices:** <https://ssl-config.mozilla.org/>
+- **JanusGraph Security:** <https://docs.janusgraph.org/security/>
 - **Project Issues:** GitHub Issues
 
 ## Appendix
@@ -525,12 +541,14 @@ After completing Week 1:
 ### A. File Changes Summary
 
 **Modified Files:**
+
 - `docker-compose.yml` - TLS enabled by default
 - `.env.example` - TLS environment variables
 - `.gitignore` - Vault keys excluded
 - `requirements.txt` - hvac library added
 
 **Created Files:**
+
 - `config/vault/config.hcl` - Vault configuration
 - `scripts/security/init_vault.sh` - Vault initialization
 - `config/certs/*` - TLS certificates (generated)
@@ -563,6 +581,6 @@ VAULT_TOKEN=<your-app-token>
 
 ---
 
-**Document Owner:** Security Team  
-**Last Updated:** 2026-01-28  
+**Document Owner:** Security Team
+**Last Updated:** 2026-01-28
 **Next Review:** Weekly during implementation

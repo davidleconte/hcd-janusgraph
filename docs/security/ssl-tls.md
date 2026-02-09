@@ -1,7 +1,7 @@
 # SSL/TLS Configuration
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Overview
 
@@ -14,6 +14,7 @@ SSL/TLS encryption secures all communication between services.
 ```
 
 This creates:
+
 - CA certificate
 - Server certificates for each service
 - Client certificates for applications

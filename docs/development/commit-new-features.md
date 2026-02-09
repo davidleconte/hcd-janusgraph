@@ -3,6 +3,7 @@
 ## Overview
 
 The previous commit handled audit remediation. Now we need to commit all the new features that were developed:
+
 - Banking data generators
 - AML/Fraud detection modules
 - Comprehensive test suite
@@ -15,6 +16,7 @@ The previous commit handled audit remediation. Now we need to commit all the new
 From the git status output, these are the major new features:
 
 ### 1. Banking System (Core Features)
+
 ```
 banking/aml/                    # AML detection modules
 banking/compliance/             # Compliance infrastructure
@@ -25,6 +27,7 @@ banking/tests/                  # Banking tests
 ```
 
 ### 2. Test Infrastructure
+
 ```
 tests/README.md
 tests/conftest.py
@@ -34,6 +37,7 @@ tests/unit/                     # Unit tests
 ```
 
 ### 3. Security & Monitoring
+
 ```
 scripts/security/               # Security scripts
 scripts/monitoring/             # Monitoring tools
@@ -43,6 +47,7 @@ config/monitoring/              # Prometheus/AlertManager
 ```
 
 ### 4. Documentation
+
 ```
 docs/banking/                   # Banking documentation
 docs/compliance/                # Compliance docs
@@ -53,6 +58,7 @@ AGENTS.md                       # Agent rules
 ```
 
 ### 5. Supporting Infrastructure
+
 ```
 .github/workflows/              # CI/CD workflows
 scripts/setup/                  # Setup scripts
@@ -137,6 +143,7 @@ git push origin master
 If you prefer to commit features separately for better history:
 
 #### Commit 1: Banking Core System
+
 ```bash
 git add banking/data_generators/ banking/aml/ banking/fraud/ banking/compliance/
 git add banking/notebooks/ banking/tests/
@@ -150,6 +157,7 @@ git commit -m "feat: add banking data generators and detection modules
 ```
 
 #### Commit 2: Test Infrastructure
+
 ```bash
 git add tests/ pytest.ini
 git commit -m "test: add comprehensive test infrastructure
@@ -162,6 +170,7 @@ git commit -m "test: add comprehensive test infrastructure
 ```
 
 #### Commit 3: Security & Monitoring
+
 ```bash
 git add scripts/security/ scripts/monitoring/
 git add config/vault/ config/grafana/ config/monitoring/
@@ -177,6 +186,7 @@ git commit -m "feat: add security and monitoring infrastructure
 ```
 
 #### Commit 4: Documentation
+
 ```bash
 git add docs/ AGENTS.md
 git commit -m "docs: add comprehensive documentation
@@ -190,6 +200,7 @@ git commit -m "docs: add comprehensive documentation
 ```
 
 #### Commit 5: CI/CD & Supporting Files
+
 ```bash
 git add .github/ .bob/
 git add scripts/setup/ scripts/utils/
@@ -208,6 +219,7 @@ git commit -m "chore: add CI/CD workflows and supporting infrastructure
 ## Recommended Approach
 
 **Use Option 1 (Single Commit)** because:
+
 1. All features are part of the same banking compliance system
 2. Features are interdependent (tests depend on modules, monitoring depends on security)
 3. Easier to understand the complete feature set
@@ -325,6 +337,7 @@ git log --all --full-history -- .env .vault-keys config/certs/
 ## Expected Results
 
 ### Commit Stats (Approximate)
+
 ```
 ~200+ files changed
 ~50,000+ insertions
@@ -332,6 +345,7 @@ Commit size: ~5-10 MB
 ```
 
 ### Files Added
+
 - Banking modules: ~50 files
 - Tests: ~40 files
 - Documentation: ~80 files

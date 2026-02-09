@@ -9,6 +9,7 @@
 ---
 
 ## Table of Contents
+
 - [Prerequisites](#prerequisites)
 - [Essential Commands](#essential-commands)
 - [Important URLs](#important-urls)
@@ -20,6 +21,7 @@
 ## Prerequisites
 
 ### Required Software
+
 - **Podman** 4.9+ ([Install](https://podman.io/getting-started/installation))
 - **Python** 3.11+ ([Install](https://www.python.org/downloads/))
 - **Git** ([Install](https://git-scm.com/downloads))
@@ -44,6 +46,7 @@ ls hcd-1.2.3/bin/hcd  # Should show the HCD binary
 > **Note**: If `git lfs` is not installed, install it from [git-lfs.github.com](https://git-lfs.github.com/)
 
 ### Verify Installation
+
 ```bash
 # Full preflight check (recommended)
 ./scripts/validation/preflight_check.sh
@@ -55,6 +58,7 @@ ls hcd-1.2.3/bin/hcd  # Should show HCD binary
 ```
 
 ### Environment Setup
+
 ```bash
 # Copy environment template
 cp .env.example .env
@@ -68,6 +72,7 @@ cp .env.example .env
 ## Essential Commands
 
 ### Makefile Commands (Recommended)
+
 ```bash
 make help     # Show all commands
 make build    # Build Docker images
@@ -77,6 +82,7 @@ make clean    # Cleanup
 ```
 
 ### Direct Deployment
+
 ```bash
 # Deploy full stack (MUST run from config/compose directory)
 cd config/compose
@@ -94,11 +100,13 @@ podman logs -f janusgraph-demo_janusgraph-server_1
 ```
 
 ### Stop Stack
+
 ```bash
 bash scripts/deployment/stop_full_stack.sh
 ```
 
 ### Run Tests
+
 ```bash
 bash scripts/testing/run_tests.sh
 ```
@@ -108,32 +116,36 @@ bash scripts/testing/run_tests.sh
 ## Important URLs
 
 ### Core Services
+
 | Service | URL | Description |
 |---------|-----|-------------|
-| **JanusGraph** | http://localhost:18182 | Gremlin server |
+| **JanusGraph** | <http://localhost:18182> | Gremlin server |
 | **HCD (CQL)** | localhost:19042 | Cassandra Query Language |
 | **HCD (TLS)** | localhost:9142 | Cassandra with SSL/TLS |
-| **Jupyter Lab** | http://localhost:8888 | Interactive notebooks |
+| **Jupyter Lab** | <http://localhost:8888> | Interactive notebooks |
 
 ### Monitoring & Observability
+
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Grafana** | http://localhost:3001 | Dashboards (admin/admin) |
-| **Prometheus** | http://localhost:9090 | Metrics collection |
-| **AlertManager** | http://localhost:9093 | Alert management |
-| **JanusGraph Exporter** | http://localhost:9091/metrics | Custom metrics |
+| **Grafana** | <http://localhost:3001> | Dashboards (admin/admin) |
+| **Prometheus** | <http://localhost:9090> | Metrics collection |
+| **AlertManager** | <http://localhost:9093> | Alert management |
+| **JanusGraph Exporter** | <http://localhost:9091/metrics> | Custom metrics |
 
 ### Security & Secrets
+
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Vault** | http://localhost:8200 | Secrets management |
+| **Vault** | <http://localhost:8200> | Secrets management |
 
 ### Visualization
+
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Visualizer** | http://localhost:3000 | Graph visualization |
-| **Graphexp** | http://localhost:8080 | Graph explorer |
-| **OpenSearch Dashboards** | http://localhost:5601 | OpenSearch Web UI |
+| **Visualizer** | <http://localhost:3000> | Graph visualization |
+| **Graphexp** | <http://localhost:8080> | Graph explorer |
+| **OpenSearch Dashboards** | <http://localhost:5601> | OpenSearch Web UI |
 
 ### CLI Tools & Consoles
 
@@ -144,6 +156,7 @@ bash scripts/testing/run_tests.sh
 | **Pulsar CLI** | pulsar-cli | `podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin ...` |
 
 #### CQLSH (Cassandra Query Language Shell)
+
 ```bash
 # Interactive CQL session
 podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server
@@ -153,6 +166,7 @@ podman exec janusgraph-demo_cqlsh-client_1 cqlsh hcd-server -e "DESCRIBE KEYSPAC
 ```
 
 #### Gremlin Console (JanusGraph Graph Queries)
+
 ```bash
 # Start interactive Gremlin console
 podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh
@@ -164,6 +178,7 @@ g.V().count()
 ```
 
 #### Pulsar CLI (Message Streaming)
+
 ```bash
 # List topics
 podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics list public/banking
@@ -173,19 +188,21 @@ podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin topics stats persisten
 ```
 
 ### GitHub (when configured)
+
 | Item | URL |
 |------|-----|
-| **Repository** | https://github.com/davidleconte/hcd-janusgraph |
-| **Issues** | https://github.com/davidleconte/hcd-janusgraph/issues |
-| **Pull Requests** | https://github.com/davidleconte/hcd-janusgraph/pulls |
-| **Actions** | https://github.com/davidleconte/hcd-janusgraph/actions |
-| **Security** | https://github.com/davidleconte/hcd-janusgraph/security |
+| **Repository** | <https://github.com/davidleconte/hcd-janusgraph> |
+| **Issues** | <https://github.com/davidleconte/hcd-janusgraph/issues> |
+| **Pull Requests** | <https://github.com/davidleconte/hcd-janusgraph/pulls> |
+| **Actions** | <https://github.com/davidleconte/hcd-janusgraph/actions> |
+| **Security** | <https://github.com/davidleconte/hcd-janusgraph/security> |
 
 ---
 
 ## Common Tasks
 
 ### 1. Deploy Stack
+
 ```bash
 # CRITICAL: Must run from config/compose directory
 # Dockerfile paths in docker-compose.full.yml are relative to this location
@@ -203,6 +220,7 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 ```
 
 ### 2. Initialize Schema
+
 ```bash
 # Schema is auto-initialized on first start
 # To re-initialize:
@@ -210,6 +228,7 @@ python3 scripts/init/load_data.py
 ```
 
 ### 3. Access Jupyter
+
 ```bash
 # Jupyter is included in full stack
 # Or start separately:
@@ -222,6 +241,7 @@ podman logs jupyter-lab | grep token
 ```
 
 ### 4. Query Graph (Python)
+
 ```python
 from gremlin_python.driver import client
 
@@ -237,6 +257,7 @@ print(f"People: {people}")
 ```
 
 ### 5. Run CQL Query
+
 ```bash
 # Connect to HCD via CQLSH client container
 podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server
@@ -251,6 +272,7 @@ SELECT * FROM edgestore LIMIT 10;
 ```
 
 ### 6. Backup Data
+
 ```bash
 # Create backup
 bash scripts/backup/backup_volumes.sh
@@ -262,6 +284,7 @@ bash scripts/backup/restore_volumes.sh /backups/janusgraph/hcd_20260128_103000
 ```
 
 ### 7. Monitor Stack
+
 ```bash
 # Prometheus metrics
 open http://localhost:9090
@@ -283,6 +306,7 @@ podman logs -f alertmanager
 ```
 
 ### 8. Security & Secrets Management
+
 ```bash
 # Access Vault (after initialization)
 source scripts/security/vault_access.sh
@@ -299,6 +323,7 @@ vault kv get janusgraph/janusgraph-credentials
 ```
 
 ### 9. Run Tests
+
 ```bash
 # Run unit tests (no services required)
 pytest tests/unit/ -v --cov=src --cov=banking --cov-report=html
@@ -317,6 +342,7 @@ open htmlcov/index.html
 ```
 
 ### 10. Development Workflow
+
 ```bash
 # 1. Create feature branch
 git checkout -b feature/my-feature
@@ -343,6 +369,7 @@ gh pr create --title "Add new feature" --body "Description"
 ## Troubleshooting
 
 ### Container Won't Start
+
 ```bash
 # Check logs
 podman logs <container-name>
@@ -355,6 +382,7 @@ podman restart <container-name>
 ```
 
 ### HCD Not Ready
+
 ```bash
 # Wait for HCD to initialize (60-90s)
 podman logs hcd-server
@@ -366,6 +394,7 @@ podman exec hcd-server nodetool status
 ```
 
 ### JanusGraph Connection Failed
+
 ```bash
 # Verify JanusGraph is running
 curl http://localhost:18182
@@ -378,6 +407,7 @@ podman restart janusgraph-server
 ```
 
 ### Vault Not Accessible
+
 ```bash
 # Check Vault status
 podman logs vault
@@ -393,6 +423,7 @@ source scripts/security/vault_access.sh
 ```
 
 ### Test Failures
+
 ```bash
 # Integration tests failing? Services might not be running
 cd config/compose
@@ -409,6 +440,7 @@ pytest tests/unit/ -v
 ```
 
 ### SSL/TLS Certificate Issues
+
 ```bash
 # Regenerate certificates
 bash scripts/security/generate_certificates.sh
@@ -421,6 +453,7 @@ openssl x509 -in config/ssl/server.crt -noout -dates
 ```
 
 ### Schema Initialization Failed
+
 ```bash
 # Check logs
 podman logs janusgraph-server
@@ -438,6 +471,7 @@ print(f'Labels: {labels}')
 ```
 
 ### Tests Fail
+
 ```bash
 # Run tests with verbose output
 pytest tests/ -v
@@ -458,6 +492,7 @@ except Exception as e:
 ```
 
 ### Port Conflicts
+
 ```bash
 # Check what's using a port
 lsof -i :18182
@@ -471,6 +506,7 @@ vim .env
 ```
 
 ### Out of Memory
+
 ```bash
 # Check container resource usage
 podman stats
@@ -490,6 +526,7 @@ bash scripts/deployment/deploy_full_stack.sh
 ## Quick Reference
 
 ### File Structure
+
 ```
 hcd-tarball-janusgraph/
 ├── .github/              # GitHub workflows, templates
@@ -513,6 +550,7 @@ hcd-tarball-janusgraph/
 ```
 
 ### Key Files
+
 - `.env` - Environment variables (NOT committed)
 - `.env.example` - Environment template
 - `Makefile` - Common commands
@@ -523,6 +561,7 @@ hcd-tarball-janusgraph/
 - `SECURITY.md` - Security policy
 
 ### Environment Variables
+
 ```bash
 # Core settings (.env)
 PODMAN_CONNECTION=podman-machine-default
@@ -545,6 +584,7 @@ NETWORK_NAME=hcd-janusgraph-network
 ## Getting Help
 
 ### Documentation
+
 - **README.md** - Project overview
 - **docs/SETUP.md** - Detailed setup
 - **docs/TESTING.md** - Testing guide
@@ -553,11 +593,13 @@ NETWORK_NAME=hcd-janusgraph-network
 - **docs/SECURITY.md** - Security guidelines
 
 ### Support Channels
-- **Issues**: https://github.com/davidleconte/hcd-janusgraph/issues
-- **Discussions**: https://github.com/davidleconte/hcd-janusgraph/discussions
-- **Email**: team@example.com
+
+- **Issues**: <https://github.com/davidleconte/hcd-janusgraph/issues>
+- **Discussions**: <https://github.com/davidleconte/hcd-janusgraph/discussions>
+- **Email**: <team@example.com>
 
 ### External Resources
+
 - [JanusGraph Docs](https://docs.janusgraph.org/)
 - [HCD Documentation](https://docs.datastax.com/en/hcd/1.2/)
 - [Gremlin Reference](https://tinkerpop.apache.org/docs/current/reference/)
@@ -570,15 +612,15 @@ NETWORK_NAME=hcd-janusgraph-network
 1. **Customize Configuration**: Edit `.env` for your environment
 2. **Deploy Stack**: Run `make deploy`
 3. **Verify Installation**: Run `make test`
-4. **Explore Notebooks**: Open Jupyter at http://localhost:8888
+4. **Explore Notebooks**: Open Jupyter at <http://localhost:8888>
 5. **Set Up Monitoring**: Configure Grafana dashboards
 6. **Enable Backups**: Set up automated backups
 7. **Configure Alerts**: Set up Prometheus alerts
 
 ---
 
-**Project Structure**: 8 directories + 11 core files  
-**Status**: ✅ Production-ready  
+**Project Structure**: 8 directories + 11 core files
+**Status**: ✅ Production-ready
 **License**: MIT
 
 ---
@@ -594,6 +636,7 @@ NETWORK_NAME=hcd-janusgraph-network
 ### Completed Enhancements
 
 #### ✅ Week 1: Security Hardening (95/100)
+
 - SSL/TLS encryption enabled by default
 - HashiCorp Vault integration for secrets management
 - Automated certificate generation
@@ -602,6 +645,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - **Documentation:** [WEEK1_FINAL_REPORT.md](docs/implementation/remediation/WEEK1_FINAL_REPORT.md)
 
 #### ✅ Week 2: Monitoring & Observability (95/100)
+
 - AlertManager with intelligent routing
 - JanusGraph custom metrics exporter
 - Grafana auto-provisioning
@@ -610,6 +654,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - **Documentation:** [WEEK2_COMPLETE.md](docs/implementation/remediation/WEEK2_COMPLETE.md)
 
 #### ✅ Week 3-4: Test Coverage (92/100)
+
 - **Achieved:** 82% coverage, 670+ tests
 - Unit tests, integration tests, E2E pipeline tests
 - Fraud/AML detection with real JanusGraph integration
@@ -617,12 +662,14 @@ NETWORK_NAME=hcd-janusgraph-network
 - **Documentation:** [WEEK3-4_QUICKSTART.md](docs/implementation/remediation/WEEK3-4_QUICKSTART.md)
 
 #### ✅ Week 5: Streaming & E2E Pipeline (95/100)
+
 - Pulsar event streaming infrastructure
 - Data Generator → Pulsar → JanusGraph → Detection flow
 - GraphConsumer and VectorConsumer for dual-path ingestion
 - Dead Letter Queue handling
 
 #### ✅ Week 6: Compliance & Documentation (98/100)
+
 - 30+ audit event types (GDPR, SOC 2, BSA/AML, PCI DSS)
 - Comprehensive documentation with mermaid diagrams
 - FAQ and troubleshooting guides
@@ -648,6 +695,6 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ---
 
-**Last Updated**: 2026-02-07  
-**Status**: All phases complete  
-**Contact**: team@example.com
+**Last Updated**: 2026-02-07
+**Status**: All phases complete
+**Contact**: <team@example.com>

@@ -3,6 +3,7 @@
 ## Generator Pattern Requirements
 
 **All generators MUST inherit from BaseGenerator** - provides seed management and Faker initialization:
+
 ```python
 class CustomGenerator(BaseGenerator):
     def __init__(self, seed: Optional[int] = None):
@@ -10,6 +11,7 @@ class CustomGenerator(BaseGenerator):
 ```
 
 **Pattern generators require complete entity context** - partial lists will cause silent failures:
+
 ```python
 # WRONG - will fail silently
 pattern_gen.inject_pattern(persons=persons, accounts=accounts)
@@ -27,12 +29,14 @@ pattern_gen.inject_pattern(
 ## Import Path Gotchas
 
 **Test files modify sys.path** - conftest.py line 18 adds parent to path, don't duplicate:
+
 ```python
 # Already done in conftest.py, don't add again:
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 ```
 
 **Banking generators use specific import structure**:
+
 ```python
 # Core generators
 from banking.data_generators.core import PersonGenerator, CompanyGenerator
@@ -46,6 +50,7 @@ from banking.data_generators.orchestration import MasterOrchestrator, Generation
 ## Docker Context Paths
 
 **Dockerfile paths in compose files are relative to compose file location** - not project root:
+
 ```yaml
 # In config/compose/docker-compose.yml:
 build:
@@ -56,6 +61,7 @@ build:
 ## Deployment Commands
 
 **Deploy script must run from config/compose directory** - Makefile handles this:
+
 ```bash
 # WRONG - will fail
 bash scripts/deployment/deploy_full_stack.sh
@@ -70,6 +76,7 @@ cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
 ## Testing Requirements
 
 **Single test execution requires tests directory** - pytest path resolution:
+
 ```bash
 # WRONG - will fail with import errors
 pytest banking/data_generators/tests/test_core/test_person_generator.py
@@ -80,6 +87,7 @@ pytest test_core/test_person_generator.py::TestClass::test_method -v
 ```
 
 **Integration tests use pytest.skip() not skipif** - check service availability at runtime:
+
 ```python
 @pytest.mark.integration
 def test_janusgraph_connection(self):
@@ -90,6 +98,7 @@ def test_janusgraph_connection(self):
 ## Code Style Enforcement
 
 **Line length is 100, not 88** - configured in pyproject.toml:
+
 ```python
 # pyproject.toml
 [tool.black]
@@ -97,6 +106,7 @@ line-length = 100  # Non-standard, not 88
 ```
 
 **Type hints are mandatory** - mypy enforces this:
+
 ```python
 # WRONG - will fail mypy
 def generate():
@@ -110,6 +120,7 @@ def generate() -> Person:
 ## Security Patterns
 
 **JMX ports must not be exposed** - use SSH tunnel instead:
+
 ```yaml
 # docker-compose.yml - ports commented for security
 # - "7199:7199"  # JMX - Use SSH tunnel: ssh -L 7199:localhost:7199 user@host

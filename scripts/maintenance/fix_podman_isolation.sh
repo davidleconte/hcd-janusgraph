@@ -58,9 +58,9 @@ done
 
 backup_compose_files() {
     log_info "Creating backup of compose files..."
-    
+
     mkdir -p "$BACKUP_DIR"
-    
+
     for file in "$COMPOSE_DIR"/*.yml; do
         if [[ -f "$file" ]]; then
             local filename
@@ -73,18 +73,18 @@ backup_compose_files() {
 
 remove_container_names() {
     log_info "Removing container_name overrides from compose files..."
-    
+
     local total_removed=0
-    
+
     for file in "$COMPOSE_DIR"/*.yml; do
         if [[ -f "$file" ]]; then
             local filename
             filename=$(basename "$file")
-            
+
             # Count container_name lines before
             local count_before
             count_before=$(grep -c "container_name:" "$file" 2>/dev/null || echo "0")
-            
+
             if [[ $count_before -gt 0 ]]; then
                 if [[ "$DRY_RUN" == "true" ]]; then
                     log_warning "[DRY-RUN] Would remove $count_before container_name line(s) from $filename"
@@ -103,15 +103,15 @@ remove_container_names() {
             fi
         fi
     done
-    
+
     log_info "Total container_name overrides removed: $total_removed"
 }
 
 verify_changes() {
     log_info "Verifying changes..."
-    
+
     local remaining=0
-    
+
     for file in "$COMPOSE_DIR"/*.yml; do
         if [[ -f "$file" ]]; then
             local count
@@ -122,7 +122,7 @@ verify_changes() {
             fi
         fi
     done
-    
+
     if [[ $remaining -eq 0 ]]; then
         log_success "All container_name overrides have been removed!"
         return 0
@@ -170,20 +170,20 @@ main() {
     echo "Compose directory: $COMPOSE_DIR"
     echo "Dry run: $DRY_RUN"
     echo ""
-    
+
     if [[ ! -d "$COMPOSE_DIR" ]]; then
         log_error "Compose directory not found: $COMPOSE_DIR"
         exit 1
     fi
-    
+
     # Create backup
     if [[ "$DRY_RUN" == "false" ]]; then
         backup_compose_files
     fi
-    
+
     # Remove container_name overrides
     remove_container_names
-    
+
     # Verify changes
     if [[ "$DRY_RUN" == "false" ]]; then
         if verify_changes; then

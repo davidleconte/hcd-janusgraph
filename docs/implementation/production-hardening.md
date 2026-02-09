@@ -1,7 +1,7 @@
 # Production Hardening Guide
 
-**Date:** 2026-02-04  
-**Status:** Active  
+**Date:** 2026-02-04
+**Status:** Active
 **Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
 
 ## Overview
@@ -44,6 +44,7 @@ OPENSEARCH_SSL_ENABLED=true
 For production, use cloud-based auto-unseal:
 
 **AWS KMS:**
+
 ```hcl
 seal "awskms" {
   region     = "us-west-2"
@@ -52,6 +53,7 @@ seal "awskms" {
 ```
 
 **Azure Key Vault:**
+
 ```hcl
 seal "azurekeyvault" {
   tenant_id      = "your-tenant-id"
@@ -152,7 +154,7 @@ route:
     - match:
         severity: security
       receiver: security-team
-      
+
 receivers:
   - name: security-team
     pagerduty_configs:

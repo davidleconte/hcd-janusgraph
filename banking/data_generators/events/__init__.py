@@ -9,19 +9,18 @@ Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product S
 Date: 2026-02-06
 """
 
-from .transaction_generator import TransactionGenerator
 from .communication_generator import CommunicationGenerator
+from .document_generator import Document, DocumentGenerator
 from .trade_generator import TradeGenerator
-from .travel_generator import TravelGenerator, TravelEvent
-from .document_generator import DocumentGenerator, Document
+from .transaction_generator import TransactionGenerator
+from .travel_generator import TravelEvent, TravelGenerator
 
 __all__ = [
-    'TransactionGenerator',
-    'CommunicationGenerator',
-    'TradeGenerator',
-    'TravelGenerator',
-    'TravelEvent',
-    'DocumentGenerator',
-    'Document'
+    "TransactionGenerator",
+    "CommunicationGenerator",
+    "TradeGenerator",
+    "TravelGenerator",
+    "TravelEvent",
+    "DocumentGenerator",
+    "Document",
 ]
-

@@ -2,8 +2,8 @@
 
 This directory contains automated tests for the HCD + JanusGraph banking compliance system, including unit tests, integration tests, and performance tests.
 
-**Date:** 2026-01-28  
-**Version:** 1.0  
+**Date:** 2026-01-28
+**Version:** 1.0
 **Status:** Active
 
 ## Directory Structure
@@ -24,24 +24,28 @@ tests/
 Tests for individual components in isolation.
 
 #### [`test_connection.py`](unit/test_connection.py)
+
 - **Purpose:** Test database connection handling
 - **Coverage:** Connection pooling, error handling, retries
 - **Dependencies:** Mock JanusGraph server
 - **Run:** `pytest tests/unit/test_connection.py -v`
 
 #### [`test_graph.py`](unit/test_graph.py)
+
 - **Purpose:** Test graph operations
 - **Coverage:** Vertex/edge creation, queries, traversals
 - **Dependencies:** In-memory graph or test database
 - **Run:** `pytest tests/unit/test_graph.py -v`
 
 #### [`test_janusgraph_client_enhanced.py`](unit/test_janusgraph_client_enhanced.py)
+
 - **Purpose:** Test enhanced JanusGraph client functionality
 - **Coverage:** Advanced queries, batch operations, error handling
 - **Dependencies:** Mock client or test database
 - **Run:** `pytest tests/unit/test_janusgraph_client_enhanced.py -v`
 
 #### [`test_validation.py`](unit/test_validation.py)
+
 - **Purpose:** Test data validation functions
 - **Coverage:** Input validation, schema validation, constraint checking
 - **Dependencies:** None (pure functions)
@@ -52,6 +56,7 @@ Tests for individual components in isolation.
 Tests for complete system integration and workflows.
 
 #### [`test_full_stack.py`](integration/test_full_stack.py)
+
 - **Purpose:** Test complete stack deployment and functionality
 - **Coverage:** All services, end-to-end workflows, data flow
 - **Dependencies:** Full stack must be running
@@ -59,12 +64,14 @@ Tests for complete system integration and workflows.
 - **Duration:** ~5-10 minutes
 
 #### [`test_janusgraph_client.py`](integration/test_janusgraph_client.py)
+
 - **Purpose:** Test JanusGraph client against live database
 - **Coverage:** Real database operations, schema management, queries
 - **Dependencies:** JanusGraph and HCD running
 - **Run:** `pytest tests/integration/test_janusgraph_client.py -v`
 
 #### [`test_e2e_hcd_opensearch.py`](integration/test_e2e_hcd_opensearch.py)
+
 - **Purpose:** E2E tests for HCD (Cassandra) and OpenSearch integration
 - **Coverage:** HCD keyspace/schema verification, OpenSearch vector indexes, VectorConsumer integration, cross-system consistency
 - **Tests:** 16 tests (4 HCD, 5 OpenSearch, 2 VectorConsumer, 3 Pipeline, 2 Consistency)
@@ -72,6 +79,7 @@ Tests for complete system integration and workflows.
 - **Run:** `PYTHONPATH=. HCD_PORT=19042 OPENSEARCH_USE_SSL=false pytest tests/integration/test_e2e_hcd_opensearch.py -v`
 
 #### [`requirements.txt`](integration/requirements.txt)
+
 - **Purpose:** Integration test dependencies
 - **Contents:** pytest, gremlinpython, requests, etc.
 
@@ -80,6 +88,7 @@ Tests for complete system integration and workflows.
 Tests for system performance and scalability.
 
 #### [`test_load.py`](performance/test_load.py)
+
 - **Purpose:** Load testing and performance benchmarks
 - **Coverage:** Query performance, throughput, concurrent operations
 - **Dependencies:** Full stack running, test data loaded
@@ -100,12 +109,14 @@ Reusable test data and configurations.
 ### Prerequisites
 
 1. **Install test dependencies:**
+
    ```bash
    pip install -r requirements-dev.txt
    pip install -r tests/integration/requirements.txt
    ```
 
 2. **For integration tests, start the stack:**
+
    ```bash
    cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
    ```
@@ -166,6 +177,7 @@ pytest tests/unit/test_connection.py::TestConnection::test_connect -v
 ### pytest Configuration
 
 Configuration in [`pytest.ini`](../pytest.ini):
+
 - Test discovery patterns
 - Coverage settings
 - Markers for test categorization
@@ -201,6 +213,7 @@ Use pytest markers to categorize tests:
 ```
 
 Run tests by marker:
+
 ```bash
 pytest -m unit              # Run only unit tests
 pytest -m "not slow"        # Skip slow tests
@@ -217,7 +230,7 @@ from banking.module import function_to_test
 
 class TestFeature:
     """Test suite for feature."""
-    
+
     @pytest.fixture
     def setup_data(self):
         """Fixture to set up test data."""
@@ -226,12 +239,12 @@ class TestFeature:
         yield data
         # Teardown code
         cleanup_test_data(data)
-    
+
     def test_basic_functionality(self, setup_data):
         """Test basic functionality."""
         result = function_to_test(setup_data)
         assert result == expected_value
-    
+
     def test_error_handling(self):
         """Test error handling."""
         with pytest.raises(ValueError):
@@ -256,24 +269,24 @@ from banking.aml.sanctions import SanctionsScreener
 
 class TestSanctionsScreener:
     """Test sanctions screening functionality."""
-    
+
     @pytest.fixture
     def screener(self):
         """Create screener instance."""
         return SanctionsScreener()
-    
+
     def test_exact_match(self, screener):
         """Test exact name match detection."""
         result = screener.screen("John Doe")
         assert result.is_match is True
         assert result.confidence > 0.95
-    
+
     def test_fuzzy_match(self, screener):
         """Test fuzzy name matching."""
         result = screener.screen("Jon Doe")
         assert result.is_match is True
         assert 0.8 < result.confidence < 0.95
-    
+
     def test_no_match(self, screener):
         """Test non-matching name."""
         result = screener.screen("Jane Smith")
@@ -289,7 +302,7 @@ from banking.client import JanusGraphClient
 @pytest.mark.integration
 class TestJanusGraphIntegration:
     """Integration tests for JanusGraph."""
-    
+
     @pytest.fixture(scope="class")
     def client(self):
         """Create client connected to test database."""
@@ -299,7 +312,7 @@ class TestJanusGraphIntegration:
         )
         yield client
         client.close()
-    
+
     def test_create_vertex(self, client):
         """Test vertex creation."""
         vertex = client.add_vertex("person", {
@@ -308,7 +321,7 @@ class TestJanusGraphIntegration:
         })
         assert vertex.id is not None
         assert vertex.label == "person"
-    
+
     def test_query_vertex(self, client):
         """Test vertex query."""
         results = client.query(
@@ -347,6 +360,7 @@ xdg-open htmlcov/index.html  # Linux
 ### GitHub Actions
 
 Tests run automatically on:
+
 - Pull requests
 - Commits to main branch
 - Scheduled daily runs
@@ -354,11 +368,13 @@ Tests run automatically on:
 ### Pre-commit Hooks
 
 Install pre-commit hooks:
+
 ```bash
 pre-commit install
 ```
 
 Hooks run:
+
 - Linting (flake8, black)
 - Type checking (mypy)
 - Unit tests (fast tests only)
@@ -368,6 +384,7 @@ Hooks run:
 ### Common Issues
 
 **Tests Fail with Connection Error**
+
 ```bash
 # Check if services are running
 docker ps
@@ -377,6 +394,7 @@ cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
 **Import Errors**
+
 ```bash
 # Install package in development mode
 pip install -e .
@@ -386,6 +404,7 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 ```
 
 **Slow Tests**
+
 ```bash
 # Skip slow tests
 pytest -m "not slow"
@@ -395,6 +414,7 @@ pytest -n auto
 ```
 
 **Flaky Tests**
+
 ```bash
 # Rerun failed tests
 pytest --lf  # Last failed
@@ -458,6 +478,7 @@ When adding new tests:
 ## Support
 
 For testing issues:
+
 - Check [Troubleshooting Guide](../docs/TROUBLESHOOTING.md)
 - Review test output and logs
 - Check service status with `docker ps`

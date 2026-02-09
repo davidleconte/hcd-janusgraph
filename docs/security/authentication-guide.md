@@ -1,7 +1,7 @@
 # Authentication Setup Guide
 
-**Date:** 2026-01-28  
-**Version:** 1.0  
+**Date:** 2026-01-28
+**Version:** 1.0
 **Status:** Active
 
 ## Overview
@@ -11,26 +11,30 @@ All services in the HCD + JanusGraph banking compliance system require authentic
 ## Quick Start
 
 1. Copy `.env.example` to `.env`:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Generate secure passwords:
+
    ```bash
    # Generate 32-character random password
    openssl rand -base64 32
    ```
 
 3. Update `.env` with your credentials:
+
    ```bash
    JANUSGRAPH_USERNAME=admin
    JANUSGRAPH_PASSWORD=your_secure_password_here
-   
+
    OPENSEARCH_USERNAME=admin
    OPENSEARCH_PASSWORD=your_secure_password_here
    ```
 
 4. Verify `.env` is in `.gitignore`:
+
    ```bash
    grep "^\.env$" .gitignore || echo ".env" >> .gitignore
    ```
@@ -38,6 +42,7 @@ All services in the HCD + JanusGraph banking compliance system require authentic
 ## Password Requirements
 
 **Minimum Requirements:**
+
 - Length: 16 characters
 - Complexity: Mix of uppercase, lowercase, numbers, symbols
 - No dictionary words
@@ -45,6 +50,7 @@ All services in the HCD + JanusGraph banking compliance system require authentic
 - Unique per service
 
 **Recommended:**
+
 - Length: 32+ characters
 - Generated randomly
 - Stored in password manager
@@ -91,6 +97,7 @@ client = VectorSearchClient(
 ### 1. Use Secrets Management
 
 **AWS Secrets Manager:**
+
 ```python
 import boto3
 import json
@@ -107,6 +114,7 @@ os.environ['JANUSGRAPH_PASSWORD'] = secrets['janusgraph_password']
 ```
 
 **HashiCorp Vault:**
+
 ```python
 import hvac
 
@@ -133,6 +141,7 @@ NEW_PASSWORD=$(openssl rand -base64 32)
 ### 3. Audit Logging
 
 Enable authentication audit logs:
+
 ```python
 import logging
 
@@ -153,6 +162,7 @@ Error: Authentication required: username and password must be provided
 ```
 
 **Solution:**
+
 1. Check `.env` file exists
 2. Verify credentials are set
 3. Ensure no typos in variable names
@@ -165,6 +175,7 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 ```
 
 **Solution:**
+
 1. Verify service is running
 2. Check firewall rules
 3. Verify SSL/TLS configuration
@@ -186,18 +197,21 @@ Error: Failed to connect to wss://localhost:8182/gremlin
 ## Compliance
 
 ### GDPR/CCPA
+
 - Credentials are PII - handle accordingly
 - Implement data retention policies
 - Enable audit trails
 - Support data deletion requests
 
 ### PCI DSS
+
 - Strong authentication required
 - Encrypt credentials in transit and at rest
 - Regular security audits
 - Access control and monitoring
 
 ### SOC 2
+
 - Document authentication procedures
 - Implement change management
 - Regular access reviews

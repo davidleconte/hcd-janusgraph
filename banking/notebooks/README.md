@@ -5,11 +5,13 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 ## 📚 Notebooks Overview
 
 ### 1. Sanctions Screening Demo
+
 **File:** [`01_Sanctions_Screening_Demo.ipynb`](01_Sanctions_Screening_Demo.ipynb)
 
 **Objective:** Demonstrate real-time sanctions screening with fuzzy name matching using vector embeddings.
 
 **Key Features:**
+
 - ✅ Exact name matching (100% accuracy)
 - ✅ Typo detection (87%+ confidence)
 - ✅ Abbreviation handling (87%+ confidence)
@@ -18,6 +20,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 - ✅ Zero false positives
 
 **Test Cases:**
+
 1. Exact match detection
 2. Typo tolerance ("Jon Doe" → "John Doe")
 3. Abbreviation detection ("J. Doe" → "John Doe")
@@ -25,6 +28,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 5. Batch screening performance
 
 **Business Impact:**
+
 - Prevents transactions with sanctioned entities
 - Reduces manual review workload by 80%+
 - Ensures regulatory compliance (OFAC, EU, UN)
@@ -33,11 +37,13 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 ---
 
 ### 2. AML Structuring Detection Demo
+
 **File:** [`02_AML_Structuring_Detection_Demo.ipynb`](02_AML_Structuring_Detection_Demo.ipynb)
 
 **Objective:** Detect structuring patterns (smurfing) where large transactions are split to avoid reporting thresholds.
 
 **Key Features:**
+
 - ✅ Simple structuring detection
 - ✅ Multi-account correlation
 - ✅ Temporal pattern analysis
@@ -46,6 +52,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 - ✅ Risk scoring
 
 **Test Cases:**
+
 1. Simple structuring (single account, multiple transactions)
 2. Multi-account structuring (coordinated accounts)
 3. Temporal pattern analysis (systematic timing)
@@ -53,6 +60,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 5. Real data analysis
 
 **Business Impact:**
+
 - Detects sophisticated money laundering schemes
 - Reduces investigation time by 70%+
 - Ensures BSA compliance
@@ -61,11 +69,13 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 ---
 
 ### 3. Fraud Detection Demo
+
 **File:** [`03_Fraud_Detection_Demo.ipynb`](03_Fraud_Detection_Demo.ipynb)
 
 **Objective:** Detect fraudulent transactions using ML-based anomaly detection and pattern recognition.
 
 **Key Features:**
+
 - ✅ Amount anomaly detection
 - ✅ Velocity checks (transaction frequency)
 - ✅ Geographic anomaly detection
@@ -74,6 +84,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 - ✅ ML-based detection (Isolation Forest)
 
 **Test Cases:**
+
 1. Amount anomaly (10x typical transaction)
 2. Velocity check (15 transactions in 75 minutes)
 3. Geographic anomaly (foreign location)
@@ -81,6 +92,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 5. Real-time scoring
 
 **Business Impact:**
+
 - Prevents fraudulent transactions in real-time
 - Reduces false positives by 60%+
 - Protects customer accounts
@@ -89,11 +101,13 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 ---
 
 ### 4. Customer 360 View Demo
+
 **File:** [`04_Customer_360_View_Demo.ipynb`](04_Customer_360_View_Demo.ipynb)
 
 **Objective:** Create comprehensive customer profiles by aggregating data from multiple sources using graph database relationships.
 
 **Key Features:**
+
 - ✅ Complete customer profile aggregation
 - ✅ Relationship discovery (shared addresses, phones)
 - ✅ Transaction network analysis
@@ -102,6 +116,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 - ✅ Cross-sell opportunity identification
 
 **Test Cases:**
+
 1. Single customer 360 view
 2. Relationship discovery
 3. Transaction network analysis
@@ -110,6 +125,7 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 6. Cross-sell opportunities
 
 **Business Impact:**
+
 - Holistic customer understanding
 - Improved customer service
 - Targeted marketing campaigns
@@ -123,10 +139,11 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
 ### Prerequisites
 
 1. **Infrastructure Running:**
+
    ```bash
    # Check services
    podman ps
-   
+
    # Should see:
    # - janusgraph-server
    # - opensearch
@@ -135,20 +152,22 @@ This directory contains comprehensive Jupyter notebooks demonstrating the four c
    ```
 
 2. **Data Loaded:**
+
    ```bash
    # Load production data
    python scripts/deployment/load_production_data.py
    ```
 
 3. **Python Environment:**
+
    ```bash
    # Activate conda environment
    conda activate janusgraph-analysis
-   
+
    # Verify environment variables (pre-configured in conda env)
    echo $JANUSGRAPH_PORT      # Should show: 18182
    echo $JANUSGRAPH_USE_SSL   # Should show: false
-   
+
    # Verify packages
    pip list | grep -E "opensearch|sentence-transformers|pandas"
    ```
@@ -192,6 +211,7 @@ python 01_Sanctions_Screening_Demo.py
 ## 📊 Expected Results
 
 ### Sanctions Screening
+
 - **Accuracy:** 100%
 - **Precision:** 100% (no false positives)
 - **Recall:** 100% (no false negatives)
@@ -199,18 +219,21 @@ python 01_Sanctions_Screening_Demo.py
 - **Typo Detection:** 87%+ confidence
 
 ### AML Structuring Detection
+
 - **Pattern Types:** Simple, Multi-Account, Temporal, Amount Clustering
 - **Detection Rate:** 95%+ for known patterns
 - **False Positive Rate:** <5%
 - **Processing Speed:** <500ms per account
 
 ### Fraud Detection
+
 - **Anomaly Detection:** Isolation Forest model
 - **Detection Rate:** 90%+ for known fraud types
 - **False Positive Rate:** <10%
 - **Processing Speed:** <100ms per transaction
 
 ### Customer 360 View
+
 - **Data Sources:** 5 (Accounts, Persons, Addresses, Phones, Transactions)
 - **Relationship Types:** 4 (Ownership, Shared Address, Shared Phone, Transaction Network)
 - **Segments:** 4 (Premium, Gold, Silver, Bronze)
@@ -227,6 +250,7 @@ python 01_Sanctions_Screening_Demo.py
 **Problem:** Cannot connect to OpenSearch or JanusGraph
 
 **Solution:**
+
 ```bash
 # Check services
 podman ps
@@ -243,6 +267,7 @@ curl http://localhost:9200/_cluster/health
 **Problem:** Module not found errors
 
 **Solution:**
+
 ```bash
 # Verify conda environment
 conda activate janusgraph-analysis
@@ -260,6 +285,7 @@ print(sys.path)
 **Problem:** CSV files not found
 
 **Solution:**
+
 ```bash
 # Verify data files exist
 ls -la banking/data/aml/
@@ -273,6 +299,7 @@ python scripts/deployment/load_production_data.py
 **Problem:** Jupyter kernel crashes during execution
 
 **Solution:**
+
 ```bash
 # Increase memory limit
 export JUPYTER_MEMORY_LIMIT=8G
@@ -289,6 +316,7 @@ export JUPYTER_MEMORY_LIMIT=8G
 ## 📈 Performance Benchmarks
 
 ### System Specifications
+
 - **CPU:** Apple M1/M2 or Intel x86_64
 - **RAM:** 16GB minimum, 32GB recommended
 - **Storage:** 50GB available
@@ -311,21 +339,25 @@ export JUPYTER_MEMORY_LIMIT=8G
 Each notebook includes validation sections that verify:
 
 ### ✅ Functional Requirements
+
 - All test cases pass
 - Expected results achieved
 - No errors or exceptions
 
 ### ✅ Performance Requirements
+
 - Processing times within SLA
 - Throughput meets targets
 - Resource usage acceptable
 
 ### ✅ Accuracy Requirements
+
 - Detection rates meet thresholds
 - False positive rates acceptable
 - Confidence scores appropriate
 
 ### ✅ Business Requirements
+
 - Use case objectives met
 - Business value demonstrated
 - ROI quantified
@@ -369,11 +401,13 @@ def custom_risk_score(transaction):
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [Production System Verification](../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md)
 - [Banking Use Cases Technical Spec](../../docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md)
 - [Production Deployment Guide](../../docs/banking/PRODUCTION_DEPLOYMENT_GUIDE.md)
 
 ### Code Modules
+
 - [Sanctions Screening](../aml/sanctions_screening.py)
 - [Structuring Detection](../aml/enhanced_structuring_detection.py)
 - [Fraud Detection](../fraud/fraud_detection.py)
@@ -381,6 +415,7 @@ def custom_risk_score(transaction):
 - [Embedding Generator](../../src/python/utils/embedding_generator.py)
 
 ### Data Files
+
 - [AML Transactions](../data/aml/aml_data_transactions.csv)
 - [Accounts](../data/aml/aml_data_accounts.csv)
 - [Persons](../data/aml/aml_data_persons.csv)
@@ -410,12 +445,13 @@ See [LICENSE](../../LICENSE) file in the project root.
 ## 👥 Support
 
 For issues or questions:
+
 1. Check [TROUBLESHOOTING.md](../../docs/TROUBLESHOOTING.md)
 2. Review [Production System Verification](../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md)
 3. Contact the development team
 
 ---
 
-**Last Updated:** 2026-01-28  
-**Version:** 1.0  
+**Last Updated:** 2026-01-28
+**Version:** 1.0
 **Status:** ✅ Production Ready

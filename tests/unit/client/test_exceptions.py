@@ -10,9 +10,10 @@ Phase: Week 3 - Test Coverage Implementation (Days 1-2)
 """
 
 import pytest
+
 from src.python.client.exceptions import (
-    JanusGraphError,
     ConnectionError,
+    JanusGraphError,
     QueryError,
     TimeoutError,
     ValidationError,
@@ -83,7 +84,7 @@ class TestQueryError:
         query = "g.V().invalid()"
         with pytest.raises(QueryError) as exc_info:
             raise QueryError("Syntax error", query=query)
-        
+
         assert exc_info.value.query == query
         assert "Syntax error" in str(exc_info.value)
 
@@ -155,7 +156,7 @@ class TestExceptionHierarchy:
             TimeoutError("Timeout"),
             ValidationError("Invalid"),
         ]
-        
+
         for exc in exceptions:
             with pytest.raises(JanusGraphError):
                 raise exc
@@ -165,15 +166,15 @@ class TestExceptionHierarchy:
         # ConnectionError
         with pytest.raises(ConnectionError):
             raise ConnectionError("Connection failed")
-        
+
         # QueryError
         with pytest.raises(QueryError):
             raise QueryError("Query failed")
-        
+
         # TimeoutError
         with pytest.raises(TimeoutError):
             raise TimeoutError("Timeout")
-        
+
         # ValidationError
         with pytest.raises(ValidationError):
             raise ValidationError("Invalid")
@@ -188,12 +189,13 @@ class TestExceptionHierarchy:
 
     def test_multiple_exception_types_in_try_except(self):
         """Test handling multiple exception types in single try-except"""
+
         def raise_connection_error():
             raise ConnectionError("Connection failed")
-        
+
         def raise_query_error():
             raise QueryError("Query failed")
-        
+
         # Test catching multiple types
         for func in [raise_connection_error, raise_query_error]:
             with pytest.raises((ConnectionError, QueryError)):
@@ -202,13 +204,11 @@ class TestExceptionHierarchy:
     def test_exception_chaining(self):
         """Test exception chaining with 'from' clause"""
         original_error = ValueError("Original error")
-        
+
         with pytest.raises(ValidationError) as exc_info:
             try:
                 raise original_error
             except ValueError as e:
                 raise ValidationError("Validation failed") from e
-        
+
         assert exc_info.value.__cause__ == original_error
-
-

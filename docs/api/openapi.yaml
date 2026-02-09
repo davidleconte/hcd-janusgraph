@@ -3,25 +3,25 @@ info:
   title: HCD JanusGraph API
   description: |
     REST API for HCD JanusGraph graph database operations.
-    
+
     This API provides endpoints for:
     - Graph traversal and querying
     - Vertex and edge operations
     - Schema management
     - Health monitoring
     - Metrics and statistics
-    
+
     ## Authentication
     All endpoints require authentication using API keys or JWT tokens.
     Include the authentication token in the `Authorization` header:
     ```
     Authorization: Bearer <token>
     ```
-    
+
     ## Rate Limiting
     - 1000 requests per hour per API key
     - 100 requests per minute per IP address
-    
+
     ## Error Handling
     All errors follow RFC 7807 Problem Details format.
   version: 1.0.0
@@ -608,7 +608,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-    
+
     RateLimitError:
       description: Rate limit exceeded
       content:

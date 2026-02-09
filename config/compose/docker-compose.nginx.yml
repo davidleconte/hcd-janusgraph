@@ -18,13 +18,13 @@ services:
       # Nginx configuration
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./config/nginx/429.html:/usr/share/nginx/html/429.html:ro
-      
+
       # TLS certificates (if using HTTPS)
       - ./config/certs:/etc/nginx/certs:ro
-      
+
       # Logs
       - nginx-logs:/var/log/nginx
-      
+
       # Cache
       - nginx-cache:/var/cache/nginx
     environment:

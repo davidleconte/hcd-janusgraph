@@ -55,19 +55,19 @@ log_validation_success() {
 #######################################
 validate_hostname() {
     local hostname="$1"
-    
+
     # Check if empty
     if [[ -z "${hostname}" ]]; then
         log_validation_error "Hostname cannot be empty"
         return 1
     fi
-    
+
     # Check length (max 253 characters for FQDN)
     if [[ ${#hostname} -gt 253 ]]; then
         log_validation_error "Hostname too long (max 253 characters): ${hostname}"
         return 1
     fi
-    
+
     # Validate hostname format (RFC 1123)
     local hostname_regex='^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?$'
     if [[ ! "${hostname}" =~ ${hostname_regex} ]]; then
@@ -77,7 +77,7 @@ validate_hostname() {
             return 1
         fi
     fi
-    
+
     log_validation_success "Hostname valid: ${hostname}"
     return 0
 }
@@ -92,11 +92,11 @@ validate_hostname() {
 validate_ipv4() {
     local ip="$1"
     local ipv4_regex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
-    
+
     if [[ ! "${ip}" =~ ${ipv4_regex} ]]; then
         return 1
     fi
-    
+
     # Check each octet is 0-255
     IFS='.' read -ra octets <<< "${ip}"
     for octet in "${octets[@]}"; do
@@ -104,7 +104,7 @@ validate_ipv4() {
             return 1
         fi
     done
-    
+
     return 0
 }
 
@@ -117,24 +117,24 @@ validate_ipv4() {
 #######################################
 validate_port() {
     local port="$1"
-    
+
     # Check if numeric
     if ! [[ "${port}" =~ ^[0-9]+$ ]]; then
         log_validation_error "Port must be numeric: ${port}"
         return 1
     fi
-    
+
     # Check range (1-65535)
     if ((port < 1 || port > 65535)); then
         log_validation_error "Port out of range (1-65535): ${port}"
         return 1
     fi
-    
+
     # Warn about privileged ports
     if ((port < 1024)); then
         log_validation_warning "Using privileged port: ${port}"
     fi
-    
+
     log_validation_success "Port valid: ${port}"
     return 0
 }
@@ -148,31 +148,31 @@ validate_port() {
 #######################################
 validate_file_path() {
     local filepath="$1"
-    
+
     # Check if empty
     if [[ -z "${filepath}" ]]; then
         log_validation_error "File path cannot be empty"
         return 1
     fi
-    
+
     # Check for path traversal attempts
     if [[ "${filepath}" =~ \.\. ]]; then
         log_validation_error "Path traversal detected: ${filepath}"
         return 1
     fi
-    
+
     # Check if file exists
     if [[ ! -f "${filepath}" ]]; then
         log_validation_error "File does not exist: ${filepath}"
         return 1
     fi
-    
+
     # Check if readable
     if [[ ! -r "${filepath}" ]]; then
         log_validation_error "File not readable: ${filepath}"
         return 1
     fi
-    
+
     log_validation_success "File path valid: ${filepath}"
     return 0
 }
@@ -186,31 +186,31 @@ validate_file_path() {
 #######################################
 validate_directory_path() {
     local dirpath="$1"
-    
+
     # Check if empty
     if [[ -z "${dirpath}" ]]; then
         log_validation_error "Directory path cannot be empty"
         return 1
     fi
-    
+
     # Check for path traversal attempts
     if [[ "${dirpath}" =~ \.\. ]]; then
         log_validation_error "Path traversal detected: ${dirpath}"
         return 1
     fi
-    
+
     # Check if directory exists
     if [[ ! -d "${dirpath}" ]]; then
         log_validation_error "Directory does not exist: ${dirpath}"
         return 1
     fi
-    
+
     # Check if readable
     if [[ ! -r "${dirpath}" ]]; then
         log_validation_error "Directory not readable: ${dirpath}"
         return 1
     fi
-    
+
     log_validation_success "Directory path valid: ${dirpath}"
     return 0
 }
@@ -237,26 +237,26 @@ sanitize_string() {
 #######################################
 validate_connection_name() {
     local name="$1"
-    
+
     # Check if empty
     if [[ -z "${name}" ]]; then
         log_validation_error "Connection name cannot be empty"
         return 1
     fi
-    
+
     # Check length (max 64 characters)
     if [[ ${#name} -gt 64 ]]; then
         log_validation_error "Connection name too long (max 64 characters): ${name}"
         return 1
     fi
-    
+
     # Validate format (alphanumeric, dash, underscore only)
     local name_regex='^[a-zA-Z0-9_-]+$'
     if [[ ! "${name}" =~ ${name_regex} ]]; then
         log_validation_error "Invalid connection name format (use alphanumeric, dash, underscore): ${name}"
         return 1
     fi
-    
+
     log_validation_success "Connection name valid: ${name}"
     return 0
 }
@@ -270,20 +270,20 @@ validate_connection_name() {
 #######################################
 validate_env_var_name() {
     local varname="$1"
-    
+
     # Check if empty
     if [[ -z "${varname}" ]]; then
         log_validation_error "Environment variable name cannot be empty"
         return 1
     fi
-    
+
     # Validate format (uppercase letters, numbers, underscore)
     local varname_regex='^[A-Z_][A-Z0-9_]*$'
     if [[ ! "${varname}" =~ ${varname_regex} ]]; then
         log_validation_error "Invalid environment variable name: ${varname}"
         return 1
     fi
-    
+
     log_validation_success "Environment variable name valid: ${varname}"
     return 0
 }
@@ -298,37 +298,37 @@ validate_env_var_name() {
 validate_password_strength() {
     local password="$1"
     local min_length=12
-    
+
     # Check minimum length
     if [[ ${#password} -lt ${min_length} ]]; then
         log_validation_error "Password too short (minimum ${min_length} characters)"
         return 1
     fi
-    
+
     # Check for uppercase
     if [[ ! "${password}" =~ [A-Z] ]]; then
         log_validation_error "Password must contain at least one uppercase letter"
         return 1
     fi
-    
+
     # Check for lowercase
     if [[ ! "${password}" =~ [a-z] ]]; then
         log_validation_error "Password must contain at least one lowercase letter"
         return 1
     fi
-    
+
     # Check for digit
     if [[ ! "${password}" =~ [0-9] ]]; then
         log_validation_error "Password must contain at least one digit"
         return 1
     fi
-    
+
     # Check for special character
     if [[ ! "${password}" =~ [^a-zA-Z0-9] ]]; then
         log_validation_error "Password must contain at least one special character"
         return 1
     fi
-    
+
     log_validation_success "Password meets strength requirements"
     return 0
 }
@@ -342,20 +342,20 @@ validate_password_strength() {
 #######################################
 validate_url() {
     local url="$1"
-    
+
     # Check if empty
     if [[ -z "${url}" ]]; then
         log_validation_error "URL cannot be empty"
         return 1
     fi
-    
+
     # Validate URL format
     local url_regex='^(https?|wss?)://[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*(:[0-9]{1,5})?(/.*)?$'
     if [[ ! "${url}" =~ ${url_regex} ]]; then
         log_validation_error "Invalid URL format: ${url}"
         return 1
     fi
-    
+
     log_validation_success "URL valid: ${url}"
     return 0
 }
@@ -369,20 +369,20 @@ validate_url() {
 #######################################
 validate_email() {
     local email="$1"
-    
+
     # Check if empty
     if [[ -z "${email}" ]]; then
         log_validation_error "Email cannot be empty"
         return 1
     fi
-    
+
     # Validate email format (basic)
     local email_regex='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if [[ ! "${email}" =~ ${email_regex} ]]; then
         log_validation_error "Invalid email format: ${email}"
         return 1
     fi
-    
+
     log_validation_success "Email valid: ${email}"
     return 0
 }
@@ -400,25 +400,25 @@ validate_numeric() {
     local value="$1"
     local min="${2:-}"
     local max="${3:-}"
-    
+
     # Check if numeric
     if ! [[ "${value}" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
         log_validation_error "Value must be numeric: ${value}"
         return 1
     fi
-    
+
     # Check minimum
     if [[ -n "${min}" ]] && (( $(echo "${value} < ${min}" | bc -l) )); then
         log_validation_error "Value below minimum (${min}): ${value}"
         return 1
     fi
-    
+
     # Check maximum
     if [[ -n "${max}" ]] && (( $(echo "${value} > ${max}" | bc -l) )); then
         log_validation_error "Value above maximum (${max}): ${value}"
         return 1
     fi
-    
+
     log_validation_success "Numeric value valid: ${value}"
     return 0
 }
@@ -432,16 +432,16 @@ validate_numeric() {
 #######################################
 validate_boolean() {
     local value="$1"
-    
+
     # Convert to lowercase
     value=$(echo "${value}" | tr '[:upper:]' '[:lower:]')
-    
+
     # Check if valid boolean
     if [[ ! "${value}" =~ ^(true|false|yes|no|1|0|on|off)$ ]]; then
         log_validation_error "Invalid boolean value: ${value}"
         return 1
     fi
-    
+
     log_validation_success "Boolean value valid: ${value}"
     return 0
 }
@@ -469,7 +469,7 @@ reset_validation_errors() {
 #######################################
 exit_on_validation_errors() {
     local exit_code="${1:-1}"
-    
+
     if ((VALIDATION_ERRORS > 0)); then
         echo -e "${RED}Validation failed with ${VALIDATION_ERRORS} error(s)${NC}" >&2
         exit "${exit_code}"

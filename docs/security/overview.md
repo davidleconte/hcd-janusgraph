@@ -1,7 +1,7 @@
 # Security Overview
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)  
-**Contact:** 
+**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Contact:**
 
 ## Security Architecture
 
@@ -12,23 +12,23 @@ flowchart TB
     subgraph External
         C[Clients]
     end
-    
+
     subgraph Security Layer
         TLS[SSL/TLS]
         Auth[Authentication]
         RBAC[Authorization]
     end
-    
+
     subgraph Services
         API[API Gateway]
         JG[JanusGraph]
         OS[OpenSearch]
     end
-    
+
     subgraph Secrets
         V[HashiCorp Vault]
     end
-    
+
     C --> TLS --> Auth --> RBAC --> API
     API --> JG
     API --> OS

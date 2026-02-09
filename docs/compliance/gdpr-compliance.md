@@ -52,6 +52,7 @@ This document outlines the HCD JanusGraph project's compliance with the General 
 The HCD JanusGraph system processes the following categories of personal data:
 
 **User Account Data:**
+
 - Name
 - Email address
 - User ID
@@ -60,6 +61,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 - Last login timestamp
 
 **Transaction Data (Banking Module):**
+
 - Account numbers
 - Transaction amounts
 - Transaction timestamps
@@ -67,6 +69,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 - Device identifiers
 
 **System Logs:**
+
 - User activity logs
 - Access logs
 - Error logs
@@ -75,11 +78,13 @@ The HCD JanusGraph system processes the following categories of personal data:
 ### 1.2 Data Controllers and Processors
 
 **Data Controller:** [Organization Name]
+
 - Determines purposes and means of processing
 - Responsible for GDPR compliance
-- Contact: dpo@example.com
+- Contact: <dpo@example.com>
 
 **Data Processors:**
+
 - HCD JanusGraph system (internal processing)
 - Cloud infrastructure providers (if applicable)
 - Backup service providers
@@ -107,6 +112,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 ### 2.2 Consent Management
 
 **Consent Requirements:**
+
 - ✅ Freely given
 - ✅ Specific
 - ✅ Informed
@@ -114,6 +120,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 - ✅ Withdrawable
 
 **Implementation:**
+
 ```python
 # Consent tracking in user profile
 {
@@ -141,6 +148,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 ### 3.1 Lawfulness, Fairness, and Transparency
 
 **Implementation:**
+
 - Privacy policy published and accessible
 - Clear communication about data processing
 - Transparent consent mechanisms
@@ -151,6 +159,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 ### 3.2 Purpose Limitation
 
 **Defined Purposes:**
+
 1. User authentication and authorization
 2. Transaction processing and fraud detection
 3. System security and monitoring
@@ -158,6 +167,7 @@ The HCD JanusGraph system processes the following categories of personal data:
 5. Service improvement (with consent)
 
 **Controls:**
+
 - Purpose documented in data processing records
 - Access controls based on purpose
 - Regular purpose compliance audits
@@ -165,11 +175,13 @@ The HCD JanusGraph system processes the following categories of personal data:
 ### 3.3 Data Minimization
 
 **Principles Applied:**
+
 - Collect only necessary data fields
 - No excessive data collection
 - Regular data necessity reviews
 
 **Schema Design:**
+
 ```groovy
 // Minimal user schema
 mgmt.makeVertexLabel('user').make()
@@ -182,21 +194,23 @@ mgmt.makePropertyKey('name').dataType(String.class).make()
 ### 3.4 Accuracy
 
 **Measures:**
+
 - Data validation on input
 - User self-service data correction
 - Regular data quality checks
 - Automated data verification
 
 **Implementation:**
+
 ```python
 def update_user_data(user_id, updates):
     """Update user data with validation."""
     # Validate input
     validated_data = validate_personal_data(updates)
-    
+
     # Log update for audit
     log_data_update(user_id, validated_data)
-    
+
     # Update graph
     g.V(user_id).property('updated_at', datetime.utcnow())
     for key, value in validated_data.items():
@@ -217,6 +231,7 @@ def update_user_data(user_id, updates):
 | Backup data | 30 days | Business continuity |
 
 **Automated Deletion:**
+
 ```python
 # Scheduled data retention job
 def enforce_data_retention():
@@ -227,7 +242,7 @@ def enforce_data_retention():
         .has('status', 'inactive') \
         .has('last_login', lt(cutoff_date)) \
         .drop().iterate()
-    
+
     # Delete old logs
     log_cutoff = datetime.utcnow() - timedelta(days=90)
     delete_logs_before(log_cutoff)
@@ -236,6 +251,7 @@ def enforce_data_retention():
 ### 3.6 Integrity and Confidentiality
 
 **Security Measures:**
+
 - ✅ Encryption at rest (AES-256)
 - ✅ Encryption in transit (TLS 1.3)
 - ✅ Access controls (RBAC)
@@ -252,6 +268,7 @@ def enforce_data_retention():
 ### 4.1 Right of Access (Article 15)
 
 **Implementation:**
+
 ```python
 def export_user_data(user_id):
     """Export all personal data for a user."""
@@ -262,13 +279,13 @@ def export_user_data(user_id):
         'consents': get_user_consents(user_id),
         'access_logs': get_user_access_logs(user_id)
     }
-    
+
     # Generate export file
     export_file = generate_gdpr_export(user_data)
-    
+
     # Log access request
     log_gdpr_request('access', user_id)
-    
+
     return export_file
 ```
 
@@ -279,12 +296,14 @@ def export_user_data(user_id):
 ### 4.2 Right to Rectification (Article 16)
 
 **Implementation:**
+
 - Self-service user profile updates
 - Admin-assisted corrections
 - Validation and verification
 - Audit trail of changes
 
 **API Endpoint:**
+
 ```python
 @app.route('/api/v1/users/<user_id>', methods=['PUT'])
 @require_auth
@@ -292,29 +311,30 @@ def update_user(user_id):
     """Update user personal data."""
     if not user_can_modify(current_user, user_id):
         return jsonify({'error': 'Unauthorized'}), 403
-    
+
     updates = request.json
     validated = validate_updates(updates)
-    
+
     # Update data
     update_user_data(user_id, validated)
-    
+
     # Log rectification
     log_gdpr_request('rectification', user_id, validated)
-    
+
     return jsonify({'status': 'updated'}), 200
 ```
 
 ### 4.3 Right to Erasure (Article 17)
 
 **Implementation:**
+
 ```python
 def delete_user_data(user_id, reason):
     """Delete user data (right to be forgotten)."""
     # Verify deletion is permissible
     if not can_delete_user(user_id):
         raise ValueError("Cannot delete: legal obligation to retain")
-    
+
     # Anonymize instead of delete if required
     if must_retain_for_legal_reasons(user_id):
         anonymize_user_data(user_id)
@@ -322,15 +342,16 @@ def delete_user_data(user_id, reason):
         # Full deletion
         g.V(user_id).drop().iterate()
         delete_user_from_backups(user_id)
-    
+
     # Log deletion
     log_gdpr_request('erasure', user_id, reason)
-    
+
     # Notify connected systems
     notify_deletion(user_id)
 ```
 
 **Exceptions:**
+
 - Legal obligations (e.g., financial records)
 - Public interest
 - Legal claims
@@ -338,6 +359,7 @@ def delete_user_data(user_id, reason):
 ### 4.4 Right to Restriction (Article 18)
 
 **Implementation:**
+
 ```python
 def restrict_user_processing(user_id, reason):
     """Restrict processing of user data."""
@@ -346,10 +368,10 @@ def restrict_user_processing(user_id, reason):
         .property('restriction_reason', reason) \
         .property('restriction_date', datetime.utcnow()) \
         .iterate()
-    
+
     # Log restriction
     log_gdpr_request('restriction', user_id, reason)
-    
+
     # Notify systems
     notify_restriction(user_id)
 ```
@@ -357,6 +379,7 @@ def restrict_user_processing(user_id, reason):
 ### 4.5 Right to Data Portability (Article 20)
 
 **Implementation:**
+
 ```python
 def export_portable_data(user_id):
     """Export data in machine-readable format."""
@@ -365,7 +388,7 @@ def export_portable_data(user_id):
         'transactions': get_user_transactions(user_id),
         'preferences': get_user_preferences(user_id)
     }
-    
+
     # Export in standard format (JSON)
     export = {
         'format': 'JSON',
@@ -373,20 +396,22 @@ def export_portable_data(user_id):
         'exported_at': datetime.utcnow().isoformat(),
         'data': data
     }
-    
+
     log_gdpr_request('portability', user_id)
-    
+
     return json.dumps(export, indent=2)
 ```
 
 ### 4.6 Right to Object (Article 21)
 
 **Implementation:**
+
 - Opt-out mechanisms for marketing
 - Objection to automated decision-making
 - Objection to profiling
 
 **Process:**
+
 1. User submits objection
 2. Review objection validity
 3. Cease processing if valid
@@ -395,11 +420,13 @@ def export_portable_data(user_id):
 ### 4.7 Rights Related to Automated Decision-Making (Article 22)
 
 **Current Status:**
+
 - ✅ No fully automated decisions with legal effects
 - ✅ Human review for critical decisions
 - ✅ Transparency in algorithms used
 
 **If Implemented:**
+
 - Right to human intervention
 - Right to explanation
 - Right to contest decision
@@ -411,16 +438,19 @@ def export_portable_data(user_id):
 ### 5.1 Encryption
 
 **At Rest:**
+
 - Database: AES-256 encryption
 - Backups: Encrypted with GPG
 - Configuration: Encrypted secrets
 
 **In Transit:**
+
 - TLS 1.3 for all connections
 - Certificate pinning
 - Perfect forward secrecy
 
 **Implementation:**
+
 ```yaml
 # janusgraph-hcd.properties
 storage.cql.ssl.enabled=true
@@ -431,6 +461,7 @@ storage.cql.ssl.client-authentication-enabled=true
 ### 5.2 Access Controls
 
 **Role-Based Access Control (RBAC):**
+
 ```python
 ROLES = {
     'admin': ['read', 'write', 'delete', 'manage_users'],
@@ -451,6 +482,7 @@ def check_permission(user, action, resource):
 ### 5.3 Pseudonymization
 
 **Implementation:**
+
 ```python
 import hashlib
 import hmac
@@ -470,6 +502,7 @@ user_pseudo_id = pseudonymize_identifier(email, SECRET_SALT)
 ### 5.4 Audit Logging
 
 **Logged Events:**
+
 - Data access
 - Data modifications
 - User authentication
@@ -479,6 +512,7 @@ user_pseudo_id = pseudonymize_identifier(email, SECRET_SALT)
 - Data deletions
 
 **Log Format:**
+
 ```json
 {
     "timestamp": "2026-01-28T15:30:00Z",
@@ -495,6 +529,7 @@ user_pseudo_id = pseudonymize_identifier(email, SECRET_SALT)
 ### 5.5 Data Anonymization
 
 **Techniques:**
+
 - K-anonymity for analytics
 - Differential privacy for aggregates
 - Data masking for non-production
@@ -517,11 +552,13 @@ def anonymize_for_analytics(data):
 ### 6.1 Data Protection Officer (DPO)
 
 **Contact Information:**
+
 - Name: [DPO Name]
-- Email: dpo@example.com
+- Email: <dpo@example.com>
 - Phone: +{PHONE-NUMBER}
 
 **Responsibilities:**
+
 - Monitor GDPR compliance
 - Advise on data protection
 - Cooperate with supervisory authority
@@ -530,6 +567,7 @@ def anonymize_for_analytics(data):
 ### 6.2 Staff Training
 
 **Training Program:**
+
 - GDPR fundamentals (all staff)
 - Data handling procedures (technical staff)
 - Incident response (security team)
@@ -540,6 +578,7 @@ def anonymize_for_analytics(data):
 ### 6.3 Data Protection Impact Assessment (DPIA)
 
 **When Required:**
+
 - New data processing activities
 - High-risk processing
 - Large-scale processing of special categories
@@ -550,6 +589,7 @@ def anonymize_for_analytics(data):
 ### 6.4 Policies and Procedures
 
 **Documented Policies:**
+
 - ✅ Privacy Policy
 - ✅ Data Retention Policy
 - ✅ Data Breach Response Plan
@@ -601,6 +641,7 @@ def anonymize_for_analytics(data):
 ### 8.1 Breach Detection
 
 **Monitoring:**
+
 - Automated intrusion detection
 - Log analysis
 - Anomaly detection
@@ -609,18 +650,21 @@ def anonymize_for_analytics(data):
 ### 8.2 Breach Response (72-hour timeline)
 
 **Hour 0-4: Detection and Containment**
+
 1. Detect and verify breach
 2. Contain the breach
 3. Assess scope and impact
 4. Notify incident response team
 
 **Hour 4-24: Investigation**
+
 1. Identify affected data
 2. Determine root cause
 3. Document findings
 4. Assess risk to data subjects
 
 **Hour 24-72: Notification**
+
 1. Notify supervisory authority (if required)
 2. Notify affected data subjects (if high risk)
 3. Document breach in register
@@ -631,6 +675,7 @@ def anonymize_for_analytics(data):
 ### 8.3 Breach Register
 
 **Required Information:**
+
 - Date and time of breach
 - Nature of breach
 - Data affected
@@ -646,6 +691,7 @@ def anonymize_for_analytics(data):
 ### 9.1 Design Principles
 
 **Data Protection by Design:**
+
 - Minimize data collection
 - Pseudonymize where possible
 - Encrypt sensitive data
@@ -654,6 +700,7 @@ def anonymize_for_analytics(data):
 - Facilitate data deletion
 
 **Data Protection by Default:**
+
 - Strictest privacy settings by default
 - Opt-in for non-essential processing
 - Minimal data sharing
@@ -662,6 +709,7 @@ def anonymize_for_analytics(data):
 ### 9.2 Privacy-Enhancing Technologies
 
 **Implemented:**
+
 - ✅ Encryption (at rest and in transit)
 - ✅ Pseudonymization
 - ✅ Access controls
@@ -669,6 +717,7 @@ def anonymize_for_analytics(data):
 - ✅ Secure deletion
 
 **Planned:**
+
 - 🔄 Homomorphic encryption
 - 🔄 Differential privacy
 - 🔄 Zero-knowledge proofs
@@ -680,6 +729,7 @@ def anonymize_for_analytics(data):
 ### 10.1 Processor Requirements
 
 **Due Diligence:**
+
 - GDPR compliance verification
 - Security assessment
 - Data processing agreement
@@ -688,6 +738,7 @@ def anonymize_for_analytics(data):
 ### 10.2 Data Processing Agreements (DPA)
 
 **Required Clauses:**
+
 - Processing instructions
 - Confidentiality obligations
 - Security measures
@@ -713,10 +764,12 @@ def anonymize_for_analytics(data):
 ### 11.1 Transfer Mechanisms
 
 **Within EU/EEA:**
+
 - No additional safeguards required
 - Standard GDPR compliance
 
 **To Third Countries:**
+
 - ✅ Adequacy decision (if applicable)
 - ✅ Standard Contractual Clauses (SCCs)
 - ✅ Binding Corporate Rules (if applicable)
@@ -725,6 +778,7 @@ def anonymize_for_analytics(data):
 ### 11.2 Transfer Impact Assessment
 
 **Assessment Criteria:**
+
 - Legal framework in destination country
 - Access by public authorities
 - Practical enforceability of rights
@@ -737,6 +791,7 @@ def anonymize_for_analytics(data):
 ### 12.1 Regular Audits
 
 **Audit Schedule:**
+
 - Internal audit: Quarterly
 - External audit: Annually
 - DPO review: Monthly
@@ -745,6 +800,7 @@ def anonymize_for_analytics(data):
 ### 12.2 Compliance Metrics
 
 **Key Performance Indicators:**
+
 - Data subject request response time
 - Breach notification compliance
 - Training completion rate
@@ -754,6 +810,7 @@ def anonymize_for_analytics(data):
 ### 12.3 Continuous Improvement
 
 **Process:**
+
 1. Monitor compliance metrics
 2. Identify gaps and risks
 3. Implement improvements
@@ -775,10 +832,12 @@ def anonymize_for_analytics(data):
 ### Appendix B: Contact Information
 
 **Data Protection Officer:**
-- Email: dpo@example.com
+
+- Email: <dpo@example.com>
 - Phone: +{PHONE-NUMBER}
 
 **Supervisory Authority:**
+
 - [National DPA Name]
 - Website: [URL]
 - Email: [Email]
@@ -802,6 +861,6 @@ This document has been reviewed and approved by:
 
 ---
 
-**Document Classification:** Internal - Confidential  
-**Next Review Date:** 2026-04-28  
+**Document Classification:** Internal - Confidential
+**Next Review Date:** 2026-04-28
 **Document Owner:** Data Protection Officer

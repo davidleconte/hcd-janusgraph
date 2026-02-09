@@ -1,8 +1,8 @@
 # System Architecture
 
-**File**: docs/architecture/system-architecture.md  
-**Created**: 2026-01-28  
-**Updated**: 2026-02-06  
+**File**: docs/architecture/system-architecture.md
+**Created**: 2026-01-28
+**Updated**: 2026-02-06
 **Author**: David LECONTE - IBM Worldwide | Data & AI
 
 ---
@@ -20,49 +20,49 @@ flowchart TB
         NB["Jupyter Notebooks<br/>:8888"]
         CLI["CLI Tools"]
     end
-    
+
     subgraph "Streaming Layer"
         PUL["Apache Pulsar<br/>:6650"]
         GC["Graph Consumer"]
         VC["Vector Consumer"]
         DLQ["DLQ Handler"]
     end
-    
+
     subgraph "Query Layer"
         JG["JanusGraph 1.1.0<br/>:18182"]
         OS["OpenSearch 3.x<br/>:9200"]
     end
-    
+
     subgraph "Storage Layer"
         HCD["HCD / Cassandra<br/>:19042"]
     end
-    
+
     subgraph "Monitoring Layer"
         PROM["Prometheus<br/>:9090"]
         GRAF["Grafana<br/>:3001"]
         ALERT["AlertManager<br/>:9093"]
     end
-    
+
     API --> JG
     API --> OS
     NB --> JG
     NB --> OS
     CLI --> PUL
-    
+
     PUL --> GC
     PUL --> VC
     PUL --> DLQ
-    
+
     GC --> JG
     VC --> OS
     JG --> HCD
-    
+
     JG --> PROM
     OS --> PROM
     HCD --> PROM
     PROM --> GRAF
     PROM --> ALERT
-    
+
     style PUL fill:#e8f5e9
     style JG fill:#fff3e0
     style OS fill:#f3e5f5
@@ -117,18 +117,21 @@ flowchart TB
 ## Components
 
 ### 1. HCD (HyperConverged Database)
+
 - Cassandra-based distributed database
 - Storage backend for JanusGraph
 - Provides scalability and fault tolerance
 - Port: 19042 (CQL)
 
 ### 2. JanusGraph
+
 - Graph database built on HCD
 - Supports Gremlin query language
 - Lucene-based search indexing
 - Port: 18182 (Gremlin WebSocket)
 
 ### 3. OpenSearch + JVector
+
 - Vector search with embeddings
 - Full-text search capabilities
 - Semantic similarity matching
@@ -138,6 +141,7 @@ flowchart TB
 > **Note**: This project uses OpenSearch aggregations for OLAP operations (slice, dice, drill-down, roll-up, pivot) instead of Spark. This provides sub-second response times without additional infrastructure. See [Advanced Analytics OLAP Guide](../banking/guides/advanced-analytics-olap-guide.md) for implementation details.
 
 ### 4. Apache Pulsar
+
 - Event streaming platform
 - Key_Shared subscriptions for parallelism
 - Message deduplication
@@ -145,18 +149,21 @@ flowchart TB
 - Port: 6650 (Binary), 8081 (Admin)
 
 ### 5. Jupyter Lab
+
 - Interactive Python notebooks
 - Pre-configured with graph clients
 - Visualization capabilities
 - Port: 8888
 
 ### 6. Monitoring Stack
+
 - **Prometheus**: Metrics collection (:9090)
 - **Grafana**: Dashboards and visualization (:3001)
 - **Alertmanager**: Alert routing (:9093)
 - **JanusGraph Exporter**: Graph metrics (:8000)
 
 ### 7. Visualization Tools
+
 - **GraphExp**: Web-based graph explorer (:8080)
 - **Visualizer**: Alternative graph UI (:3000)
 
@@ -173,7 +180,7 @@ sequenceDiagram
     participant JG as JanusGraph
     participant OS as OpenSearch
     participant HCD as HCD/Cassandra
-    
+
     Gen->>Pul: Publish EntityEvent
     Note over Pul: Topic: persons-events
     par Leg 1: Graph
@@ -198,6 +205,7 @@ Client → JanusGraph (Gremlin) → HCD (CQL) → Disk
 ## Network Architecture
 
 All services communicate via Podman bridge network:
+
 - **Network name**: janusgraph-demo_hcd-janusgraph-network
 - **Internal DNS**: Containers resolve by service name
 - **Isolation**: Project-name prefixed for isolation
@@ -205,24 +213,29 @@ All services communicate via Podman bridge network:
 ## Storage Architecture
 
 ### HCD Data
+
 - Path: `/var/lib/cassandra/data`
 - Persistence: Podman volume `hcd-data`
 
 ### JanusGraph Data
+
 - Path: `/var/lib/janusgraph`
 - Persistence: Podman volume `janusgraph-data`
 
 ### Pulsar Data
+
 - Path: `/pulsar/data`
 - Persistence: Podman volume `pulsar-data`
 
 ### Backups
+
 - Path: `/backups/janusgraph/`
 - Format: tar.gz + GraphML export
 
 ## Security Architecture
 
 ### Authentication
+
 - HCD: Native authentication (optional)
 - JanusGraph: Open by default (can add auth)
 - OpenSearch: Basic auth (admin/admin for dev)
@@ -230,6 +243,7 @@ All services communicate via Podman bridge network:
 - Vault: Token-based (unhealthy in current deployment)
 
 ### Network Security
+
 - Services isolated in Podman network
 - Only necessary ports exposed to host
 - No external access by default
@@ -238,10 +252,12 @@ All services communicate via Podman bridge network:
 ## Scalability Considerations
 
 ### Vertical Scaling
+
 - Increase heap sizes in `.env`
 - Add resource limits in compose files
 
 ### Horizontal Scaling
+
 - HCD supports multi-node clusters
 - JanusGraph supports multiple instances
 - Pulsar supports multi-broker clusters
@@ -258,6 +274,7 @@ EntityEvent.entity_id  ─┬─▶ Pulsar partition_key
 ```
 
 This enables:
+
 - Cross-system joins by ID
 - Deduplication at each layer
 - Consistent audit trails

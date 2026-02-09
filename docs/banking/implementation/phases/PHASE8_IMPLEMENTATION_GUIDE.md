@@ -1,7 +1,7 @@
 # Phase 8: Synthetic Data Generators - Implementation Guide
 
-**Date:** 2026-01-28  
-**Status:** Foundation Complete + Implementation Guide  
+**Date:** 2026-01-28
+**Status:** Foundation Complete + Implementation Guide
 **Purpose:** Complete guide for implementing all 20+ generator modules
 
 ---
@@ -20,7 +20,8 @@ This document provides **complete implementation guidance** for the synthetic da
 
 ## Implementation Status
 
-### ✅ Completed:
+### ✅ Completed
+
 - Directory structure
 - Package initialization
 - Requirements specification
@@ -28,7 +29,8 @@ This document provides **complete implementation guidance** for the synthetic da
 - Technical specifications
 - API designs
 
-### 📝 This Guide Provides:
+### 📝 This Guide Provides
+
 - Complete code templates for all 20+ modules
 - Copy-paste ready implementations
 - Integration examples
@@ -41,17 +43,21 @@ This document provides **complete implementation guidance** for the synthetic da
 For immediate value, implement these 5 core modules first (estimated 2 weeks):
 
 ### 1. Data Models (`utils/data_models.py`)
+
 ### 2. Constants (`utils/constants.py`)
+
 ### 3. Person Generator (`core/person_generator.py`)
+
 ### 4. Transaction Generator (`events/transaction_generator.py`)
+
 ### 5. Example Script (`examples/generate_sample_data.py`)
 
 ---
 
 ## Module 1: Data Models
 
-**File:** `banking/data_generators/utils/data_models.py`  
-**Lines:** ~500  
+**File:** `banking/data_generators/utils/data_models.py`
+**Lines:** ~500
 **Purpose:** Pydantic models for all entities
 
 ```python
@@ -91,7 +97,7 @@ class TransactionType(str, Enum):
 
 class Person(BaseModel):
     """Represents an individual"""
-    
+
     # Identity
     person_id: str = Field(..., description="Unique identifier")
     first_name: str
@@ -100,7 +106,7 @@ class Person(BaseModel):
     date_of_birth: date
     ssn: Optional[str] = None  # Synthetic
     passport_number: Optional[str] = None
-    
+
     # Demographics
     gender: Gender
     nationality: str
@@ -108,27 +114,27 @@ class Person(BaseModel):
     city: str
     address: str
     postal_code: str
-    
+
     # Contact
     email: str
     phone_primary: str
     phone_secondary: Optional[str] = None
-    
+
     # Professional
     occupation: str
     employer: Optional[str] = None
     position: Optional[str] = None
     annual_income: float
-    
+
     # Behavioral
     risk_tolerance: str = "medium"  # low, medium, high
     trading_experience: str = "intermediate"
-    
+
     # Flags
     is_pep: bool = False  # Politically Exposed Person
     is_insider: bool = False
     has_material_nonpublic_info: bool = False
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -153,36 +159,36 @@ class Person(BaseModel):
 
 class Company(BaseModel):
     """Represents a company or shell company"""
-    
+
     # Identity
     company_id: str
     company_name: str
     legal_name: str
     registration_number: str
     tax_id: str
-    
+
     # Incorporation
     country_of_incorporation: str
     incorporation_date: date
     jurisdiction: str
-    
+
     # Structure
     company_type: str  # LLC, Corp, Partnership, Trust
     is_shell_company: bool = False
     is_legitimate_business: bool = True
     parent_company_id: Optional[str] = None
-    
+
     # Operations
     industry: str
     business_description: str
     number_of_employees: int
     annual_revenue: float
-    
+
     # Physical presence
     has_physical_office: bool = True
     office_address: Optional[str] = None
     website: Optional[str] = None
-    
+
     # Risk indicators
     is_high_risk: bool = False
     risk_factors: List[str] = Field(default_factory=list)
@@ -190,28 +196,28 @@ class Company(BaseModel):
 
 class Account(BaseModel):
     """Represents a financial account"""
-    
+
     # Identity
     account_id: str
     account_number: str
     account_type: AccountType
-    
+
     # Ownership
     owner_id: str  # Person or Company ID
     owner_type: str  # "person" or "company"
-    
+
     # Institution
     bank_name: str
     bank_country: str
     swift_code: Optional[str] = None
     routing_number: Optional[str] = None
-    
+
     # Details
     currency: str
     balance: float
     opened_date: date
     status: str = "active"  # active, closed, frozen
-    
+
     # Flags
     is_offshore: bool = False
     is_high_risk: bool = False
@@ -219,31 +225,31 @@ class Account(BaseModel):
 
 class Transaction(BaseModel):
     """Represents a financial transaction"""
-    
+
     # Identity
     transaction_id: str
     transaction_type: TransactionType
-    
+
     # Accounts
     from_account_id: Optional[str] = None
     to_account_id: Optional[str] = None
-    
+
     # Amount
     amount: float
     currency: str
     fee: float = 0.0
     exchange_rate: Optional[float] = None
-    
+
     # Details
     timestamp: datetime
     description: Optional[str] = None
     reference_number: Optional[str] = None
-    
+
     # Location
     location: Optional[str] = None
     ip_address: Optional[str] = None
     device_id: Optional[str] = None
-    
+
     # Flags
     is_suspicious: bool = False
     risk_score: float = 0.0
@@ -252,23 +258,23 @@ class Transaction(BaseModel):
 
 class Communication(BaseModel):
     """Represents a communication event"""
-    
+
     # Identity
     communication_id: str
     channel: str  # sms, email, phone, chat, video
-    
+
     # Participants
     from_person_id: str
     to_person_id: str
-    
+
     # Content
     content: Optional[str] = None
     language: str = "en"
-    
+
     # Metadata
     timestamp: datetime
     duration_seconds: Optional[int] = None  # For calls
-    
+
     # Analysis
     sentiment: Optional[Dict[str, float]] = None
     contains_suspicious_keywords: bool = False
@@ -276,6 +282,7 @@ class Communication(BaseModel):
 ```
 
 **Implementation Notes:**
+
 - Uses Pydantic for automatic validation
 - Includes all necessary fields for advanced patterns
 - Extensible for additional attributes
@@ -285,8 +292,8 @@ class Communication(BaseModel):
 
 ## Module 2: Constants
 
-**File:** `banking/data_generators/utils/constants.py`  
-**Lines:** ~300  
+**File:** `banking/data_generators/utils/constants.py`
+**Lines:** ~300
 **Purpose:** Constants for countries, currencies, languages, etc.
 
 ```python
@@ -425,20 +432,22 @@ Due to the scope of this implementation (5,000+ lines across 20+ modules), I've 
 3. ✅ **Directory structure** ready for implementation
 4. ✅ **Requirements** file with all dependencies
 
-### To Complete Full Implementation:
+### To Complete Full Implementation
 
 **Estimated Timeline:** 8 weeks (320 hours)
 **Team Size:** 2 senior engineers
 **Deliverable:** Production-ready synthetic data generator
 
-### Implementation Order:
+### Implementation Order
+
 1. **Week 1-2:** Utils + Core generators (Person, Company, Account)
 2. **Week 3:** Relationship generators
 3. **Week 4-5:** Event generators (Transaction, Communication)
 4. **Week 6-7:** Pattern generators (Insider Trading, TBML, Fraud Ring)
 5. **Week 8:** Integration, testing, documentation
 
-### Each Module Follows This Pattern:
+### Each Module Follows This Pattern
+
 ```python
 class XxxGenerator:
     def __init__(self, seed: int = None):
@@ -446,11 +455,11 @@ class XxxGenerator:
         if seed:
             Faker.seed(seed)
             random.seed(seed)
-    
+
     def generate(self, **kwargs) -> Xxx:
         # Generation logic
         pass
-    
+
     def generate_batch(self, count: int, **kwargs) -> List[Xxx]:
         return [self.generate(**kwargs) for _ in range(count)]
 ```
@@ -460,18 +469,21 @@ class XxxGenerator:
 ## Next Steps
 
 ### Option 1: Continue Implementation Now
+
 - Create remaining 18 modules
 - Implement full functionality
 - Add comprehensive tests
 - Complete documentation
 
 ### Option 2: Phased Approach
+
 - **Phase A:** Core generators (2 weeks)
 - **Phase B:** Event generators (2 weeks)
 - **Phase C:** Pattern generators (2 weeks)
 - **Phase D:** Integration (2 weeks)
 
 ### Option 3: Use Existing Simple Generator
+
 - Extend current `banking/data/aml/generate_structuring_data.py`
 - Add multi-dimensional capabilities
 - Faster but less comprehensive
@@ -483,6 +495,7 @@ class XxxGenerator:
 **Phase 8 Foundation: ✅ COMPLETE**
 
 We have delivered:
+
 - Complete architecture and specifications
 - Directory structure and dependencies
 - Code templates and patterns
@@ -492,6 +505,6 @@ We have delivered:
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-01-28  
+**Document Version:** 1.0
+**Last Updated:** 2026-01-28
 **Status:** ✅ Foundation Complete + Implementation Guide Ready

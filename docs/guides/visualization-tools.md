@@ -1,6 +1,6 @@
 # Graph Visualization Tools
 
-**Date:** 2026-02-04  
+**Date:** 2026-02-04
 **Status:** Active
 
 This guide covers graph visualization options for the HCD + JanusGraph stack.
@@ -11,23 +11,26 @@ This guide covers graph visualization options for the HCD + JanusGraph stack.
 
 ### 1. JanusGraph Visualizer (Included)
 
-**Status:** Included in docker-compose stack  
-**Port:** 3000  
+**Status:** Included in docker-compose stack
+**Port:** 3000
 **License:** Open Source
 
 The JanusGraph Visualizer is bundled with the project and starts automatically with the full stack deployment.
 
 **Pros:**
+
 - No additional installation required
 - Embedded in Docker stack
 - Works offline
 
 **Cons:**
+
 - May show as "unhealthy" (cosmetic issue)
 - Limited features compared to commercial tools
 - Runs in container (slower than native apps)
 
 **Access:**
+
 ```bash
 open http://localhost:3000
 ```
@@ -36,13 +39,14 @@ open http://localhost:3000
 
 ### 2. GraphExp (Included)
 
-**Status:** Included in docker-compose stack  
-**Port:** 8183  
+**Status:** Included in docker-compose stack
+**Port:** 8183
 **License:** Open Source
 
 GraphExp is another open-source graph explorer included in the stack.
 
 **Access:**
+
 ```bash
 open http://localhost:8183
 ```
@@ -51,13 +55,14 @@ open http://localhost:8183
 
 ### 3. G.V() (Recommended for Development)
 
-**Status:** External tool (download separately)  
-**License:** Commercial (free trial available)  
+**Status:** External tool (download separately)
+**License:** Commercial (free trial available)
 **Website:** [gdotv.com](https://gdotv.com/janusgraph-visualization-tool/)
 
 G.V() is a professional Gremlin graph visualization tool with native support for JanusGraph.
 
 **Pros:**
+
 - ✅ Native macOS Apple Silicon support (M1/M2/M3)
 - ✅ Advanced query editor with autocomplete
 - ✅ Full schema exploration
@@ -66,6 +71,7 @@ G.V() is a professional Gremlin graph visualization tool with native support for
 - ✅ Query history and saved queries
 
 **Cons:**
+
 - Requires separate download
 - Commercial license for full features
 - Not embedded in stack (external dependency)
@@ -95,7 +101,7 @@ g.V().count()
 // List vertex labels
 g.V().label().dedup()
 
-// List edge labels  
+// List edge labels
 g.E().label().dedup()
 
 // Find persons
@@ -125,6 +131,7 @@ g.V().hasLabel('Transaction').limit(10)
 **Problem:** Cannot connect to `ws://localhost:18182/gremlin`
 
 **Solutions:**
+
 1. Verify JanusGraph is running: `podman ps | grep janusgraph`
 2. Check port mapping: `podman port janusgraph-demo_janusgraph-server_1`
 3. Ensure `JANUSGRAPH_USE_SSL=false` for local development

@@ -11,14 +11,15 @@ Created: 2026-02-06
 
 import os
 import sys
-import pytest
+import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
-import uuid
+
+import pytest
 
 # Add paths for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/python'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../banking'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src/python"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../banking"))
 
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
@@ -26,18 +27,17 @@ from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.process.graph_traversal import __
 from gremlin_python.process.traversal import T
 
-
 # Test configuration
-JANUSGRAPH_HOST = os.getenv('JANUSGRAPH_HOST', 'localhost')
-JANUSGRAPH_PORT = int(os.getenv('JANUSGRAPH_PORT', '18182'))
+JANUSGRAPH_HOST = os.getenv("JANUSGRAPH_HOST", "localhost")
+JANUSGRAPH_PORT = int(os.getenv("JANUSGRAPH_PORT", "18182"))
 GRAPH_URL = f"ws://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin"
 
 
 def is_janusgraph_available() -> bool:
     """Check if JanusGraph is available using client approach."""
     try:
-        c = client.Client(GRAPH_URL, 'g', message_serializer=serializer.GraphSONSerializersV3d0())
-        result = c.submit('g.V().count()').all().result()
+        c = client.Client(GRAPH_URL, "g", message_serializer=serializer.GraphSONSerializersV3d0())
+        result = c.submit("g.V().count()").all().result()
         c.close()
         return True
     except Exception:
@@ -46,22 +46,23 @@ def is_janusgraph_available() -> bool:
 
 # Skip all tests if JanusGraph is not available
 pytestmark = pytest.mark.skipif(
-    not is_janusgraph_available(),
-    reason="JanusGraph not available at localhost:18182"
+    not is_janusgraph_available(), reason="JanusGraph not available at localhost:18182"
 )
 
 
 class GremlinClient:
     """Simple Gremlin client wrapper for tests."""
-    
+
     def __init__(self, url: str):
         self.url = url
-        self.client = client.Client(url, 'g', message_serializer=serializer.GraphSONSerializersV3d0())
-    
+        self.client = client.Client(
+            url, "g", message_serializer=serializer.GraphSONSerializersV3d0()
+        )
+
     def execute(self, query: str):
         """Execute a Gremlin query string."""
         return self.client.submit(query).all().result()
-    
+
     def close(self):
         """Close the connection."""
         self.client.close()
@@ -89,7 +90,7 @@ def test_person_id():
 
 class TestJanusGraphConnection:
     """Test basic JanusGraph connectivity."""
-    
+
     def test_connection_established(self, graph_client):
         """Test that we can connect to JanusGraph."""
         result = graph_client.execute("g.V().count()")
@@ -97,12 +98,12 @@ class TestJanusGraphConnection:
         assert len(result) > 0
         assert isinstance(result[0], int)
         assert result[0] >= 0
-    
+
     def test_query_execution(self, graph_client):
         """Test that we can execute queries."""
         result = graph_client.execute("g.V().limit(5)")
         assert isinstance(result, list)
-    
+
     def test_edge_count(self, graph_client):
         """Test that we can count edges."""
         result = graph_client.execute("g.E().count()")
@@ -112,32 +113,32 @@ class TestJanusGraphConnection:
 
 class TestFraudDetectorIntegration:
     """Integration tests for FraudDetector."""
-    
+
     @pytest.fixture(autouse=True)
     def setup_fraud_detector(self):
         """Set up the fraud detector."""
         # Import here to avoid import errors if dependencies missing
-        from fraud.fraud_detection import FraudDetector, FraudScore, FraudAlert
-        
+        from fraud.fraud_detection import FraudAlert, FraudDetector, FraudScore
+
         self.FraudDetector = FraudDetector
         self.FraudScore = FraudScore
         self.FraudAlert = FraudAlert
-    
+
     def test_fraud_detector_initialization(self):
         """Test FraudDetector can be initialized."""
         try:
             detector = self.FraudDetector(
                 janusgraph_host=JANUSGRAPH_HOST,
                 janusgraph_port=JANUSGRAPH_PORT,
-                opensearch_host='localhost',
-                opensearch_port=9200
+                opensearch_host="localhost",
+                opensearch_port=9200,
             )
             assert detector is not None
             assert detector.graph_url == GRAPH_URL
         except Exception as e:
             # OpenSearch might not be available, but detector should still init
             pytest.skip(f"FraudDetector init failed (OpenSearch may be unavailable): {e}")
-    
+
     def test_fraud_score_dataclass(self):
         """Test FraudScore dataclass creation."""
         score = self.FraudScore(
@@ -148,12 +149,12 @@ class TestFraudDetectorIntegration:
             merchant_score=0.7,
             behavioral_score=0.9,
             risk_level="high",
-            recommendation="review"
+            recommendation="review",
         )
         assert score.overall_score == 0.75
         assert score.risk_level == "high"
         assert score.recommendation == "review"
-    
+
     def test_fraud_alert_dataclass(self):
         """Test FraudAlert dataclass creation."""
         alert = self.FraudAlert(
@@ -170,19 +171,19 @@ class TestFraudDetectorIntegration:
             risk_factors=["high_velocity", "unusual_amount"],
             similar_cases=[],
             timestamp=datetime.now(timezone.utc).isoformat(),
-            metadata={"source": "integration_test"}
+            metadata={"source": "integration_test"},
         )
         assert alert.alert_type == "velocity"
         assert alert.severity == "high"
         assert len(alert.risk_factors) == 2
-    
+
     def test_fraud_detector_thresholds(self):
         """Test FraudDetector threshold constants."""
         assert self.FraudDetector.CRITICAL_THRESHOLD == 0.9
         assert self.FraudDetector.HIGH_THRESHOLD == 0.75
         assert self.FraudDetector.MEDIUM_THRESHOLD == 0.5
         assert self.FraudDetector.LOW_THRESHOLD == 0.25
-    
+
     def test_velocity_limits(self):
         """Test FraudDetector velocity limit constants."""
         assert self.FraudDetector.MAX_TRANSACTIONS_PER_HOUR == 10
@@ -193,41 +194,40 @@ class TestFraudDetectorIntegration:
 
 class TestStructuringDetectorIntegration:
     """Integration tests for StructuringDetector."""
-    
+
     @pytest.fixture(autouse=True)
     def setup_structuring_detector(self):
         """Set up the structuring detector."""
         from aml.structuring_detection import (
-            StructuringDetector, 
-            StructuringPattern, 
-            StructuringAlert
+            StructuringAlert,
+            StructuringDetector,
+            StructuringPattern,
         )
-        
+
         self.StructuringDetector = StructuringDetector
         self.StructuringPattern = StructuringPattern
         self.StructuringAlert = StructuringAlert
-    
+
     def test_structuring_detector_initialization(self):
         """Test StructuringDetector can be initialized."""
         detector = self.StructuringDetector(
-            janusgraph_host=JANUSGRAPH_HOST,
-            janusgraph_port=JANUSGRAPH_PORT
+            janusgraph_host=JANUSGRAPH_HOST, janusgraph_port=JANUSGRAPH_PORT
         )
         assert detector is not None
         assert detector.graph_url == GRAPH_URL
-        assert detector.ctr_threshold == Decimal('10000.00')
-    
+        assert detector.ctr_threshold == Decimal("10000.00")
+
     def test_custom_ctr_threshold(self):
         """Test StructuringDetector with custom CTR threshold."""
-        custom_threshold = Decimal('5000.00')
+        custom_threshold = Decimal("5000.00")
         detector = self.StructuringDetector(
             janusgraph_host=JANUSGRAPH_HOST,
             janusgraph_port=JANUSGRAPH_PORT,
-            ctr_threshold=custom_threshold
+            ctr_threshold=custom_threshold,
         )
         assert detector.ctr_threshold == custom_threshold
-        assert detector.suspicious_threshold == custom_threshold * Decimal('0.9')
-    
+        assert detector.suspicious_threshold == custom_threshold * Decimal("0.9")
+
     def test_structuring_pattern_dataclass(self):
         """Test StructuringPattern dataclass creation."""
         pattern = self.StructuringPattern(
@@ -235,19 +235,19 @@ class TestStructuringDetectorIntegration:
             pattern_type="smurfing",
             account_ids=["acc-001", "acc-002"],
             transaction_ids=["txn-001", "txn-002", "txn-003"],
-            total_amount=Decimal('27000.00'),
+            total_amount=Decimal("27000.00"),
             transaction_count=3,
             time_window_hours=24.0,
             confidence_score=0.92,
             risk_level="high",
             indicators=["just_below_threshold", "regular_timing"],
             detected_at=datetime.now(timezone.utc).isoformat(),
-            metadata={"source": "integration_test"}
+            metadata={"source": "integration_test"},
         )
         assert pattern.pattern_type == "smurfing"
         assert pattern.transaction_count == 3
         assert pattern.confidence_score == 0.92
-    
+
     def test_structuring_alert_dataclass(self):
         """Test StructuringAlert dataclass creation."""
         pattern = self.StructuringPattern(
@@ -255,49 +255,46 @@ class TestStructuringDetectorIntegration:
             pattern_type="smurfing",
             account_ids=["acc-001"],
             transaction_ids=["txn-001", "txn-002"],
-            total_amount=Decimal('18000.00'),
+            total_amount=Decimal("18000.00"),
             transaction_count=2,
             time_window_hours=12.0,
             confidence_score=0.85,
             risk_level="high",
             indicators=["threshold_proximity"],
             detected_at=datetime.now(timezone.utc).isoformat(),
-            metadata={}
+            metadata={},
         )
-        
+
         alert = self.StructuringAlert(
             alert_id="alert-001",
             alert_type="smurfing_detected",
             severity="high",
             patterns=[pattern],
             accounts_involved=["acc-001"],
-            total_amount=Decimal('18000.00'),
+            total_amount=Decimal("18000.00"),
             recommendation="investigate",
-            timestamp=datetime.now(timezone.utc).isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         assert alert.alert_type == "smurfing_detected"
         assert len(alert.patterns) == 1
-        assert alert.total_amount == Decimal('18000.00')
-    
+        assert alert.total_amount == Decimal("18000.00")
+
     def test_detection_thresholds(self):
         """Test StructuringDetector threshold constants."""
-        assert self.StructuringDetector.CTR_THRESHOLD == Decimal('10000.00')
-        assert self.StructuringDetector.SUSPICIOUS_THRESHOLD == Decimal('9000.00')
+        assert self.StructuringDetector.CTR_THRESHOLD == Decimal("10000.00")
+        assert self.StructuringDetector.SUSPICIOUS_THRESHOLD == Decimal("9000.00")
         assert self.StructuringDetector.MAX_TIME_WINDOW_HOURS == 24
         assert self.StructuringDetector.MIN_TRANSACTIONS_FOR_PATTERN == 3
-    
+
     def test_detect_smurfing_no_data(self):
         """Test detect_smurfing with non-existent account."""
         detector = self.StructuringDetector(
-            janusgraph_host=JANUSGRAPH_HOST,
-            janusgraph_port=JANUSGRAPH_PORT
+            janusgraph_host=JANUSGRAPH_HOST, janusgraph_port=JANUSGRAPH_PORT
         )
-        
+
         # Test with a non-existent account - should return empty list
         result = detector.detect_smurfing(
-            account_id="non-existent-account-12345",
-            time_window_hours=24,
-            min_transactions=3
+            account_id="non-existent-account-12345", time_window_hours=24, min_transactions=3
         )
         assert isinstance(result, list)
         assert len(result) == 0
@@ -305,32 +302,32 @@ class TestStructuringDetectorIntegration:
 
 class TestGraphDataQueries:
     """Test queries against existing graph data."""
-    
+
     def test_count_person_vertices(self, graph_client):
         """Test counting person vertices."""
         result = graph_client.execute("g.V().hasLabel('Person').count()")
         assert isinstance(result, list)
         assert isinstance(result[0], int)
         # May be 0 if no data loaded, but should not error
-    
+
     def test_count_account_vertices(self, graph_client):
         """Test counting account vertices."""
         result = graph_client.execute("g.V().hasLabel('Account').count()")
         assert isinstance(result, list)
         assert isinstance(result[0], int)
-    
+
     def test_count_company_vertices(self, graph_client):
         """Test counting company vertices."""
         result = graph_client.execute("g.V().hasLabel('Company').count()")
         assert isinstance(result, list)
         assert isinstance(result[0], int)
-    
+
     def test_count_transaction_edges(self, graph_client):
         """Test counting transaction edges."""
         result = graph_client.execute("g.E().hasLabel('MADE_TRANSACTION').count()")
         assert isinstance(result, list)
         assert isinstance(result[0], int)
-    
+
     def test_vertex_labels(self, graph_client):
         """Test querying vertex labels."""
         result = graph_client.execute("g.V().label().dedup()")
@@ -341,13 +338,13 @@ class TestGraphDataQueries:
 
 class TestFraudDetectionQueries:
     """Test fraud detection related queries."""
-    
+
     def test_high_value_transactions(self, graph_client):
         """Test querying high value transactions."""
         # Query for transactions that have an amount property
         result = graph_client.execute("g.E().hasLabel('MADE_TRANSACTION').has('amount').limit(10)")
         assert isinstance(result, list)
-    
+
     def test_recent_transactions(self, graph_client):
         """Test querying recent transactions."""
         # Query for transactions
@@ -357,7 +354,7 @@ class TestFraudDetectionQueries:
 
 class TestAMLDetectionQueries:
     """Test AML detection related queries."""
-    
+
     def test_account_transaction_count(self, graph_client):
         """Test counting transactions per account."""
         # Get accounts with transactions
@@ -365,7 +362,7 @@ class TestAMLDetectionQueries:
             "g.V().hasLabel('Account').where(outE('MADE_TRANSACTION')).limit(10)"
         )
         assert isinstance(result, list)
-    
+
     def test_transaction_amounts(self, graph_client):
         """Test querying transaction amounts."""
         result = graph_client.execute(

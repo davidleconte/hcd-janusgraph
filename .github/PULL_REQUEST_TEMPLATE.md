@@ -5,9 +5,11 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 -->
 
 ## Description
+
 Brief description of changes made in this PR.
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change fixing an issue)
 - [ ] New feature (non-breaking change adding functionality)
 - [ ] Breaking change (fix or feature causing existing functionality to break)
@@ -16,20 +18,24 @@ Brief description of changes made in this PR.
 - [ ] Configuration change
 
 ## Related Issues
+
 Closes #(issue number)
 
 ## Changes Made
+
 - Change 1
 - Change 2
 - Change 3
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing performed
 - [ ] All tests pass locally
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex logic
@@ -39,11 +45,13 @@ Closes #(issue number)
 - [ ] All CI checks pass
 
 ## Screenshots (if applicable)
+
 Add screenshots here.
 
 ## Deployment Notes
+
 Any special deployment considerations or migration steps.
 
 ---
-**Reviewed by**: _______________  
+**Reviewed by**: _______________
 **Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

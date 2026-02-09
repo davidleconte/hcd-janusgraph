@@ -1,7 +1,7 @@
 # HCD + JanusGraph Containerized Stack
 
-**File**: README.md  
-**Created**: 2026-01-28T10:36:00.123  
+**File**: README.md
+**Created**: 2026-01-28T10:36:00.123
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -28,6 +28,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 ## Prerequisites
 
 ### Required Software
+
 - **Podman** 4.9+ ([Install](https://podman.io/getting-started/installation))
 - **Python** 3.11+ ([Install](https://www.python.org/downloads/))
 - **Git** ([Install](https://git-scm.com/downloads))
@@ -39,6 +40,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 The HCD (HyperConverged Database) distribution is included via **Git LFS** in the `vendor/` directory.
 
 After cloning, create a symlink so Docker can find it:
+
 ```bash
 # Pull LFS files (if not done automatically)
 git lfs pull
@@ -53,6 +55,7 @@ ls hcd-1.2.3/bin/hcd  # Should show the HCD binary
 > **Note**: If `git lfs` is not installed, see [Git LFS Installation](https://git-lfs.github.com/).
 
 ### Verify Prerequisites
+
 ```bash
 # Run preflight check (recommended)
 ./scripts/validation/preflight_check.sh
@@ -101,6 +104,7 @@ open http://localhost:8888
 Choose ONE of these installation methods:
 
 **Option A: Conda (Recommended)**
+
 ```bash
 # Create environment from file
 conda env create -f environment.yml
@@ -110,6 +114,7 @@ conda activate janusgraph-analysis
 ```
 
 **Option B: pip**
+
 ```bash
 # Create virtual environment
 python3.11 -m venv .venv
@@ -123,6 +128,7 @@ pip install -e ".[dev]"
 ```
 
 **Option C: uv (Fast)**
+
 ```bash
 # Create virtual environment and install
 uv venv --python 3.11
@@ -216,7 +222,7 @@ Total: **8 directories + 11 core files** (vs 43 files at root before restructuri
 | **CQLSH** | cqlsh-client | `podman exec -it janusgraph-demo_cqlsh-client_1 cqlsh hcd-server` |
 | **Gremlin Console** | gremlin-console | `podman exec -it janusgraph-demo_gremlin-console_1 bin/gremlin.sh` |
 | **Pulsar CLI** | pulsar-cli | `podman exec janusgraph-demo_pulsar-cli_1 bin/pulsar-admin ...` |
-| **OpenSearch Dashboards** | opensearch-dashboards | http://localhost:5601 |
+| **OpenSearch Dashboards** | opensearch-dashboards | <http://localhost:5601> |
 
 📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed CLI usage examples**
 
@@ -226,9 +232,10 @@ REST API for graph-based analytics including UBO discovery, AML detection, and f
 
 **Base URL**: `http://localhost:8001`
 
-**Documentation**: 
-- OpenAPI Docs: http://localhost:8001/docs
-- ReDoc: http://localhost:8001/redoc
+**Documentation**:
+
+- OpenAPI Docs: <http://localhost:8001/docs>
+- ReDoc: <http://localhost:8001/redoc>
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -240,6 +247,7 @@ REST API for graph-based analytics including UBO discovery, AML detection, and f
 | `/api/v1/fraud/rings` | POST | Detect fraud ring patterns |
 
 **Example Usage**:
+
 ```bash
 # Health check
 curl http://localhost:8001/health
@@ -261,6 +269,7 @@ curl -X POST http://localhost:8001/api/v1/aml/structuring \
 ### Sample Data
 
 Pre-loaded graph includes:
+
 - **5 people** (Alice, Bob, Carol, David, Eve)
 - **3 companies** (DataStax, Acme Corp, TechStart)
 - **3 products** (JanusGraph, Cloud Service Platform, Analytics Engine)
@@ -271,6 +280,7 @@ Pre-loaded graph includes:
 ## Documentation
 
 ### Core Documentation
+
 | Document | Description |
 |----------|-------------|
 | **[QUICKSTART.md](QUICKSTART.md)** | Essential commands, URLs, troubleshooting |
@@ -278,6 +288,7 @@ Pre-loaded graph includes:
 | **[AGENTS.md](AGENTS.md)** | AI agent guidance and project patterns |
 
 ### Production Readiness
+
 | Document | Description |
 |----------|-------------|
 | **[Production Readiness Audit](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** | Comprehensive system audit (A+ grade, 99/100) |
@@ -287,6 +298,7 @@ Pre-loaded graph includes:
 | **[Week 3-4: Testing](docs/implementation/remediation/WEEK3-4_QUICKSTART.md)** | Test coverage (82%) ✅ |
 
 ### Banking & Compliance
+
 | Document | Description |
 |----------|-------------|
 | **[Banking User Guide](docs/banking/guides/USER_GUIDE.md)** | Complete banking system guide |
@@ -294,6 +306,7 @@ Pre-loaded graph includes:
 | **[Technical Spec](docs/banking/planning/technical-spec-complete.md)** | Banking use cases specification |
 
 ### Operations
+
 | Document | Description |
 |----------|-------------|
 | **[Operations Runbook](docs/operations/OPERATIONS_RUNBOOK.md)** | Day-to-day operations guide |
@@ -361,7 +374,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 - **Issues**: [GitHub Issues](https://github.com/davidleconte/hcd-janusgraph/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/davidleconte/hcd-janusgraph/discussions)
-- **Email**: team@example.com
+- **Email**: <team@example.com>
 
 ---
 
