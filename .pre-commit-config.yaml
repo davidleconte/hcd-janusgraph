@@ -32,7 +32,7 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-all, pydantic]
+        additional_dependencies: [types-requests, types-PyYAML, pydantic]
         args: ['--strict', '--ignore-missing-imports', '--python-version=3.11']
         exclude: '^(tests/|banking/notebooks/)'
 
