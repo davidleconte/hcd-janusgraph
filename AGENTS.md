@@ -476,11 +476,26 @@ from banking.compliance.compliance_reporter import ComplianceReporter
 ### Module Organization
 
 ```
+src/python/
+├── repository/        # Graph Repository Pattern (centralizes all Gremlin queries)
+│   ├── __init__.py
+│   └── graph_repository.py   # GraphRepository class (100% test coverage)
+├── api/
+│   ├── routers/       # Thin HTTP handlers (use GraphRepository, no inline Gremlin)
+│   ├── models.py      # Pydantic request/response models
+│   └── dependencies.py # Connection management, auth, rate limiting
+├── analytics/         # UBO discovery, graph analytics
+├── client/            # Low-level JanusGraph client
+├── config/            # Centralized pydantic-settings
+├── init/              # Schema init & sample data loading
+└── utils/             # Resilience, tracing, validation, logging
+
 banking/
 ├── data_generators/     # Synthetic data generation
 │   ├── core/           # Base generators (Person, Company, Account)
 │   ├── events/         # Event generators (Transaction, Communication)
 │   ├── patterns/       # Fraud/AML pattern injection
+│   ├── loaders/        # JanusGraph data loader
 │   └── orchestration/  # Master orchestrator
 ├── compliance/         # Compliance infrastructure
 │   ├── audit_logger.py        # Audit logging (30+ event types)

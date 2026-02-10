@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Repository Pattern** — `src/python/repository/graph_repository.py` centralizes all Gremlin traversals behind a typed interface (100% test coverage, 25 tests)
+- **Test Suites for 0% Coverage Modules**
+  - `tests/unit/init/test_initialize_graph.py` — 15 tests (87% coverage)
+  - `tests/unit/loaders/test_janusgraph_loader.py` — 20 tests (44% coverage)
+  - `tests/unit/repository/test_graph_repository.py` — 25 tests (100% coverage)
+
+### Changed
+
+- All 4 API routers (`health`, `fraud`, `aml`, `ubo`) refactored to use `GraphRepository` — zero inline Gremlin queries
+- `dependencies.flatten_value_map()` now delegates to repository layer (backward compatible)
+
+### Added (previous)
+
 - **Documentation Quality Improvements**
   - FAQ.md with common questions and answers
   - Markdownlint configuration (`.markdownlint.json`)

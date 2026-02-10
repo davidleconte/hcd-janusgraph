@@ -2,8 +2,8 @@
 
 **Date:** 2026-02-09
 **Author:** David Leconte / AdaL
-**Status:** Draft — Ready for Review
-**Version:** 1.0
+**Status:** In Progress
+**Version:** 1.1
 
 ---
 
@@ -42,7 +42,7 @@ The HCD + JanusGraph project has strong infrastructure (security, CI, monitoring
 
 - ❌ Dual exception hierarchies creating confusion
 - ❌ Monolithic API module (729 lines, 16 models, all routes)
-- ❌ Gremlin queries embedded in business logic (no repository layer)
+- ✅ ~~Gremlin queries embedded in business logic~~ → Repository Pattern implemented
 - ❌ No dependency injection — components create their own dependencies
 - ❌ Blurry module boundaries in `banking/`
 - ❌ Several 600–1000 line files violating Single Responsibility
@@ -56,7 +56,7 @@ The HCD + JanusGraph project has strong infrastructure (security, CI, monitoring
 | Largest file (lines) | 999 (`fraud_detection.py`) | ≤400 |
 | Models in `main.py` | 16 | 0 (moved to models/) |
 | Exception modules | 2 (conflicting) | 1 |
-| Direct DB queries in domain logic | ~15 | 0 |
+| Direct DB queries in domain logic | ~~15~~ 0 (API routers) | 0 |
 | Modules using `os.getenv()` directly | 5+ | 0 |
 
 ---
@@ -275,9 +275,13 @@ When fraud is detected, compliance reporting needs to be notified. Currently thi
 
 ## 4. Phase 2 — Separation of Concerns (Days 2–3)
 
-### 4.1 Extract Graph Repository Layer
+### 4.1 Extract Graph Repository Layer ✅ COMPLETED (2026-02-10)
 
 **Effort:** 4–6 hours | **Risk:** Medium-High (touches core detection logic) | **Files affected:** 8–12
+
+> **Implementation:** `src/python/repository/graph_repository.py` (207 lines, 100% test coverage).
+> All 4 API routers refactored to use `GraphRepository` — zero inline Gremlin.
+> 25 unit tests in `tests/unit/repository/test_graph_repository.py`.
 
 **Plan:**
 
