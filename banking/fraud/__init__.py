@@ -8,5 +8,6 @@ Date: 2026-02-04
 """
 
 from banking.fraud.fraud_detection import FraudDetector
+from banking.fraud.models import FraudAlert, FraudScore, HIGH_RISK_MERCHANTS
 
-__all__ = ["FraudDetector"]
+__all__ = ["FraudDetector", "FraudAlert", "FraudScore", "HIGH_RISK_MERCHANTS"]

@@ -9,7 +9,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.python.api.main import (
+from src.python.api.models import (
     HealthResponse,
     StructuringAlert,
     StructuringAlertRequest,
@@ -124,15 +124,23 @@ class TestHealthEndpoints:
         assert data["status"] == "ok"
 
     def test_readiness_returns_200(self):
-        resp = self.client.get("/readyz")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert "status" in data
-        assert "services" in data
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
+            mock_g = MagicMock()
+            mock_g.V.return_value.limit.return_value.count.return_value.next.return_value = 1
+            mock_conn.return_value = mock_g
+            resp = self.client.get("/readyz")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert "status" in data
+            assert "services" in data
 
     def test_health_alias_returns_200(self):
-        resp = self.client.get("/health")
-        assert resp.status_code == 200
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
+            mock_g = MagicMock()
+            mock_g.V.return_value.limit.return_value.count.return_value.next.return_value = 1
+            mock_conn.return_value = mock_g
+            resp = self.client.get("/health")
+            assert resp.status_code == 200
 
     def test_docs_accessible(self):
         resp = self.client.get("/docs")

@@ -9,7 +9,6 @@ Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product S
 Date: 2026-02-04
 """
 
-# Import the module under test
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +21,6 @@ src_path = str(Path(__file__).parent.parent.parent.parent / "src" / "python")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-# Mock gremlin_python before importing main
 with patch.dict(
     "sys.modules",
     {
@@ -36,41 +34,41 @@ with patch.dict(
         "gremlin_python.process.traversal": MagicMock(),
     },
 ):
-    from src.python.api.main import _flatten_value_map, app, get_graph_connection
+    from src.python.api.dependencies import flatten_value_map
+    from src.python.api.main import app
 
 
 @pytest.fixture
 def client():
-    """Create test client"""
+    """Create test client."""
     return TestClient(app)
 
 
 @pytest.fixture(autouse=True)
 def reset_connection():
-    """Reset global connection state before each test to allow proper mocking"""
-    import src.python.api.main as main_module
+    """Reset global connection state before each test to allow proper mocking."""
+    import src.python.api.dependencies as deps_module
 
-    main_module._connection = None
-    main_module._traversal = None
+    deps_module._connection = None
+    deps_module._traversal = None
     yield
-    # Cleanup after test
-    main_module._connection = None
-    main_module._traversal = None
+    deps_module._connection = None
+    deps_module._traversal = None
 
 
 @pytest.fixture
 def mock_graph_connection():
-    """Mock JanusGraph connection"""
+    """Mock JanusGraph connection."""
     mock_g = MagicMock()
     return mock_g
 
 
 class TestHealthEndpoint:
-    """Tests for /health endpoint"""
+    """Tests for /health endpoint."""
 
     def test_health_endpoint_exists(self, client):
-        """Test health endpoint returns response"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test health endpoint returns response."""
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.limit.return_value.count.return_value.next.return_value = 1
             mock_conn.return_value = mock_g
@@ -84,8 +82,8 @@ class TestHealthEndpoint:
             assert "services" in data
 
     def test_health_returns_healthy_when_connected(self, client):
-        """Test health returns healthy when JanusGraph is connected"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test health returns healthy when JanusGraph is connected."""
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.limit.return_value.count.return_value.next.return_value = 1
             mock_conn.return_value = mock_g
@@ -99,18 +97,16 @@ class TestHealthEndpoint:
 
     @pytest.mark.skip(reason="Requires service unavailability - test covered by integration tests")
     def test_health_returns_degraded_when_disconnected(self, client):
-        """Test health returns degraded when JanusGraph is not connected"""
-        # Note: This test requires stopping JanusGraph service to verify degraded state
-        # The health endpoint behavior is verified by integration tests when services are unavailable
+        """Test health returns degraded when JanusGraph is not connected."""
         pass
 
 
 class TestStatsEndpoint:
-    """Tests for /stats endpoint"""
+    """Tests for /stats endpoint."""
 
     def test_stats_endpoint_exists(self, client):
-        """Test stats endpoint returns response"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test stats endpoint returns response."""
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.count.return_value.next.return_value = 100
             mock_g.E.return_value.count.return_value.next.return_value = 200
@@ -122,8 +118,8 @@ class TestStatsEndpoint:
             assert response.status_code == 200
 
     def test_stats_returns_graph_statistics(self, client):
-        """Test stats returns all expected fields"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test stats returns all expected fields."""
+        with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.count.return_value.next.return_value = 1000
             mock_g.E.return_value.count.return_value.next.return_value = 2000
@@ -144,11 +140,11 @@ class TestStatsEndpoint:
 
 
 class TestUBODiscoverEndpoint:
-    """Tests for POST /api/v1/ubo/discover endpoint"""
+    """Tests for POST /api/v1/ubo/discover endpoint."""
 
     def test_ubo_discover_endpoint_exists(self, client):
-        """Test UBO discover endpoint accepts POST"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test UBO discover endpoint accepts POST."""
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.has.return_value.valueMap.return_value.toList.return_value = [
                 {"company_id": ["COMP-001"], "legal_name": ["Test Corp"]}
@@ -166,29 +162,18 @@ class TestUBODiscoverEndpoint:
         reason="Mock gremlin_python returns mock objects - cannot simulate missing company"
     )
     def test_ubo_discover_returns_404_for_missing_company(self, client):
-        """Test UBO discover returns 404 for non-existent company
-
-        Note: Skipped because gremlin_python is mocked at import time, so queries
-        return mock objects instead of empty results. Would need integration tests
-        or dependency injection to properly test 404 handling.
-        """
-        import uuid
-
-        fake_company_id = f"NONEXISTENT-{uuid.uuid4()}"
-
-        response = client.post("/api/v1/ubo/discover", json={"company_id": fake_company_id})
-
-        assert response.status_code == 404
+        """Test UBO discover returns 404 for non-existent company."""
+        pass
 
     def test_ubo_discover_validates_request_body(self, client):
-        """Test UBO discover validates required fields"""
+        """Test UBO discover validates required fields."""
         response = client.post("/api/v1/ubo/discover", json={})
 
-        assert response.status_code == 422  # Validation error
+        assert response.status_code == 422
 
     def test_ubo_discover_with_custom_threshold(self, client):
-        """Test UBO discover accepts custom ownership threshold"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test UBO discover accepts custom ownership threshold."""
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.has.return_value.valueMap.return_value.toList.return_value = [
                 {"company_id": ["COMP-001"], "legal_name": ["Test Corp"]}
@@ -212,11 +197,11 @@ class TestUBODiscoverEndpoint:
 
 
 class TestUBONetworkEndpoint:
-    """Tests for GET /api/v1/ubo/network/{company_id} endpoint"""
+    """Tests for GET /api/v1/ubo/network/{company_id} endpoint."""
 
     def test_network_endpoint_exists(self, client):
-        """Test network endpoint returns response"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test network endpoint returns response."""
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.has.return_value.hasNext.return_value = True
             mock_g.V.return_value.has.return_value.valueMap.return_value.next.return_value = {
@@ -236,23 +221,12 @@ class TestUBONetworkEndpoint:
         reason="Mock gremlin_python returns mock objects - cannot simulate missing company"
     )
     def test_network_returns_404_for_missing_company(self, client):
-        """Test network returns 404 for non-existent company
-
-        Note: Skipped because gremlin_python is mocked at import time, so queries
-        return mock objects instead of empty results. Would need integration tests
-        or dependency injection to properly test 404 handling.
-        """
-        import uuid
-
-        fake_company_id = f"NONEXISTENT-{uuid.uuid4()}"
-
-        response = client.get(f"/api/v1/ubo/network/{fake_company_id}")
-
-        assert response.status_code == 404
+        """Test network returns 404 for non-existent company."""
+        pass
 
     def test_network_accepts_depth_parameter(self, client):
-        """Test network endpoint accepts depth query parameter"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test network endpoint accepts depth query parameter."""
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.has.return_value.hasNext.return_value = True
             mock_g.V.return_value.has.return_value.valueMap.return_value.next.return_value = {
@@ -270,11 +244,11 @@ class TestUBONetworkEndpoint:
 
 
 class TestAMLStructuringEndpoint:
-    """Tests for POST /api/v1/aml/structuring endpoint"""
+    """Tests for POST /api/v1/aml/structuring endpoint."""
 
     def test_structuring_endpoint_exists(self, client):
-        """Test structuring endpoint accepts POST"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test structuring endpoint accepts POST."""
+        with patch("src.python.api.routers.aml.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.hasLabel.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
                 []
@@ -286,8 +260,8 @@ class TestAMLStructuringEndpoint:
             assert response.status_code == 200
 
     def test_structuring_with_custom_parameters(self, client):
-        """Test structuring detection with custom parameters"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test structuring detection with custom parameters."""
+        with patch("src.python.api.routers.aml.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.hasLabel.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
                 []
@@ -312,11 +286,11 @@ class TestAMLStructuringEndpoint:
 
 
 class TestFraudRingsEndpoint:
-    """Tests for GET /api/v1/fraud/rings endpoint"""
+    """Tests for GET /api/v1/fraud/rings endpoint."""
 
     def test_fraud_rings_endpoint_exists(self, client):
-        """Test fraud rings endpoint returns response"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test fraud rings endpoint returns response."""
+        with patch("src.python.api.routers.fraud.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.hasLabel.return_value.where.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
                 []
@@ -328,8 +302,8 @@ class TestFraudRingsEndpoint:
             assert response.status_code == 200
 
     def test_fraud_rings_with_min_members(self, client):
-        """Test fraud rings with min_members parameter"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test fraud rings with min_members parameter."""
+        with patch("src.python.api.routers.fraud.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.hasLabel.return_value.where.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
                 []
@@ -341,8 +315,8 @@ class TestFraudRingsEndpoint:
             assert response.status_code == 200
 
     def test_fraud_rings_returns_structure(self, client):
-        """Test fraud rings returns expected structure"""
-        with patch("src.python.api.main.get_graph_connection") as mock_conn:
+        """Test fraud rings returns expected structure."""
+        with patch("src.python.api.routers.fraud.get_graph_connection") as mock_conn:
             mock_g = MagicMock()
             mock_g.V.return_value.hasLabel.return_value.where.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
                 {"address_id": "ADDR-001", "city": "New York", "persons": ["P1", "P2", "P3"]}
@@ -358,31 +332,31 @@ class TestFraudRingsEndpoint:
 
 
 class TestFlattenValueMap:
-    """Tests for _flatten_value_map helper function"""
+    """Tests for flatten_value_map helper function."""
 
     def test_flatten_single_value_lists(self):
-        """Test flattening single-value lists"""
+        """Test flattening single-value lists."""
         value_map = {"name": ["John"], "age": [30]}
 
-        result = _flatten_value_map(value_map)
+        result = flatten_value_map(value_map)
 
         assert result["name"] == "John"
         assert result["age"] == 30
 
     def test_flatten_keeps_multi_value_lists(self):
-        """Test multi-value lists are preserved"""
+        """Test multi-value lists are preserved."""
         value_map = {"tags": ["a", "b", "c"]}
 
-        result = _flatten_value_map(value_map)
+        result = flatten_value_map(value_map)
 
         assert result["tags"] == ["a", "b", "c"]
 
 
 class TestAPIDocumentation:
-    """Tests for API documentation endpoints"""
+    """Tests for API documentation endpoints."""
 
     def test_openapi_json_available(self, client):
-        """Test OpenAPI schema is available"""
+        """Test OpenAPI schema is available."""
         response = client.get("/openapi.json")
 
         assert response.status_code == 200
@@ -391,30 +365,30 @@ class TestAPIDocumentation:
         assert "paths" in data
 
     def test_docs_endpoint_available(self, client):
-        """Test Swagger UI docs endpoint is available"""
+        """Test Swagger UI docs endpoint is available."""
         response = client.get("/docs")
 
         assert response.status_code == 200
 
     def test_redoc_endpoint_available(self, client):
-        """Test ReDoc endpoint is available"""
+        """Test ReDoc endpoint is available."""
         response = client.get("/redoc")
 
         assert response.status_code == 200
 
 
 class TestAPIMetadata:
-    """Tests for API metadata"""
+    """Tests for API metadata."""
 
     def test_api_title(self, client):
-        """Test API title is correct"""
+        """Test API title is correct."""
         response = client.get("/openapi.json")
         data = response.json()
 
         assert data["info"]["title"] == "Graph Analytics API"
 
     def test_api_version(self, client):
-        """Test API version is set"""
+        """Test API version is set."""
         response = client.get("/openapi.json")
         data = response.json()
 
@@ -423,60 +397,47 @@ class TestAPIMetadata:
 
 
 class TestRequestValidation:
-    """Tests for request validation"""
+    """Tests for request validation."""
 
     def test_ubo_discover_rejects_invalid_threshold(self, client):
-        """Test UBO discover rejects invalid ownership threshold"""
+        """Test UBO discover rejects invalid ownership threshold."""
         response = client.post(
             "/api/v1/ubo/discover",
-            json={"company_id": "COMP-001", "ownership_threshold": 150.0},  # Invalid - over 100
+            json={"company_id": "COMP-001", "ownership_threshold": 150.0},
         )
 
         assert response.status_code == 422
 
     def test_ubo_discover_rejects_invalid_max_depth(self, client):
-        """Test UBO discover rejects invalid max depth"""
+        """Test UBO discover rejects invalid max depth."""
         response = client.post(
             "/api/v1/ubo/discover",
-            json={"company_id": "COMP-001", "max_depth": 0},  # Invalid - must be >= 1
+            json={"company_id": "COMP-001", "max_depth": 0},
         )
 
         assert response.status_code == 422
 
     def test_structuring_rejects_invalid_time_window(self, client):
-        """Test structuring detection rejects invalid time window"""
+        """Test structuring detection rejects invalid time window."""
         response = client.post(
-            "/api/v1/aml/structuring", json={"time_window_days": 0}  # Invalid - must be >= 1
+            "/api/v1/aml/structuring", json={"time_window_days": 0}
         )
 
         assert response.status_code == 422
 
 
 class TestErrorHandling:
-    """Tests for error handling"""
+    """Tests for error handling."""
 
     @pytest.mark.skip(
-        reason="Difficult to mock with gremlin_python mocked at import time - would require dependency injection refactor"
+        reason="Requires dependency injection refactor for proper error simulation"
     )
     def test_internal_error_returns_500(self, client):
-        """Test internal errors return 500 status
-
-        Note: This test is skipped because the current architecture mocks gremlin_python
-        at import time, which means get_graph_connection() succeeds with mocked objects.
-        Properly testing 500 error handling would require refactoring to use dependency
-        injection for the graph connection.
-        """
-        import src.python.api.main as main_module
-
-        with patch.object(main_module, "get_graph_connection") as mock_conn:
-            mock_conn.side_effect = Exception("Database error")
-
-            response = client.get("/stats")
-
-            assert response.status_code == 500
+        """Test internal errors return 500 status."""
+        pass
 
     def test_error_response_includes_detail(self, client):
-        """Test error responses include detail message"""
+        """Test error responses include detail message."""
         response = client.post("/api/v1/ubo/discover", json={})
 
         assert response.status_code == 422

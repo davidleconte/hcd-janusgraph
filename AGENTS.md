@@ -221,8 +221,8 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 
 ### Project Status
 
-- **Production Readiness:** A+ (99/100) ✅
-- **Test Coverage:** 82% (670+ tests)
+- **Production Readiness:** B+ (76/100)
+- **Test Coverage:** ~35% overall, 950+ tests collected
 - **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging, Startup Validation)
 - **Compliance:** GDPR, SOC 2, BSA/AML, PCI DSS ready
 - **CI Quality Gates:** 8 workflows (coverage, docstrings, security, types, lint)
@@ -593,21 +593,24 @@ pytest -v -m "slow"
 
 ### Test Coverage
 
-**Current coverage: 82%** (exceeds 80% target):
+**Current coverage: ~35% overall** (950+ tests collected):
 
 ```
-Module                          Coverage    Tests
-──────────────────────────────────────────────────
-PersonGenerator                 92%         20+
-CompanyGenerator                96%         18
-AccountGenerator                91%         20
-CommunicationGenerator          95%         43
-AML Structuring Detection       80%         30+
-Fraud Detection                 80%         35+
-Integration Workflows           80%         25+
-Audit Logger                    98%         28
-──────────────────────────────────────────────────
-OVERALL                         82%         670+
+Module                          Coverage
+──────────────────────────────────────────
+python.config                   98%
+python.client                   97%
+python.utils                    88%
+python.api                      75%
+data_generators.utils           76%
+streaming                       28%
+aml                             25%
+compliance                      25%
+fraud                           23%
+data_generators.patterns        13%
+analytics                        0%
+──────────────────────────────────────────
+OVERALL                         ~35%
 ```
 
 ---
