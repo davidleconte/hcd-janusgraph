@@ -87,7 +87,14 @@ class FraudDetector(NotebookCompatMixin):
         """Establish reusable connection to JanusGraph."""
         if self._connection is not None:
             return
-        self._breaker.call(self._do_connect)
+        if self._breaker.state.value == "open":
+            raise ConnectionError("Circuit breaker is open for JanusGraph")
+        try:
+            self._do_connect()
+            self._breaker.record_success()
+        except Exception:
+            self._breaker.record_failure()
+            raise
         logger.info("Connected to JanusGraph at %s", self.graph_url)
 
     def _do_connect(self):
