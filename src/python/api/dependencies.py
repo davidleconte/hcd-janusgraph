@@ -13,7 +13,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from gremlin_python.driver import serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
-from gremlin_python.process.traversal import T
+
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -85,15 +85,11 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 def flatten_value_map(value_map: Dict) -> Dict:
-    """Flatten JanusGraph valueMap (lists to single values)."""
-    flat: Dict = {}
-    for key, value in value_map.items():
-        if key == T.id:
-            flat["id"] = value
-        elif key == T.label:
-            flat["label"] = value
-        elif isinstance(value, list) and len(value) == 1:
-            flat[key] = value[0]
-        else:
-            flat[key] = value
-    return flat
+    """Flatten JanusGraph valueMap (lists to single values).
+
+    .. deprecated:: 1.4.0
+        Use ``GraphRepository.flatten_value_map`` instead.
+    """
+    from src.python.repository.graph_repository import _flatten_value_map
+
+    return _flatten_value_map(value_map)

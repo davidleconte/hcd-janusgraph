@@ -10,10 +10,9 @@ from typing import List
 
 from fastapi import APIRouter, Request
 
-from gremlin_python.process.graph_traversal import __
-
 from src.python.api.dependencies import get_graph_connection, get_settings, limiter
 from src.python.api.models import StructuringAlert, StructuringAlertRequest, StructuringResponse
+from src.python.repository import GraphRepository
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ def detect_structuring(request: Request, body: StructuringAlertRequest):
     """
     start_time = time.time()
 
-    g = get_graph_connection()
+    repo = GraphRepository(get_graph_connection())
 
     end_date = datetime.now(timezone.utc)
     start_date = end_date - timedelta(days=body.time_window_days)
@@ -40,22 +39,7 @@ def detect_structuring(request: Request, body: StructuringAlertRequest):
 
     threshold_low = body.threshold_amount * 0.8
 
-    query_result = (
-        g.V()
-        .hasLabel("account")
-        .project("account_id", "holder", "txn_count", "total")
-        .by(__.values("account_id"))
-        .by(
-            __.in_("owns_account").coalesce(
-                __.values("full_name"),
-                __.values("company_name"),
-                __.constant("Unknown"),
-            )
-        )
-        .by(__.outE("from_account").count())
-        .by(__.outE("from_account").inV().values("amount").sum())
-        .toList()
-    )
+    query_result = repo.get_account_transaction_summaries()
 
     for result in query_result:
         txn_count = result.get("txn_count", 0)

@@ -9,12 +9,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Query, Request
 
-from src.python.api.dependencies import (
-    flatten_value_map,
-    get_graph_connection,
-    get_settings,
-    limiter,
-)
+from src.python.api.dependencies import get_graph_connection, get_settings, limiter
 from src.python.api.models import (
     NetworkEdge,
     NetworkNode,
@@ -23,8 +18,7 @@ from src.python.api.models import (
     UBORequest,
     UBOResponse,
 )
-
-from gremlin_python.process.graph_traversal import __
+from src.python.repository import GraphRepository
 
 logger = logging.getLogger(__name__)
 
@@ -47,27 +41,16 @@ def discover_ubo(request: Request, body: UBORequest):
     """
     start_time = time.time()
 
-    g = get_graph_connection()
+    repo = GraphRepository(get_graph_connection())
 
-    company = g.V().has("company_id", body.company_id).valueMap(True).toList()
-    if not company:
+    company_info = repo.get_company(body.company_id)
+    if not company_info:
         raise HTTPException(status_code=404, detail=f"Company not found: {body.company_id}")
-
-    company_info = flatten_value_map(company[0])
 
     ubos: List[UBOOwner] = []
     high_risk_indicators: List[str] = []
 
-    direct_owners = (
-        g.V()
-        .has("company_id", body.company_id)
-        .inE("beneficial_owner")
-        .project("person_id", "name", "ownership_percentage")
-        .by(__.outV().values("person_id"))
-        .by(__.outV().coalesce(__.values("full_name"), __.constant("Unknown")))
-        .by(__.coalesce(__.values("ownership_percentage"), __.constant(0.0)))
-        .toList()
-    )
+    direct_owners = repo.find_direct_owners(body.company_id)
 
     for owner in direct_owners:
         if owner.get("ownership_percentage", 0) >= body.ownership_threshold:
@@ -109,34 +92,29 @@ def get_ownership_network(
     depth: int = Query(3, ge=1, le=5, description="Traversal depth"),
 ):
     """Get ownership network around a company for visualization."""
-    g = get_graph_connection()
+    repo = GraphRepository(get_graph_connection())
 
-    if not g.V().has("company_id", company_id).hasNext():
+    company_info = repo.get_company(company_id)
+    if not company_info:
         raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
 
     nodes: List[NetworkNode] = []
     edges: List[NetworkEdge] = []
     visited: set = set()
 
-    company = g.V().has("company_id", company_id).valueMap(True).next()
-    company_flat = flatten_value_map(company)
-
     nodes.append(
         NetworkNode(
             id=company_id,
             label="company",
-            name=company_flat.get("legal_name", company_flat.get("company_name", "Unknown")),
+            name=company_info.get("legal_name", company_info.get("company_name", "Unknown")),
             type="company",
         )
     )
     visited.add(company_id)
 
-    owners = (
-        g.V().has("company_id", company_id).inE("beneficial_owner").outV().valueMap(True).toList()
-    )
+    owners = repo.get_owner_vertices(company_id)
 
-    for owner in owners:
-        owner_flat = flatten_value_map(owner)
+    for owner_flat in owners:
         person_id = owner_flat.get("person_id")
         if person_id and person_id not in visited:
             visited.add(person_id)

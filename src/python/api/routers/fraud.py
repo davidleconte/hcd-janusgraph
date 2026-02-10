@@ -7,10 +7,8 @@ import logging
 
 from fastapi import APIRouter, Query, Request
 
-from gremlin_python.process.graph_traversal import __
-from gremlin_python.process.traversal import P
-
 from src.python.api.dependencies import get_graph_connection, get_settings, limiter
+from src.python.repository import GraphRepository
 
 logger = logging.getLogger(__name__)
 
@@ -29,31 +27,8 @@ def detect_fraud_rings(
     """
     Detect potential fraud rings based on shared addresses/phones and transaction patterns.
     """
-    g = get_graph_connection()
-
-    rings = []
-
-    shared_addresses = (
-        g.V()
-        .hasLabel("address")
-        .where(__.in_("has_address").count().is_(P.gte(min_members)))
-        .project("address_id", "city", "persons")
-        .by(__.values("address_id"))
-        .by(__.values("city"))
-        .by(__.in_("has_address").values("person_id").fold())
-        .toList()
-    )
-
-    for addr in shared_addresses:
-        rings.append(
-            {
-                "type": "shared_address",
-                "indicator": addr.get("address_id"),
-                "location": addr.get("city"),
-                "members": addr.get("persons", []),
-                "member_count": len(addr.get("persons", [])),
-            }
-        )
+    repo = GraphRepository(get_graph_connection())
+    rings = repo.find_shared_addresses(min_members=min_members)
 
     total = len(rings)
     page = rings[offset : offset + limit]
