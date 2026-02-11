@@ -46,12 +46,16 @@ class ValidationResult:
     def has_errors(self) -> bool:
         return any(i.severity == ValidationSeverity.ERROR for i in self.issues)
 
-    def add_error(self, message: str, variable: str = None, recommendation: str = None):
+    def add_error(
+        self, message: str, variable: Optional[str] = None, recommendation: Optional[str] = None
+    ):
         self.issues.append(
             ValidationIssue(message, ValidationSeverity.ERROR, variable, recommendation)
         )
 
-    def add_warning(self, message: str, variable: str = None, recommendation: str = None):
+    def add_warning(
+        self, message: str, variable: Optional[str] = None, recommendation: Optional[str] = None
+    ):
         self.issues.append(
             ValidationIssue(message, ValidationSeverity.WARNING, variable, recommendation)
         )
@@ -76,12 +80,14 @@ DEFAULT_PASSWORD_PATTERNS = [
     r"YOUR_.*_HERE",
     r"CHANGE_?ME",
     r"PLACEHOLDER",
+    r"^DefaultDev0nly!2026$",  # Specific OpenSearch default from docker-compose
 ]
 
 PASSWORD_VARIABLES = [
     "JANUSGRAPH_PASSWORD",
     "HCD_KEYSTORE_PASSWORD",
     "OPENSEARCH_ADMIN_PASSWORD",
+    "OPENSEARCH_INITIAL_ADMIN_PASSWORD",  # New required variable
     "GRAFANA_ADMIN_PASSWORD",
     "VAULT_TOKEN",
     "DB_PASSWORD",
@@ -112,6 +118,15 @@ def _check_password_strength(password: str) -> List[str]:
 
 def validate_passwords(result: ValidationResult, strict: bool = True) -> None:
     """Validate password environment variables."""
+    # Check for required OpenSearch password
+    opensearch_pwd = os.getenv("OPENSEARCH_INITIAL_ADMIN_PASSWORD")
+    if not opensearch_pwd:
+        result.add_error(
+            "OPENSEARCH_INITIAL_ADMIN_PASSWORD must be set (no default allowed)",
+            variable="OPENSEARCH_INITIAL_ADMIN_PASSWORD",
+            recommendation="Set in .env file: OPENSEARCH_INITIAL_ADMIN_PASSWORD='your-secure-password'",
+        )
+    
     for var in PASSWORD_VARIABLES:
         value = os.getenv(var)
         if not value:

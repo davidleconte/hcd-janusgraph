@@ -3,11 +3,14 @@ API Pydantic Models
 ===================
 
 Request/response schemas for the Graph Analytics API.
+Enhanced with comprehensive validation for security.
 """
 
-from typing import Dict, List, Optional
+from typing import Annotated, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, StringConstraints
+
+from src.python.utils.validation import Validator, ValidationError
 
 
 class ErrorResponse(BaseModel):
@@ -41,14 +44,27 @@ class LivenessResponse(BaseModel):
 
 
 class UBORequest(BaseModel):
-    """Request for UBO discovery."""
+    """Request for UBO discovery with validation."""
 
-    company_id: str = Field(..., description="Company ID to analyze")
+    company_id: Annotated[
+        str,
+        StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
+    ] = Field(..., description="Company ID to analyze (alphanumeric, hyphens, underscores only)")
     include_indirect: bool = Field(True, description="Include indirect ownership")
     max_depth: int = Field(10, description="Maximum ownership chain depth", ge=1, le=20)
     ownership_threshold: float = Field(
         25.0, description="Minimum ownership percentage", ge=0, le=100
     )
+    
+    @field_validator('company_id')
+    @classmethod
+    def validate_company_id(cls, v: str) -> str:
+        """Validate company ID format and sanitize."""
+        try:
+            # Use existing Validator class for comprehensive validation
+            return Validator.validate_account_id(v)
+        except ValidationError as e:
+            raise ValueError(f"Invalid company_id: {e}")
 
 
 class UBOOwner(BaseModel):
@@ -74,14 +90,49 @@ class UBOResponse(BaseModel):
 
 
 class StructuringAlertRequest(BaseModel):
-    """Request for structuring detection."""
+    """Request for structuring detection with validation."""
 
-    account_id: Optional[str] = Field(None, description="Specific account to analyze")
+    account_id: Optional[
+        Annotated[
+            str,
+            StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
+        ]
+    ] = Field(None, description="Specific account to analyze (alphanumeric, hyphens, underscores only)")
     time_window_days: int = Field(7, description="Days to analyze", ge=1, le=90)
-    threshold_amount: float = Field(10000.0, description="CTR threshold amount")
-    min_transaction_count: int = Field(3, description="Minimum transactions to flag")
+    threshold_amount: float = Field(
+        10000.0,
+        description="CTR threshold amount",
+        ge=0.01,
+        le=1_000_000_000.00
+    )
+    min_transaction_count: int = Field(
+        3,
+        description="Minimum transactions to flag",
+        ge=1,
+        le=1000
+    )
     offset: int = Field(0, ge=0, description="Number of items to skip")
     limit: int = Field(50, ge=1, le=500, description="Maximum items to return")
+    
+    @field_validator('account_id')
+    @classmethod
+    def validate_account_id(cls, v: Optional[str]) -> Optional[str]:
+        """Validate account ID if provided."""
+        if v is None:
+            return v
+        try:
+            return Validator.validate_account_id(v)
+        except ValidationError as e:
+            raise ValueError(f"Invalid account_id: {e}")
+    
+    @field_validator('threshold_amount')
+    @classmethod
+    def validate_amount(cls, v: float) -> float:
+        """Validate amount using Decimal for precision."""
+        try:
+            return float(Validator.validate_amount(v))
+        except ValidationError as e:
+            raise ValueError(f"Invalid threshold_amount: {e}")
 
 
 class StructuringAlert(BaseModel):
