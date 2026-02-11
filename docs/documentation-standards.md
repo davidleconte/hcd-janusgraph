@@ -27,12 +27,29 @@ This document defines the standards and best practices for all project documenta
 
 **Use kebab-case for all documentation files:**
 
-- ✅ `user-guide.md`
-- ✅ `api-reference.md`
-- ✅ `phase-8-complete.md`
-- ❌ `user-guide.md` (UPPERCASE)
-- ❌ `ApiReference.md` (PascalCase)
-- ❌ `user_guide.md` (snake_case)
+```bash
+# ✅ CORRECT - Use kebab-case (lowercase with hyphens)
+docs/new-feature-guide.md
+docs/api-reference-v2.md
+docs/user-authentication-guide.md
+docs/phase-8-complete.md
+
+# ❌ WRONG - Do not use UPPERCASE, PascalCase, or snake_case
+docs/New_Feature_Guide.md      # UPPERCASE with underscores
+docs/API_REFERENCE_V2.md        # All UPPERCASE
+docs/ApiReferenceV2.md          # PascalCase
+docs/user_guide.md              # snake_case
+docs/UserGuide.md               # PascalCase
+```
+
+**Quick Reference:**
+
+- ✅ `user-guide.md` - kebab-case (correct)
+- ✅ `api-reference.md` - kebab-case (correct)
+- ✅ `phase-8-complete.md` - kebab-case (correct)
+- ❌ `USER_GUIDE.md` - UPPERCASE (wrong)
+- ❌ `ApiReference.md` - PascalCase (wrong)
+- ❌ `user_guide.md` - snake_case (wrong)
 
 **Exceptions:**
 

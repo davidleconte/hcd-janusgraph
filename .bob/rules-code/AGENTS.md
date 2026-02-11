@@ -127,3 +127,32 @@ def generate() -> Person:
 ```
 
 No access to MCP tools or Browser in code mode.
+
+## Documentation Naming Standards
+
+**All documentation files MUST use kebab-case naming** - enforced by validation script and CI/CD:
+
+```bash
+# ✅ CORRECT - Use kebab-case (lowercase with hyphens)
+docs/new-feature-guide.md
+docs/api-reference-v2.md
+docs/user-authentication-guide.md
+docs/phase-8-complete.md
+
+# ❌ WRONG - Do not use UPPERCASE, PascalCase, or snake_case
+docs/New_Feature_Guide.md      # UPPERCASE with underscores
+docs/API_REFERENCE_V2.md        # All UPPERCASE
+docs/ApiReferenceV2.md          # PascalCase
+docs/user_guide.md              # snake_case
+docs/UserGuide.md               # PascalCase
+```
+
+**Approved exceptions (UPPERCASE allowed):**
+- README.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE
+- CODE_OF_CONDUCT.md, SECURITY.md, AGENTS.md
+- QUICKSTART.md, FAQ.md
+
+**Validation:**
+- Pre-commit hook: `.pre-commit-config.yaml`
+- CI/CD workflow: `.github/workflows/validate-doc-naming.yml`
+- Manual check: `bash scripts/validation/validate-kebab-case.sh`
