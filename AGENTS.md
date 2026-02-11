@@ -47,31 +47,221 @@ conda env config vars set JANUSGRAPH_PORT=18182 JANUSGRAPH_USE_SSL=false OPENSEA
 conda deactivate && conda activate janusgraph-analysis
 ```
 
-### Package Management
+### Package Management (MANDATORY: uv)
 
-**New environment setup** - use ONE of these methods:
+**CRITICAL:** This project **REQUIRES** `uv` for all Python package management operations. Do not use `pip` directly.
+
+#### Why uv?
+- **10-100x faster** than pip
+- Deterministic dependency resolution
+- Better conflict detection
+- Fully compatible with pip requirements.txt
+
+#### Installation
 
 ```bash
-# Option A: Conda (recommended for new users)
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Or with Homebrew
+brew install uv
+
+# Verify installation
+uv --version
+```
+
+#### Environment Setup (MANDATORY)
+
+**Option A: Conda + uv (Recommended)**
+
+```bash
+# Create conda environment
 conda env create -f environment.yml
 conda activate janusgraph-analysis
 
-# Option B: pip with requirements.txt
-pip install -r requirements.txt
+# Install packages with uv (MANDATORY)
+uv pip install -r requirements.txt
 
-# Option C: uv (faster than pip)
+# Verify
+uv pip list
+```
+
+**Option B: uv venv (Pure Python)**
+
+```bash
+# Create virtual environment with uv
+uv venv --python 3.11
+
+# Activate
+source .venv/bin/activate  # macOS/Linux
+# .venv\Scripts\activate   # Windows
+
+# Install dependencies
 uv pip install -r requirements.txt
 ```
 
-**Adding packages** - use `uv` when possible (faster than pip):
+#### Adding Packages (MANDATORY: uv)
 
 ```bash
-# Install packages with uv (preferred)
+# Install packages with uv (MANDATORY)
 uv pip install package-name
 
-# Fallback to pip if uv unavailable
-pip install package-name
+# Install with version constraint
+uv pip install "package-name>=1.0.0,<2.0.0"
+
+# Install from requirements file
+uv pip install -r requirements.txt
+
+# Install development dependencies
+uv pip install -e ".[dev]"
 ```
+
+#### Emergency Fallback (pip)
+
+**ONLY use pip if uv is unavailable and you cannot install it:**
+
+```bash
+# Emergency fallback (NOT RECOMMENDED)
+pip install package-name
+
+# Document why uv couldn't be used
+echo "Used pip because: [reason]" >> .pip-usage-log
+```
+
+### Container Orchestration (MANDATORY: Podman)
+
+**CRITICAL:** This project **REQUIRES** `podman` and `podman-compose` for all container operations. Docker and docker-compose are **NOT SUPPORTED**.
+
+#### Why Podman?
+
+- **Rootless by default** - Better security, no daemon running as root
+- **Daemonless architecture** - No single point of failure
+- **Pod support** - Kubernetes-compatible pod management
+- **Docker CLI compatible** - Same commands, better architecture
+
+#### Installation
+
+**macOS:**
+
+```bash
+# Install Podman Desktop (includes podman-compose)
+brew install podman-desktop
+
+# Or install separately
+brew install podman podman-compose
+
+# Initialize Podman machine
+podman machine init --cpus 4 --memory 8192 --disk-size 50
+podman machine start
+
+# Verify
+podman --version
+podman-compose --version
+```
+
+**Linux:**
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y podman podman-compose
+
+# RHEL/Fedora
+sudo dnf install -y podman podman-compose
+
+# Verify
+podman --version
+podman-compose --version
+```
+
+#### Podman Machine Configuration
+
+**MANDATORY:** Configure Podman machine with sufficient resources:
+
+```bash
+# Check current machine
+podman machine list
+
+# Stop existing machine (if needed)
+podman machine stop
+
+# Remove existing machine (if reconfiguring)
+podman machine rm
+
+# Create new machine with proper resources
+podman machine init \
+  --cpus 4 \
+  --memory 8192 \
+  --disk-size 50 \
+  --now
+
+# Verify machine is running
+podman machine list
+# Should show: Running
+
+# Test connection
+podman ps
+```
+
+#### Deployment Commands (MANDATORY)
+
+**ALWAYS use podman-compose, NEVER docker-compose:**
+
+```bash
+# Deploy full stack (CORRECT)
+cd config/compose
+podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+
+# Check status (CORRECT)
+podman ps --filter "label=project=janusgraph-demo"
+
+# View logs (CORRECT)
+podman logs janusgraph-demo_hcd-server_1
+
+# Stop services (CORRECT)
+podman-compose -p janusgraph-demo -f docker-compose.full.yml down
+```
+
+#### Docker Compatibility (DEPRECATED)
+
+**DO NOT USE DOCKER COMMANDS:**
+
+```bash
+# ❌ WRONG - Do not use docker
+docker ps
+docker-compose up
+
+# ✅ CORRECT - Use podman
+podman ps
+podman-compose up
+```
+
+**If you have Docker installed, create aliases to prevent accidental use:**
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+alias docker='echo "❌ Use podman instead of docker" && false'
+alias docker-compose='echo "❌ Use podman-compose instead of docker-compose" && false'
+```
+
+#### Podman Isolation (MANDATORY)
+
+**CRITICAL:** Always use project name for isolation:
+
+```bash
+# MANDATORY: Set project name
+export COMPOSE_PROJECT_NAME="janusgraph-demo"
+
+# Deploy with project name
+podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
+
+# This ensures:
+# - Containers: janusgraph-demo_hcd-server_1
+# - Networks: janusgraph-demo_hcd-janusgraph-network
+# - Volumes: janusgraph-demo_hcd-data
+```
+
+**See:** [PODMAN_ISOLATION.md](.bob/rules-plan/PODMAN_ISOLATION.md) for complete isolation requirements.
 
 ### CLI Tools & Consoles
 
