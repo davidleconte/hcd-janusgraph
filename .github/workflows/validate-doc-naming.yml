@@ -1,0 +1,48 @@
+name: Validate Documentation Naming
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'docs/**/*.md'
+      - '*.md'
+
+jobs:
+  validate-kebab-case:
+    name: Check Kebab-Case Naming
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate file naming
+        run: |
+          chmod +x scripts/validation/validate-kebab-case.sh
+          ./scripts/validation/validate-kebab-case.sh
+      
+      - name: Comment on PR (if violations found)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Documentation Naming Violation**\n\n' +
+                    'Some documentation files do not follow kebab-case naming conventions.\n\n' +
+                    'Please run:\n' +
+                    '```bash\n' +
+                    './scripts/maintenance/rename-to-kebab-case.sh\n' +
+                    '```\n\n' +
+                    'See [documentation-standards.md](docs/documentation-standards.md) for details.'
+            })
+
+# Made with Bob

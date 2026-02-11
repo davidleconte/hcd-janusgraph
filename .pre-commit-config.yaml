@@ -88,3 +88,15 @@ repos:
     hooks:
       - id: hadolint-docker
         args: ['--ignore', 'DL3008', '--ignore', 'DL3009']
+
+
+  # Documentation naming validation
+  - repo: local
+    hooks:
+      - id: validate-kebab-case
+        name: Validate Kebab-Case Naming
+        entry: scripts/validation/validate-kebab-case.sh
+        language: script
+        files: \.md$
+        pass_filenames: false
+        description: Ensures all documentation files follow kebab-case naming convention
