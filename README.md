@@ -70,6 +70,10 @@ ls hcd-1.2.3/bin/hcd  # Should show HCD binary
 
 ## Quick Start
 
+### Option 1: Demo Quick Start (Recommended for Demos)
+
+**One-command setup with automatic password generation:**
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/davidleconte/hcd-janusgraph.git
@@ -79,8 +83,42 @@ cd hcd-janusgraph
 git lfs pull
 ln -sf vendor/hcd-1.2.3 hcd-1.2.3
 
-# 3. Copy environment template
+# 3. One-command demo deployment
+./scripts/deployment/demo_quickstart.sh
+
+# Credentials will be saved to demo-credentials.txt
+# Services will be deployed automatically
+```
+
+**Or step-by-step:**
+
+```bash
+# Generate passwords and create .env file
+./scripts/deployment/setup_demo_env.sh
+
+# Review generated credentials
+cat demo-credentials.txt
+
+# Deploy services
+cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
+```
+
+⚠️ **Demo credentials are for demonstration only. Never use in production!**
+
+### Option 2: Manual Setup (Production)
+
+```bash
+# 1. Clone repository
+git clone https://github.com/davidleconte/hcd-janusgraph.git
+cd hcd-janusgraph
+
+# 2. Set up HCD symlink (included via Git LFS)
+git lfs pull
+ln -sf vendor/hcd-1.2.3 hcd-1.2.3
+
+# 3. Create .env file and set passwords manually
 cp .env.example .env
+# Edit .env and set all passwords (see .env.example for requirements)
 
 # 4. Deploy stack (MUST run from config/compose directory)
 cd config/compose
@@ -90,14 +128,15 @@ bash ../../scripts/deployment/deploy_full_stack.sh
 cd ../..
 make deploy
 
-# 4. Verify installation
+# 5. Verify installation
 make test
 
-# 5. Access Jupyter
+# 6. Access Jupyter
 open http://localhost:8888
 ```
 
 📚 **See [QUICKSTART.md](QUICKSTART.md) for detailed commands and troubleshooting**
+📚 **See [docs/DEMO_SETUP_GUIDE.md](docs/DEMO_SETUP_GUIDE.md) for demo setup details**
 
 ### Python Environment Setup
 

@@ -86,6 +86,12 @@ id_dsa*
 id_ecdsa*
 id_ed25519*
 
+# Demo credentials (NEVER commit - generated for demos only)
+demo-credentials.txt
+demo-credentials.json
+demo-creds.json
+*demo-creds*
+
 # Outputs
 data/exports/*
 !data/exports/.gitkeep
