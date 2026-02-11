@@ -1,0 +1,5 @@
+[mutmut]
+paths_to_mutate=src/python/,banking/data_generators/,banking/streaming/
+tests_dir=tests/,banking/data_generators/tests/,banking/streaming/tests/
+runner=pytest
+dict_synonyms=Struct, NamedStruct

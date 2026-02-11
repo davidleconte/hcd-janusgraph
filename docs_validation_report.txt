@@ -1,0 +1,393 @@
+🔍 Starting documentation validation...
+📁 Root directory: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph
+📚 Docs directory: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/docs
+
+Found 320 markdown files
+
+
+================================================================================
+📊 DOCUMENTATION VALIDATION REPORT
+================================================================================
+
+📈 Statistics:
+  Total files checked: 320
+  Total links found: 1088
+  Broken links: 102
+  Code blocks checked: 2878
+  Invalid code blocks: 121
+
+⚠️  Issues Found:
+
+📄 .bob/rules-advance/AGENTS.md
+   • Invalid Python code: cannot assign to expression here. Maybe you meant '==' instead of '='? at line 3
+
+📄 .bob/rules-ask/AGENTS.md
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+
+📄 .bob/rules-code/AGENTS.md
+   • Invalid Python code: cannot assign to expression here. Maybe you meant '==' instead of '='? at line 3
+
+📄 .bob/rules-plan/AGENTS.md
+   • Invalid Python code: positional argument follows keyword argument at line 4
+
+📄 .venv/lib/python3.11/site-packages/sentence_transformers/cross_encoder/model_card_template.md
+   • Invalid Python code: invalid syntax at line 7
+
+📄 .venv/lib/python3.11/site-packages/sentence_transformers/model_card_template.md
+   • Invalid Python code: invalid syntax at line 7
+   • Invalid Python code: invalid syntax at line 10
+
+📄 .venv/lib/python3.11/site-packages/sentence_transformers/sparse_encoder/model_card_template.md
+   • Invalid Python code: invalid syntax at line 7
+   • Invalid Python code: invalid syntax at line 10
+
+📄 AGENTS.md
+   • Broken link: [docs/implementation/remediation/network-isolation-analysis.md] -> docs/implementation/remediation/network-isolation-analysis.md
+   • Broken link: [src/python/client/exceptions.py:15] -> src/python/client/exceptions.py:15
+   • Broken link: [tests/benchmarks/test_performance_regression.py:1] -> tests/benchmarks/test_performance_regression.py:1
+   • Broken link: [tests/conftest.py:1] -> tests/conftest.py:1
+   • Broken link: [SETUP.md] -> SETUP.md
+   • Broken link: [/docs/SETUP.md] -> /docs/SETUP.md
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+   • Invalid Python code: invalid syntax at line 9
+
+📄 CODEBASE_REVIEW_2026-02-11.md
+   • Broken link: [src/python/repository/graph_repository.py:49] -> src/python/repository/graph_repository.py:49
+   • Broken link: [banking/data_generators/core/base_generator.py:24] -> banking/data_generators/core/base_generator.py:24
+   • Broken link: [banking/data_generators/orchestration/master_orchestrator.py:1] -> banking/data_generators/orchestration/master_orchestrator.py:1
+   • Broken link: [banking/streaming/streaming_orchestrator.py:53] -> banking/streaming/streaming_orchestrator.py:53
+   • Broken link: [banking/compliance/audit_logger.py:1] -> banking/compliance/audit_logger.py:1
+   • Broken link: [scripts/deployment/deploy_full_stack.sh:1] -> scripts/deployment/deploy_full_stack.sh:1
+   • Broken link: [config/compose/docker-compose.full.yml:1] -> config/compose/docker-compose.full.yml:1
+   • Broken link: [scripts/validation/preflight_check.sh:1] -> scripts/validation/preflight_check.sh:1
+   • Invalid Python code: expected an indented block after function definition on line 10 at line 11
+   • Invalid Python code: invalid syntax at line 4
+   • Invalid Python code: expected an indented block after function definition on line 4 at line 5
+   • Invalid Python code: expected an indented block after function definition on line 5 at line 6
+
+📄 CODE_QUALITY_IMPLEMENTATION_PLAN_2026-02-11.md
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: 'return' outside function at line 8
+
+📄 QUICKSTART.md
+   • Broken link: [docs/implementation/remediation/WEEK1_FINAL_REPORT.md] -> docs/implementation/remediation/WEEK1_FINAL_REPORT.md
+   • Broken link: [docs/implementation/remediation/WEEK2_COMPLETE.md] -> docs/implementation/remediation/WEEK2_COMPLETE.md
+   • Broken link: [docs/implementation/remediation/WEEK3-4_QUICKSTART.md] -> docs/implementation/remediation/WEEK3-4_QUICKSTART.md
+   • Broken link: [docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md] -> docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md
+   • Broken link: [docs/operations/OPERATIONS_RUNBOOK.md] -> docs/operations/OPERATIONS_RUNBOOK.md
+
+📄 README.md
+   • Broken link: [docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md] -> docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md
+   • Broken link: [docs/implementation/remediation/WEEK1_FINAL_REPORT.md] -> docs/implementation/remediation/WEEK1_FINAL_REPORT.md
+   • Broken link: [docs/implementation/remediation/WEEK2_COMPLETE.md] -> docs/implementation/remediation/WEEK2_COMPLETE.md
+   • Broken link: [docs/implementation/remediation/WEEK3-4_QUICKSTART.md] -> docs/implementation/remediation/WEEK3-4_QUICKSTART.md
+   • Broken link: [docs/banking/guides/USER_GUIDE.md] -> docs/banking/guides/USER_GUIDE.md
+   • Broken link: [docs/banking/setup/01_AML_PHASE1_SETUP.md] -> docs/banking/setup/01_AML_PHASE1_SETUP.md
+   • Broken link: [docs/operations/OPERATIONS_RUNBOOK.md] -> docs/operations/OPERATIONS_RUNBOOK.md
+
+📄 SECURITY_REMEDIATION_PLAN_2026-02-11.md
+   • Broken link: [src/python/api/dependencies.py:70] -> src/python/api/dependencies.py:70
+   • Invalid Python code: expected an indented block after function definition on line 2 at line 9
+
+📄 banking/aml/README.md
+   • Broken link: [../docs/banking/guides/USER_GUIDE.md] -> banking/docs/banking/guides/USER_GUIDE.md
+   • Broken link: [../docs/banking/guides/API_REFERENCE.md] -> banking/docs/banking/guides/API_REFERENCE.md
+   • Broken link: [../docs/banking/setup/01_AML_PHASE1_SETUP.md] -> banking/docs/banking/setup/01_AML_PHASE1_SETUP.md
+
+📄 banking/fraud/README.md
+   • Broken link: [../docs/banking/guides/USER_GUIDE.md] -> banking/docs/banking/guides/USER_GUIDE.md
+   • Broken link: [../docs/banking/guides/API_REFERENCE.md] -> banking/docs/banking/guides/API_REFERENCE.md
+
+📄 banking/notebooks/README.md
+   • Broken link: [../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md] -> docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md
+   • Broken link: [../../docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md] -> docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md
+   • Broken link: [../../docs/banking/PRODUCTION_DEPLOYMENT_GUIDE.md] -> docs/banking/PRODUCTION_DEPLOYMENT_GUIDE.md
+   • Broken link: [../../docs/TROUBLESHOOTING.md] -> docs/TROUBLESHOOTING.md
+   • Broken link: [../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md] -> docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md
+
+📄 banking/streaming/README.md
+   • Broken link: [../../docs/archive/streaming_summary.md] -> docs/archive/streaming_summary.md
+   • Broken link: [../../src/python/client/README.md] -> src/python/client/README.md
+
+📄 docs/FAQ.md
+   • Broken link: [banking/guides/troubleshooting-guide.md] -> docs/banking/guides/troubleshooting-guide.md
+   • Broken link: [banking/guides/troubleshooting-guide.md] -> docs/banking/guides/troubleshooting-guide.md
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+
+📄 docs/architecture/ADR-011-query-caching-strategy.md
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/architecture/data-flow-unified.md
+   • Broken link: [`banking/streaming/README.md`] -> docs/architecture/`banking/streaming/README.md`
+
+📄 docs/architecture/plan_architectural_improvements.md
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 2
+
+📄 docs/banking/guides/api-reference.md
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: expected ':' at line 5
+   • Invalid Python code: expected ':' at line 5
+   • Invalid Python code: expected ':' at line 4
+   • Invalid Python code: expected ':' at line 4
+   • Invalid Python code: expected ':' at line 4
+   • Invalid Python code: expected ':' at line 7
+   • Invalid Python code: expected ':' at line 6
+   • Invalid Python code: expected ':' at line 5
+   • Invalid Python code: expected ':' at line 5
+   • Invalid Python code: expected ':' at line 5
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: expected ':' at line 1
+   • Invalid Python code: expected ':' at line 1
+
+📄 docs/banking/implementation/phases/PHASE8C_WEEK5_COMPLETE.md
+   • Invalid Python code: invalid syntax at line 2
+
+📄 docs/banking/planning/gap-analysis.md
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/banking/setup/README.md
+   • Broken link: [../../aml/] -> docs/aml
+   • Broken link: [../../fraud/] -> docs/fraud
+   • Broken link: [../../data_generators/] -> docs/data_generators
+
+📄 docs/documentation-standards.md
+   • Broken link: [path/to/doc1.md] -> docs/path/to/doc1.md
+   • Broken link: [path/to/doc2.md] -> docs/path/to/doc2.md
+   • Broken link: [DEPLOYMENT.md] -> docs/DEPLOYMENT.md
+   • Broken link: [architecture.md] -> docs/architecture.md
+   • Broken link: [SECURITY.md] -> docs/SECURITY.md
+   • Broken link: [new-feature-guide.md] -> docs/new-feature-guide.md
+   • Broken link: [new-feature-guide.md] -> docs/new-feature-guide.md
+
+📄 docs/implementation/DOCUMENTATION_LINK_VALIDATION.md
+   • Broken link: [QUICKSTART.md] -> docs/implementation/QUICKSTART.md
+   • Broken link: [docs/SETUP.md] -> docs/implementation/docs/SETUP.md
+   • Broken link: [./gremlin-api.md] -> docs/implementation/gremlin-api.md
+   • Broken link: [./integration-guide.md] -> docs/implementation/integration-guide.md
+   • Broken link: [./openapi.yaml] -> docs/implementation/openapi.yaml
+   • Broken link: [../project-structure-review.md] -> docs/project-structure-review.md
+   • Broken link: [SETUP.md] -> docs/implementation/SETUP.md
+   • Broken link: [./architecture.md] -> docs/implementation/architecture.md
+   • Broken link: [document-name.md] -> docs/implementation/document-name.md
+   • Broken link: [../document-name.md] -> docs/document-name.md
+   • Broken link: [subdirectory/document-name.md] -> docs/implementation/subdirectory/document-name.md
+   • Broken link: [../../docs/document-name.md] -> docs/document-name.md
+
+📄 docs/implementation/EXCEPTION_HANDLING_AUDIT.md
+   • Invalid Python code: 'return' outside function at line 2
+   • Invalid Python code: expected ':' at line 2
+
+📄 docs/implementation/PHASE1_SECURITY_FIXES_COMPLETE.md
+   • Invalid Python code: expected an indented block after function definition on line 1 at line 6
+
+📄 docs/implementation/PHASE2_SECURITY_HARDENING_COMPLETE.md
+   • Invalid Python code: illegal target for annotation at line 2
+   • Invalid Python code: invalid syntax. Maybe you meant '==' or ':=' instead of '='? at line 2
+
+📄 docs/implementation/PRODUCTION_READINESS_AUDIT.md
+   • Broken link: [docker-compose.yml:1] -> docs/implementation/docker-compose.yml:1
+   • Broken link: [docker-compose.yml:22-24] -> docs/implementation/docker-compose.yml:22-24
+   • Broken link: [pyproject.toml:24] -> docs/implementation/pyproject.toml:24
+   • Broken link: [banking/data_generators/tests/] -> docs/implementation/banking/data_generators/tests
+   • Broken link: [docker-compose.yml:33-34] -> docs/implementation/docker-compose.yml:33-34
+   • Broken link: [Makefile:1] -> docs/implementation/Makefile:1
+   • Broken link: [docker-compose.yml:1] -> docs/implementation/docker-compose.yml:1
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+
+📄 docs/implementation/WEEK2_ANALYTICS_STREAMING_TESTING_PLAN.md
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md
+   • Invalid Python code: invalid syntax at line 10
+
+📄 docs/implementation/WEEK2_NEXT_STEPS.md
+   • Invalid Python code: invalid syntax at line 19
+
+📄 docs/implementation/WEEK3_DAYS13-15_SUMMARY.md
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: illegal target for annotation at line 3
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+   • Invalid Python code: invalid character '├' (U+251C) at line 2
+
+📄 docs/implementation/WEEK3_IMPLEMENTATION_PLAN.md
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/implementation/WEEK4_DAY21_PERFORMANCE_REPORT.md
+   • Broken link: [tests/benchmarks/test_performance_regression.py] -> docs/implementation/tests/benchmarks/test_performance_regression.py
+   • Invalid Python code: invalid decimal literal at line 2
+   • Invalid Python code: invalid decimal literal at line 2
+   • Invalid Python code: invalid decimal literal at line 2
+   • Invalid Python code: invalid decimal literal at line 2
+
+📄 docs/implementation/WEEK4_IMPLEMENTATION_PLAN.md
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 2
+
+📄 docs/implementation/audits/DEPLOYMENT_SCRIPTS_AUDIT_2026-02-11.md
+   • Potentially unquoted variable at line 1: if ! podman --remote --connection $PODMAN_CONNECTI
+
+📄 docs/implementation/audits/REMEDIATION_PLAN_2026-01-30.md
+   • Broken link: [../guides/user-guide.md] -> docs/implementation/guides/user-guide.md
+
+📄 docs/implementation/audits/archive/AUDIT_REPORT.md
+   • Potentially unquoted variable at line 4: podman --remote --connection $PODMAN_CONNECTION ex
+
+📄 docs/implementation/audits/archive/COMPREHENSIVE_CODE_REVIEW_2026.md
+   • Invalid Python code: invalid syntax at line 5
+   • Invalid Python code: 'return' outside function at line 7
+   • Invalid Python code: invalid syntax at line 2
+
+📄 docs/implementation/audits/archive/NOTEBOOK_FIXES_APPLIED_2026-01-29.md
+   • Invalid Python code: unexpected indent at line 2
+
+📄 docs/implementation/project-structure-review.md
+   • Broken link: [../README.md] -> docs/README.md
+   • Broken link: [../QUICKSTART.md] -> docs/QUICKSTART.md
+   • Broken link: [SETUP.md] -> docs/implementation/SETUP.md
+   • Broken link: [banking/guides/api-reference.md] -> docs/implementation/banking/guides/api-reference.md
+   • Broken link: [CONTRIBUTING.md] -> docs/implementation/CONTRIBUTING.md
+   • Broken link: [TESTING.md] -> docs/implementation/TESTING.md
+   • Broken link: [DEPLOYMENT.md] -> docs/implementation/DEPLOYMENT.md
+   • Broken link: [MONITORING.md] -> docs/implementation/MONITORING.md
+   • Broken link: [operations/operations-runbook.md] -> docs/implementation/operations/operations-runbook.md
+   • Broken link: [architecture.md] -> docs/implementation/architecture.md
+   • Broken link: [architecture/] -> docs/implementation/architecture
+   • Broken link: [banking/architecture/architecture.md] -> docs/implementation/banking/architecture/architecture.md
+
+📄 docs/implementation/remediation/archive/REMEDIATION_PLAN.md
+   • Broken link: [[a-zA-Z0-9-]{0,61}[a-zA-Z0-9]] -> docs/implementation/remediation/archive/[a-zA-Z0-9-]{0,61}[a-zA-Z0-9]
+   • Broken link: [[a-zA-Z0-9-]{0,61}[a-zA-Z0-9]] -> docs/implementation/remediation/archive/[a-zA-Z0-9-]{0,61}[a-zA-Z0-9]
+
+📄 docs/implementation/remediation/archive/SECURITY_HARDENING_PROGRESS.md
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: invalid syntax at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/implementation/remediation/archive/WEEK1_FINAL_REPORT.md
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+   • Potentially unquoted variable at line 5: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+   • Potentially unquoted variable at line 8: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+   • Potentially unquoted variable at line 11: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 5: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 6: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 7: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+
+📄 docs/implementation/remediation/archive/WEEK1_REMEDIATION_IMPLEMENTATION.md
+   • Invalid Python code: invalid syntax at line 2
+   • Invalid Python code: invalid syntax at line 8
+   • Invalid Python code: invalid syntax at line 11
+
+📄 docs/implementation/remediation/archive/WEEK1_SECURITY_IMPLEMENTATION.md
+   • Potentially unquoted variable at line 6: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 9: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 12: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 2: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 6: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 10: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 5: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+   • Potentially unquoted variable at line 9: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+
+📄 docs/implementation/remediation/archive/WEEK1_TROUBLESHOOTING.md
+   • Potentially unquoted variable at line 14: podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-serv
+
+📄 docs/migration/v1-to-v2.md
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 1
+   • Invalid Python code: unexpected indent at line 2
+   • Invalid Python code: unexpected indent at line 1
+
+📄 docs/migrations/UV_MIGRATION_GUIDE.md
+   • Broken link: [../.bob/rules-code/TOOLING_STANDARDS.md] -> docs/.bob/rules-code/TOOLING_STANDARDS.md
+
+📄 docs/operations/disaster-recovery-plan.md
+   • Potentially unquoted variable at line 22: Actual RTO: $ACTUAL_RTO seconds
+   • Potentially unquoted variable at line 23: Target RTO: $TARGET_RTO seconds
+   • Potentially unquoted variable at line 26: Actual RPO: $ACTUAL_RPO seconds
+   • Potentially unquoted variable at line 27: Target RPO: $TARGET_RPO seconds
+   • Potentially unquoted variable at line 30: Data Loss: $DATA_LOSS records
+
+📄 docs/security/vault.md
+   • Potentially unquoted variable at line 5: podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-
+
+📄 operations/troubleshooting.md
+   • Invalid Python code: invalid syntax at line 3
+
+📄 scripts/README.md
+   • Broken link: [deployment/deploy_aml_production.sh] -> scripts/deployment/deploy_aml_production.sh
+   • Broken link: [deployment/load_production_data.py] -> scripts/deployment/load_production_data.py
+   • Broken link: [deployment/start_jupyter.sh] -> scripts/deployment/start_jupyter.sh
+   • Broken link: [../docs/DEPLOYMENT.md] -> docs/DEPLOYMENT.md
+   • Broken link: [../docs/SETUP.md] -> docs/SETUP.md
+   • Broken link: [../docs/TESTING.md] -> docs/TESTING.md
+   • Broken link: [../docs/BACKUP.md] -> docs/BACKUP.md
+   • Broken link: [../docs/MONITORING.md] -> docs/MONITORING.md
+   • Broken link: [../docs/TROUBLESHOOTING.md] -> docs/TROUBLESHOOTING.md
+
+📄 scripts/security/README.md
+   • Invalid Python code: invalid syntax. Maybe you meant '==' or ':=' instead of '='? at line 2
+
+📄 tests/README.md
+   • Broken link: [../docs/TESTING.md] -> docs/TESTING.md
+   • Broken link: [../.github/workflows/README.md] -> .github/workflows/README.md
+   • Broken link: [../docs/DOCUMENTATION_STANDARDS.md] -> docs/DOCUMENTATION_STANDARDS.md
+   • Broken link: [../docs/TROUBLESHOOTING.md] -> docs/TROUBLESHOOTING.md
+   • Invalid Python code: invalid syntax at line 5
+
+📄 vendor/hcd-1.2.3/resources/hcd/conf/README.md
+   • Broken link: [cassandra.yaml] -> vendor/hcd-1.2.3/resources/hcd/conf/cassandra.yaml
+
+================================================================================
+⚠️  VALIDATION COMPLETED - 251 issues found
+================================================================================
+

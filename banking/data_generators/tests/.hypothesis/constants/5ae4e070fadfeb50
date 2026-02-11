@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/patterns/cato_pattern_generator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.1, 0.15, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0, 100, 127, 168, 172, 192, 223, 254, 255, 1000, 2000, 3000, 5000, 8000, 10000, 12000, 15000, '0', '100000', '50000', 'Unknown', 'account_takeover', 'attack_type', 'attacker_count', 'attacker_devices', 'attacker_ips', 'banking_trojan', 'compromised_count', 'credential_stuffing', 'failed_attempts', 'malware_based', 'malware_type', 'person', 'phishing_campaign', 'session_hijacking', 'sim_swap', 'sim_swap_detection', 'total_stolen', 'victim_count']

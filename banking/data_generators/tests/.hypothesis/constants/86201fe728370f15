@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/miniforge3/envs/janusgraph-analysis/bin/pytest
+# hypothesis_version: 6.151.6
+
+['.exe', '__main__']

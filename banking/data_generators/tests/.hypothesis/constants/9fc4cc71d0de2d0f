@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/core/company_generator.py
+# hypothesis_version: 6.151.6
+
+[0.001, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.12, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 1.0, 1.5, 10.0, 500, 1000, 1950, 5000, 100000, ' Corp', ' Group', ' Inc', ' LLC', ' Ltd', '150000', '180000', '200000', '250000', '300000', '??######', '??#########', 'AI/ML', 'AU', 'Automotive', 'Banking', 'Biotech', 'CA', 'Chemicals', 'Cloud Services', 'CompanyGenerator', 'Cybersecurity', 'DE', 'Department Stores', 'E-commerce', 'Electronics', 'FR', 'Fintech', 'GB', 'Grocery', 'HK', 'Hardware', 'Hospitals', 'Insurance', 'Investment', 'Luxury Goods', 'Machinery', 'Medical Devices', 'Payments', 'Pharmaceuticals', 'SG', 'Software', 'Specialty Retail', 'Telemedicine', 'Textiles', 'US', 'United States', 'branch', 'en_US', 'headquarters', 'regional', 'subsidiary']

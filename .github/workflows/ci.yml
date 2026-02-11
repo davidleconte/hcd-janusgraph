@@ -22,9 +22,22 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-lint-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-lint-
+
       - name: Install linting tools
         run: |
-          pip install black flake8 isort mypy
+          uv pip install --system black flake8 isort mypy
 
       - name: Run black (formatter check)
         run: black --check src/ tests/
@@ -52,10 +65,23 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-test-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-test-${{ matrix.python-version }}-
+
       - name: Install dependencies
         run: |
-          pip install -r requirements-dev.txt || true
-          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py pydantic
+          uv pip install --system -r requirements-dev.txt || true
+          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py pydantic
 
       - name: Run unit tests
         run: |
@@ -122,10 +148,23 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-integration-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-integration-
+
       - name: Install dependencies
         run: |
-          pip install -r requirements-dev.txt || true
-          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py pydantic pytest
+          uv pip install --system -r requirements-dev.txt || true
+          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py pydantic pytest
 
       - name: Wait for JanusGraph
         run: |

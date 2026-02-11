@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/patterns/structuring_pattern_generator.py
+# hypothesis_version: 6.151.6
+
+[0.1, 0.15, 0.2, 0.3, 0.35, 0.5, 0.7, 0.8, 1.0, 168, 50000, 100000, '0.00', 'account_hopping', 'account_switching', 'aml_red_flag', 'average_transaction', 'classic_structuring', 'coordinated_deposits', 'en_US', 'geographic_smurfing', 'high_total_value', 'large_smurf_network', 'multiple_accounts', 'multiple_locations', 'multiple_smurfs', 'pattern_subtype', 'pattern_type', 'person', 'sequence', 'smurf_count', 'smurfing', 'structuring', 'structuring_detected', 'temporal_clustering', 'temporal_smurfing', 'time_based_pattern', 'time_window_hours']

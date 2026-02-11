@@ -67,6 +67,10 @@ class AuditEventType(Enum):
     SECURITY_BREACH_ATTEMPT = "security_breach_attempt"
     SECURITY_POLICY_VIOLATION = "security_policy_violation"
     SECURITY_ENCRYPTION_FAILURE = "security_encryption_failure"
+    VALIDATION_FAILURE = "validation_failure"
+    QUERY_EXECUTED = "query_executed"
+    CREDENTIAL_ROTATION = "credential_rotation"
+    VAULT_ACCESS = "vault_access"
 
     # System Events
     SYSTEM_BACKUP = "system_backup"

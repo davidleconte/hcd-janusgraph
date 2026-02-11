@@ -319,7 +319,7 @@ vault kv get janusgraph/janusgraph-credentials
 # Certificates located in: config/ssl/
 
 # For detailed security setup, see:
-# docs/implementation/remediation/WEEK1_FINAL_REPORT.md
+# docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md
 ```
 
 ### 9. Run Tests
@@ -338,7 +338,7 @@ pytest tests/performance/ -v -m performance
 open htmlcov/index.html
 
 # For detailed testing guide, see:
-# docs/implementation/remediation/WEEK3-4_QUICKSTART.md
+# docs/implementation/WEEK3_COMPLETE_SUMMARY.md
 ```
 
 ### 10. Development Workflow
@@ -642,7 +642,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - Automated certificate generation
 - Secure credential storage
 - Startup validation to reject default passwords
-- **Documentation:** [WEEK1_FINAL_REPORT.md](docs/implementation/remediation/WEEK1_FINAL_REPORT.md)
+- **Documentation:** [WEEK1_FINAL_REPORT.md](docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)
 
 #### ✅ Week 2: Monitoring & Observability (95/100)
 
@@ -651,7 +651,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - Grafana auto-provisioning
 - Multi-channel notifications (email/Slack)
 - Production-grade alerting rules
-- **Documentation:** [WEEK2_COMPLETE.md](docs/implementation/remediation/WEEK2_COMPLETE.md)
+- **Documentation:** [WEEK2_COMPLETE.md](docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md)
 
 #### ✅ Week 3-4: Test Coverage (92/100)
 
@@ -659,7 +659,7 @@ NETWORK_NAME=hcd-janusgraph-network
 - Unit tests, integration tests, E2E pipeline tests
 - Fraud/AML detection with real JanusGraph integration
 - Pattern injection tests with known fraud patterns
-- **Documentation:** [WEEK3-4_QUICKSTART.md](docs/implementation/remediation/WEEK3-4_QUICKSTART.md)
+- **Documentation:** [WEEK3-4_QUICKSTART.md](docs/implementation/WEEK3_COMPLETE_SUMMARY.md)
 
 #### ✅ Week 5: Streaming & E2E Pipeline (95/100)
 
@@ -689,8 +689,8 @@ NETWORK_NAME=hcd-janusgraph-network
 ### Quick Access to Production Docs
 
 - **[Production Readiness Audit](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** - Latest assessment (A+ grade)
-- **[6-Week Roadmap](docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md)** - Complete plan
-- **[Operations Runbook](docs/operations/OPERATIONS_RUNBOOK.md)** - Day-to-day operations
+- **[6-Week Roadmap](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** - Complete plan
+- **[Operations Runbook](docs/operations/operations-runbook.md)** - Day-to-day operations
 - **[Monitoring Guide](docs/operations/monitoring-guide.md)** - Monitoring setup
 
 ---

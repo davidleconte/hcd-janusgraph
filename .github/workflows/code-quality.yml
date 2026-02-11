@@ -26,18 +26,22 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Cache dependencies
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-formatting-${{ hashFiles('**/requirements*.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ runner.os }}-uv-formatting-
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install black isort flake8 flake8-docstrings flake8-bugbear
+          uv pip install --system black isort flake8 flake8-docstrings flake8-bugbear
 
       - name: Run Black
         run: black --check --diff src/ tests/
@@ -60,11 +64,23 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-typecheck-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-typecheck-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install mypy types-all
-          pip install -r requirements-dev.txt || pip install .
+          uv pip install --system mypy types-all
+          uv pip install --system -r requirements-dev.txt || uv pip install --system .
 
       - name: Run mypy
         run: mypy src/ --ignore-missing-imports --python-version=3.11
@@ -81,10 +97,22 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-security-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-security-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install bandit safety
+          uv pip install --system bandit safety
 
       - name: Run Bandit
         run: bandit -r src/ banking/ scripts/ -ll -f json -o bandit-report.json --exclude tests
@@ -114,10 +142,22 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-complexity-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-complexity-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install radon
+          uv pip install --system radon
 
       - name: Check Cyclomatic Complexity
         run: |
@@ -148,12 +188,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-unittest-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-unittest-${{ matrix.python-version }}-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt || true
-          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
-          pip install pytest pytest-cov pytest-xdist pytest-timeout
+          uv pip install --system -r requirements-dev.txt || true
+          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system pytest pytest-cov pytest-xdist pytest-timeout
 
       - name: Run unit tests
         run: |
@@ -204,12 +256,24 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-integration-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-integration-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt || true
-          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
-          pip install pytest pytest-cov
+          uv pip install --system -r requirements-dev.txt || true
+          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system pytest pytest-cov
 
       - name: Wait for JanusGraph
         run: |
@@ -245,12 +309,24 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-performance-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-performance-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt || true
-          pip install -e . || pip install gremlinpython cassandra-driver opensearch-py
-          pip install pytest pytest-benchmark
+          uv pip install --system -r requirements-dev.txt || true
+          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system pytest pytest-benchmark
 
       - name: Run performance tests
         run: |
@@ -300,10 +376,22 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-docs-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-docs-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install sphinx sphinx-rtd-theme
+          uv pip install --system sphinx sphinx-rtd-theme
 
       - name: Build documentation
         run: |
@@ -328,10 +416,22 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-dependency-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-dependency-
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install pip-audit
+          uv pip install --system pip-audit
 
       - name: Run pip-audit
         run: pip-audit -r requirements.txt --format json > audit-report.json

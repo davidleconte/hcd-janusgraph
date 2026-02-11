@@ -1,0 +1,385 @@
+# Security Alert Rules for AlertManager
+# ======================================
+#
+# Comprehensive security alerting for credential rotation, query validation,
+# Vault access, and certificate management.
+#
+# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+# Created: 2026-02-11
+# Phase: Phase 2 - Infrastructure Security (Final 15%)
+
+groups:
+  - name: credential_rotation_alerts
+    interval: 30s
+    rules:
+      - alert: CredentialRotationFailed
+        expr: |
+          rate(credential_rotation_total{status="failed"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: security
+          component: credential_rotation
+        annotations:
+          summary: "Credential rotation failed for {{ $labels.service }}"
+          description: |
+            Credential rotation has failed for service {{ $labels.service }}.
+            This requires immediate attention as it may indicate:
+            - Service connectivity issues
+            - Authentication problems
+            - Configuration errors
+            
+            Current failure rate: {{ $value | humanize }} failures/sec
+            
+            Action required:
+            1. Check service logs: podman logs janusgraph-demo_{{ $labels.service }}_1
+            2. Verify Vault connectivity
+            3. Check service health
+            4. Review rotation logs in /var/log/credential-rotation.log
+          runbook_url: "https://docs.example.com/runbooks/credential-rotation-failure"
+
+      - alert: CredentialRotationHighDuration
+        expr: |
+          histogram_quantile(0.95, 
+            rate(credential_rotation_duration_seconds_bucket[5m])
+          ) > 120
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: credential_rotation
+        annotations:
+          summary: "Credential rotation taking too long for {{ $labels.service }}"
+          description: |
+            95th percentile rotation duration is {{ $value | humanizeDuration }}.
+            Expected duration: < 2 minutes
+            
+            This may indicate:
+            - Slow service restarts
+            - Network latency
+            - Resource constraints
+            
+            Action: Investigate service performance and resource usage.
+
+      - alert: CredentialRotationStale
+        expr: |
+          time() - credential_rotation_last_success_timestamp > 2592000
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+          component: credential_rotation
+        annotations:
+          summary: "Credentials not rotated in 30 days for {{ $labels.service }}"
+          description: |
+            Last successful rotation: {{ $value | humanizeDuration }} ago
+            
+            Security best practice: Rotate credentials every 30 days
+            
+            Action: Schedule credential rotation for {{ $labels.service }}
+
+  - name: query_validation_alerts
+    interval: 30s
+    rules:
+      - alert: HighQueryValidationFailureRate
+        expr: |
+          (
+            rate(query_validation_total{result="blocked"}[5m]) /
+            rate(query_validation_total[5m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+          component: query_validation
+        annotations:
+          summary: "High query validation failure rate detected"
+          description: |
+            {{ $value | humanizePercentage }} of queries are being blocked.
+            
+            This may indicate:
+            - Malicious query attempts
+            - Application bugs sending invalid queries
+            - Overly restrictive validation rules
+            
+            Current blocked rate: {{ $value | humanizePercentage }}
+            Threshold: 10%
+            
+            Action: Review query validation logs and blocked query patterns.
+
+      - alert: SuspiciousQueryPattern
+        expr: |
+          rate(query_validation_total{result="blocked", pattern="injection"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: security
+          component: query_validation
+        annotations:
+          summary: "SQL/Gremlin injection attempt detected"
+          description: |
+            Potential injection attack detected!
+            
+            Blocked queries with injection patterns: {{ $value | humanize }}/sec
+            
+            Immediate actions:
+            1. Review blocked queries in audit logs
+            2. Identify source IP/user
+            3. Check for compromised accounts
+            4. Consider blocking source IP
+            5. Escalate to security team
+          runbook_url: "https://docs.example.com/runbooks/injection-attack"
+
+      - alert: QueryValidationHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(query_validation_duration_seconds_bucket[5m])
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: query_validation
+        annotations:
+          summary: "Query validation latency is high"
+          description: |
+            95th percentile validation latency: {{ $value | humanizeDuration }}
+            Expected: < 100ms
+            
+            This may impact query performance.
+            
+            Action: Review validation logic and consider optimization.
+
+  - name: vault_access_alerts
+    interval: 30s
+    rules:
+      - alert: VaultAccessFailureSpike
+        expr: |
+          rate(vault_access_total{status="error"}[5m]) > 1
+        for: 2m
+        labels:
+          severity: critical
+          category: security
+          component: vault
+        annotations:
+          summary: "High rate of Vault access failures"
+          description: |
+            Vault access error rate: {{ $value | humanize }} errors/sec
+            
+            This may indicate:
+            - Vault connectivity issues
+            - Authentication problems
+            - Token expiration
+            - Vault service degradation
+            
+            Immediate actions:
+            1. Check Vault service status
+            2. Verify network connectivity
+            3. Check token validity
+            4. Review Vault audit logs
+          runbook_url: "https://docs.example.com/runbooks/vault-access-failure"
+
+      - alert: UnauthorizedVaultAccess
+        expr: |
+          rate(vault_access_total{status="unauthorized"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: security
+          component: vault
+        annotations:
+          summary: "Unauthorized Vault access attempts detected"
+          description: |
+            Unauthorized access attempts: {{ $value | humanize }}/sec
+            Path: {{ $labels.path }}
+            
+            This is a security incident!
+            
+            Immediate actions:
+            1. Identify source of unauthorized access
+            2. Review Vault audit logs
+            3. Check for compromised tokens
+            4. Revoke suspicious tokens
+            5. Escalate to security team
+          runbook_url: "https://docs.example.com/runbooks/unauthorized-vault-access"
+
+      - alert: VaultAccessAnomalousPattern
+        expr: |
+          (
+            rate(vault_access_total[5m]) /
+            rate(vault_access_total[1h] offset 1h)
+          ) > 3
+        for: 10m
+        labels:
+          severity: warning
+          category: security
+          component: vault
+        annotations:
+          summary: "Anomalous Vault access pattern detected"
+          description: |
+            Vault access rate is {{ $value }}x higher than usual.
+            
+            This may indicate:
+            - Automated attack
+            - Misconfigured application
+            - Legitimate traffic spike
+            
+            Action: Investigate access patterns and verify legitimacy.
+
+  - name: authentication_alerts
+    interval: 30s
+    rules:
+      - alert: HighFailedAuthenticationRate
+        expr: |
+          rate(authentication_failed_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+          component: authentication
+        annotations:
+          summary: "High rate of failed authentication attempts"
+          description: |
+            Failed authentication rate: {{ $value | humanize }}/sec
+            Service: {{ $labels.service }}
+            Reason: {{ $labels.reason }}
+            
+            This may indicate:
+            - Brute force attack
+            - Misconfigured client
+            - Expired credentials
+            
+            Action: Review authentication logs and consider rate limiting.
+
+      - alert: BruteForceAttackDetected
+        expr: |
+          rate(authentication_failed_total[1m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          category: security
+          component: authentication
+        annotations:
+          summary: "Potential brute force attack detected"
+          description: |
+            Rapid failed authentication attempts: {{ $value | humanize }}/sec
+            Service: {{ $labels.service }}
+            
+            This is likely a brute force attack!
+            
+            Immediate actions:
+            1. Identify source IP
+            2. Block source IP at firewall
+            3. Enable rate limiting
+            4. Review affected accounts
+            5. Force password reset if needed
+            6. Escalate to security team
+          runbook_url: "https://docs.example.com/runbooks/brute-force-attack"
+
+  - name: certificate_alerts
+    interval: 1h
+    rules:
+      - alert: CertificateExpiringSoon
+        expr: |
+          (certificate_expiry_timestamp - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+          component: certificates
+        annotations:
+          summary: "Certificate {{ $labels.certificate_name }} expiring soon"
+          description: |
+            Certificate expires in {{ $value | humanizeDuration }}
+            Certificate: {{ $labels.certificate_name }}
+            
+            Action: Schedule certificate renewal before expiration.
+          runbook_url: "https://docs.example.com/runbooks/certificate-renewal"
+
+      - alert: CertificateExpiringCritical
+        expr: |
+          (certificate_expiry_timestamp - time()) / 86400 < 7
+        for: 1h
+        labels:
+          severity: critical
+          category: security
+          component: certificates
+        annotations:
+          summary: "Certificate {{ $labels.certificate_name }} expiring in < 7 days!"
+          description: |
+            URGENT: Certificate expires in {{ $value | humanizeDuration }}
+            Certificate: {{ $labels.certificate_name }}
+            
+            Immediate action required:
+            1. Generate new certificate
+            2. Deploy to all services
+            3. Verify connectivity
+            4. Update monitoring
+          runbook_url: "https://docs.example.com/runbooks/certificate-renewal"
+
+      - alert: CertificateExpired
+        expr: |
+          certificate_expiry_timestamp < time()
+        for: 5m
+        labels:
+          severity: critical
+          category: security
+          component: certificates
+        annotations:
+          summary: "Certificate {{ $labels.certificate_name }} has EXPIRED!"
+          description: |
+            Certificate {{ $labels.certificate_name }} expired {{ $value | humanizeDuration }} ago!
+            
+            This will cause service disruptions!
+            
+            Emergency actions:
+            1. Generate new certificate immediately
+            2. Deploy to affected services
+            3. Restart services
+            4. Verify connectivity
+            5. Update documentation
+          runbook_url: "https://docs.example.com/runbooks/certificate-expired"
+
+  - name: security_event_alerts
+    interval: 30s
+    rules:
+      - alert: SecurityEventSpike
+        expr: |
+          rate(security_event_total{severity="high"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+          component: security_events
+        annotations:
+          summary: "High severity security events detected"
+          description: |
+            High severity security event rate: {{ $value | humanize }}/sec
+            Event type: {{ $labels.event_type }}
+            Service: {{ $labels.service }}
+            
+            Action: Review security event logs and investigate.
+
+      - alert: CriticalSecurityEvent
+        expr: |
+          rate(security_event_total{severity="critical"}[1m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: security
+          component: security_events
+        annotations:
+          summary: "Critical security event detected"
+          description: |
+            Critical security event occurred!
+            Event type: {{ $labels.event_type }}
+            Service: {{ $labels.service }}
+            
+            Immediate action required:
+            1. Review event details
+            2. Assess impact
+            3. Contain threat if needed
+            4. Escalate to security team
+          runbook_url: "https://docs.example.com/runbooks/critical-security-event"
+
+# Made with Bob

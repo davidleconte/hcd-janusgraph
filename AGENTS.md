@@ -359,7 +359,7 @@ podman network ls | grep janusgraph-demo
 podman volume ls | grep janusgraph-demo
 ```
 
-**See:** [`docs/implementation/remediation/network-isolation-analysis.md`](docs/implementation/remediation/network-isolation-analysis.md) for complete analysis
+**See:** [`config/compose/docker-compose.full.yml`](config/compose/docker-compose.full.yml) for complete analysis
 
 ---
 
@@ -817,6 +817,115 @@ analytics                        0%
 ──────────────────────────────────────────
 OVERALL                         ~35%
 ```
+### Advanced Testing Patterns
+
+**Exception handling tests use custom exception hierarchy** - all exceptions inherit from [`JanusGraphException`](src/python/client/exceptions.py:15):
+
+```python
+from src.python.client.exceptions import (
+    JanusGraphException,
+    ConnectionError,
+    QueryError,
+    ValidationError
+)
+
+# Test exception hierarchy
+def test_exception_hierarchy():
+    assert issubclass(ConnectionError, JanusGraphException)
+    assert issubclass(QueryError, JanusGraphException)
+    
+# Test structured error information
+def test_error_details():
+    error = QueryError(
+        message="Invalid query",
+        query="g.V().invalid()",
+        error_code="QUERY_001"
+    )
+    assert error.query == "g.V().invalid()"
+    assert error.error_code == "QUERY_001"
+```
+
+**Property-based testing with Hypothesis** - use for testing invariants:
+
+```python
+from hypothesis import given, strategies as st
+
+@given(st.integers(min_value=1, max_value=1000))
+def test_person_generator_count(count):
+    """Property: Generator produces exactly N persons."""
+    generator = PersonGenerator(seed=42)
+    persons = generator.generate(count)
+    assert len(persons) == count
+    
+@given(st.text(min_size=1, max_size=100))
+def test_name_validation(name):
+    """Property: Valid names are accepted."""
+    if name.strip() and not any(c.isdigit() for c in name):
+        validator = NameValidator()
+        assert validator.validate(name) is True
+```
+
+**Performance benchmarking with pytest-benchmark** - establish baselines:
+
+```python
+def test_query_performance(benchmark, graph_client):
+    """Benchmark: Vertex count query < 100ms."""
+    result = benchmark(lambda: graph_client.execute("g.V().count()"))
+    assert result < 100  # milliseconds
+    
+def test_batch_insert_performance(benchmark):
+    """Benchmark: 1000 vertices in < 5 seconds."""
+    def insert_batch():
+        generator = PersonGenerator(seed=42)
+        persons = generator.generate(1000)
+        loader = JanusGraphLoader()
+        loader.load_persons(persons)
+    
+    result = benchmark(insert_batch)
+    assert result < 5.0  # seconds
+```
+
+**Mutation testing validates test effectiveness** - use mutmut to verify tests catch bugs:
+
+```bash
+# Run mutation testing on specific module
+mutmut run --paths-to-mutate=src/python/client/janusgraph_client.py
+
+# Show surviving mutants (tests didn't catch)
+mutmut results
+
+# Apply specific mutation to see what changed
+mutmut show 5
+```
+
+**Performance regression tests track baselines** - see [`tests/benchmarks/test_performance_regression.py`](tests/benchmarks/test_performance_regression.py:1):
+
+```python
+@pytest.mark.benchmark(group="vertex-operations")
+def test_vertex_count_baseline(benchmark, graph_client):
+    """Baseline: Vertex count < 50ms (P95)."""
+    result = benchmark(graph_client.count_vertices)
+    assert result.stats.mean < 0.050  # 50ms mean
+    assert result.stats.max < 0.100   # 100ms max
+```
+
+**Test markers for organization** - defined in [`conftest.py`](tests/conftest.py:1):
+
+```python
+# Available markers
+@pytest.mark.slow          # Long-running tests (>1s)
+@pytest.mark.integration   # Requires running services
+@pytest.mark.benchmark     # Performance benchmarks
+@pytest.mark.mutation      # Mutation testing
+@pytest.mark.property      # Property-based tests
+
+# Run specific marker groups
+pytest -v -m "not slow"              # Skip slow tests
+pytest -v -m "integration"           # Only integration tests
+pytest -v -m "benchmark"             # Only benchmarks
+pytest -v -m "property or mutation"  # Property or mutation tests
+```
+
 
 ---
 
@@ -902,9 +1011,9 @@ Brief overview...
 **Use relative links in documentation** - always use relative paths:
 
 ```markdown
-✅ [Setup Guide](SETUP.md)
+✅ [Setup Guide](QUICKSTART.md)
 ✅ [Banking Docs](banking/README.md)
-❌ [Setup](/docs/SETUP.md)  # Absolute path
+❌ [Setup](/docs/QUICKSTART.md)  # Absolute path
 ```
 
 **Code examples must be tested** - all code examples in documentation must:

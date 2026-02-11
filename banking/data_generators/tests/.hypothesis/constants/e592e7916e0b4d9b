@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/utils/helpers.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 1.0, 1000, 3600, '*', '0', '0.01', '001', '100000', '1000000', '50000', 'America/New_York', 'GB', 'US', 'amount', 'default_salt', 'generate_iban', 'generate_lei_code', 'generate_swift_code', 'generate_tax_id', 'hash_pii', 'is_high_risk_country', 'is_round_amount', 'is_tax_haven', 'random_amount', 'random_date_between', 'timestamp', 'utf-8']

@@ -350,9 +350,7 @@ curl http://localhost:9200  # Should return cluster info (no https)
 
 ## Related Documentation
 
-- [Streaming Architecture Summary](../../docs/archive/streaming_summary.md)
 - [Data Generators](../data_generators/README.md)
-- [JanusGraph Client](../../src/python/client/README.md)
 
 ---
 

@@ -51,12 +51,25 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-security-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-security-
+
       - name: Install safety
-        run: pip install safety
+        run: uv pip install --system safety
 
       - name: Run safety check
         run: |
-          pip install -r requirements-dev.txt || pip install safety
+          uv pip install --system -r requirements-dev.txt || uv pip install --system safety
           safety check --full-report 2>/dev/null || echo "::warning::Some dependencies may have vulnerabilities - review above"
 
   secret-scan:

@@ -402,9 +402,7 @@ def custom_risk_score(transaction):
 
 ### Documentation
 
-- [Production System Verification](../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md)
 - [Banking Use Cases Technical Spec](../../docs/BANKING_USE_CASES_TECHNICAL_SPEC_COMPLETE.md)
-- [Production Deployment Guide](../../docs/banking/PRODUCTION_DEPLOYMENT_GUIDE.md)
 
 ### Code Modules
 
@@ -446,8 +444,7 @@ See [LICENSE](../../LICENSE) file in the project root.
 
 For issues or questions:
 
-1. Check [TROUBLESHOOTING.md](../../docs/TROUBLESHOOTING.md)
-2. Review [Production System Verification](../../docs/banking/PRODUCTION_SYSTEM_VERIFICATION.md)
+1. Check [TROUBLESHOOTING.md](../../docs/guides/troubleshooting-guide.md)
 3. Contact the development team
 
 ---

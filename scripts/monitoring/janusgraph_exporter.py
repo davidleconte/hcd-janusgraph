@@ -63,6 +63,62 @@ janusgraph_edge_labels = Gauge(
 
 janusgraph_info = Info("janusgraph", "JanusGraph instance information")
 
+# Security metrics
+credential_rotation_total = Counter(
+    "credential_rotation_total",
+    "Total number of credential rotations",
+    ["service", "status"]
+)
+
+credential_rotation_duration_seconds = Histogram(
+    "credential_rotation_duration_seconds",
+    "Credential rotation duration in seconds",
+    ["service"],
+    buckets=(1.0, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0)
+)
+
+credential_rotation_status = Gauge(
+    "credential_rotation_status",
+    "Current credential rotation status (1=success, 0=failed)",
+    ["service"]
+)
+
+query_validation_total = Counter(
+    "query_validation_total",
+    "Total number of query validations",
+    ["result"]
+)
+
+query_validation_duration_seconds = Histogram(
+    "query_validation_duration_seconds",
+    "Query validation duration in seconds",
+    buckets=(0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0)
+)
+
+vault_access_total = Counter(
+    "vault_access_total",
+    "Total number of Vault access operations",
+    ["operation", "path", "status"]
+)
+
+authentication_failed_total = Counter(
+    "authentication_failed_total",
+    "Total number of failed authentication attempts",
+    ["service", "reason"]
+)
+
+security_event_total = Counter(
+    "security_event_total",
+    "Total number of security events",
+    ["event_type", "service", "severity"]
+)
+
+certificate_expiry_timestamp = Gauge(
+    "certificate_expiry_timestamp",
+    "Certificate expiry timestamp (Unix epoch)",
+    ["certificate_name"]
+)
+
 
 class JanusGraphExporter:
     """JanusGraph metrics exporter"""

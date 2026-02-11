@@ -138,8 +138,8 @@ overall_score = velocity_score * 0.3 + network_score * 0.25 + merchant_score * 0
 
 ## Documentation
 
-- **User Guide:** [`../docs/banking/guides/USER_GUIDE.md`](../docs/banking/guides/USER_GUIDE.md)
-- **API Reference:** [`../docs/banking/guides/API_REFERENCE.md`](../docs/banking/guides/API_REFERENCE.md)
+- **User Guide:** [`../../docs/banking/USER_GUIDE.md`](../../docs/banking/USER_GUIDE.md)
+- **API Reference:** [`../../docs/banking/guides/api-reference.md`](../../docs/banking/guides/api-reference.md)
 - **Fraud Detection Demo:** [`../notebooks/03_Fraud_Detection_Demo.ipynb`](../notebooks/03_Fraud_Detection_Demo.ipynb)
 
 ## Related Modules

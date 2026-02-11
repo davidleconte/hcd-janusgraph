@@ -331,16 +331,16 @@ Pre-loaded graph includes:
 | Document | Description |
 |----------|-------------|
 | **[Production Readiness Audit](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** | Comprehensive system audit (A+ grade, 99/100) |
-| **[6-Week Roadmap](docs/implementation/remediation/PRODUCTION_READINESS_ROADMAP.md)** | Production roadmap (Complete) |
-| **[Week 1: Security](docs/implementation/remediation/WEEK1_FINAL_REPORT.md)** | SSL/TLS + Vault implementation ✅ |
-| **[Week 2: Monitoring](docs/implementation/remediation/WEEK2_COMPLETE.md)** | AlertManager + metrics exporter ✅ |
-| **[Week 3-4: Testing](docs/implementation/remediation/WEEK3-4_QUICKSTART.md)** | Test coverage (82%) ✅ |
+| **[6-Week Roadmap](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** | Production roadmap (Complete) |
+| **[Week 1: Security](docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)** | SSL/TLS + Vault implementation ✅ |
+| **[Week 2: Monitoring](docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md)** | AlertManager + metrics exporter ✅ |
+| **[Week 3-4: Testing](docs/implementation/WEEK3_COMPLETE_SUMMARY.md)** | Test coverage (82%) ✅ |
 
 ### Banking & Compliance
 
 | Document | Description |
 |----------|-------------|
-| **[Banking User Guide](docs/banking/guides/USER_GUIDE.md)** | Complete banking system guide |
+| **[Banking User Guide](docs/banking/USER_GUIDE.md)** | Complete banking system guide |
 | **[AML Setup](docs/banking/setup/01_AML_PHASE1_SETUP.md)** | Anti-Money Laundering configuration |
 | **[Technical Spec](docs/banking/planning/technical-spec-complete.md)** | Banking use cases specification |
 
@@ -348,7 +348,7 @@ Pre-loaded graph includes:
 
 | Document | Description |
 |----------|-------------|
-| **[Operations Runbook](docs/operations/OPERATIONS_RUNBOOK.md)** | Day-to-day operations guide |
+| **[Operations Runbook](docs/operations/operations-runbook.md)** | Day-to-day operations guide |
 | **[Monitoring Guide](docs/operations/monitoring-guide.md)** | Monitoring and alerting setup |
 | **[Backup Procedures](docs/operations/backup-procedures.md)** | Backup and restore procedures |
 

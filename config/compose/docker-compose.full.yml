@@ -37,6 +37,14 @@ services:
   hcd-server:
     image: localhost/hcd:1.2.3
     hostname: hcd-server
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
     networks:
       hcd-janusgraph-network:
         aliases:
@@ -69,6 +77,14 @@ services:
       dockerfile: docker/opensearch/Dockerfile
     image: localhost/opensearch-jvector:latest
     hostname: opensearch
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -104,6 +120,14 @@ services:
   opensearch-dashboards:
     image: docker.io/opensearchproject/opensearch-dashboards:2.11.1
     hostname: opensearch-dashboards
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -125,6 +149,14 @@ services:
   janusgraph-server:
     image: docker.io/janusgraph/janusgraph:latest
     hostname: janusgraph-server
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     networks:
       hcd-janusgraph-network:
         aliases:
@@ -160,6 +192,14 @@ services:
   gremlin-console:
     image: docker.io/janusgraph/janusgraph:latest
     hostname: gremlin-console
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - hcd-janusgraph-network
     volumes:
@@ -182,6 +222,14 @@ services:
   pulsar:
     image: docker.io/apachepulsar/pulsar:3.2.0
     hostname: pulsar
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -222,6 +270,14 @@ services:
   pulsar-cli:
     image: docker.io/apachepulsar/pulsar:3.2.0
     hostname: pulsar-cli
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - hcd-janusgraph-network
     environment:
@@ -243,6 +299,14 @@ services:
       dockerfile: docker/jupyter/Dockerfile
     image: localhost/jupyter-janusgraph:latest
     hostname: jupyter-lab
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -274,6 +338,14 @@ services:
       dockerfile: docker/visualizer/Dockerfile
     image: localhost/janusgraph-visualizer:latest
     hostname: janusgraph-visualizer
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - hcd-janusgraph-network
     ports:
@@ -297,6 +369,14 @@ services:
       dockerfile: docker/graphexp/Dockerfile
     image: localhost/graphexp:latest
     hostname: graphexp
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - hcd-janusgraph-network
     ports:
@@ -322,6 +402,14 @@ services:
       dockerfile: docker/cqlsh/Dockerfile
     image: localhost/cqlsh-client:latest
     hostname: cqlsh-client
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - hcd-janusgraph-network
     environment:
@@ -341,6 +429,14 @@ services:
   vault:
     image: docker.io/hashicorp/vault:latest
     hostname: vault
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - hcd-janusgraph-network
     ports:
@@ -371,6 +467,14 @@ services:
   prometheus:
     image: docker.io/prom/prometheus:latest
     hostname: prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -397,6 +501,14 @@ services:
   alertmanager:
     image: docker.io/prom/alertmanager:latest
     hostname: alertmanager
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - hcd-janusgraph-network
     ports:
@@ -424,6 +536,14 @@ services:
       dockerfile: docker/Dockerfile.exporter
     image: localhost/janusgraph-exporter:latest
     hostname: janusgraph-exporter
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - hcd-janusgraph-network
     ports:
@@ -446,6 +566,14 @@ services:
   grafana:
     image: docker.io/grafana/grafana:latest
     hostname: grafana
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -474,6 +602,14 @@ services:
       dockerfile: docker/api/Dockerfile
     image: localhost/analytics-api:latest
     hostname: analytics-api
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     ports:
@@ -504,6 +640,14 @@ services:
       dockerfile: docker/consumers/Dockerfile
     image: localhost/graph-consumer:latest
     hostname: graph-consumer
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     environment:
@@ -524,6 +668,14 @@ services:
       dockerfile: docker/consumers/Dockerfile
     image: localhost/vector-consumer:latest
     hostname: vector-consumer
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
     networks:
       - hcd-janusgraph-network
     environment:

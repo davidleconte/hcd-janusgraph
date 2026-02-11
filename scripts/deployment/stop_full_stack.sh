@@ -1,33 +1,44 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
+# ==============================================================================
 # Stop Full HCD + JanusGraph Visualization Stack
+# ==============================================================================
+#
+# Author: Bob (AI Assistant)
+# Date: 2026-02-11
+# Version: 2.0.0 (Refactored to use common.sh)
+# ==============================================================================
 
-# Load environment variables if .env exists
-if [ -f ".env" ]; then
-    source .env
-fi
+set -e
 
-# Set defaults
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+# Source common deployment functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
-echo "Stopping all containers..."
+# ==============================================================================
+# MAIN STOP FUNCTION
+# ==============================================================================
 
-# Stop visualization containers
-podman --remote --connection $PODMAN_CONNECTION stop jupyter-lab janusgraph-visualizer graphexp cqlsh-client 2>/dev/null || true
+main() {
+    log_header "Stopping Services"
+    
+    log_info "Project: $COMPOSE_PROJECT_NAME"
+    echo ""
+    
+    # Stop services using compose
+    stop_with_compose "docker-compose.full.yml" "$COMPOSE_PROJECT_NAME"
+    
+    echo ""
+    log_success "All services stopped"
+    echo ""
+    echo "To start services again:"
+    echo "   cd $SCRIPT_DIR && ./deploy_full_stack.sh"
+    echo ""
+    echo "To completely remove containers and volumes:"
+    echo "   cd $SCRIPT_DIR && ./cleanup_and_reset.sh"
+    echo ""
+}
 
-# Stop monitoring containers
-podman --remote --connection $PODMAN_CONNECTION stop prometheus grafana 2>/dev/null || true
+# Run main function
+main "$@"
 
-# Stop core containers (optional - uncomment if needed)
-# podman --remote --connection $PODMAN_CONNECTION stop janusgraph-server hcd-server 2>/dev/null || true
-
-echo "✅ Visualization and monitoring containers stopped"
-echo ""
-echo "Core containers (HCD + JanusGraph) are still running."
-echo "To stop them as well:"
-echo "  podman --remote --connection $PODMAN_CONNECTION stop janusgraph-server hcd-server"
-echo ""
-echo "To remove stopped containers:"
-echo "  podman --remote --connection $PODMAN_CONNECTION rm jupyter-lab janusgraph-visualizer graphexp cqlsh-client prometheus grafana"
+# Made with Bob

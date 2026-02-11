@@ -1,51 +1,57 @@
 #!/bin/bash
-# Cleanup Script - Removes all containers, networks, and volumes
-# Use this when you need to completely reset the stack
+# ==============================================================================
+# Cleanup and Reset Script
+# ==============================================================================
+# Removes all containers, networks, and volumes for the project.
+# Use this when you need to completely reset the stack.
+#
+# Author: Bob (AI Assistant)
+# Date: 2026-02-11
+# Version: 2.0.0 (Refactored to use common.sh)
+# ==============================================================================
 
-set -euo pipefail
+set -e
 
+# Source common deployment functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$SCRIPT_DIR/common.sh"
 
-# Load environment variables
-if [ -f "$PROJECT_ROOT/.env" ]; then
-    source "$PROJECT_ROOT/.env"
-fi
+# ==============================================================================
+# MAIN CLEANUP FUNCTION
+# ==============================================================================
 
-# Set project name
-export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
+main() {
+    log_header "Cleanup and Reset"
+    
+    log_warning "This will remove:"
+    echo "  • All containers for project: $COMPOSE_PROJECT_NAME"
+    echo "  • All volumes (DATA WILL BE LOST)"
+    echo "  • All networks"
+    echo ""
+    
+    # Stop services first
+    log_step "Stopping services"
+    cd "$PROJECT_ROOT/config/compose"
+    podman-compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.full.yml down -v 2>/dev/null || true
+    
+    # Cleanup containers
+    cleanup_containers "$COMPOSE_PROJECT_NAME"
+    
+    # Cleanup networks
+    cleanup_networks
+    
+    # Cleanup volumes (with confirmation)
+    cleanup_volumes "$COMPOSE_PROJECT_NAME"
+    
+    echo ""
+    log_success "Cleanup complete"
+    echo ""
+    echo "To deploy fresh stack:"
+    echo "   cd $SCRIPT_DIR && ./deploy_full_stack.sh"
+    echo ""
+}
 
-echo "=========================================="
-echo "Cleanup and Reset"
-echo "=========================================="
-echo ""
-echo "This will remove:"
-echo "  • All containers for project: $COMPOSE_PROJECT_NAME"
-echo "  • All volumes (DATA WILL BE LOST)"
-echo "  • All networks"
-echo ""
-read -p "Continue? (yes/no): " confirm
+# Run main function
+main "$@"
 
-if [ "$confirm" != "yes" ]; then
-    echo "Aborted."
-    exit 0
-fi
-
-echo ""
-echo "Stopping and removing containers..."
-cd "$PROJECT_ROOT/config/compose"
-podman-compose -p "$COMPOSE_PROJECT_NAME" -f docker-compose.full.yml down -v 2>/dev/null || true
-
-echo "Removing any orphaned containers..."
-podman stop -a 2>/dev/null || true
-podman rm -f $(podman ps -aq) 2>/dev/null || true
-
-echo "Pruning networks..."
-podman network prune -f
-
-echo ""
-echo "✅ Cleanup complete"
-echo ""
-echo "To deploy fresh stack:"
-echo "  bash scripts/deployment/deploy_with_compose.sh"
-echo ""
+# Made with Bob

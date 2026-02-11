@@ -139,9 +139,8 @@ matches = screener.screen_entity(
 
 ## Documentation
 
-- **User Guide:** [`../docs/banking/guides/USER_GUIDE.md`](../docs/banking/guides/USER_GUIDE.md)
-- **API Reference:** [`../docs/banking/guides/API_REFERENCE.md`](../docs/banking/guides/API_REFERENCE.md)
-- **Setup Guide:** [`../docs/banking/setup/01_AML_PHASE1_SETUP.md`](../docs/banking/setup/01_AML_PHASE1_SETUP.md)
+- **User Guide:** [`../../docs/banking/USER_GUIDE.md`](../../docs/banking/USER_GUIDE.md)
+- **API Reference:** [`../../docs/banking/guides/api-reference.md`](../../docs/banking/guides/api-reference.md)
 
 ## Related Modules
 

@@ -9,10 +9,11 @@ Tests for Trade-Based Money Laundering detection algorithms including:
 
 Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
+Updated: 2026-02-11 (Week 2 Day 9 - Enhanced to 45+ tests, 80%+ coverage)
 """
 
 from datetime import datetime, timezone
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -385,6 +386,524 @@ class TestDataclasses:
         assert anomaly.transaction_id == "TX-001"
         assert anomaly.direction == "over"
         assert anomaly.deviation_percent == 50.0
+
+class TestCarouselFraudDetectionAdvanced:
+    """Advanced tests for carousel fraud detection"""
+
+    def test_calculate_carousel_risk_high_value(self):
+        """Test carousel risk with high transaction value"""
+        detector = TBMLDetector()
+
+        low_value_loop = {
+            "depth": 3,
+            "companies": ["A", "B", "C"],
+            "transactions": [{"amount": 50000}],
+        }
+        high_value_loop = {
+            "depth": 3,
+            "companies": ["A", "B", "C"],
+            "transactions": [{"amount": 600000}],
+        }
+
+        low_risk = detector._calculate_carousel_risk(low_value_loop)
+        high_risk = detector._calculate_carousel_risk(high_value_loop)
+
+        assert high_risk > low_risk
+
+    def test_calculate_carousel_risk_many_companies(self):
+        """Test carousel risk with many companies"""
+        detector = TBMLDetector()
+
+        few_companies_loop = {
+            "depth": 3,
+            "companies": ["A", "B"],
+            "transactions": [{"amount": 100000}],
+        }
+        many_companies_loop = {
+            "depth": 3,
+            "companies": ["A", "B", "C", "D", "E"],
+            "transactions": [{"amount": 100000}],
+        }
+
+        few_risk = detector._calculate_carousel_risk(few_companies_loop)
+        many_risk = detector._calculate_carousel_risk(many_companies_loop)
+
+        assert many_risk > few_risk
+
+    def test_calculate_carousel_risk_capped_at_one(self):
+        """Test carousel risk is capped at 1.0"""
+        detector = TBMLDetector()
+
+        extreme_loop = {
+            "depth": 5,
+            "companies": ["A", "B", "C", "D", "E", "F", "G", "H"],
+            "transactions": [{"amount": 2000000}],
+        }
+
+        risk = detector._calculate_carousel_risk(extreme_loop)
+        assert risk <= 1.0
+
+    def test_extract_companies_with_string_names(self):
+        """Test company extraction with string names (not lists)"""
+        detector = TBMLDetector()
+
+        result = {
+            "start": {"name": "Company A"},  # String, not list
+            "hop1": {"name": "Company B"},
+        }
+
+        companies = detector._extract_companies(result)
+        assert "Company A" in companies
+        assert "Company B" in companies
+
+    def test_extract_transaction_ids_non_dict(self):
+        """Test transaction ID extraction with non-dict input"""
+        detector = TBMLDetector()
+
+        tx_ids = detector._extract_transaction_ids("not a dict")
+        assert tx_ids == []
+
+
+class TestInvoiceManipulationDetectionAdvanced:
+    """Advanced tests for invoice manipulation detection"""
+
+    def test_check_price_anomaly_no_market_price(self):
+        """Test anomaly check when no market price available"""
+        detector = TBMLDetector()
+
+        detector._estimate_market_price = Mock(return_value=None)
+
+        transaction = {
+            "tx_id": "TX-001",
+            "amount": 100000.0,
+            "description": "unknown item",
+        }
+
+        anomaly = detector._check_price_anomaly(transaction)
+        assert anomaly is None
+
+    def test_check_price_anomaly_zero_market_price(self):
+        """Test anomaly check with zero market price"""
+        detector = TBMLDetector()
+
+        detector._estimate_market_price = Mock(return_value=0)
+
+        transaction = {
+            "tx_id": "TX-001",
+            "amount": 100000.0,
+            "description": "test item",
+        }
+
+        anomaly = detector._check_price_anomaly(transaction)
+        assert anomaly is None
+
+    def test_check_price_anomaly_risk_score_calculation(self):
+        """Test risk score calculation for price anomalies"""
+        detector = TBMLDetector()
+
+        detector._estimate_market_price = Mock(return_value=100000.0)
+
+        # 100% deviation
+        transaction = {
+            "tx_id": "TX-001",
+            "amount": 200000.0,
+            "description": "test item",
+        }
+
+        anomaly = detector._check_price_anomaly(transaction)
+        assert anomaly is not None
+        assert anomaly.risk_score <= 1.0  # Should be capped
+
+    def test_estimate_market_price_low_value(self):
+        """Test market price estimation with low declared value"""
+        detector = TBMLDetector()
+
+        # Low value shouldn't trigger estimation
+        price = detector._estimate_market_price("gold shipment", 50000.0)
+        assert price is None
+
+    def test_estimate_market_price_multiple_keywords(self):
+        """Test market price estimation with multiple keywords"""
+        detector = TBMLDetector()
+
+        # Should match first keyword
+        price = detector._estimate_market_price("luxury gold jewelry", 200000.0)
+        assert price is not None
+
+    def test_check_price_anomaly_exact_threshold(self):
+        """Test anomaly detection at exact threshold"""
+        detector = TBMLDetector()
+
+        detector._estimate_market_price = Mock(return_value=100000.0)
+
+        # Exactly 20% deviation (at threshold)
+        transaction = {
+            "tx_id": "TX-001",
+            "amount": 120000.0,
+            "description": "test item",
+        }
+
+        anomaly = detector._check_price_anomaly(transaction)
+        assert anomaly is None  # Should not trigger at exact threshold
+
+
+class TestShellCompanyDetectionAdvanced:
+    """Advanced tests for shell company detection"""
+
+    def test_calculate_shell_company_score_recent_incorporation(self):
+        """Test shell company score with recent incorporation"""
+        detector = TBMLDetector()
+
+        # Very recent incorporation
+        recent_date = datetime.now().isoformat()
+
+        company = {
+            "is_shell": False,
+            "employee_count": 10,
+            "registration_date": recent_date,
+            "tx_count": 5,
+            "country": "US",
+        }
+
+        score = detector._calculate_shell_company_score(company)
+        assert score >= 0.2  # Recent incorporation adds 0.2
+
+    def test_calculate_shell_company_score_high_tx_ratio(self):
+        """Test shell company score with high transaction ratio"""
+        detector = TBMLDetector()
+
+        company = {
+            "is_shell": False,
+            "employee_count": 5,
+            "registration_date": "2020-01-01",
+            "tx_count": 100,  # 20 tx per employee (> 10 threshold)
+            "country": "US",
+        }
+
+        score = detector._calculate_shell_company_score(company)
+        assert score >= 0.2  # High ratio adds 0.2
+
+    def test_calculate_shell_company_score_invalid_date(self):
+        """Test shell company score with invalid registration date"""
+        detector = TBMLDetector()
+
+        company = {
+            "is_shell": False,
+            "employee_count": 10,
+            "registration_date": "invalid-date",
+            "tx_count": 5,
+            "country": "US",
+        }
+
+        # Should not crash, just skip date check
+        score = detector._calculate_shell_company_score(company)
+        assert score >= 0.0
+
+    def test_calculate_shell_company_score_all_high_risk_countries(self):
+        """Test shell company score for all high-risk jurisdictions"""
+        detector = TBMLDetector()
+
+        high_risk_countries = ["KY", "VG", "PA", "BZ", "SC", "MU"]
+
+        for country in high_risk_countries:
+            company = {
+                "is_shell": False,
+                "employee_count": 10,
+                "registration_date": "2020-01-01",
+                "tx_count": 5,
+                "country": country,
+            }
+
+            score = detector._calculate_shell_company_score(company)
+            assert score >= 0.3  # Each should add 0.3
+
+    def test_find_shell_networks_multiple_networks(self):
+        """Test finding multiple separate networks"""
+        detector = TBMLDetector()
+
+        candidates = [
+            {"company": {"name": "Company A", "connected_companies": 1}, "shell_score": 0.8},
+            {"company": {"name": "Company B", "connected_companies": 1}, "shell_score": 0.7},
+            {"company": {"name": "Company C", "connected_companies": 1}, "shell_score": 0.9},
+            {"company": {"name": "Company D", "connected_companies": 1}, "shell_score": 0.6},
+        ]
+
+        networks = detector._find_shell_networks(candidates)
+        assert len(networks) >= 1  # Should find at least one network
+
+    def test_calculate_shell_company_score_zero_employees(self):
+        """Test shell company score with zero employees"""
+        detector = TBMLDetector()
+
+        company = {
+            "is_shell": False,
+            "employee_count": 0,
+            "registration_date": "2020-01-01",
+            "tx_count": 50,
+            "country": "US",
+        }
+
+        score = detector._calculate_shell_company_score(company)
+        assert score >= 0.2  # Zero employees should trigger low employee check
+
+
+class TestConnectionAndQueryMethods:
+    """Test connection and query methods with mocking"""
+
+    @patch("banking.analytics.detect_tbml.client.Client")
+    def test_connect_success(self, mock_client_class):
+        """Test successful connection to JanusGraph"""
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = [1000]
+        mock_client.submit.return_value = mock_result
+        mock_client_class.return_value = mock_client
+
+        detector = TBMLDetector()
+        detector.connect()
+
+        assert detector.client is not None
+        mock_client.submit.assert_called_once()
+
+    def test_close_connection(self):
+        """Test closing connection"""
+        detector = TBMLDetector()
+        detector.client = Mock()
+
+        detector.close()
+
+        detector.client.close.assert_called_once()
+
+    def test_close_no_client(self):
+        """Test closing when no client exists"""
+        detector = TBMLDetector()
+        detector.client = None
+
+        # Should not raise exception
+        detector.close()
+
+
+class TestDetectionMethodsWithMocking:
+    """Test main detection methods with mocked JanusGraph client"""
+
+    def test_detect_carousel_fraud_with_mock(self):
+        """Test carousel fraud detection with mocked client"""
+        detector = TBMLDetector()
+
+        # Mock client
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = []
+        mock_client.submit.return_value = mock_result
+        detector.client = mock_client
+
+        alerts = detector.detect_carousel_fraud(max_depth=3)
+
+        assert isinstance(alerts, list)
+        # Should query for multiple depths
+        assert mock_client.submit.call_count >= 2
+
+    def test_detect_invoice_manipulation_with_mock(self):
+        """Test invoice manipulation detection with mocked client"""
+        detector = TBMLDetector()
+
+        # Mock client
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = [
+            {
+                "tx_id": "TX-001",
+                "amount": 150000,
+                "description": "gold shipment",
+                "currency": "USD",
+                "from_company": "Company A",
+                "to_company": "Company B",
+            }
+        ]
+        mock_client.submit.return_value = mock_result
+        detector.client = mock_client
+
+        anomalies, alerts = detector.detect_invoice_manipulation()
+
+        assert isinstance(anomalies, list)
+        assert isinstance(alerts, list)
+
+    def test_detect_shell_company_networks_with_mock(self):
+        """Test shell company network detection with mocked client"""
+        detector = TBMLDetector()
+
+        # Mock client
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = [
+            {
+                "id": "C1",
+                "name": "Shell Corp A",
+                "employee_count": 2,
+                "registration_date": datetime.now().isoformat(),
+                "is_shell": True,
+                "country": "KY",
+                "tx_count": 50,
+                "tx_total": 500000,
+                "connected_companies": 2,
+            }
+        ]
+        mock_client.submit.return_value = mock_result
+        detector.client = mock_client
+
+        alerts = detector.detect_shell_company_networks()
+
+        assert isinstance(alerts, list)
+
+    @patch("banking.analytics.detect_tbml.client.Client")
+    def test_run_full_scan(self, mock_client_class):
+        """Test full scan execution"""
+        detector = TBMLDetector()
+
+        # Mock client
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = [100]
+        mock_client.submit.return_value = mock_result
+        mock_client_class.return_value = mock_client
+
+        report = detector.run_full_scan()
+
+        assert isinstance(report, dict)
+        assert "report_date" in report
+        assert "total_alerts" in report
+        mock_client.close.assert_called_once()
+
+    def test_detect_carousel_fraud_with_exception(self):
+        """Test carousel fraud detection handles exceptions"""
+        detector = TBMLDetector()
+
+        # Mock client that raises exception
+        mock_client = Mock()
+        mock_client.submit.side_effect = Exception("Connection error")
+        detector.client = mock_client
+
+        # Should not raise exception, just log warning
+        alerts = detector.detect_carousel_fraud()
+
+        assert alerts == []
+
+    def test_detect_invoice_manipulation_with_exception(self):
+        """Test invoice manipulation detection handles exceptions"""
+        detector = TBMLDetector()
+
+        # Mock client that raises exception
+        mock_client = Mock()
+        mock_client.submit.side_effect = Exception("Connection error")
+        detector.client = mock_client
+
+        # Should not raise exception, just log warning
+        anomalies, alerts = detector.detect_invoice_manipulation()
+
+        assert anomalies == []
+        assert alerts == []
+
+    def test_detect_shell_company_networks_with_exception(self):
+        """Test shell company detection handles exceptions"""
+        detector = TBMLDetector()
+
+        # Mock client that raises exception
+        mock_client = Mock()
+        mock_client.submit.side_effect = Exception("Connection error")
+        detector.client = mock_client
+
+        # Should not raise exception, just log warning
+        alerts = detector.detect_shell_company_networks()
+
+        assert alerts == []
+
+
+class TestSeverityCalculationAdvanced:
+    """Advanced tests for severity calculation"""
+
+    def test_severity_boundaries(self):
+        """Test severity calculation at boundaries"""
+        detector = TBMLDetector()
+
+        assert detector._calculate_severity(1000000) == "critical"
+        assert detector._calculate_severity(999999) == "high"
+        assert detector._calculate_severity(500000) == "high"
+        assert detector._calculate_severity(499999) == "medium"
+        assert detector._calculate_severity(100000) == "medium"
+        assert detector._calculate_severity(99999) == "low"
+
+
+class TestReportGenerationAdvanced:
+    """Advanced tests for report generation"""
+
+    def test_generate_report_multiple_alert_types(self):
+        """Test report with multiple alert types"""
+        detector = TBMLDetector()
+
+        detector.alerts = [
+            TBMLAlert(
+                alert_id="TEST-001",
+                alert_type="carousel",
+                severity="high",
+                entities=["A"],
+                transactions=["T1"],
+                total_value=500000.0,
+                risk_score=0.8,
+                indicators=[],
+                timestamp=datetime.now(timezone.utc),
+                details={},
+            ),
+            TBMLAlert(
+                alert_id="TEST-002",
+                alert_type="over_invoicing",
+                severity="medium",
+                entities=["B"],
+                transactions=["T2"],
+                total_value=200000.0,
+                risk_score=0.6,
+                indicators=[],
+                timestamp=datetime.now(timezone.utc),
+                details={},
+            ),
+            TBMLAlert(
+                alert_id="TEST-003",
+                alert_type="under_invoicing",
+                severity="low",
+                entities=["C"],
+                transactions=["T3"],
+                total_value=50000.0,
+                risk_score=0.4,
+                indicators=[],
+                timestamp=datetime.now(timezone.utc),
+                details={},
+            ),
+            TBMLAlert(
+                alert_id="TEST-004",
+                alert_type="shell_network",
+                severity="critical",
+                entities=["D", "E"],
+                transactions=[],
+                total_value=1500000.0,
+                risk_score=0.9,
+                indicators=[],
+                timestamp=datetime.now(timezone.utc),
+                details={},
+            ),
+        ]
+
+        report = detector.generate_report()
+
+        assert report["total_alerts"] == 4
+        assert report["alerts_by_type"]["carousel"] == 1
+        assert report["alerts_by_type"]["over_invoicing"] == 1
+        assert report["alerts_by_type"]["under_invoicing"] == 1
+        assert report["alerts_by_type"]["shell_network"] == 1
+        assert report["alerts_by_severity"]["critical"] == 1
+        assert report["alerts_by_severity"]["high"] == 1
+        assert report["alerts_by_severity"]["medium"] == 1
+        assert report["alerts_by_severity"]["low"] == 1
+        assert report["total_value_at_risk"] == 2250000.0
+
 
 
 if __name__ == "__main__":

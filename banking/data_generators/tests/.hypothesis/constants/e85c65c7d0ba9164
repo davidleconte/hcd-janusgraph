@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/patterns/__init__.py
+# hypothesis_version: 6.151.6
+
+['CATOPatternGenerator', 'TBMLPatternGenerator']

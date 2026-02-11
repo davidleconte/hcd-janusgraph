@@ -1,0 +1,118 @@
+# Docker Compose Vault Agent Integration
+# This overlay adds Vault agent sidecars for automatic credential injection
+# Usage: podman-compose -f docker-compose.full.yml -f docker-compose.vault-agent.yml up -d
+
+version: '3.8'
+
+services:
+  # Vault Agent for JanusGraph
+  vault-agent-janusgraph:
+    image: hashicorp/vault:1.15
+    hostname: vault-agent-janusgraph
+    networks:
+      - hcd-janusgraph-network
+    command: agent -config=/vault/config/vault-agent.hcl
+    volumes:
+      - ../../config/vault/vault-agent.hcl:/vault/config/vault-agent.hcl:ro
+      - ../../config/vault/templates:/vault/templates:ro
+      - janusgraph-vault-secrets:/vault/secrets
+      - vault-agent-janusgraph-token:/vault/token
+    environment:
+      - VAULT_ADDR=http://vault-server:8200
+    depends_on:
+      - vault-server
+    restart: unless-stopped
+
+  # Vault Agent for OpenSearch
+  vault-agent-opensearch:
+    image: hashicorp/vault:1.15
+    hostname: vault-agent-opensearch
+    networks:
+      - hcd-janusgraph-network
+    command: agent -config=/vault/config/vault-agent.hcl
+    volumes:
+      - ../../config/vault/vault-agent.hcl:/vault/config/vault-agent.hcl:ro
+      - ../../config/vault/templates:/vault/templates:ro
+      - opensearch-vault-secrets:/vault/secrets
+      - vault-agent-opensearch-token:/vault/token
+    environment:
+      - VAULT_ADDR=http://vault-server:8200
+    depends_on:
+      - vault-server
+    restart: unless-stopped
+
+  # Vault Agent for Grafana
+  vault-agent-grafana:
+    image: hashicorp/vault:1.15
+    hostname: vault-agent-grafana
+    networks:
+      - hcd-janusgraph-network
+    command: agent -config=/vault/config/vault-agent.hcl
+    volumes:
+      - ../../config/vault/vault-agent.hcl:/vault/config/vault-agent.hcl:ro
+      - ../../config/vault/templates:/vault/templates:ro
+      - grafana-vault-secrets:/vault/secrets
+      - vault-agent-grafana-token:/vault/token
+    environment:
+      - VAULT_ADDR=http://vault-server:8200
+    depends_on:
+      - vault-server
+    restart: unless-stopped
+
+  # Vault Agent for Pulsar
+  vault-agent-pulsar:
+    image: hashicorp/vault:1.15
+    hostname: vault-agent-pulsar
+    networks:
+      - hcd-janusgraph-network
+    command: agent -config=/vault/config/vault-agent.hcl
+    volumes:
+      - ../../config/vault/vault-agent.hcl:/vault/config/vault-agent.hcl:ro
+      - ../../config/vault/templates:/vault/templates:ro
+      - pulsar-vault-secrets:/vault/secrets
+      - vault-agent-pulsar-token:/vault/token
+    environment:
+      - VAULT_ADDR=http://vault-server:8200
+    depends_on:
+      - vault-server
+    restart: unless-stopped
+
+  # Update JanusGraph to use Vault-injected credentials
+  janusgraph:
+    volumes:
+      - janusgraph-vault-secrets:/vault/secrets:ro
+    environment:
+      - JANUSGRAPH_CREDENTIALS_FILE=/vault/secrets/janusgraph-credentials.properties
+
+  # Update OpenSearch to use Vault-injected credentials
+  opensearch:
+    volumes:
+      - opensearch-vault-secrets:/vault/secrets:ro
+    environment:
+      - OPENSEARCH_CREDENTIALS_FILE=/vault/secrets/opensearch-credentials.yml
+
+  # Update Grafana to use Vault-injected credentials
+  grafana:
+    volumes:
+      - grafana-vault-secrets:/vault/secrets:ro
+    environment:
+      - GF_PATHS_PROVISIONING=/vault/secrets/grafana-credentials.ini
+
+  # Update Pulsar to use Vault-injected credentials
+  pulsar:
+    volumes:
+      - pulsar-vault-secrets:/vault/secrets:ro
+    environment:
+      - PULSAR_CREDENTIALS_FILE=/vault/secrets/pulsar-credentials.conf
+
+volumes:
+  janusgraph-vault-secrets:
+  opensearch-vault-secrets:
+  grafana-vault-secrets:
+  pulsar-vault-secrets:
+  vault-agent-janusgraph-token:
+  vault-agent-opensearch-token:
+  vault-agent-grafana-token:
+  vault-agent-pulsar-token:
+
+# Made with Bob
