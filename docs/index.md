@@ -246,6 +246,16 @@ docs/
 │   ├── phases/                # Phase summaries
 │   └── remediation/           # Remediation plans
 │
+├── archive/                    # Historical documentation
+│   └── 2026-02/               # February 2026 archive
+│       ├── weekly-summaries/  # Historical progress reports
+│       ├── phase-iterations/  # Superseded phase docs
+│       ├── duplicates/        # Duplicate content
+│       ├── audits/            # Obsolete audits
+│       ├── remediation/       # Completed remediation
+│       ├── misc/              # Miscellaneous obsolete files
+│       └── README.md          # Archive index
+│
 ├── operations/                 # Operations documentation
 │   ├── operations-runbook.md
 │   ├── monitoring-guide.md

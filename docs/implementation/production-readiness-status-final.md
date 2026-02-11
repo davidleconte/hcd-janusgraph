@@ -436,13 +436,13 @@ The system is ready for production deployment with the following caveats:
 
 ## References
 
-- [Script Fixes Complete Report](remediation/SCRIPT_FIXES_COMPLETE.md)
-- [Week 6 Compliance Implementation](remediation/archive/WEEK6_COMPLETE.md)
-- [Week 4 Test Coverage Report](remediation/archive/WEEK4_FINAL_REPORT.md)
-- [Week 2 Monitoring Implementation](remediation/archive/WEEK2_COMPLETE.md)
-- [Week 1 Security Implementation](remediation/archive/WEEK1_FINAL_REPORT.md)
+- [Script Fixes Complete Report](remediation/script-fixes-complete.md)
+- [Week 6 Compliance Implementation (Archived)](../archive/2026-02/weekly-summaries/week6-complete.md)
+- [Week 4 Test Coverage Report (Archived)](../archive/2026-02/weekly-summaries/week4-final-report.md)
+- [Week 2 Monitoring Implementation (Archived)](../archive/2026-02/weekly-summaries/week2-complete.md)
+- [Week 1 Security Implementation (Archived)](../archive/2026-02/weekly-summaries/week1-final-report.md)
 - [Operations Runbook](../operations/operations-runbook.md)
-- `AGENTS.md` - Updated with conda/uv requirements
+- [AGENTS.md](../../AGENTS.md) - Updated with conda/uv requirements
 
 ---
 

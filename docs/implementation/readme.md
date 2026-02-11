@@ -6,10 +6,13 @@ This directory contains documentation related to the project's implementation ph
 
 ```
 implementation/
-├── audits/          # Audit reports and findings
-├── phases/          # Phase implementation summaries
-└── remediation/     # Remediation plans and tracking
+├── audits/          # Current audit reports and findings
+├── phases/          # Active phase implementation summaries
+├── remediation/     # Active remediation plans and tracking
+└── README.md        # This file
 ```
+
+**Note:** Historical implementation documentation has been archived to [`../archive/2026-02/`](../archive/2026-02/README.md).
 
 ## Contents
 

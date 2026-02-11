@@ -500,7 +500,7 @@ rm -rf ~/.cache/uv
 ### Project Documentation
 - [TOOLING_STANDARDS.md](../.bob/rules-code/TOOLING_STANDARDS.md)
 - [AGENTS.md](../../AGENTS.md)
-- [WEEK1_COMPLETE_SUMMARY_2026-02-11.md](../implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)
+- [Week 1 Complete Summary (Archived)](../archive/2026-02/weekly-summaries/week1-complete-summary-2026-02-11.md)
 
 ### Related Tools
 - [pip Documentation](https://pip.pypa.io/)
