@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/graph_consumer.py
+# hypothesis_version: 6.151.6
+
+[100, 1000, 'JANUSGRAPH_URL', 'PULSAR_URL', 'Stopped processing', '__main__', 'batches_processed', 'create', 'created_at', 'delete', 'entity_id', 'error', 'events_failed', 'events_processed', 'g', 'graph-loaders', 'last_batch_time', 'original_topic', 'processing_failed', 'source', 'unknown', 'update', 'updated_at', 'version']

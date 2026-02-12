@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/api/dependencies.py
+# hypothesis_version: 6.151.6
+
+[401, 503, '/docs', '/health', '/healthz', '/openapi.json', '/readyz', '/redoc', 'g', 'with TLS', 'without TLS']

@@ -259,7 +259,7 @@ Gap:      8 points (4 hours of work)
 26. `[../../docs/archive/streaming_summary.md]` → Remove or update
 27. `[../../src/python/client/README.md]` → Remove or update
 
-**File: `CODEBASE_REVIEW_2026-02-11.md` (2 links)**
+**File: `codebase-review-2026-02-11.md` (2 links)**
 28-29. Various file path references with line numbers
 
 #### Steps

@@ -88,7 +88,7 @@ Day 22 focuses on comprehensive documentation validation, identifying issues, an
 - `README.md` - 7 broken links
 - `QUICKSTART.md` - 5 broken links
 - `AGENTS.md` - 3 broken links
-- `CODEBASE_REVIEW_2026-02-11.md` - 2 broken links
+- `codebase-review-2026-02-11.md` - 2 broken links
 
 **Common Patterns:**
 1. Incorrect relative paths (e.g., `../docs/` should be `../../docs/`)
@@ -338,7 +338,7 @@ python3 scripts/docs/analyze_doc_issues.py
    - `banking/fraud/README.md` (2 links)
    - `banking/notebooks/README.md` (5 links)
    - `banking/streaming/README.md` (2 links)
-   - `CODEBASE_REVIEW_2026-02-11.md` (2 links)
+   - `codebase-review-2026-02-11.md` (2 links)
 
 ### Short-term (High Priority - 1 week)
 

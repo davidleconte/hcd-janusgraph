@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/resilience.py
+# hypothesis_version: 6.151.6
+
+[1.0, 2.0, 30.0, 'closed', 'default', 'half_open', 'open']

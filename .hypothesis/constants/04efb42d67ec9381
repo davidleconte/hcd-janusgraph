@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/aml/sanctions_screening.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.75, 0.85, 0.95, 0.98, 100, 9200, '../../src/python', 'UNKNOWN', 'added_date', 'aliases', 'count', 'country', 'customer_id', 'customer_name', 'date', 'date_added', 'docs', 'embedding', 'embedding_dimensions', 'enabled', 'entity_id', 'entity_type', 'exact', 'fuzzy', 'high', 'id', 'index_name', 'index_size_bytes', 'keyword', 'list_type', 'localhost', 'low', 'matches_found', 'medium', 'metadata', 'mini', 'name', 'object', 'person', 'phonetic', 'results', 'sanctions_list', 'score', 'size_in_bytes', 'source', 'store', 'text', 'total', 'total_entities', 'total_screened', 'type']

@@ -461,7 +461,7 @@ banking/
 - Code examples tested before inclusion
 
 **Production Readiness:**
-- [`PRODUCTION_READINESS_AUDIT_2026.md`](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md) - Comprehensive audit (A+ grade)
+- [`production-readiness-audit-2026.md`](docs/implementation/production-readiness-audit-2026.md) - Comprehensive audit (A+ grade)
 - 6-week roadmap (complete)
 - Weekly implementation reports
 - Remediation plans

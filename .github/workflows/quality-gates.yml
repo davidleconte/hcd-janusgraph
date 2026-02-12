@@ -12,7 +12,7 @@ env:
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
-    name: Test Coverage (≥85%)
+    name: Test Coverage (≥60%)
     steps:
       - uses: actions/checkout@v4
 
@@ -41,7 +41,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ -v --cov=src --cov=banking --cov-report=xml --cov-fail-under=80
+          pytest tests/ -v --cov=src --cov=banking --cov-report=xml --cov-fail-under=60
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

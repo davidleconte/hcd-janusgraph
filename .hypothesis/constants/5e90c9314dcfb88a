@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/events.py
+# hypothesis_version: 6.151.6
+
+['+00:00', 'EntityEvent', 'Z', '__dict__', 'account', 'communication', 'company', 'content', 'create', 'delete', 'document', 'entity_id', 'entity_type', 'event_id', 'event_type', 'metadata', 'model_dump', 'partition_key', 'payload', 'person', 'sequence_id', 'source', 'text_for_embedding', 'timestamp', 'trade', 'transaction', 'travel', 'update', 'utf-8', 'version']

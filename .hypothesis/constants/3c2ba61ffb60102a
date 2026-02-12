@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/loaders/__init__.py
+# hypothesis_version: 6.151.6
+
+['JanusGraphLoader', 'generate_and_load']

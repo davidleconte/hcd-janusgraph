@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/analytics/ubo_discovery.py
+# hypothesis_version: 6.151.6
+
+[0.0, 25.0, 100.0, 18182, 'BY', 'BZ', 'Connection closed', 'IR', 'KP', 'KY', 'PA', 'RU', 'SC', 'SY', 'Unknown', 'VG', 'account_id', 'account_number', 'bearer', 'beneficial_owner', 'center', 'chain_length', 'company', 'company_id', 'company_name', 'direct', 'edges', 'first_name', 'full_name', 'g', 'id', 'indirect', 'is_pep', 'is_sanctioned', 'label', 'last_name', 'legal_name', 'localhost', 'name', 'nodes', 'nominee', 'objects', 'ownership_percentage', 'ownership_type', 'owns_account', 'owns_company', 'person', 'person_id', 'properties', 'registration_country', 'source', 'target', 'trust', 'unknown']

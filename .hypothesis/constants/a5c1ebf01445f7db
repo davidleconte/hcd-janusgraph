@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/error_codes.py
+# hypothesis_version: 6.151.6
+
+[400, 401, 403, 404, 409, 500, 503, 504, 'AUTH_001', 'AUTH_002', 'AUTH_003', 'CFG_001', 'CFG_002', 'Connection failed', 'DB_001', 'DB_002', 'DB_003', 'DB_004', 'Duplicate entity', 'Entity not found', 'Invalid credentials', 'Invalid date format', 'Query timeout', 'Token expired', 'Unknown error', 'VAL_001', 'VAL_002', 'VAL_003', 'VAL_004', 'Value out of range', 'auth', 'authz', 'category', 'config', 'context', 'db', 'details', 'entity_id', 'entity_type', 'error_code', 'field', 'internal', 'message', 'network', 'service', 'validation']

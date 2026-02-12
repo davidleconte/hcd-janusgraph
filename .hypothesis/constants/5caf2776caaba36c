@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/repository/graph_repository.py
+# hypothesis_version: 6.151.6
+
+[0.0, 'Unknown', 'account', 'account_count', 'account_id', 'address', 'address_id', 'amount', 'beneficial_owner', 'city', 'company', 'company_count', 'company_id', 'company_name', 'edge_count', 'from_account', 'full_name', 'has_address', 'holder', 'id', 'indicator', 'label', 'location', 'member_count', 'members', 'name', 'ownership_percentage', 'owns_account', 'person', 'person_count', 'person_id', 'persons', 'shared_address', 'total', 'transaction', 'transaction_count', 'txn_count', 'type', 'vertex_count']

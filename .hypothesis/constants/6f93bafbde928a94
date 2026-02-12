@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/fraud/models.py
+# hypothesis_version: 6.151.6
+
+[0.3, 0.4, 0.5, 0.6, 0.7, 'betting', 'binance', 'bitcoin', 'casino', 'coinbase', 'crypto', 'electronics', 'gambling', 'gift card', 'jewelry', 'luxury', 'money order', 'moneygram', 'online gaming', 'poker', 'prepaid card', 'virtual', 'western union', 'wire transfer']

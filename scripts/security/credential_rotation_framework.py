@@ -625,10 +625,38 @@ class CredentialRotator:
     
     def _update_janusgraph_config(self, new_password: str) -> None:
         """Update JanusGraph configuration with new password"""
-        # This would update the janusgraph-auth.properties file
-        # Implementation depends on deployment method
         logger.info("Updating JanusGraph configuration")
-        # TODO: Implement actual config update
+        
+        # Update janusgraph-auth.properties file
+        config_path = Path("config/janusgraph/janusgraph-auth.properties")
+        
+        if not config_path.exists():
+            logger.warning(f"Config file not found: {config_path}")
+            return
+        
+        try:
+            # Read current config
+            with open(config_path, 'r') as f:
+                lines = f.readlines()
+            
+            # Update password line
+            updated_lines = []
+            for line in lines:
+                if line.startswith('password='):
+                    updated_lines.append(f'password={new_password}\n')
+                    logger.info("Updated password in janusgraph-auth.properties")
+                else:
+                    updated_lines.append(line)
+            
+            # Write updated config
+            with open(config_path, 'w') as f:
+                f.writelines(updated_lines)
+            
+            logger.info("JanusGraph configuration updated successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to update JanusGraph config: {e}")
+            raise
     
     def _update_opensearch_user(self, username: str, old_password: str, new_password: str) -> None:
         """Update OpenSearch internal user password"""
@@ -685,9 +713,42 @@ class CredentialRotator:
     
     def _update_pulsar_token(self, new_token: str) -> None:
         """Update Pulsar authentication token"""
-        # This would update Pulsar's token configuration
         logger.info("Updating Pulsar token configuration")
-        # TODO: Implement actual token update
+        
+        try:
+            # Update token in Vault
+            self.vault.write_secret("pulsar/token", {"token": new_token})
+            logger.info("Updated Pulsar token in Vault")
+            
+            # Update Pulsar client configuration file
+            pulsar_config_path = Path("config/pulsar/client.conf")
+            
+            if pulsar_config_path.exists():
+                with open(pulsar_config_path, 'r') as f:
+                    lines = f.readlines()
+                
+                updated_lines = []
+                for line in lines:
+                    if line.startswith('authenticationToken='):
+                        updated_lines.append(f'authenticationToken={new_token}\n')
+                        logger.info("Updated token in client.conf")
+                    else:
+                        updated_lines.append(line)
+                
+                with open(pulsar_config_path, 'w') as f:
+                    f.writelines(updated_lines)
+            
+            # Update environment variable for running containers
+            subprocess.run([
+                "podman", "exec", f"{self.project_name}_pulsar_1",
+                "sh", "-c", f"export PULSAR_TOKEN={new_token}"
+            ], check=False)  # Don't fail if container not running
+            
+            logger.info("Pulsar token configuration updated successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to update Pulsar token: {e}")
+            raise
     
     def _restart_service(self, service: str, wait_seconds: int = 30) -> None:
         """Gracefully restart a service using podman-compose"""

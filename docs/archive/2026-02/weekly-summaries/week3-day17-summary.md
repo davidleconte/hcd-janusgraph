@@ -404,7 +404,7 @@ python -c "import mutmut; print('mutmut installed')"
 
 ### Related Documentation
 - [`docs/implementation/WEEK3_DAY17_IMPLEMENTATION_PLAN.md`](WEEK3_DAY17_IMPLEMENTATION_PLAN.md)
-- [`docs/implementation/WEEK3_DAYS13-15_SUMMARY.md`](WEEK3_DAYS13-15_SUMMARY.md)
+- [`docs/implementation/WEEK3_DAYS13-15_SUMMARY.md`](week3-days13-15-summary.md)
 
 ---
 

@@ -147,7 +147,7 @@ services:
     restart: unless-stopped
 
   janusgraph-server:
-    image: docker.io/janusgraph/janusgraph:latest
+    image: docker.io/janusgraph/janusgraph:1.0.0
     hostname: janusgraph-server
     deploy:
       resources:
@@ -190,7 +190,7 @@ services:
     restart: unless-stopped
 
   gremlin-console:
-    image: docker.io/janusgraph/janusgraph:latest
+    image: docker.io/janusgraph/janusgraph:1.0.0
     hostname: gremlin-console
     deploy:
       resources:
@@ -427,7 +427,7 @@ services:
   # ============================================================================
 
   vault:
-    image: docker.io/hashicorp/vault:latest
+    image: docker.io/hashicorp/vault:1.15.4
     hostname: vault
     deploy:
       resources:
@@ -465,7 +465,7 @@ services:
   # ============================================================================
 
   prometheus:
-    image: docker.io/prom/prometheus:latest
+    image: docker.io/prom/prometheus:v2.48.1
     hostname: prometheus
     deploy:
       resources:
@@ -499,7 +499,7 @@ services:
     restart: unless-stopped
 
   alertmanager:
-    image: docker.io/prom/alertmanager:latest
+    image: docker.io/prom/alertmanager:v0.26.0
     hostname: alertmanager
     deploy:
       resources:
@@ -521,7 +521,7 @@ services:
       - '--storage.path=/alertmanager'
       - '--web.external-url=http://localhost:9093'
     environment:
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-changeme}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:?SMTP_PASSWORD must be set in .env file}
       - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
@@ -564,7 +564,7 @@ services:
     restart: unless-stopped
 
   grafana:
-    image: docker.io/grafana/grafana:latest
+    image: docker.io/grafana/grafana:10.2.3
     hostname: grafana
     deploy:
       resources:

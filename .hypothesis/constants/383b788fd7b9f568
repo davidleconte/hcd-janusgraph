@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/streaming_orchestrator.py
+# hypothesis_version: 6.151.6
+
+[0.8, 100, 1000, '=', 'Closed producer', 'Events failed: %s', 'Events published: %s', 'None', 'Producer type: %s', 'StreamingConfig', 'StreamingStats', 'Total records: %s', 'company', 'create', 'events_by_type', 'events_failed', 'events_published', 'person', 'producer_stats', 'public/banking', 'streaming_errors']

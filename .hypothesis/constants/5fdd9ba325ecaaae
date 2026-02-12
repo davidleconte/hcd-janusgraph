@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/metrics.py
+# hypothesis_version: 6.151.6
+
+[b'# Prometheus client not available\n', 0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 100, 250, 500, 1000, '1.0.0', 'PROMETHEUS_AVAILABLE', 'StreamingMetrics', 'batch_size', 'consumer_connected', 'consumer_lag', 'consumer_type', 'dlq_archived_total', 'dlq_messages_total', 'dlq_queue_size', 'dlq_retries_total', 'entity_type', 'error_type', 'failure_reason', 'get_content_type', 'get_metric', 'get_metrics_output', 'operation', 'producer_connected', 'producer_id', 'public/banking', 'pulsar_namespace', 'source', 'streaming', 'streaming_batch_size', 'streaming_info', 'streaming_metrics', 'subscription', 'success', 'text/plain', 'timed_consume', 'timed_publish', 'topic', 'unknown', 'version']

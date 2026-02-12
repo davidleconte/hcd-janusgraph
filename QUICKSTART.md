@@ -688,8 +688,8 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ### Quick Access to Production Docs
 
-- **[Production Readiness Audit](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** - Latest assessment (A+ grade)
-- **[6-Week Roadmap](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** - Complete plan
+- **[Production Readiness Audit](docs/implementation/production-readiness-audit-2026.md)** - Latest assessment (A+ grade)
+- **[6-Week Roadmap](docs/implementation/production-readiness-audit-2026.md)** - Complete plan
 - **[Operations Runbook](docs/operations/operations-runbook.md)** - Day-to-day operations
 - **[Monitoring Guide](docs/operations/monitoring-guide.md)** - Monitoring setup
 

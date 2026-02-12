@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/auth.py
+# hypothesis_version: 6.151.6
+
+['PASSWORD', 'Service', 'USERNAME', 'get_credentials', 'validate_ssl_config']

@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/core/base_generator.py
+# hypothesis_version: 6.151.6
+
+[100, 'BaseGenerator', 'T', 'elapsed_time_seconds', 'en_US', 'error_count', 'generated_count', 'locale', 'raise_on_error', 'seed']

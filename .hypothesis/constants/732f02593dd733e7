@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/api/routers/ubo.py
+# hypothesis_version: 6.151.6
+
+[0.0, 100.0, 404, 1000, '/api/v1/ubo', '/discover', 'Traversal depth', 'UBO Discovery', 'Unknown', 'beneficial_owner', 'company', 'company_name', 'direct', 'full_name', 'legal_name', 'name', 'ownership_percentage', 'person', 'person_id']

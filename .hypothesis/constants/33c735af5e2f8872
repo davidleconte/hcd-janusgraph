@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/startup_validation.py
+# hypothesis_version: 6.151.6
+
+['=', 'CHANGE_?ME', 'DB_PASSWORD', 'DEBUG', 'ENVIRONMENT', 'JANUSGRAPH_PASSWORD', 'JANUSGRAPH_USE_SSL', 'PLACEHOLDER', 'VAULT_TOKEN', 'YOUR_.*_HERE', '[A-Z]', '[a-z]', '\\d', '^123456', '^admin$', '^changeit$', '^password$', '^secret$', '__main__', 'error', 'false', 'info', 'prod', 'production', 'true', 'warning']

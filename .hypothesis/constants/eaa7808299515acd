@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/analytics/aml_structuring_detector.py
+# hypothesis_version: 6.151.6
+
+[9500.0, 10000.0, 1000, 5000, 9000, 10000, '\n4. RECOMMENDATIONS', '-', '--url', '1k_to_5k', '5k_to_9k', '=', 'FINDINGS SUMMARY', 'File SAR', 'HIGH', 'JanusGraph URL', 'MEDIUM', 'STRUCTURING', 'Unknown', 'above_10k', 'account_id', 'average_amount', 'destination', 'distribution', 'end', 'g', 'g.V().count()', 'high_risk_accounts', 'hops', 'intermediate', 'max_amount', 'middle', 'min_amount', 'near_threshold_count', 'near_threshold_total', 'pattern', 'received', 'received_count', 'recommendation', 'risk_level', 'sent', 'sent_count', 'source', 'start', 'structuring_patterns', 'summary_stats', 'suspicious_tx_count', 'total_amount', 'total_transactions', 'transaction_chains', 'under_1k']

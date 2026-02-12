@@ -388,7 +388,7 @@ display_access_info
 ### Documentation
 - ✅ [`docs/implementation/audits/WORKFLOW_PIP_AUDIT_2026-02-11.md`](audits/WORKFLOW_PIP_AUDIT_2026-02-11.md)
 - ✅ [`docs/implementation/audits/DEPLOYMENT_SCRIPTS_AUDIT_2026-02-11.md`](audits/DEPLOYMENT_SCRIPTS_AUDIT_2026-02-11.md)
-- ✅ [`docs/implementation/WEEK1_PROGRESS_SUMMARY_2026-02-11.md`](WEEK1_PROGRESS_SUMMARY_2026-02-11.md) (this document)
+- ✅ [`docs/implementation/WEEK1_PROGRESS_SUMMARY_2026-02-11.md`](week1-progress-summary-2026-02-11.md) (this document)
 
 ### Code Changes
 - ✅ `.github/workflows/quality-gates.yml` - Updated to use uv

@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/entity_converter.py
+# hypothesis_version: 6.151.6
+
+[1000, '_', '__dict__', 'account', 'account_id', 'body', 'communication', 'communication_id', 'company', 'company_id', 'company_name', 'content', 'create', 'description', 'document', 'document_id', 'entity_id', 'entity_to_dict', 'first_name', 'full_name', 'get_entity_id', 'get_entity_type', 'id', 'last_name', 'legal_name', 'message', 'middle_name', 'model_dump', 'name', 'person', 'person_id', 'subject', 'text', 'trade', 'trade_id', 'transaction', 'transaction_id', 'travel', 'travel_id']

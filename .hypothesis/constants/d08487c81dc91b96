@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/events/travel_generator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.02, 0.03, 0.05, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.6, 0.75, 0.95, 1.0, 5000, 50000, '0123456789', 'Air France', 'American', 'British Airways', 'GB', 'Lufthansa', 'US', 'United', 'air', 'airline', 'arrival_in_tax_haven', 'booking_date', 'business', 'cash_declaration', 'conference', 'declared_cash_amount', 'duration_days', 'education', 'en_US', 'family_visit', 'flight_number', 'land', 'medical', 'pattern_total_trips', 'pattern_trip_number', 'purpose', 'rail', 'sea', 'tourism', 'transport_mode', 'travel_frequency_30d']

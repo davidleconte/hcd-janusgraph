@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/api/routers/health.py
+# hypothesis_version: 6.151.6
+
+['/health', '/healthz', '/readyz', '/stats', 'Health', 'degraded', 'healthy', 'janusgraph']

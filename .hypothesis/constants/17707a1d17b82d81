@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/patterns/tbml_pattern_generator.py
+# hypothesis_version: 6.151.6
+
+[0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.7, 0.8, 1.0, 180, 500, 1000000, 5000000, 10000000, '0.00', 'actual_shipment', 'amount', 'below_market_pricing', 'carousel_fraud', 'company', 'deflated_prices', 'destination', 'destination_country', 'document_amount', 'document_anomalies', 'document_count', 'duplicate_billing', 'en_US', 'entity_count', 'fictitious_trade', 'high_risk_route', 'inflated_prices', 'invoice_duplication', 'multiple_invoicing', 'origin', 'origin_country', 'over_invoicing', 'pattern_sequence', 'pattern_subtype', 'pattern_type', 'phantom_indicator', 'phantom_shipping', 'quantity', 'related_document_id', 'risk_factor', 'shipment_id', 'tax_haven_origin', 'tbml', 'under_invoicing', 'unit_price', 'vat_fraud_suspected']

@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/core/account_generator.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.02, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.85, 0.9, 0.95, 5.0, 100, 365, 1000, 1990, 3650, 5000, 10000, 50000, 100000, 500000, 1000000, ' Bank', ' Branch', '###', '#########', '0', '0.00', '100000', '2', '500000', 'AU', 'AUD', 'AccountGenerator', 'CA', 'CAD', 'CH', 'CHF', 'CN', 'CNY', 'DE', 'EUR', 'GB', 'GBP', 'HK', 'HKD', 'IN', 'INR', 'JP', 'JPY', 'SG', 'SGD', 'US', 'USD', 'active', 'closed', 'company', 'dormant', 'dormant_probability', 'en_US', 'fraud_alert', 'frozen', 'max_balance', 'min_balance', 'pep_related', 'person', 'sanctions_screening']

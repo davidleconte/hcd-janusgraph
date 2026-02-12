@@ -1229,7 +1229,7 @@ pytest --cov=src --cov=banking --cov-report=html
 
 - [`README.md`](README.md) - Project overview and quick start
 - [`docs/INDEX.md`](docs/INDEX.md) - Central documentation index
-- [`docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md`](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md) - Latest audit report
+- [`docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md`](docs/implementation/production-readiness-audit-2026.md) - Latest audit report
 - [`docs/banking/guides/user-guide.md`](docs/banking/guides/user-guide.md) - Banking system user guide
 - [`docs/operations/operations-runbook.md`](docs/operations/operations-runbook.md) - Operations procedures
 

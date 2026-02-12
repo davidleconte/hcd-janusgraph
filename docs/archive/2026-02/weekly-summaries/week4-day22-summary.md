@@ -101,7 +101,7 @@ By Type:
 
 ### 4. Implementation Plan ✅
 
-**File:** [`docs/implementation/WEEK4_DAY22_IMPLEMENTATION_PLAN.md`](WEEK4_DAY22_IMPLEMENTATION_PLAN.md)
+**File:** [`docs/implementation/WEEK4_DAY22_IMPLEMENTATION_PLAN.md`](week4-day22-implementation-plan.md)
 **Lines:** 450
 **Time:** 1.5 hours
 
@@ -334,12 +334,12 @@ python3 scripts/docs/analyze_doc_issues.py
    - Issue breakdown by severity
    - Comparison with industry standards
 
-2. ✅ [`WEEK4_DAY22_IMPLEMENTATION_PLAN.md`](WEEK4_DAY22_IMPLEMENTATION_PLAN.md) (450 lines)
+2. ✅ [`week4-day22-implementation-plan.md`](week4-day22-implementation-plan.md) (450 lines)
    - Task breakdown and completion status
    - Success criteria and metrics
    - Tools created and usage
 
-3. ✅ [`WEEK4_DAY22_SUMMARY.md`](WEEK4_DAY22_SUMMARY.md) (This file)
+3. ✅ [`week4-day22-summary.md`](week4-day22-summary.md) (This file)
    - Executive summary
    - Key findings and metrics
    - Recommendations and next steps
@@ -552,7 +552,7 @@ cat docs_issues_analysis.json | jq
 ### Key Files
 
 - **Report:** [`WEEK4_DAY22_DOCUMENTATION_REPORT.md`](WEEK4_DAY22_DOCUMENTATION_REPORT.md)
-- **Plan:** [`WEEK4_DAY22_IMPLEMENTATION_PLAN.md`](WEEK4_DAY22_IMPLEMENTATION_PLAN.md)
+- **Plan:** [`week4-day22-implementation-plan.md`](week4-day22-implementation-plan.md)
 - **Checker:** [`scripts/docs/check_documentation.py`](../../scripts/docs/check_documentation.py)
 - **Analyzer:** [`scripts/docs/analyze_doc_issues.py`](../../scripts/docs/analyze_doc_issues.py)
 
@@ -565,4 +565,4 @@ cat docs_issues_analysis.json | jq
 5. `banking/fraud/README.md` (2 links)
 6. `banking/notebooks/README.md` (5 links)
 7. `banking/streaming/README.md` (2 links)
-8. `CODEBASE_REVIEW_2026-02-11.md` (2 links)
+8. `codebase-review-2026-02-11.md` (2 links)

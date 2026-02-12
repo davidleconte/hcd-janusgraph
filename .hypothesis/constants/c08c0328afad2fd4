@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/dlq_handler.py
+# hypothesis_version: 6.151.6
+
+[100, 1000, 5000, '%Y%m%d_%H%M%S', '/tmp/dlq_archive', 'DLQ handler closed', 'DLQHandler', 'DLQMessage', 'DLQStats', 'MockDLQHandler', 'PULSAR_URL', 'Retry failed: %s', 'dlq-processor', 'failure_count', 'failure_reason', 'first_failure_time', 'get_dlq_handler', 'last_failure_time', 'message_id', 'metadata', 'original_event', 'original_topic', 'timeout', 'unknown', 'w']

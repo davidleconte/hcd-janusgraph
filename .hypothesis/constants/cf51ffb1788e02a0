@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/embedding_generator.py
+# hypothesis_version: 6.151.6
+
+[384, 768, '\n2. Batch encoding:', 'Bob Johnson', 'Jane Doe', 'John Smith', 'Jon Smyth', '__main__', 'description', 'dimensions', 'mini', 'mpnet', 'name']

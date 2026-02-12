@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/config/settings.py
+# hypothesis_version: 6.151.6
+
+[1.0, 6831, 8001, 9200, 18182, '*', ',', '.env', '0.0.0.0', 'INFO', 'Runtime environment', 'development', 'ignore', 'janusgraph-client', 'localhost', 'log_level', 'utf-8', 'ws', 'wss']

@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/client/janusgraph_client.py
+# hypothesis_version: 6.151.6
+
+[100, 300, '18182', 'Executing query: %s', 'JANUSGRAPH_PASSWORD', 'JANUSGRAPH_PORT', 'JANUSGRAPH_USERNAME', 'JanusGraph', 'JanusGraphClient', 'Query timeout: %s', 'connected', 'disconnected', 'g', 'localhost', 'message_serializer', 'password', 'ssl_options', 'username', 'ws', 'wss']

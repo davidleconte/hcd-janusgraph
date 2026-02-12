@@ -1,6 +1,6 @@
 # Real-Time Streaming Pipeline Summary
 
-**Extension to**: `adal_graph_pipeline_explanation_2026-01-30_15-45-12-234.md`
+**Extension to**: `adal-graph-pipeline-explanation-2026-01-30-15-45-12-234.md`
 **Created**: 2026-01-30
 **Version**: 2.0
 

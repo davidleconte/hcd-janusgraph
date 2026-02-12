@@ -107,8 +107,8 @@ Week 4 Average:              A  ████████████████
 
 #### Deliverables
 
-- [`WEEK4_DAY20_SECURITY_AUDIT_REPORT.md`](WEEK4_DAY20_SECURITY_AUDIT_REPORT.md) (750 lines)
-- [`WEEK4_DAY20_SUMMARY.md`](WEEK4_DAY20_SUMMARY.md) (600 lines)
+- [`week4-day20-security-audit-report.md`](week4-day20-security-audit-report.md) (750 lines)
+- [`week4-day20-summary.md`](week4-day20-summary.md) (600 lines)
 - Security scan outputs (4 files)
 - Prioritized remediation plan
 
@@ -207,8 +207,8 @@ Week 4 Average:              A  ████████████████
 #### Deliverables
 
 - [`WEEK4_DAY22_DOCUMENTATION_REPORT.md`](WEEK4_DAY22_DOCUMENTATION_REPORT.md) (600 lines)
-- [`WEEK4_DAY22_IMPLEMENTATION_PLAN.md`](WEEK4_DAY22_IMPLEMENTATION_PLAN.md) (450 lines)
-- [`WEEK4_DAY22_SUMMARY.md`](WEEK4_DAY22_SUMMARY.md) (650 lines)
+- [`week4-day22-implementation-plan.md`](week4-day22-implementation-plan.md) (450 lines)
+- [`week4-day22-summary.md`](week4-day22-summary.md) (650 lines)
 - Validation tools (2 scripts, 366 lines)
 - `docs_validation_report.txt` (393 lines)
 - `docs_issues_analysis.json`
@@ -599,7 +599,7 @@ python3 scripts/docs/analyze_doc_issues.py
 
 **Key Documentation:**
 - Production Readiness: [`WEEK4_DAY23_PRODUCTION_READINESS_REPORT.md`](WEEK4_DAY23_PRODUCTION_READINESS_REPORT.md)
-- Security Audit: [`WEEK4_DAY20_SECURITY_AUDIT_REPORT.md`](WEEK4_DAY20_SECURITY_AUDIT_REPORT.md)
+- Security Audit: [`week4-day20-security-audit-report.md`](week4-day20-security-audit-report.md)
 - Performance Analysis: [`WEEK4_DAY21_PERFORMANCE_REPORT.md`](WEEK4_DAY21_PERFORMANCE_REPORT.md)
 - Documentation Review: [`WEEK4_DAY22_DOCUMENTATION_REPORT.md`](WEEK4_DAY22_DOCUMENTATION_REPORT.md)
 

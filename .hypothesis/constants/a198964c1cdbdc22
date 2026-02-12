@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/events/transaction_generator.py
+# hypothesis_version: 6.151.6
+
+[0.002, 0.003, 0.005, 0.01, 0.02, 0.025, 0.03, 0.05, 0.08, 0.1, 0.15, 0.25, 0.3, 0.5, 0.7, 0.8, 0.85, 0.92, 2.0, 1000000, '1.00', 'ACH transfer', 'ATM withdrawal', 'AU', 'AUD', 'Account transfer', 'CA', 'CAD', 'CH', 'CHF', 'Cash withdrawal', 'Check payment', 'DE', 'Deposit', 'EUR', 'FR', 'GB', 'GBP', 'JP', 'JPY', 'Online payment', 'Payment for services', 'REF-##########', 'Transaction', 'TransactionGenerator', 'US', 'USD', 'Wire transfer', 'airline', 'circular', 'completed', 'cuckoo_smurfing', 'en_US', 'entertainment', 'failed', 'gas_station', 'grocery', 'healthcare', 'hotel', 'insurance', 'layering', 'max_amount', 'min_amount', 'pending', 'rapid_movement', 'restaurant', 'retail', 'reversed', 'round_tripping', 'smurfing', 'structuring', 'trade_based', 'utilities']

@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/fraud/fraud_detection.py
+# hypothesis_version: 6.151.6
+
+[0.0, 0.05, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0, 4.0, 15.0, 30.0, 50.0, 5000.0, 20000.0, 1000, 9200, '18182', 'Account', 'JANUSGRAPH_PORT', 'MADE_TRANSACTION', '_score', 'account_id', 'amount', 'approve', 'behavioral', 'block', 'boolean', 'case_id', 'confirmed', 'critical', 'customer_id', 'customer_name', 'date', 'description', 'float', 'fraud-janusgraph', 'fraud_cases', 'fraud_type', 'g', 'high', 'keyword', 'localhost', 'low', 'medium', 'merchant', 'mpnet', 'network', 'open', 'review', 'source', 'text', 'timestamp', 'transaction_id', 'type', 'velocity']

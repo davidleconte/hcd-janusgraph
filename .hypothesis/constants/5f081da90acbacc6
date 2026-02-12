@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/producer.py
+# hypothesis_version: 6.151.6
+
+[100, 1000, 10000, 'Closed Pulsar client', 'PULSAR_NAMESPACE', 'PULSAR_URL', 'Sent %d events to %s', 'batching_enabled', 'block_if_queue_full', 'compression_type', 'connected', 'content', 'events_count', 'max_pending_messages', 'namespace', 'partition_key', 'producer_count', 'public/banking', 'pulsar_url', 'sequence_id', 'topic', 'topics']

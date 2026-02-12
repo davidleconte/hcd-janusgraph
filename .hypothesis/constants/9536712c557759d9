@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/api/models.py
+# hypothesis_version: 6.151.6
+
+[0.01, 25.0, 10000.0, 1000000000.0, 100, 500, 1000, 'CTR threshold amount', 'Days to analyze', '^[A-Z0-9\\-_]+$', 'account_id', 'company_id', 'ok', 'threshold_amount']

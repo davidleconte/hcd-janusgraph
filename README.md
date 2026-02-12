@@ -330,8 +330,8 @@ Pre-loaded graph includes:
 
 | Document | Description |
 |----------|-------------|
-| **[Production Readiness Audit](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** | Comprehensive system audit (A+ grade, 99/100) |
-| **[6-Week Roadmap](docs/implementation/PRODUCTION_READINESS_AUDIT_2026.md)** | Production roadmap (Complete) |
+| **[Production Readiness Audit](docs/implementation/production-readiness-audit-2026.md)** | Comprehensive system audit (A+ grade, 99/100) |
+| **[6-Week Roadmap](docs/implementation/production-readiness-audit-2026.md)** | Production roadmap (Complete) |
 | **[Week 1: Security](docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)** | SSL/TLS + Vault implementation ✅ |
 | **[Week 2: Monitoring](docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md)** | AlertManager + metrics exporter ✅ |
 | **[Week 3-4: Testing](docs/implementation/WEEK3_COMPLETE_SUMMARY.md)** | Test coverage (82%) ✅ |

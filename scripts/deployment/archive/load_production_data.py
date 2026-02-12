@@ -237,13 +237,27 @@ class ProductionDataLoader:
         except Exception as e:
             logger.error("❌ OpenSearch verification failed: %s", e)
 
-        # Check JanusGraph (basic connectivity)
+        # Check JanusGraph (basic connectivity and vertex count)
         try:
-            # TODO: Add JanusGraph verification when graph is loaded
+            from gremlin_python.driver import client as gremlin_client
+            
+            # Connect to JanusGraph
+            jg_client = gremlin_client.Client(
+                f"ws://{self.janusgraph_host}:{self.janusgraph_port}/gremlin",
+                "g"
+            )
+            
+            # Verify connectivity and get vertex count
+            vertex_count = jg_client.submit("g.V().count()").all().result()[0]
             results["janusgraph_healthy"] = True
-            logger.info("✅ JanusGraph: Connected")
+            results["janusgraph_vertex_count"] = vertex_count
+            
+            logger.info("✅ JanusGraph: Connected (vertices: %d)", vertex_count)
+            
+            jg_client.close()
         except Exception as e:
             logger.error("❌ JanusGraph verification failed: %s", e)
+            results["janusgraph_healthy"] = False
 
         return results
 

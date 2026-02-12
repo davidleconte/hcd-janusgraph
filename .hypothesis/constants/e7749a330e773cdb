@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/utils/log_sanitizer.py
+# hypothesis_version: 6.151.6
+
+['AllowPIILogging', 'INFO', 'PIISanitizer', '[ACCOUNT_REDACTED]', '[CARD_REDACTED]', '[EMAIL_REDACTED]', '[IP_REDACTED]', '[PHONE_REDACTED]', '[SSN_REDACTED]', '\\1 [NAME_REDACTED]', '\\bACC-\\d+\\b', 'account_id', 'credit_card', 'customer_name', 'email', 'get_secure_logger', 'ip_address', 'phone', 'sanitize_for_logging', 'setup_secure_logging', 'ssn']

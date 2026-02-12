@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/src/python/init/initialize_graph.py
+# hypothesis_version: 6.151.6
+
+[18182, '  Companies: %s', '  People: %s', '  Products: %s', '=', 'Data loading failed', 'Edges: %d', 'Sample data loaded:', 'Vertices: %d', '__main__', 'g.E().count()', 'g.V().count()', 'localhost']

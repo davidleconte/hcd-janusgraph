@@ -1,0 +1,4 @@
+# file: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/data_generators/patterns/insider_trading_pattern_generator.py
+# hypothesis_version: 6.151.6
+
+[0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.7, 0.8, 1.0, 100000, 1000000, 5000000, 10000000, '0.00', 'NYSE', 'accountant', 'analyst', 'announcement_date', 'attorney', 'average_trade_value', 'beneficial_owner', 'business_associate', 'buy', 'communication_count', 'consultant', 'coordinated_activity', 'director', 'en_US', 'entity_count', 'executive', 'family_member', 'insider_trading', 'investment_banker', 'large_trade_values', 'pattern_sequence', 'pattern_subtype', 'pattern_total_trades', 'pattern_type', 'person', 'potential_conspiracy', 'simultaneous_trades', 'stock', 'timing_suspicious', 'tipping_pattern', 'trade_count']

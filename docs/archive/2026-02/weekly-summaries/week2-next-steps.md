@@ -202,7 +202,7 @@ Week 2 Progress: 28% Complete (Days 6-7 done)
 ### Available Documentation
 
 1. **Implementation Guide** (850 lines)
-   - [`docs/implementation/WEEK2_DAYS_8-12_IMPLEMENTATION_GUIDE.md`](WEEK2_DAYS_8-12_IMPLEMENTATION_GUIDE.md)
+   - [`docs/implementation/WEEK2_DAYS_8-12_IMPLEMENTATION_GUIDE.md`](week2-days-8-12-implementation-guide.md)
    - Complete test patterns for all remaining days
    - Code examples for each test category
    - Mock setup patterns and assertion strategies
