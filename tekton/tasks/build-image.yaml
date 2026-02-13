@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: build-image
+spec:
+  params:
+    - name: image
+      type: string
+    - name: dockerfile
+      type: string
+      default: Dockerfile
+    - name: context
+      type: string
+      default: .
+  workspaces:
+    - name: source
+  steps:
+    - name: build
+      image: gcr.io/kaniko-project/executor:v1.19.2
+      args:
+        - --dockerfile=$(params.dockerfile)
+        - --context=$(workspaces.source.path)/source/$(params.context)
+        - --destination=$(params.image)
+        - --cache=true
+        - --cache-ttl=24h
+      volumeMounts:
+        - name: registry-credentials
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: registry-credentials
+      secret:
+        secretName: registry-credentials
+        items:
+          - key: .dockerconfigjson
+            path: config.json

@@ -62,10 +62,12 @@ class FraudDetector(NotebookCompatMixin):
         opensearch_host: str = "localhost",
         opensearch_port: int = 9200,
         embedding_model: str = "mpnet",
+        use_ssl: bool = os.getenv("JANUSGRAPH_USE_SSL", "false").lower() == "true",
     ):
         """Initialize fraud detector."""
-        logger.info("Connecting to JanusGraph: %s:%s", janusgraph_host, janusgraph_port)
-        self.graph_url = f"ws://{janusgraph_host}:{janusgraph_port}/gremlin"
+        logger.info("Connecting to JanusGraph: %s:%s (SSL: %s)", janusgraph_host, janusgraph_port, use_ssl)
+        protocol = "wss" if use_ssl else "ws"
+        self.graph_url = f"{protocol}://{janusgraph_host}:{janusgraph_port}/gremlin"
 
         logger.info("Initializing embedding generator: %s", embedding_model)
         self.generator = EmbeddingGenerator(model_name=embedding_model)
@@ -100,7 +102,7 @@ class FraudDetector(NotebookCompatMixin):
     def _do_connect(self):
         """Internal connect, called through circuit breaker."""
         self._connection = DriverRemoteConnection(self.graph_url, "g")
-        self._g = traversal().withRemote(self._connection)
+        self._g = traversal().with_remote(self._connection)
 
     def disconnect(self):
         """Close connection to JanusGraph."""
@@ -216,7 +218,7 @@ class FraudDetector(NotebookCompatMixin):
             hour_txs = (
                 g.V()
                 .has("Account", "account_id", account_id)
-                .outE("MADE_TRANSACTION")
+                .out_e("MADE_TRANSACTION")
                 .has("timestamp", P.gte(hour_ago))
                 .count()
                 .next()
@@ -225,7 +227,7 @@ class FraudDetector(NotebookCompatMixin):
             hour_amount = (
                 g.V()
                 .has("Account", "account_id", account_id)
-                .outE("MADE_TRANSACTION")
+                .out_e("MADE_TRANSACTION")
                 .has("timestamp", P.gte(hour_ago))
                 .values("amount")
                 .sum_()
@@ -326,7 +328,7 @@ class FraudDetector(NotebookCompatMixin):
             historical_txns = (
                 g.V()
                 .has("Account", "account_id", account_id)
-                .outE("MADE_TRANSACTION")
+                .out_e("MADE_TRANSACTION")
                 .has("timestamp", P.gte(ninety_days_ago))
                 .project("amount", "merchant", "description")
                 .by(__.values("amount").fold())

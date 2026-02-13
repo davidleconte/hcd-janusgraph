@@ -1,34 +1,172 @@
-name: Validate Documentation Naming
+name: Documentation Naming Validation
 
 on:
   pull_request:
     paths:
       - 'docs/**/*.md'
       - '*.md'
+      - '.bob/**/*.md'
+      - 'banking/**/*.md'
   push:
     branches:
       - main
-      - master
+      - develop
     paths:
       - 'docs/**/*.md'
       - '*.md'
+      - '.bob/**/*.md'
+      - 'banking/**/*.md'
 
 jobs:
   validate-kebab-case:
-    name: Check Kebab-Case Naming
+    name: Validate Kebab-Case Naming
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better git operations
       
-      - name: Validate file naming
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
         run: |
-          chmod +x scripts/validation/validate-kebab-case.sh
-          ./scripts/validation/validate-kebab-case.sh
+          python -m pip install --upgrade pip
+          # No external dependencies needed for the script
       
-      - name: Comment on PR (if violations found)
-        if: failure() && github.event_name == 'pull_request'
+      - name: Run kebab-case validation
+        run: |
+          echo "🔍 Validating documentation naming conventions..."
+          python3 scripts/docs/apply-kebab-case.py
+          
+          # Check exit code
+          if [ $? -eq 0 ]; then
+            echo "✅ All documentation files follow kebab-case naming convention"
+          else
+            echo "❌ Documentation naming violations found"
+            echo ""
+            echo "To fix violations locally:"
+            echo "  python3 scripts/docs/apply-kebab-case.py --execute"
+            echo ""
+            echo "Or run the pre-commit hook:"
+            echo "  pre-commit run validate-kebab-case --all-files"
+            exit 1
+          fi
+      
+      - name: Generate validation report
+        if: failure()
+        run: |
+          echo "## 📋 Documentation Naming Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Validation Failed**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Some documentation files do not follow the kebab-case naming convention." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Required Naming Convention" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Correct**: \`user-guide.md\`, \`api-reference.md\`, \`phase-8-complete.md\`" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ **Wrong**: \`User_Guide.md\`, \`ApiReference.md\`, \`user_guide.md\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Approved Exceptions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following root-level files are allowed to use UPPERCASE:" >> $GITHUB_STEP_SUMMARY
+          echo "- README.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md" >> $GITHUB_STEP_SUMMARY
+          echo "- CODE_OF_CONDUCT.md, SECURITY.md, AGENTS.md" >> $GITHUB_STEP_SUMMARY
+          echo "- QUICKSTART.md, FAQ.md" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### How to Fix" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Dry-run to see what would change" >> $GITHUB_STEP_SUMMARY
+          echo "python3 scripts/docs/apply-kebab-case.py" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Apply fixes" >> $GITHUB_STEP_SUMMARY
+          echo "python3 scripts/docs/apply-kebab-case.py --execute" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Commit changes" >> $GITHUB_STEP_SUMMARY
+          echo "git add -A" >> $GITHUB_STEP_SUMMARY
+          echo "git commit -m \"docs: apply kebab-case naming convention\"" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Documentation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See [Documentation Standards](docs/documentation-standards.md) for complete guidelines." >> $GITHUB_STEP_SUMMARY
+      
+      - name: Success summary
+        if: success()
+        run: |
+          echo "## ✅ Documentation Naming Validation Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All documentation files follow the kebab-case naming convention." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validated Files" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation files in \`docs/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Root-level markdown files" >> $GITHUB_STEP_SUMMARY
+          echo "- Agent rules in \`.bob/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Banking module documentation" >> $GITHUB_STEP_SUMMARY
+
+  auto-fix:
+    name: Auto-fix Naming Violations
+    runs-on: ubuntu-latest
+    needs: validate-kebab-case
+    if: failure() && github.event_name == 'pull_request'
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Apply kebab-case fixes
+        id: fix
+        run: |
+          echo "🔧 Applying kebab-case fixes..."
+          python3 scripts/docs/apply-kebab-case.py --execute > fix-output.txt 2>&1
+          
+          # Check if any files were changed
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No files needed fixing"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Files were fixed"
+          fi
+          
+          # Save output for PR comment
+          cat fix-output.txt
+      
+      - name: Commit and push fixes
+        if: steps.fix.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "docs: auto-fix kebab-case naming violations
+
+          Automatically applied kebab-case naming convention to documentation files.
+          
+          Changes made by GitHub Actions bot.
+          See: .github/workflows/validate-doc-naming.yml"
+          git push
+      
+      - name: Comment on PR
+        if: steps.fix.outputs.changed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -36,13 +174,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '❌ **Documentation Naming Violation**\n\n' +
-                    'Some documentation files do not follow kebab-case naming conventions.\n\n' +
-                    'Please run:\n' +
-                    '```bash\n' +
-                    './scripts/maintenance/rename-to-kebab-case.sh\n' +
-                    '```\n\n' +
-                    'See [documentation-standards.md](docs/documentation-standards.md) for details.'
+              body: '🤖 **Auto-fix Applied**\n\nI automatically fixed the kebab-case naming violations in this PR.\n\nPlease review the changes and ensure they look correct before merging.'
             })
 
 # Made with Bob

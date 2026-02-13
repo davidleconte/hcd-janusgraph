@@ -1,0 +1,15 @@
+apiVersion: v2
+name: janusgraph-banking
+description: Banking Fraud Detection & AML Compliance on JanusGraph
+type: application
+version: 1.0.0
+appVersion: "1.2.0"
+keywords:
+  - janusgraph
+  - banking
+  - fraud-detection
+  - aml
+  - compliance
+maintainers:
+  - name: David Leconte
+    email: david.leconte@ibm.com

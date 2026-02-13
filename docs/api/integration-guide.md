@@ -106,7 +106,7 @@ class SocialNetworkGraph:
             self.connection = DriverRemoteConnection(
                 self.connection_url, 'g'
             )
-            self.g = traversal().withRemote(self.connection)
+            self.g = traversal().with_remote(self.connection)
             logger.info("Connected to JanusGraph")
         except Exception as e:
             logger.error(f"Connection failed: {e}")

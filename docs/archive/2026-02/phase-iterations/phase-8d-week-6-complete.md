@@ -467,7 +467,7 @@ from gremlin_python.driver.driver_remote_connection import DriverRemoteConnectio
 
 # Connect to JanusGraph
 connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
-g = traversal().withRemote(connection)
+g = traversal().with_remote(connection)
 
 # Load persons
 import json

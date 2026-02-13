@@ -359,7 +359,7 @@ if not query or not query.strip():
 ```python
 def _check_velocity(self, account_id: str, amount: float, timestamp: datetime) -> float:
     connection = DriverRemoteConnection(self.graph_url, 'g')  # New connection each time
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     # ... query ...
     connection.close()  # Closed immediately
 ```

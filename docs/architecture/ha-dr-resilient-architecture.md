@@ -544,7 +544,7 @@ def get_graph_connection(settings: Settings | None = None):
     if _connection is None:
         try:
             _connection = DriverRemoteConnection(...)
-            _traversal = traversal().withRemote(_connection)
+            _traversal = traversal().with_remote(_connection)
         except Exception as e:
             logger.error("Failed to connect: %s", e)
             raise HTTPException(

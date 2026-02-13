@@ -192,3 +192,64 @@ class GraphStatsResponse(BaseModel):
     account_count: int
     transaction_count: int
     last_updated: str
+
+
+class MFAEnrollRequest(BaseModel):
+    """Request to enroll in MFA."""
+
+    user_id: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., min_length=5, max_length=255)
+    method: str = Field("totp", description="MFA method: totp, sms, or email")
+
+
+class MFAEnrollResponse(BaseModel):
+    """Response from MFA enrollment."""
+
+    user_id: str
+    method: str
+    secret: str
+    backup_codes: List[str]
+    status: str
+    enrolled_at: str
+
+
+class MFAVerifyRequest(BaseModel):
+    """Request to verify MFA token."""
+
+    user_id: str = Field(..., min_length=1)
+    token: str = Field(..., min_length=6, max_length=8)
+    secret: Optional[str] = None
+    hashed_backup_codes: Optional[List[str]] = None
+
+
+class MFAVerifyResponse(BaseModel):
+    """Response from MFA verification."""
+
+    success: bool
+    message: str
+    user_id: str
+
+
+class MFAStatusResponse(BaseModel):
+    """MFA status for a user."""
+
+    user_id: str
+    is_locked_out: bool = False
+    lockout_remaining_seconds: Optional[int] = None
+
+
+class MFADisableRequest(BaseModel):
+    """Request to disable MFA."""
+
+    user_id: str = Field(..., min_length=1)
+    secret: str = Field(..., min_length=1)
+    token: str = Field(..., min_length=6, max_length=8)
+    reason: Optional[str] = None
+
+
+class MFADisableResponse(BaseModel):
+    """Response from MFA disable."""
+
+    success: bool
+    user_id: str
+    message: str

@@ -121,7 +121,7 @@ class TestGraphConsumerConnection:
         mock_driver.return_value = mock_connection
 
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         consumer = GraphConsumer()
         consumer.connect()
@@ -133,7 +133,7 @@ class TestGraphConsumerConnection:
 
         # Verify JanusGraph connection
         mock_driver.assert_called_once_with(consumer.janusgraph_url, "g")
-        mock_traversal.return_value.withRemote.assert_called_once_with(mock_connection)
+        mock_traversal.return_value.with_remote.assert_called_once_with(mock_connection)
 
         assert consumer.pulsar_client == mock_client
         assert consumer.consumer == mock_consumer
@@ -228,7 +228,7 @@ class TestGraphConsumerEventProcessing:
         mock_traversal = Mock()
         mock_g.V.return_value = mock_traversal
         mock_traversal.has.return_value = mock_traversal
-        mock_traversal.valueMap.return_value = mock_traversal
+        mock_traversal.value_map.return_value = mock_traversal
         mock_traversal.toList.return_value = [{"version": [0]}]  # Current version
         mock_traversal.property.return_value = mock_traversal
         mock_traversal.iterate.return_value = None
@@ -259,7 +259,7 @@ class TestGraphConsumerEventProcessing:
         mock_traversal = Mock()
         mock_g.V.return_value = mock_traversal
         mock_traversal.has.return_value = mock_traversal
-        mock_traversal.valueMap.return_value = mock_traversal
+        mock_traversal.value_map.return_value = mock_traversal
         mock_traversal.toList.return_value = [{"version": [5]}]  # Higher version
 
         consumer.g = mock_g
@@ -620,7 +620,7 @@ class TestGraphConsumerContextManager:
         mock_driver.return_value = mock_connection
 
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         consumer = GraphConsumer()
 
@@ -655,7 +655,7 @@ class TestGraphConsumerContextManager:
         mock_driver.return_value = mock_connection
 
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         consumer = GraphConsumer()
 

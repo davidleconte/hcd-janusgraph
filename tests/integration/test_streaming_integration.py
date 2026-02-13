@@ -204,7 +204,7 @@ class TestConsumerIntegration:
             "banking.streaming.graph_consumer.DriverRemoteConnection", return_value=mock_connection
         ):
             with patch("banking.streaming.graph_consumer.traversal") as mock_traversal:
-                mock_traversal.return_value.withRemote.return_value = mock_g
+                mock_traversal.return_value.with_remote.return_value = mock_g
 
                 consumer = GraphConsumer(
                     janusgraph_url="ws://localhost:8182/gremlin", subscription_name="test-sub"

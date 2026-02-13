@@ -9,6 +9,7 @@ Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product S
 Date: 2026-02-04
 """
 
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -17,9 +18,16 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
+
 src_path = str(Path(__file__).parent.parent.parent.parent / "src" / "python")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
+
+with patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
+    with patch("banking.compliance.audit_logger.AuditLogger.log_event", MagicMock()):
+        import banking.compliance.audit_logger as _al
+        _al._audit_logger = MagicMock()
 
 with patch.dict(
     "sys.modules",

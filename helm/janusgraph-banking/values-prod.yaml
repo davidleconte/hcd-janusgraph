@@ -1,0 +1,34 @@
+namespace: janusgraph-banking-prod
+
+janusgraph:
+  replicas: 1
+  resources:
+    requests:
+      cpu: "1"
+      memory: 4Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
+  javaOptions: "-Xms2g -Xmx6g"
+
+api:
+  replicas: 3
+  env:
+    corsOrigins: "https://banking.example.com"
+    useSSL: "true"
+    authEnabled: "true"
+    logLevel: "WARNING"
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+
+route:
+  enabled: true
+  host: banking-api.apps.example.com
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+monitoring:
+  enabled: true

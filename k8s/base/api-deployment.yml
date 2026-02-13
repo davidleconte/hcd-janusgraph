@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-api
+  namespace: janusgraph-banking
+  labels:
+    app: banking-api
+    app.kubernetes.io/name: banking-api
+    app.kubernetes.io/component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: banking-api
+  template:
+    metadata:
+      labels:
+        app: banking-api
+    spec:
+      serviceAccountName: banking-api-sa
+      containers:
+        - name: api
+          image: janusgraph-banking/api:1.2.0
+          ports:
+            - containerPort: 8001
+              name: http
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          env:
+            - name: JANUSGRAPH_HOST
+              value: janusgraph
+            - name: JANUSGRAPH_PORT
+              value: "8182"
+            - name: JANUSGRAPH_USE_SSL
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-config
+                  key: janusgraph-use-ssl
+            - name: OPENSEARCH_HOST
+              value: opensearch
+            - name: OPENSEARCH_PORT
+              value: "9200"
+            - name: API_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: banking-config
+                  key: cors-origins
+            - name: JANUSGRAPH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: janusgraph-credentials
+                  key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-api
+  namespace: janusgraph-banking
+spec:
+  selector:
+    app: banking-api
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: banking-api-hpa
+  namespace: janusgraph-banking
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: banking-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: banking-api-pdb
+  namespace: janusgraph-banking
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: banking-api

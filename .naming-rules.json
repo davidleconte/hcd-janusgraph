@@ -1,0 +1,45 @@
+{
+  "custom_rules": [
+    {
+      "name": "banking-domain",
+      "pattern": "^(aml|fraud|compliance|kyc|transaction)_[a-z0-9]+(_[a-z0-9]+)*$",
+      "description": "Banking domain files must start with domain prefix (aml_, fraud_, compliance_, kyc_, transaction_)",
+      "file_extensions": [".py"],
+      "exceptions": [
+        "__init__",
+        "conftest",
+        "setup",
+        "test_",
+        "tests/"
+      ]
+    }
+  ],
+  "exclude_dirs": [
+    "vendor",
+    "archive",
+    ".git",
+    "node_modules",
+    "htmlcov",
+    "site",
+    "notebooks-exploratory/lib",
+    ".benchmarks",
+    ".ruff_cache",
+    "config/data"
+  ],
+  "exclude_patterns": [
+    "*.min.js",
+    "*.min.css",
+    "coverage_html*.js",
+    "style_cb_*.css",
+    ".pre-commit-config.*",
+    ".markdownlint.*",
+    ".markdown-link-check.*",
+    ".naming-rules.*",
+    "mlc_config.*",
+    "tom-select.*",
+    "vis-network.*",
+    "bundle.*.js",
+    "lunr.*.js"
+  ],
+  "compliance_threshold": 95.0
+}

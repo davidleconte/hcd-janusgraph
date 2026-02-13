@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: janusgraph
+  namespace: janusgraph-banking
+  labels:
+    app: janusgraph
+    app.kubernetes.io/name: janusgraph
+    app.kubernetes.io/component: graph-database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: janusgraph
+  template:
+    metadata:
+      labels:
+        app: janusgraph
+    spec:
+      serviceAccountName: janusgraph-sa
+      containers:
+        - name: janusgraph
+          image: janusgraph/janusgraph:1.0.0
+          ports:
+            - containerPort: 8182
+              name: gremlin
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          readinessProbe:
+            tcpSocket:
+              port: 8182
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8182
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          startupProbe:
+            tcpSocket:
+              port: 8182
+            failureThreshold: 30
+            periodSeconds: 10
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Xms1g -Xmx3g"
+          volumeMounts:
+            - name: config
+              mountPath: /opt/janusgraph/conf
+      volumes:
+        - name: config
+          configMap:
+            name: janusgraph-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: janusgraph
+  namespace: janusgraph-banking
+spec:
+  selector:
+    app: janusgraph
+  ports:
+    - port: 8182
+      targetPort: 8182
+      name: gremlin
+  type: ClusterIP

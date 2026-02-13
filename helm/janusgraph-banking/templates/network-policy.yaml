@@ -1,0 +1,76 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-default
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-janusgraph
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  podSelector:
+    matchLabels:
+      app: janusgraph
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: banking-api
+      ports:
+        - port: {{ .Values.janusgraph.service.port }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-egress
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  podSelector:
+    matchLabels:
+      app: banking-api
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: janusgraph
+      ports:
+        - port: {{ .Values.janusgraph.service.port }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app: opensearch
+      ports:
+        - port: {{ .Values.opensearch.service.port }}
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-ingress
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  podSelector:
+    matchLabels:
+      app: banking-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: {{ .Values.api.service.port }}
+{{- end }}

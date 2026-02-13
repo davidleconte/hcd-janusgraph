@@ -150,7 +150,7 @@ class InsiderTradingDetector:
 
         # Query for high-value trades
         query = """
-        g.V().hasLabel('trade')
+        g.V().has_label('trade')
          .order().by('total_value', desc)
          .limit(200)
          .project('trade_id', 'trader_id', 'symbol', 'side', 'quantity', 'price',
@@ -163,7 +163,7 @@ class InsiderTradingDetector:
          .by('price')
          .by('total_value')
          .by(coalesce(values('trade_date'), constant('2026-01-01')))
-         .by(coalesce(__.in('performed_trade').valueMap('first_name', 'last_name', 'is_pep'), constant({})))
+         .by(coalesce(__.in('performed_trade').value_map('first_name', 'last_name', 'is_pep'), constant({})))
         """
 
         try:
@@ -341,7 +341,7 @@ class InsiderTradingDetector:
 
         # Query for trades grouped by symbol and time
         query = """
-        g.V().hasLabel('trade')
+        g.V().has_label('trade')
          .project('trade_id', 'trader_id', 'symbol', 'side', 'quantity', 'price',
                   'total_value', 'trade_date', 'trader_name')
          .by('trade_id')
@@ -513,12 +513,12 @@ class InsiderTradingDetector:
 
         # Query for communications that might indicate insider information sharing
         query = """
-        g.V().hasLabel('trade')
+        g.V().has_label('trade')
          .has('total_value', gt(50000))
          .as('trade')
          .in('performed_trade').as('trader')
          .in('sent_to', 'sent_from')
-         .hasLabel('communication')
+         .has_label('communication')
          .as('comm')
          .select('trade', 'trader', 'comm')
          .by(valueMap('trade_id', 'symbol', 'total_value', 'side', 'trade_date'))
@@ -641,7 +641,7 @@ class InsiderTradingDetector:
 
         # Query for traders connected to company insiders
         query = """
-        g.V().hasLabel('company').as('company')
+        g.V().has_label('company').as('company')
          .in('works_for', 'director_of', 'officer_of').as('insider')
          .out('knows', 'related_to', 'colleague_of').as('contact')
          .out('performed_trade').as('trade')

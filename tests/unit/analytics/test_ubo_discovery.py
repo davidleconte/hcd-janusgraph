@@ -252,7 +252,7 @@ class TestUBODiscoveryConnection:
     def test_connect_success(self, mock_traversal, mock_connection):
         """Test successful connection"""
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         
         ubo = UBODiscovery()
         result = ubo.connect()
@@ -646,7 +646,7 @@ class TestUBODiscoveryMainMethods:
         """Test getting company info successfully"""
         ubo = UBODiscovery()
         mock_g = Mock()
-        mock_g.V().has().valueMap().toList.return_value = [
+        mock_g.V().has().value_map().toList.return_value = [
             {"company_id": ["c-123"], "legal_name": ["ACME Corp"]}
         ]
         ubo.g = mock_g
@@ -661,7 +661,7 @@ class TestUBODiscoveryMainMethods:
         """Test getting company info when not found"""
         ubo = UBODiscovery()
         mock_g = Mock()
-        mock_g.V().has().valueMap().toList.return_value = []
+        mock_g.V().has().value_map().toList.return_value = []
         ubo.g = mock_g
         
         result = ubo._get_company_info("c-999")
@@ -672,7 +672,7 @@ class TestUBODiscoveryMainMethods:
         """Test getting company info with error"""
         ubo = UBODiscovery()
         mock_g = Mock()
-        mock_g.V().has().valueMap().toList.side_effect = Exception("Graph error")
+        mock_g.V().has().value_map().toList.side_effect = Exception("Graph error")
         ubo.g = mock_g
         
         result = ubo._get_company_info("c-123")
@@ -700,7 +700,7 @@ class TestUBODiscoveryDirectOwners:
                 "is_sanctioned": False
             }
         ]
-        mock_g.V().has().inE().project().by().by().by().by().by().by().by().toList.return_value = mock_result
+        mock_g.V().has().in_e().project().by().by().by().by().by().by().by().toList.return_value = mock_result
         ubo.g = mock_g
         
         result = ubo._find_direct_owners("c-123")
@@ -726,7 +726,7 @@ class TestUBODiscoveryDirectOwners:
                 "is_sanctioned": False
             }
         ]
-        mock_g.V().has().inE().project().by().by().by().by().by().by().by().toList.return_value = mock_result
+        mock_g.V().has().in_e().project().by().by().by().by().by().by().by().toList.return_value = mock_result
         ubo.g = mock_g
         
         result = ubo._find_direct_owners("c-123")
@@ -749,7 +749,7 @@ class TestUBODiscoveryDirectOwners:
                 "is_sanctioned": False
             }
         ]
-        mock_g.V().has().inE().project().by().by().by().by().by().by().by().toList.return_value = mock_result
+        mock_g.V().has().in_e().project().by().by().by().by().by().by().by().toList.return_value = mock_result
         ubo.g = mock_g
         
         result = ubo._find_direct_owners("c-123")
@@ -760,7 +760,7 @@ class TestUBODiscoveryDirectOwners:
         """Test finding direct owners with no results"""
         ubo = UBODiscovery()
         mock_g = Mock()
-        mock_g.V().has().inE().project().by().by().by().by().by().by().by().toList.return_value = []
+        mock_g.V().has().in_e().project().by().by().by().by().by().by().by().toList.return_value = []
         ubo.g = mock_g
         
         result = ubo._find_direct_owners("c-123")
@@ -771,7 +771,7 @@ class TestUBODiscoveryDirectOwners:
         """Test finding direct owners with error"""
         ubo = UBODiscovery()
         mock_g = Mock()
-        mock_g.V().has().inE().project().by().by().by().by().by().by().by().toList.side_effect = Exception("Query error")
+        mock_g.V().has().in_e().project().by().by().by().by().by().by().by().toList.side_effect = Exception("Query error")
         ubo.g = mock_g
         
         result = ubo._find_direct_owners("c-123")

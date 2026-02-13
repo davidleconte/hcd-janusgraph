@@ -150,18 +150,7 @@ profile = "black"
 line_length = 100
 skip_gitignore = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests", "banking/data_generators/tests", "banking/analytics/tests", "banking/compliance/tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --cov=src --cov=banking --cov-report=html --cov-report=term -n auto"
-timeout = 300
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "benchmark: marks tests as benchmark tests",
-]
+
 
 [tool.mypy]
 python_version = "3.11"

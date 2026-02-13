@@ -152,7 +152,7 @@ class GraphConsumer:
 
         logger.info("Connecting to JanusGraph at %s", self.janusgraph_url)
         self.connection = DriverRemoteConnection(self.janusgraph_url, "g")
-        self.g = traversal().withRemote(self.connection)
+        self.g = traversal().with_remote(self.connection)
 
         logger.info("GraphConsumer connected successfully")
 
@@ -198,7 +198,7 @@ class GraphConsumer:
                     self.g.V()
                     .has(entity_type, "entity_id", entity_id)
                     .fold()
-                    .coalesce(__.unfold(), __.addV(entity_type).property("entity_id", entity_id))
+                    .coalesce(__.unfold(), __.add_v(entity_type).property("entity_id", entity_id))
                     .property("version", version)
                     .property("created_at", event.timestamp.isoformat())
                     .property("source", event.source or "unknown")
@@ -217,7 +217,7 @@ class GraphConsumer:
             elif event.event_type == "update":
                 # Check version for optimistic concurrency
                 existing = (
-                    self.g.V().has(entity_type, "entity_id", entity_id).valueMap("version").toList()
+                    self.g.V().has(entity_type, "entity_id", entity_id).value_map("version").toList()
                 )
 
                 if existing:
@@ -286,9 +286,8 @@ class GraphConsumer:
                 batch.append(event)
                 messages.append(msg)
             except Exception:
-                # Timeout or error
-                if batch:
-                    break
+                # Timeout or error - always break
+                break
 
         if not batch:
             return 0

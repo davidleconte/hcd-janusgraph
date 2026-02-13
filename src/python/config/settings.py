@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     api_port: int = 8001
     api_key: str = ""
     auth_enabled: bool = False
-    api_cors_origins: str = "*"
+    api_cors_origins: str = "http://localhost:3000,http://localhost:8080"
 
     rate_limit_per_minute: int = Field(60, description="Requests per minute per client")
 

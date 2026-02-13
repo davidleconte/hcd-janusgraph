@@ -118,7 +118,7 @@ class JanusGraphLoader:
 
             # Create person vertex
             query = """
-            g.addV('person')
+            g.add_v('person')
                 .property('person_id', pid)
                 .property('first_name', fname)
                 .property('last_name', lname)
@@ -177,7 +177,7 @@ class JanusGraphLoader:
                 continue
 
             query = """
-            g.addV('company')
+            g.add_v('company')
                 .property('company_id', cid)
                 .property('name', cname)
                 .property('industry', industry)
@@ -236,7 +236,7 @@ class JanusGraphLoader:
 
             # Create account vertex
             query = """
-            g.addV('account')
+            g.add_v('account')
                 .property('account_id', aid)
                 .property('account_type', atype)
                 .property('currency', currency)
@@ -271,7 +271,7 @@ class JanusGraphLoader:
                     if owner_type == "person" and owner_id in person_id_map:
                         owner_vertex_id = person_id_map[owner_id]
                         self._submit(
-                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
+                            "g.add_e('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
                             {
                                 "oid": owner_vertex_id,
                                 "aid": account_vertex_id,
@@ -282,7 +282,7 @@ class JanusGraphLoader:
                     elif owner_type == "company" and owner_id in company_id_map:
                         owner_vertex_id = company_id_map[owner_id]
                         self._submit(
-                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
+                            "g.add_e('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
                             {
                                 "oid": owner_vertex_id,
                                 "aid": account_vertex_id,
@@ -328,7 +328,7 @@ class JanusGraphLoader:
 
             # Create transaction vertex
             query = """
-            g.addV('transaction')
+            g.add_v('transaction')
                 .property('transaction_id', tid)
                 .property('amount', amount)
                 .property('currency', currency)
@@ -361,7 +361,7 @@ class JanusGraphLoader:
                 from_account_id = tx_dict.get("from_account_id")
                 if from_account_id and from_account_id in account_id_map:
                     self._submit(
-                        "g.addE('sent_transaction').from(__.V(fid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.add_e('sent_transaction').from(__.V(fid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "fid": account_id_map[from_account_id],
                             "tid": tx_vertex_id,
@@ -374,7 +374,7 @@ class JanusGraphLoader:
                 to_account_id = tx_dict.get("to_account_id")
                 if to_account_id and to_account_id in account_id_map:
                     self._submit(
-                        "g.addE('received_by').from(__.V(tid)).to(__.V(toid)).property('timestamp', ts)",
+                        "g.add_e('received_by').from(__.V(tid)).to(__.V(toid)).property('timestamp', ts)",
                         {
                             "tid": tx_vertex_id,
                             "toid": account_id_map[to_account_id],
@@ -421,7 +421,7 @@ class JanusGraphLoader:
 
             # Create trade vertex
             query = """
-            g.addV('trade')
+            g.add_v('trade')
                 .property('trade_id', tid)
                 .property('symbol', symbol)
                 .property('side', side)
@@ -455,7 +455,7 @@ class JanusGraphLoader:
                 acc_id = trade_dict.get("account_id")
                 if acc_id and acc_id in account_id_map:
                     self._submit(
-                        "g.addE('executed_trade').from(__.V(aid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.add_e('executed_trade').from(__.V(aid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "aid": account_id_map[acc_id],
                             "tid": trade_vertex_id,
@@ -468,7 +468,7 @@ class JanusGraphLoader:
                 trader_id = trade_dict.get("trader_id")
                 if trader_id and trader_id in person_id_map:
                     self._submit(
-                        "g.addE('performed_trade').from(__.V(pid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.add_e('performed_trade').from(__.V(pid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "pid": person_id_map[trader_id],
                             "tid": trade_vertex_id,
@@ -519,7 +519,7 @@ class JanusGraphLoader:
 
                 if from_vertex and to_vertex:
                     self._submit(
-                        """g.addE('communicated_with')
+                        """g.add_e('communicated_with')
                             .from(__.V(fid)).to(__.V(tid))
                             .property('comm_type', ctype)
                             .property('timestamp', ts)

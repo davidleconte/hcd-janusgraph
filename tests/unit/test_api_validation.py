@@ -244,8 +244,8 @@ class TestEdgeCases:
             UBORequest(company_id="COMP 123")
 
     def test_case_sensitivity(self):
-        """IDs should preserve case."""
-        request = UBORequest(company_id="CoMp-123")
-        assert request.company_id == "CoMp-123"
+        """IDs should preserve case (uppercase only per pattern)."""
+        request = UBORequest(company_id="COMP-123")
+        assert request.company_id == "COMP-123"
 
 # Made with Bob

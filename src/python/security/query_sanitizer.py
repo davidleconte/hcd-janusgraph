@@ -152,13 +152,13 @@ class QueryAllowlist:
     def add_pattern(self, pattern: QueryPattern) -> None:
         """Add an approved query pattern"""
         self.patterns[pattern.name] = pattern
-        logger.info(f"Added query pattern: {pattern.name}")
+        logger.info("Added query pattern: %s", pattern.name)
     
     def remove_pattern(self, name: str) -> None:
         """Remove a query pattern"""
         if name in self.patterns:
             del self.patterns[name]
-            logger.info(f"Removed query pattern: {name}")
+            logger.info("Removed query pattern: %s", name)
     
     def validate_query(self, query: str) -> Tuple[bool, Optional[QueryPattern]]:
         """
@@ -237,7 +237,7 @@ class GremlinQueryBuilder:
         if not isinstance(limit, int) or limit < 1:
             raise ValidationError(f"Invalid limit: {limit}")
         if limit > max_limit:
-            logger.warning(f"Limit {limit} exceeds max {max_limit}, capping")
+            logger.warning("Limit %d exceeds max %d, capping", limit, max_limit)
             return max_limit
         return limit
     
@@ -443,7 +443,7 @@ class QueryValidator:
             }
         )
         audit_logger.log_event(event)
-        logger.warning(f"Query validation failed for user {user}: {reason}")
+        logger.warning("Query validation failed for user %s: %s", user, reason)
     
     def _log_validation_success(self, query: str, user: str, pattern: Optional[QueryPattern]) -> None:
         """Log successful validation"""

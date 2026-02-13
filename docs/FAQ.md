@@ -78,7 +78,7 @@ from gremlin_python.driver.driver_remote_connection import DriverRemoteConnectio
 from gremlin_python.process.anonymous_traversal import traversal
 
 connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
-g = traversal().withRemote(connection)
+g = traversal().with_remote(connection)
 
 # Verify connection
 count = g.V().count().next()

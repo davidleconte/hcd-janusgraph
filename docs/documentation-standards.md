@@ -615,14 +615,98 @@ docker-compose logs -f
 
 ---
 
+### Using the Enforcement Tools
+
+**Pre-commit Hook:**
+
+```bash
+# Install pre-commit hooks
+pip install pre-commit
+pre-commit install
+
+# Run manually on all files
+pre-commit run validate-kebab-case --all-files
+```
+
+**CI/CD Validation:**
+
+The GitHub Actions workflow automatically runs on:
+- Pull requests modifying documentation
+- Pushes to `main` or `develop` branches
+
+**Manual Validation:**
+
+```bash
+# Check for violations (dry-run)
+python3 scripts/docs/apply-kebab-case.py
+
+# Fix violations automatically
+python3 scripts/docs/apply-kebab-case.py --execute
+
+# Rollback if needed
+python3 scripts/docs/apply-kebab-case.py --rollback
+```
+
+### Enforcement Workflow
+
+```
+┌─────────────────┐
+│ Developer makes │
+│  doc changes    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  git commit     │◄─── Pre-commit hook validates
+└────────┬────────┘     (blocks if violations)
+         │
+         ▼
+┌─────────────────┐
+│   git push      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Pull Request   │◄─── CI/CD validates
+└────────┬────────┘     (fails if violations)
+         │
+         ▼
+┌─────────────────┐
+│  Code Review    │◄─── Human review
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│     Merge       │
+└─────────────────┘
+```
+
+
 ## Enforcement
 
 These standards are enforced through:
 
-1. **Code Review** - All documentation changes reviewed
-2. **Automated Checks** - Linting and link checking
-3. **Team Training** - Regular documentation workshops
-4. **AGENTS.md** - AI assistant follows these standards
+1. **Pre-commit Hooks** - Automatic validation before commits
+   - Configured in `.pre-commit-config.yaml`
+   - Runs `scripts/docs/apply-kebab-case.py` in dry-run mode
+   - Blocks commits with naming violations
+
+2. **CI/CD Pipeline** - Automated checks on pull requests
+   - GitHub Actions workflow: `.github/workflows/validate-doc-naming.yml`
+   - Runs on all documentation changes
+   - Provides detailed failure reports with fix instructions
+
+3. **Automated Remediation** - Self-service fix tool
+   - Script: `scripts/docs/apply-kebab-case.py`
+   - Dry-run mode: `python3 scripts/docs/apply-kebab-case.py`
+   - Execute mode: `python3 scripts/docs/apply-kebab-case.py --execute`
+   - Features: backup, rollback, git-aware renaming, link updates
+
+4. **Code Review** - All documentation changes reviewed
+
+5. **Team Training** - Regular documentation workshops
+
+6. **AGENTS.md** - AI assistant follows these standards
 
 ---
 

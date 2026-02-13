@@ -158,7 +158,7 @@ class TestCheckBehaviorComplexScenarios:
         mock_conn.return_value.__exit__ = Mock(return_value=False)
 
         with patch("banking.fraud.fraud_detection.traversal") as mock_traversal_func:
-            mock_traversal_func.return_value.withRemote.return_value = mock_g
+            mock_traversal_func.return_value.with_remote.return_value = mock_g
 
             risk_score = detector._check_behavior(
                 account_id="ACC-NEW-001",
@@ -202,7 +202,7 @@ class TestCheckBehaviorComplexScenarios:
         mock_conn.return_value.__exit__ = Mock(return_value=False)
 
         with patch("banking.fraud.fraud_detection.traversal") as mock_traversal_func:
-            mock_traversal_func.return_value.withRemote.return_value = mock_g
+            mock_traversal_func.return_value.with_remote.return_value = mock_g
 
             # Test with a transaction that's way above normal (10x typical)
             risk_score = detector._check_behavior(
@@ -284,7 +284,7 @@ class TestDetectSemanticPatternsComplexScenarios:
         mock_conn.return_value.__exit__ = Mock(return_value=False)
 
         with patch("banking.aml.enhanced_structuring_detection.traversal") as mock_traversal_func:
-            mock_traversal_func.return_value.withRemote.return_value = mock_g
+            mock_traversal_func.return_value.with_remote.return_value = mock_g
 
             # Test semantic pattern detection
             patterns = detector.detect_semantic_patterns(min_similarity=0.8, min_cluster_size=2)
@@ -324,7 +324,7 @@ class TestDetectSemanticPatternsComplexScenarios:
         mock_conn.return_value.__exit__ = Mock(return_value=False)
 
         with patch("banking.aml.enhanced_structuring_detection.traversal") as mock_traversal_func:
-            mock_traversal_func.return_value.withRemote.return_value = mock_g
+            mock_traversal_func.return_value.with_remote.return_value = mock_g
 
             patterns = detector.detect_semantic_patterns(min_similarity=0.85, min_cluster_size=3)
 

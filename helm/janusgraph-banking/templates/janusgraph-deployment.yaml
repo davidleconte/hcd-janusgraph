@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: janusgraph
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app: janusgraph
+spec:
+  replicas: {{ .Values.janusgraph.replicas }}
+  selector:
+    matchLabels:
+      app: janusgraph
+  template:
+    metadata:
+      labels:
+        app: janusgraph
+    spec:
+      serviceAccountName: janusgraph-sa
+      automountServiceAccountToken: false
+      containers:
+        - name: janusgraph
+          image: "{{ .Values.janusgraph.image.repository }}:{{ .Values.janusgraph.image.tag }}"
+          imagePullPolicy: {{ .Values.janusgraph.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.janusgraph.service.port }}
+              name: gremlin
+          resources:
+            {{- toYaml .Values.janusgraph.resources | nindent 12 }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.janusgraph.service.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.janusgraph.service.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          startupProbe:
+            tcpSocket:
+              port: {{ .Values.janusgraph.service.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+          env:
+            - name: JAVA_OPTIONS
+              value: {{ .Values.janusgraph.javaOptions | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: janusgraph
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  selector:
+    app: janusgraph
+  ports:
+    - port: {{ .Values.janusgraph.service.port }}
+      targetPort: {{ .Values.janusgraph.service.port }}
+      name: gremlin
+  type: {{ .Values.janusgraph.service.type }}

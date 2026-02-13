@@ -11,6 +11,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -359,8 +360,11 @@ class TestStreamingOrchestratorErrorHandling:
 
         shutil.rmtree(config.output_dir, ignore_errors=True)
 
-    def test_fallback_to_mock_on_connection_failure(self):
+    @patch("banking.streaming.producer.pulsar")
+    def test_fallback_to_mock_on_connection_failure(self, mock_pulsar):
         """Test fallback to MockEntityProducer when Pulsar unavailable."""
+        mock_pulsar.Client.side_effect = Exception("Connection refused")
+
         config = StreamingConfig(
             seed=42,
             person_count=5,

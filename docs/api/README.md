@@ -161,7 +161,7 @@ from gremlin_python.process.anonymous_traversal import traversal
 
 # Connect
 connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
-g = traversal().withRemote(connection)
+g = traversal().with_remote(connection)
 
 # Query
 count = g.V().count().next()

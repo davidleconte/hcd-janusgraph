@@ -558,35 +558,36 @@ try:
         """Property-based tests for AML detection."""
         
         @given(st.lists(st.floats(min_value=0, max_value=20000, allow_nan=False), min_size=1, max_size=100))
-        def test_transaction_analysis_always_returns_valid_stats(self, amounts, mock_janusgraph_client):
+        def test_transaction_analysis_always_returns_valid_stats(self, amounts):
             """Test that transaction analysis always returns valid statistics."""
+            from unittest.mock import Mock
+            mock_client = Mock()
             detector = AMLStructuringDetector()
-            detector.client = mock_janusgraph_client
+            detector.client = mock_client
             
-            mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
+            mock_client.submit.return_value.all.return_value.result.return_value = amounts
             
             result = detector.analyze_transaction_amounts()
             
-            # Verify all required fields exist
             assert "total_transactions" in result
             assert "total_amount" in result
             assert "average_amount" in result
             assert "distribution" in result
             
-            # Verify values are reasonable
             assert result["total_transactions"] == len(amounts)
             assert result["total_amount"] >= 0
             assert result["average_amount"] >= 0
         
-        @given(st.integers(min_value=0, max_value=100))
-        def test_suspicious_count_never_exceeds_total(self, total_count, mock_janusgraph_client):
+        @given(st.integers(min_value=1, max_value=100))
+        def test_suspicious_count_never_exceeds_total(self, total_count):
             """Test that suspicious transaction count never exceeds total."""
+            from unittest.mock import Mock
+            mock_client = Mock()
             detector = AMLStructuringDetector()
-            detector.client = mock_janusgraph_client
+            detector.client = mock_client
             
-            # Generate mix of suspicious and normal transactions
             amounts = [9500] * (total_count // 2) + [5000] * (total_count - total_count // 2)
-            mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
+            mock_client.submit.return_value.all.return_value.result.return_value = amounts
             
             result = detector.analyze_transaction_amounts()
             

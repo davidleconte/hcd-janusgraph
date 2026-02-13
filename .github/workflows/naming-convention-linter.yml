@@ -1,0 +1,263 @@
+name: Naming Convention Linter
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.json'
+      - '**/*.toml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.json'
+      - '**/*.toml'
+  workflow_dispatch:
+    inputs:
+      fix:
+        description: 'Auto-fix violations'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  lint:
+    name: Lint Naming Conventions
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Make linter executable
+        run: chmod +x scripts/validation/naming-convention-linter.py
+      
+      - name: Run naming convention linter
+        id: lint
+        run: |
+          echo "🔍 Running naming convention linter..."
+          
+          # Run linter and capture output
+          if python3 scripts/validation/naming-convention-linter.py --root . --format json --output lint-report.json; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ No naming convention violations found"
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Naming convention violations found"
+          fi
+          
+          # Generate text report for logs
+          python3 scripts/validation/naming-convention-linter.py --root . --format text > lint-report.txt
+          cat lint-report.txt
+      
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: naming-convention-report
+          path: |
+            lint-report.json
+            lint-report.txt
+          retention-days: 30
+      
+      - name: Generate compliance report
+        if: always()
+        run: |
+          # Generate markdown report for PR comment
+          python3 scripts/validation/naming-convention-linter.py --root . --format markdown --output lint-report.md
+      
+      - name: Comment on PR with report
+        if: github.event_name == 'pull_request' && steps.lint.outputs.status == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('lint-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🔍 Naming Convention Linter Report\n\n${report}\n\n---\n\n**How to fix:**\n\`\`\`bash\npython3 scripts/validation/naming-convention-linter.py --root . --fix\n\`\`\``
+            });
+      
+      - name: Generate GitHub summary
+        if: always()
+        run: |
+          echo "## 🔍 Naming Convention Linter Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.lint.outputs.status }}" == "success" ]; then
+            echo "✅ **All files follow naming conventions**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Naming convention violations found**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See the full report in the artifacts or PR comment." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Naming Convention Rules" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File Type | Convention | Example |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|------------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation (\`.md\`) | kebab-case | \`user-guide.md\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python (\`.py\`) | snake_case | \`user_service.py\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| YAML (\`.yml\`, \`.yaml\`) | kebab-case | \`docker-compose.yml\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| JSON (\`.json\`) | kebab-case | \`api-config.json\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| TOML (\`.toml\`) | kebab-case | \`pyproject.toml\` |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Fail if violations found
+        if: steps.lint.outputs.status == 'failure'
+        run: |
+          echo "❌ Naming convention violations found. Please fix them before merging."
+          exit 1
+  
+  auto-fix:
+    name: Auto-fix Violations
+    runs-on: ubuntu-latest
+    needs: lint
+    if: |
+      failure() && 
+      github.event_name == 'pull_request' &&
+      (github.event.inputs.fix == 'true' || github.event_name == 'workflow_dispatch')
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Apply fixes
+        id: fix
+        run: |
+          echo "🔧 Applying naming convention fixes..."
+          python3 scripts/validation/naming-convention-linter.py --root . --fix > fix-output.txt 2>&1
+          
+          # Check if any files were changed
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No files needed fixing"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Files were fixed"
+          fi
+          
+          cat fix-output.txt
+      
+      - name: Commit and push fixes
+        if: steps.fix.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "style: auto-fix naming convention violations
+
+          Automatically applied naming conventions:
+          - Documentation: kebab-case
+          - Python: snake_case
+          - YAML/JSON/TOML: kebab-case
+          
+          Changes made by GitHub Actions bot.
+          See: .github/workflows/naming-convention-linter.yml"
+          git push
+      
+      - name: Comment on PR
+        if: steps.fix.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🤖 **Auto-fix Applied**\n\nI automatically fixed the naming convention violations in this PR.\n\n**Changes:**\n- Documentation files: kebab-case\n- Python files: snake_case\n- Configuration files: kebab-case\n\nPlease review the changes and ensure they look correct before merging.'
+            });
+
+  compliance-report:
+    name: Generate Compliance Report
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Generate compliance report
+        run: |
+          # Generate all report formats
+          python3 scripts/validation/naming-convention-linter.py --root . --format text --output compliance-report.txt
+          python3 scripts/validation/naming-convention-linter.py --root . --format json --output compliance-report.json
+          python3 scripts/validation/naming-convention-linter.py --root . --format markdown --output compliance-report.md
+      
+      - name: Upload compliance reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-reports
+          path: |
+            compliance-report.txt
+            compliance-report.json
+            compliance-report.md
+          retention-days: 90
+      
+      - name: Create compliance badge
+        run: |
+          # Extract compliance rate from JSON report
+          COMPLIANCE_RATE=$(python3 -c "import json; data=json.load(open('compliance-report.json')); total=data['summary']['total_files']; violations=data['summary']['violations']; rate=((total-violations)/total*100) if total>0 else 100; print(f'{rate:.1f}')")
+          
+          echo "Compliance Rate: ${COMPLIANCE_RATE}%"
+          
+          # Determine badge color
+          if (( $(echo "$COMPLIANCE_RATE >= 95" | bc -l) )); then
+            COLOR="brightgreen"
+          elif (( $(echo "$COMPLIANCE_RATE >= 85" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COMPLIANCE_RATE >= 75" | bc -l) )); then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+          
+          echo "Badge Color: ${COLOR}"
+          echo "COMPLIANCE_RATE=${COMPLIANCE_RATE}" >> $GITHUB_ENV
+          echo "BADGE_COLOR=${COLOR}" >> $GITHUB_ENV
+      
+      - name: Update README badge
+        run: |
+          echo "📊 Naming Convention Compliance: ${COMPLIANCE_RATE}%"
+          # Badge URL: https://img.shields.io/badge/Naming%20Compliance-${COMPLIANCE_RATE}%25-${BADGE_COLOR}
+
+# Made with Bob

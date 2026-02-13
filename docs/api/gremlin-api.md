@@ -35,7 +35,7 @@ connection = DriverRemoteConnection(
 )
 
 # Create traversal source
-g = traversal().withRemote(connection)
+g = traversal().with_remote(connection)
 
 # Execute queries
 results = g.V().limit(10).toList()
@@ -690,7 +690,7 @@ results = g.V().out().barrier().out().toList()
 ```python
 try:
     connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     # Your queries here
 finally:
     connection.close()
@@ -705,7 +705,7 @@ from contextlib import contextmanager
 def graph_connection():
     connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
     try:
-        yield traversal().withRemote(connection)
+        yield traversal().with_remote(connection)
     finally:
         connection.close()
 

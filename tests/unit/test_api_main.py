@@ -33,15 +33,15 @@ class TestPydanticModels:
         assert response.services["janusgraph"] is True
 
     def test_ubo_request_defaults(self):
-        request = UBORequest(company_id="comp-123")
-        assert request.company_id == "comp-123"
+        request = UBORequest(company_id="COMP-123")
+        assert request.company_id == "COMP-123"
         assert request.include_indirect is True
         assert request.max_depth == 10
         assert request.ownership_threshold == 25.0
 
     def test_ubo_request_custom(self):
         request = UBORequest(
-            company_id="comp-456", include_indirect=False, max_depth=5, ownership_threshold=50.0
+            company_id="COMP-456", include_indirect=False, max_depth=5, ownership_threshold=50.0
         )
         assert request.max_depth == 5
         assert request.ownership_threshold == 50.0

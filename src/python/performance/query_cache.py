@@ -34,8 +34,8 @@ class CacheEntry:
 
     key: str
     value: Any
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     access_count: int = 0
     ttl_seconds: Optional[int] = None
     size_bytes: int = 0
@@ -287,7 +287,7 @@ class QueryCache:
         try:
             return len(pickle.dumps(value))
         except Exception:
-            # Fallback estimation
+            logger.debug("Could not pickle value for size estimation, using fallback", exc_info=True)
             return 1024
 
     def get_stats(self) -> Dict[str, Any]:

@@ -38,7 +38,7 @@ def get_graph_connection(settings: Settings | None = None):
                 "g",
                 message_serializer=serializer.GraphSONSerializersV3d0(),
             )
-            _traversal = traversal().withRemote(_connection)
+            _traversal = traversal().with_remote(_connection)
             ssl_status = "with TLS" if settings.janusgraph_use_ssl else "without TLS"
             logger.info(
                 "Connected to JanusGraph at %s:%s (%s)",

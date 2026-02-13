@@ -142,7 +142,7 @@ class EnhancedStructuringDetector:
         try:
             # Connect to graph
             connection = DriverRemoteConnection(self.graph_url, "g")
-            g = traversal().withRemote(connection)
+            g = traversal().with_remote(connection)
 
             # Query: Find accounts with multiple transactions near threshold
             # Pattern: Multiple transactions < $10k within 24 hours, total > $10k
@@ -155,17 +155,17 @@ class EnhancedStructuringDetector:
             # Note: This is a simplified version - actual implementation would be more complex
             results = (
                 g.V()
-                .hasLabel("Account")
+                .has_label("Account")
                 .as_("account")
-                .outE("MADE_TRANSACTION")
+                .out_e("MADE_TRANSACTION")
                 .has("amount", P.lt(threshold_amount))
                 .has("timestamp", P.gte(cutoff_ms))
-                .inV()
-                .hasLabel("Transaction")
+                .in_v()
+                .has_label("Transaction")
                 .as_("transaction")
                 .select("account", "transaction")
-                .by(__.valueMap(True))
-                .by(__.valueMap(True))
+                .by(__.value_map(True))
+                .by(__.value_map(True))
                 .toList()
             )
 
@@ -193,7 +193,7 @@ class EnhancedStructuringDetector:
                 if total > threshold_amount:
                     # Get person info
                     person_results = (
-                        g.V(account_id).out("OWNED_BY").hasLabel("Person").valueMap(True).toList()
+                        g.V(account_id).out("OWNED_BY").has_label("Person").value_map(True).toList()
                     )
 
                     if person_results:
@@ -268,7 +268,7 @@ class EnhancedStructuringDetector:
         try:
             # Connect to graph and get recent transactions
             connection = DriverRemoteConnection(self.graph_url, "g")
-            g = traversal().withRemote(connection)
+            g = traversal().with_remote(connection)
 
             cutoff_time = datetime.now(timezone.utc) - timedelta(hours=time_window_hours)
             cutoff_ms = int(cutoff_time.timestamp() * 1000)
@@ -276,7 +276,7 @@ class EnhancedStructuringDetector:
             # Get recent transactions below reporting threshold
             recent_txns = (
                 g.V()
-                .hasLabel("Transaction")
+                .has_label("Transaction")
                 .has("timestamp", P.gte(cutoff_ms))
                 .has("amount", P.lt(self.STRUCTURING_THRESHOLD))
                 .has("amount", P.gt(self.STRUCTURING_THRESHOLD * 0.5))  # Focus on near-threshold

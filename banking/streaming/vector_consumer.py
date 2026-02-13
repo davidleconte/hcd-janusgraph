@@ -295,8 +295,8 @@ class VectorConsumer:
                 batch.append(event)
                 messages.append(msg)
             except Exception:
-                if batch:
-                    break
+                # Timeout or error - always break
+                break
 
         if not batch:
             return 0

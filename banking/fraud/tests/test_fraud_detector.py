@@ -88,7 +88,7 @@ class TestFraudDetectorConnection:
         """Test successful connection"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_trav.return_value.withRemote.return_value = mock_g
+        mock_trav.return_value.with_remote.return_value = mock_g
         
         detector.connect()
         
@@ -116,7 +116,7 @@ class TestFraudDetectorConnection:
     def test_context_manager(self, mock_trav, mock_conn, mock_embed, mock_search):
         """Test context manager usage"""
         mock_g = Mock()
-        mock_trav.return_value.withRemote.return_value = mock_g
+        mock_trav.return_value.with_remote.return_value = mock_g
         
         with FraudDetector() as detector:
             assert detector._g is not None
@@ -132,7 +132,7 @@ class TestFraudDetectorConnection:
         """Test _get_traversal connects if not connected"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_trav.return_value.withRemote.return_value = mock_g
+        mock_trav.return_value.with_remote.return_value = mock_g
         
         result = detector._get_traversal()
         
@@ -418,8 +418,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check with low activity"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 2  # 2 transactions
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 500.0  # $500
+        mock_g.V().has().out_e().has().count().next.return_value = 2  # 2 transactions
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 500.0  # $500
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -433,8 +433,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check with high transaction count"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 15  # 15 transactions (> 10 limit)
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 1000.0
+        mock_g.V().has().out_e().has().count().next.return_value = 15  # 15 transactions (> 10 limit)
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 1000.0
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -448,8 +448,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check with high amount"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 5
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 6000.0  # > $5000 limit
+        mock_g.V().has().out_e().has().count().next.return_value = 5
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 6000.0  # > $5000 limit
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -463,7 +463,7 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check error handling"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.side_effect = Exception("Graph error")
+        mock_g.V().has().out_e().has().count().next.side_effect = Exception("Graph error")
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -477,8 +477,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check uses correct time window"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 3
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 300.0
+        mock_g.V().has().out_e().has().count().next.return_value = 3
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 300.0
         detector._g = mock_g
         
         timestamp = datetime(2026, 2, 11, 20, 0, 0, tzinfo=timezone.utc)
@@ -493,8 +493,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity score is capped at 1.0"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 50  # Way over limit
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 50000.0  # Way over limit
+        mock_g.V().has().out_e().has().count().next.return_value = 50  # Way over limit
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 50000.0  # Way over limit
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -509,8 +509,8 @@ class TestFraudDetectorVelocityChecks:
         detector = FraudDetector()
         mock_g = Mock()
         # High transaction count, low amount
-        mock_g.V().has().outE().has().count().next.return_value = 12  # 120% of limit
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 1000.0  # 20% of limit
+        mock_g.V().has().out_e().has().count().next.return_value = 12  # 120% of limit
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 1000.0  # 20% of limit
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -525,8 +525,8 @@ class TestFraudDetectorVelocityChecks:
         """Test velocity check with zero transactions"""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V().has().outE().has().count().next.return_value = 0
-        mock_g.V().has().outE().has().values().sum_().next.return_value = 0.0
+        mock_g.V().has().out_e().has().count().next.return_value = 0
+        mock_g.V().has().out_e().has().values().sum_().next.return_value = 0.0
         detector._g = mock_g
         
         timestamp = datetime.now(timezone.utc)
@@ -704,10 +704,10 @@ class TestFraudDetectorBehavioralChecks:
         """Test behavioral check with no transaction history."""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
             []
         )
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         risk = detector._check_behavior("acc-123", 1000.0, "Test Merchant", "Test transaction")
@@ -723,14 +723,14 @@ class TestFraudDetectorBehavioralChecks:
         detector = FraudDetector()
         mock_g = Mock()
         # Mock historical transactions with similar amounts
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {
                 "amount": [100.0, 110.0, 105.0, 95.0],
                 "merchant": ["Test Merchant", "Test Merchant", "Other", "Test Merchant"],
                 "description": ["Normal tx", "Normal tx", "Normal tx", "Normal tx"],
             }
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         # Mock embedding generator
@@ -750,14 +750,14 @@ class TestFraudDetectorBehavioralChecks:
         detector = FraudDetector()
         mock_g = Mock()
         # Mock historical transactions with much smaller amounts
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {
                 "amount": [100.0, 110.0, 105.0, 95.0],
                 "merchant": ["Test Merchant"],
                 "description": ["Normal tx"],
             }
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         with patch.object(detector.generator, "encode") as mock_encode:
@@ -776,14 +776,14 @@ class TestFraudDetectorBehavioralChecks:
         """Test behavioral check with new merchant."""
         detector = FraudDetector()
         mock_g = Mock()
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {
                 "amount": [100.0],
                 "merchant": ["Old Merchant", "Old Merchant", "Old Merchant"],
                 "description": ["Normal tx"],
             }
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         with patch.object(detector.generator, "encode") as mock_encode:
@@ -802,7 +802,7 @@ class TestFraudDetectorBehavioralChecks:
         detector = FraudDetector()
         mock_g = Mock()
         mock_g.V.side_effect = Exception("Graph error")
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         risk = detector._check_behavior("acc-123", 100.0, "Test", "Test")

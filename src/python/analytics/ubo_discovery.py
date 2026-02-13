@@ -120,7 +120,7 @@ class UBODiscovery:
                 "g",
                 message_serializer=serializer.GraphSONSerializersV3d0(),
             )
-            self.g = traversal().withRemote(self.connection)
+            self.g = traversal().with_remote(self.connection)
             logger.info("Connected to JanusGraph at %s:%s", self.host, self.port)
             return True
         except Exception as e:
@@ -239,7 +239,7 @@ class UBODiscovery:
     def _get_company_info(self, company_id: str) -> Optional[Dict[str, Any]]:
         """Get company information"""
         try:
-            result = self.g.V().has("company_id", company_id).valueMap(True).toList()
+            result = self.g.V().has("company_id", company_id).value_map(True).toList()
             if result:
                 return self._flatten_value_map(result[0])
             return None
@@ -255,7 +255,7 @@ class UBODiscovery:
             results = (
                 self.g.V()
                 .has("company_id", company_id)
-                .inE("beneficial_owner")
+                .in_e("beneficial_owner")
                 .project(
                     "person_id",
                     "first_name",
@@ -265,13 +265,13 @@ class UBODiscovery:
                     "is_pep",
                     "is_sanctioned",
                 )
-                .by(__.outV().values("person_id"))
-                .by(__.outV().coalesce(__.values("first_name"), __.constant("")))
-                .by(__.outV().coalesce(__.values("last_name"), __.constant("")))
-                .by(__.outV().coalesce(__.values("full_name"), __.constant("")))
+                .by(__.out_v().values("person_id"))
+                .by(__.out_v().coalesce(__.values("first_name"), __.constant("")))
+                .by(__.out_v().coalesce(__.values("last_name"), __.constant("")))
+                .by(__.out_v().coalesce(__.values("full_name"), __.constant("")))
                 .by(__.coalesce(__.values("ownership_percentage"), __.constant(0.0)))
-                .by(__.outV().coalesce(__.values("is_pep"), __.constant(False)))
-                .by(__.outV().coalesce(__.values("is_sanctioned"), __.constant(False)))
+                .by(__.out_v().coalesce(__.values("is_pep"), __.constant(False)))
+                .by(__.out_v().coalesce(__.values("is_sanctioned"), __.constant(False)))
                 .toList()
             )
 
@@ -311,11 +311,11 @@ class UBODiscovery:
             results = (
                 self.g.V()
                 .has("company_id", company_id)
-                .repeat(__.inE("owns_company", "beneficial_owner").outV().simplePath())
-                .until(__.or_(__.hasLabel("person"), __.loops().is_(P.gte(max_depth))))
-                .hasLabel("person")
+                .repeat(__.in_e("owns_company", "beneficial_owner").out_v().simple_path())
+                .until(__.or_(__.has_label("person"), __.loops().is_(P.gte(max_depth))))
+                .has_label("person")
                 .path()
-                .by(__.valueMap(True))
+                .by(__.value_map(True))
                 .toList()
             )
 
@@ -456,11 +456,11 @@ class UBODiscovery:
             results = (
                 self.g.V()
                 .has("company_id", P.within(company_ids))
-                .inE("beneficial_owner")
+                .in_e("beneficial_owner")
                 .where(__.values("ownership_percentage").is_(P.gte(self.ownership_threshold)))
                 .project("person_id", "company_id")
-                .by(__.outV().values("person_id"))
-                .by(__.inV().values("company_id"))
+                .by(__.out_v().values("person_id"))
+                .by(__.in_v().values("company_id"))
                 .toList()
             )
 
@@ -519,13 +519,13 @@ class UBODiscovery:
                 self.g.V()
                 .has(id_field, entity_id)
                 .repeat(
-                    __.bothE("beneficial_owner", "owns_company", "owns_account")
-                    .bothV()
-                    .simplePath()
+                    __.both_e("beneficial_owner", "owns_company", "owns_account")
+                    .both_v()
+                    .simple_path()
                 )
                 .times(depth)
                 .path()
-                .by(__.valueMap(True))
+                .by(__.value_map(True))
                 .toList()
             )
 
@@ -561,12 +561,12 @@ class UBODiscovery:
                         edge_results = (
                             self.g.V()
                             .has(id_field, node_id)
-                            .outE("beneficial_owner", "owns_company", "owns_account")
+                            .out_e("beneficial_owner", "owns_company", "owns_account")
                             .project("source", "target", "label", "properties")
-                            .by(__.outV().id())
-                            .by(__.inV().id())
+                            .by(__.out_v().id())
+                            .by(__.in_v().id())
                             .by(__.label())
-                            .by(__.valueMap())
+                            .by(__.value_map())
                             .toList()
                         )
 
@@ -574,6 +574,7 @@ class UBODiscovery:
                             edges.append(edge)
                         break
                     except Exception:
+                        logger.debug("Failed to fetch edges for relationship, skipping", exc_info=True)
                         continue
 
         except Exception as e:

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: janusgraph-banking
+  labels:
+    app.kubernetes.io/part-of: janusgraph-banking
+    compliance/pci-dss: "true"

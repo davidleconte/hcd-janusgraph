@@ -50,9 +50,11 @@ client_encryption_options:
   enabled: true
   optional: false
   keystore: /etc/hcd/certs/hcd-server.keystore.jks
+  # WARNING: Replace 'changeit' with ${HCD_KEYSTORE_PASSWORD} before production
   keystore_password: changeit
   require_client_auth: false
   truststore: /etc/hcd/certs/hcd-server.truststore.jks
+  # WARNING: Replace 'changeit' with ${HCD_TRUSTSTORE_PASSWORD} before production
   truststore_password: changeit
   protocol: TLSv1.2
   algorithm: SunX509
@@ -71,8 +73,10 @@ client_encryption_options:
 server_encryption_options:
   internode_encryption: all
   keystore: /etc/hcd/certs/hcd-server.keystore.jks
+  # WARNING: Replace 'changeit' before production
   keystore_password: changeit
   truststore: /etc/hcd/certs/hcd-server.truststore.jks
+  # WARNING: Replace 'changeit' before production
   truststore_password: changeit
   protocol: TLSv1.2
   algorithm: SunX509

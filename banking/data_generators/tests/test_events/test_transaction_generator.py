@@ -87,11 +87,12 @@ class TestTransactionGeneratorFunctional:
 
     def test_timestamp_reasonable(self, sample_transactions):
         """Test timestamps are within reasonable range"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now()
         one_year_ago = now - timedelta(days=365)
 
         for txn in sample_transactions:
-            assert one_year_ago <= txn.transaction_date <= now
+            txn_date = txn.transaction_date.replace(tzinfo=None) if txn.transaction_date.tzinfo else txn.transaction_date
+            assert one_year_ago <= txn_date <= now
 
     def test_different_accounts(self, sample_transaction):
         """Test from and to accounts are different"""

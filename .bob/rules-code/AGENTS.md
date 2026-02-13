@@ -152,7 +152,27 @@ docs/UserGuide.md               # PascalCase
 - CODE_OF_CONDUCT.md, SECURITY.md, AGENTS.md
 - QUICKSTART.md, FAQ.md
 
-**Validation:**
-- Pre-commit hook: `.pre-commit-config.yaml`
-- CI/CD workflow: `.github/workflows/validate-doc-naming.yml`
-- Manual check: `bash scripts/validation/validate-kebab-case.sh`
+**Enforcement:**
+- Pre-commit hook: `.pre-commit-config.yaml` (validates on commit)
+- CI/CD workflow: `.github/workflows/validate-doc-naming.yml` (validates on PR/push)
+- Automated remediation: `python3 scripts/docs/apply-kebab-case.py`
+
+**Usage:**
+
+```bash
+# Check for violations (dry-run)
+python3 scripts/docs/apply-kebab-case.py
+
+# Fix violations automatically
+python3 scripts/docs/apply-kebab-case.py --execute
+
+# Rollback if needed
+python3 scripts/docs/apply-kebab-case.py --rollback
+```
+
+**Features:**
+- Git-aware renaming (preserves history with `git mv`)
+- Automatic link updates across all documentation
+- Backup creation before changes
+- Rollback capability
+- Validation of all changes

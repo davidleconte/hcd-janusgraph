@@ -14,6 +14,7 @@ def mock_g():
     g.V.return_value = g
     g.E.return_value = g
     g.hasLabel.return_value = g
+    g.has_label.return_value = g
     g.has.return_value = g
     g.count.return_value = g
     g.limit.return_value = g
@@ -25,15 +26,20 @@ def mock_g():
     g.by.return_value = g
     g.values.return_value = g
     g.inE.return_value = g
+    g.in_e.return_value = g
     g.outE.return_value = g
+    g.out_e.return_value = g
     g.outV.return_value = g
+    g.out_v.return_value = g
     g.inV.return_value = g
+    g.in_v.return_value = g
     g.in_.return_value = g
     g.coalesce.return_value = g
     g.constant.return_value = g
     g.fold.return_value = g
     g.sum.return_value = g
     g.valueMap.return_value = g
+    g.value_map.return_value = g
     return g
 
 

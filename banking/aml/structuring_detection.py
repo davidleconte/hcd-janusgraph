@@ -85,6 +85,7 @@ class StructuringDetector:
         janusgraph_host: str = "localhost",
         janusgraph_port: int = int(os.getenv("JANUSGRAPH_PORT", "18182")),
         ctr_threshold: Optional[Decimal] = None,
+        use_ssl: bool = os.getenv("JANUSGRAPH_USE_SSL", "false").lower() == "true",
     ):
         """
         Initialize structuring detector.
@@ -93,8 +94,10 @@ class StructuringDetector:
             janusgraph_host: JanusGraph host
             janusgraph_port: JanusGraph port
             ctr_threshold: Custom CTR threshold (default: $10,000)
+            use_ssl: Use SSL/TLS (wss://) for JanusGraph connection
         """
-        self.graph_url = f"ws://{janusgraph_host}:{janusgraph_port}/gremlin"
+        protocol = "wss" if use_ssl else "ws"
+        self.graph_url = f"{protocol}://{janusgraph_host}:{janusgraph_port}/gremlin"
         self.ctr_threshold = ctr_threshold or self.CTR_THRESHOLD
         self.suspicious_threshold = self.ctr_threshold * Decimal("0.9")
         self._connection = None
@@ -112,7 +115,7 @@ class StructuringDetector:
         if self._connection is not None:
             return
         self._connection = DriverRemoteConnection(self.graph_url, "g")
-        self._g = traversal().withRemote(self._connection)
+        self._g = traversal().with_remote(self._connection)
         logger.info("Connected to JanusGraph at %s", self.graph_url)
 
     def disconnect(self):
@@ -167,7 +170,7 @@ class StructuringDetector:
             transactions = (
                 g.V()
                 .has("Account", "account_id", account_id)
-                .outE("MADE_TRANSACTION")
+                .out_e("MADE_TRANSACTION")
                 .has("timestamp", P.gte(cutoff_time))
                 .has(
                     "amount", P.between(float(self.suspicious_threshold), float(self.ctr_threshold))
@@ -176,7 +179,7 @@ class StructuringDetector:
                 .by(T.id)
                 .by("amount")
                 .by("timestamp")
-                .by(__.inV().values("account_id"))
+                .by(__.in_v().values("account_id"))
                 .toList()
             )
             if len(transactions) < min_transactions:
@@ -233,13 +236,13 @@ class StructuringDetector:
                 circular_txs = (
                     g.V()
                     .has("Account", "account_id", account_id)
-                    .outE("MADE_TRANSACTION")
+                    .out_e("MADE_TRANSACTION")
                     .has("timestamp", P.gte(cutoff_time))
                     .as_("tx1")
-                    .inV()
-                    .outE("MADE_TRANSACTION")
+                    .in_v()
+                    .out_e("MADE_TRANSACTION")
                     .has("timestamp", P.gte(cutoff_time))
-                    .where(__.inV().has("account_id", account_id))
+                    .where(__.in_v().has("account_id", account_id))
                     .select("tx1")
                     .project("id", "amount", "timestamp")
                     .by(T.id)
@@ -290,7 +293,7 @@ class StructuringDetector:
             network_accounts = (
                 g.V()
                 .has("Account", "account_id", seed_account_id)
-                .repeat(__.both("MADE_TRANSACTION", "RECEIVED_TRANSACTION").simplePath())
+                .repeat(__.both("MADE_TRANSACTION", "RECEIVED_TRANSACTION").simple_path())
                 .times(max_hops)
                 .dedup()
                 .values("account_id")
@@ -306,7 +309,7 @@ class StructuringDetector:
                 txs = (
                     g.V()
                     .has("Account", "account_id", account_id)
-                    .outE("MADE_TRANSACTION")
+                    .out_e("MADE_TRANSACTION")
                     .has("timestamp", P.gte(cutoff_time))
                     .has(
                         "amount",
@@ -316,7 +319,7 @@ class StructuringDetector:
                     .by(T.id)
                     .by("amount")
                     .by("timestamp")
-                    .by(__.outV().values("account_id"))
+                    .by(__.out_v().values("account_id"))
                     .toList()
                 )
                 suspicious_txs.extend(txs)

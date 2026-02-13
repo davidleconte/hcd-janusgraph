@@ -16,9 +16,9 @@ services:
       # TLS/SSL configuration
       - CASSANDRA_SSL_STORAGE_PORT=7001
       - SSL_KEYSTORE_PATH=/etc/hcd/certs/hcd-server.keystore.jks
-      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:-changeit}
+      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:?HCD_KEYSTORE_PASSWORD must be set in .env}
       - SSL_TRUSTSTORE_PATH=/etc/hcd/certs/hcd-server.truststore.jks
-      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:?HCD_TRUSTSTORE_PASSWORD must be set in .env}
       # Enable client-to-node encryption
       - CASSANDRA_CLIENT_ENCRYPTION_ENABLED=true
       # Enable node-to-node encryption
@@ -37,14 +37,14 @@ services:
       # TLS/SSL configuration
       - SSL_ENABLED=true
       - SSL_KEYSTORE_PATH=/etc/janusgraph/certs/janusgraph-server.keystore.jks
-      - SSL_KEYSTORE_PASSWORD=${JANUSGRAPH_KEYSTORE_PASSWORD:-changeit}
+      - SSL_KEYSTORE_PASSWORD=${JANUSGRAPH_KEYSTORE_PASSWORD:?JANUSGRAPH_KEYSTORE_PASSWORD must be set in .env}
       - SSL_TRUSTSTORE_PATH=/etc/janusgraph/certs/janusgraph-server.truststore.jks
-      - SSL_TRUSTSTORE_PASSWORD=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PASSWORD=${JANUSGRAPH_TRUSTSTORE_PASSWORD:?JANUSGRAPH_TRUSTSTORE_PASSWORD must be set in .env}
       # Update storage connection to use TLS
       - janusgraph.storage.port=9142
       - janusgraph.storage.cql.ssl.enabled=true
       - janusgraph.storage.cql.ssl.truststore.location=/etc/janusgraph/certs/janusgraph-server.truststore.jks
-      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:?JANUSGRAPH_TRUSTSTORE_PASSWORD must be set in .env}
     command: >
       bash -c "
       echo 'Waiting for HCD to be ready with TLS...' &&

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    compliance/pci-dss: "true"

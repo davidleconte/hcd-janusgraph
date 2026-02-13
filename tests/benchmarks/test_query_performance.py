@@ -37,7 +37,7 @@ def check_janusgraph() -> bool:
         conn = DriverRemoteConnection(
             f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g"
         )
-        g = traversal().withRemote(conn)
+        g = traversal().with_remote(conn)
         g.V().limit(1).toList()
         conn.close()
         return True
@@ -59,7 +59,7 @@ def jg_connection():
     conn = DriverRemoteConnection(
         f"ws://localhost:{os.getenv('JANUSGRAPH_PORT', '18182')}/gremlin", "g"
     )
-    yield traversal().withRemote(conn)
+    yield traversal().with_remote(conn)
     conn.close()
 
 

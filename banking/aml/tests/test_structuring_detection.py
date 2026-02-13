@@ -226,7 +226,7 @@ class TestStructuringDetectorConnection:
         """Test connecting to JanusGraph."""
         detector = StructuringDetector()
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         detector.connect()
 
@@ -240,7 +240,7 @@ class TestStructuringDetectorConnection:
         """Test that connect is idempotent."""
         detector = StructuringDetector()
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         detector.connect()
         detector.connect()  # Second call should not reconnect
@@ -255,7 +255,7 @@ class TestStructuringDetectorConnection:
         mock_conn = Mock()
         mock_connection.return_value = mock_conn
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         detector.connect()
         detector.disconnect()
@@ -271,7 +271,7 @@ class TestStructuringDetectorConnection:
         mock_conn = Mock()
         mock_connection.return_value = mock_conn
         mock_g = Mock()
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
 
         with StructuringDetector() as detector:
             assert detector._connection is not None
@@ -294,10 +294,10 @@ class TestSmurfingDetection:
         """Test smurfing detection with no suspicious transactions."""
         detector = StructuringDetector()
         mock_g = Mock()
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
             []
         )
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_smurfing("acc-123")
@@ -311,11 +311,11 @@ class TestSmurfingDetection:
         detector = StructuringDetector()
         mock_g = Mock()
         # Only 2 transactions (below min_transactions=3)
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {"id": "tx-1", "amount": 9000.0, "timestamp": 1000000, "to_account": "acc-2"},
             {"id": "tx-2", "amount": 9100.0, "timestamp": 1000100, "to_account": "acc-3"},
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_smurfing("acc-123", min_transactions=3)
@@ -329,13 +329,13 @@ class TestSmurfingDetection:
         detector = StructuringDetector()
         mock_g = Mock()
         # 4 transactions just below threshold
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {"id": "tx-1", "amount": 9000.0, "timestamp": 1000000, "to_account": "acc-2"},
             {"id": "tx-2", "amount": 9100.0, "timestamp": 1000100, "to_account": "acc-3"},
             {"id": "tx-3", "amount": 9200.0, "timestamp": 1000200, "to_account": "acc-4"},
             {"id": "tx-4", "amount": 9300.0, "timestamp": 1000300, "to_account": "acc-5"},
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_smurfing("acc-123")
@@ -352,12 +352,12 @@ class TestSmurfingDetection:
         """Test smurfing detection with custom time window."""
         detector = StructuringDetector()
         mock_g = Mock()
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {"id": "tx-1", "amount": 9000.0, "timestamp": 1000000, "to_account": "acc-2"},
             {"id": "tx-2", "amount": 9100.0, "timestamp": 1000100, "to_account": "acc-3"},
             {"id": "tx-3", "amount": 9200.0, "timestamp": 1000200, "to_account": "acc-4"},
         ]
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_smurfing("acc-123", time_window_hours=12)
@@ -560,7 +560,7 @@ class TestErrorHandling:
         detector = StructuringDetector()
         mock_g = Mock()
         mock_g.V.side_effect = Exception("Graph connection error")
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_smurfing("acc-123")
@@ -574,7 +574,7 @@ class TestErrorHandling:
         detector = StructuringDetector()
         mock_g = Mock()
         mock_g.V.side_effect = Exception("Graph connection error")
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_layering(["acc-1", "acc-2"])
@@ -588,7 +588,7 @@ class TestErrorHandling:
         detector = StructuringDetector()
         mock_g = Mock()
         mock_g.V.side_effect = Exception("Graph connection error")
-        mock_traversal.return_value.withRemote.return_value = mock_g
+        mock_traversal.return_value.with_remote.return_value = mock_g
         detector._g = mock_g
 
         patterns = detector.detect_network_structuring("acc-123")

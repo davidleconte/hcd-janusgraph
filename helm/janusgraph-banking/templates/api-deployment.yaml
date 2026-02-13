@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-api
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app: banking-api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: banking-api
+  template:
+    metadata:
+      labels:
+        app: banking-api
+    spec:
+      serviceAccountName: banking-api-sa
+      automountServiceAccountToken: false
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.api.service.port }}
+              name: http
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.api.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.api.service.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          env:
+            - name: JANUSGRAPH_HOST
+              value: janusgraph
+            - name: JANUSGRAPH_PORT
+              value: {{ .Values.janusgraph.service.port | quote }}
+            - name: JANUSGRAPH_USE_SSL
+              value: {{ .Values.api.env.useSSL | quote }}
+            - name: OPENSEARCH_HOST
+              value: opensearch
+            - name: OPENSEARCH_PORT
+              value: {{ .Values.opensearch.service.port | quote }}
+            - name: API_CORS_ORIGINS
+              value: {{ .Values.api.env.corsOrigins | quote }}
+            - name: AUTH_ENABLED
+              value: {{ .Values.api.env.authEnabled | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.api.env.logLevel | quote }}
+            - name: JANUSGRAPH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-credentials
+                  key: janusgraph-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-api
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  selector:
+    app: banking-api
+  ports:
+    - port: {{ .Values.api.service.port }}
+      targetPort: {{ .Values.api.service.port }}
+      name: http
+  type: {{ .Values.api.service.type }}
+{{- if .Values.api.hpa.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: banking-api-hpa
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: banking-api
+  minReplicas: {{ .Values.api.hpa.minReplicas }}
+  maxReplicas: {{ .Values.api.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.hpa.targetCPU }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.hpa.targetMemory }}
+{{- end }}
+{{- if .Values.api.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: banking-api-pdb
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  minAvailable: {{ .Values.api.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: banking-api
+{{- end }}

@@ -37,9 +37,9 @@ services:
       - HEAP_NEWSIZE=800M
       - JVM_OPTS=-Dcassandra.jmx.local.port=7199 -Djava.rmi.server.hostname=127.0.0.1
       - SSL_KEYSTORE_PATH=/etc/hcd/certs/hcd-server.keystore.jks
-      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:-changeit}
+      - SSL_KEYSTORE_PASSWORD=${HCD_KEYSTORE_PASSWORD:?HCD_KEYSTORE_PASSWORD must be set in .env}
       - SSL_TRUSTSTORE_PATH=/etc/hcd/certs/hcd-server.truststore.jks
-      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:-changeit}
+      - SSL_TRUSTSTORE_PASSWORD=${HCD_TRUSTSTORE_PASSWORD:?HCD_TRUSTSTORE_PASSWORD must be set in .env}
       - CASSANDRA_CLIENT_ENCRYPTION_ENABLED=true
       - CASSANDRA_INTERNODE_ENCRYPTION=all
     healthcheck:
@@ -72,7 +72,7 @@ services:
       - janusgraph.storage.port=9142
       - janusgraph.storage.cql.ssl.enabled=true
       - janusgraph.storage.cql.ssl.truststore.location=/etc/janusgraph/certs/janusgraph-server.truststore.jks
-      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:-changeit}
+      - janusgraph.storage.cql.ssl.truststore.password=${JANUSGRAPH_TRUSTSTORE_PASSWORD:?JANUSGRAPH_TRUSTSTORE_PASSWORD must be set in .env}
       - SSL_ENABLED=true
       - janusgraph.storage.cql.keyspace=janusgraph
       - janusgraph.storage.cql.local-datacenter=datacenter1

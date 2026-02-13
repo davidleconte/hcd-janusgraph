@@ -15,7 +15,7 @@ Design decisions
   ``dependencies.py`` is kept for backward-compat but delegates here.
 """
 
-from __future__ import annotations
+
 
 import logging
 from typing import Any, Dict, List, Optional
@@ -73,7 +73,7 @@ class GraphRepository:
         return self._g.E().count().next()
 
     def vertex_count_by_label(self, label: str) -> int:
-        return self._g.V().hasLabel(label).count().next()
+        return self._g.V().has_label(label).count().next()
 
     def graph_stats(self) -> Dict[str, int]:
         return {
@@ -101,7 +101,7 @@ class GraphRepository:
         """Find addresses shared by >= *min_members* persons."""
         results = (
             self._g.V()
-            .hasLabel("address")
+            .has_label("address")
             .where(__.in_("has_address").count().is_(P.gte(min_members)))
             .project("address_id", "city", "persons")
             .by(__.values("address_id"))
@@ -128,7 +128,7 @@ class GraphRepository:
         """Return per-account transaction count and total for structuring analysis."""
         return (
             self._g.V()
-            .hasLabel("account")
+            .has_label("account")
             .project("account_id", "holder", "txn_count", "total")
             .by(__.values("account_id"))
             .by(
@@ -138,8 +138,8 @@ class GraphRepository:
                     __.constant("Unknown"),
                 )
             )
-            .by(__.outE("from_account").count())
-            .by(__.outE("from_account").inV().values("amount").sum())
+            .by(__.out_e("from_account").count())
+            .by(__.out_e("from_account").in_v().values("amount").sum())
             .toList()
         )
 
@@ -152,7 +152,7 @@ class GraphRepository:
         results = (
             self._g.V()
             .has("company_id", company_id)
-            .valueMap(True)
+            .value_map(True)
             .toList()
         )
         if not results:
@@ -167,10 +167,10 @@ class GraphRepository:
         return (
             self._g.V()
             .has("company_id", company_id)
-            .inE("beneficial_owner")
+            .in_e("beneficial_owner")
             .project("person_id", "name", "ownership_percentage")
-            .by(__.outV().values("person_id"))
-            .by(__.outV().coalesce(__.values("full_name"), __.constant("Unknown")))
+            .by(__.out_v().values("person_id"))
+            .by(__.out_v().coalesce(__.values("full_name"), __.constant("Unknown")))
             .by(__.coalesce(__.values("ownership_percentage"), __.constant(0.0)))
             .toList()
         )
@@ -180,9 +180,9 @@ class GraphRepository:
         raw = (
             self._g.V()
             .has("company_id", company_id)
-            .inE("beneficial_owner")
-            .outV()
-            .valueMap(True)
+            .in_e("beneficial_owner")
+            .out_v()
+            .value_map(True)
             .toList()
         )
         return [_flatten_value_map(r) for r in raw]
@@ -193,7 +193,7 @@ class GraphRepository:
 
     def get_vertex(self, id_field: str, id_value: str) -> Optional[Dict[str, Any]]:
         """Return a single vertex by an indexed property, or ``None``."""
-        results = self._g.V().has(id_field, id_value).valueMap(True).toList()
+        results = self._g.V().has(id_field, id_value).value_map(True).toList()
         if not results:
             return None
         return _flatten_value_map(results[0])

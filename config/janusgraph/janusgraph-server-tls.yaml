@@ -58,10 +58,13 @@ ssl: {
   enabled: true,
   # Path to keystore containing server certificate and private key
   keyStore: /etc/janusgraph/certs/janusgraph-server.keystore.jks,
+  # WARNING: Replace 'changeit' with a strong password before production deployment
+  # Use: export JANUSGRAPH_KEYSTORE_PASSWORD=<secure-value> and template this file
   keyStorePassword: changeit,
   keyStoreType: JKS,
   # Path to truststore containing trusted CA certificates
   trustStore: /etc/janusgraph/certs/janusgraph-server.truststore.jks,
+  # WARNING: Replace 'changeit' with a strong password before production deployment
   trustStorePassword: changeit,
   trustStoreType: JKS,
   # SSL protocol and cipher configuration
@@ -77,6 +80,7 @@ authentication: {
   authenticator: org.janusgraph.graphdb.tinkerpop.gremlin.plugin.JanusGraphSimpleAuthenticator,
   authenticationHandler: org.apache.tinkerpop.gremlin.server.handler.SaslAuthenticationHandler,
   config: {
+    # WARNING: Replace defaults before production — use Vault or env-var templating
     defaultUsername: admin,
     defaultPassword: admin,
     credentialsDb: /etc/opt/janusgraph/credentials.properties

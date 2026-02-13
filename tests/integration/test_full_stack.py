@@ -157,7 +157,7 @@ class TestJanusGraphOperations:
         logger.info("✅ Created edge: %s", edge.id)
 
         # Verify edge exists
-        edge_count = g.V(v1).outE("knows").count().next()
+        edge_count = g.V(v1).out_e("knows").count().next()
         assert edge_count >= 1
 
     def test_query_traversal(self, janusgraph_connection, test_data_cleanup):

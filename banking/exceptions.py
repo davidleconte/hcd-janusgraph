@@ -15,7 +15,7 @@ Created: 2026-02-11
 Week 3 Day 16: Banking Exception Refactoring
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 
@@ -68,7 +68,7 @@ class BankingBaseException(Exception):
         self.entity_id = entity_id
         self.entity_type = entity_type
         self.details = details or {}
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
     def to_dict(self) -> Dict[str, Any]:
         """

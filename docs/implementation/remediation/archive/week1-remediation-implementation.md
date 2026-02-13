@@ -374,7 +374,7 @@ logger.info(f"Screening customer ID: {customer_id}")  # Don't log name
 # fraud_detection.py line 238-271
 def _check_velocity(self, account_id: str, amount: float, timestamp: datetime) -> float:
     connection = DriverRemoteConnection(self.graph_url, 'g')  # NEW CONNECTION
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     # ... query ...
     connection.close()  # IMMEDIATE CLOSE
 ```
@@ -496,7 +496,7 @@ class JanusGraphClient:
             raise ConnectionError("Connection pool not initialized")
 
         with get_connection(self._pool) as conn:
-            g = traversal().withRemote(conn)
+            g = traversal().with_remote(conn)
             # Execute query...
 ```
 

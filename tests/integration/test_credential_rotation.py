@@ -32,6 +32,8 @@ import pytest
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts" / "security"))
 
+hvac = pytest.importorskip("hvac", reason="hvac package required for credential rotation tests")
+
 from credential_rotation_framework import (
     CredentialRotator,
     PasswordGenerator,

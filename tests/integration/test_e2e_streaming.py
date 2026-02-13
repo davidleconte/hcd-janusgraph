@@ -57,7 +57,7 @@ def check_janusgraph_available():
         from gremlin_python.process.anonymous_traversal import traversal
 
         conn = DriverRemoteConnection("ws://localhost:18182/gremlin", "g")
-        g = traversal().withRemote(conn)
+        g = traversal().with_remote(conn)
         # Use count().next() instead of toList() to avoid custom type deserialization issues
         g.V().count().next()
         conn.close()
@@ -257,7 +257,7 @@ class TestE2EJanusGraphIntegration:
 
         conn = DriverRemoteConnection("ws://localhost:18182/gremlin", "g")
         try:
-            g = traversal().withRemote(conn)
+            g = traversal().with_remote(conn)
             count = g.V().count().next()
             assert isinstance(count, int)
         finally:
@@ -272,7 +272,7 @@ class TestE2EJanusGraphIntegration:
 
         conn = DriverRemoteConnection("ws://localhost:18182/gremlin", "g")
         try:
-            g = traversal().withRemote(conn)
+            g = traversal().with_remote(conn)
 
             # Create a test vertex
             test_id = f"e2e-test-{int(time.time())}"

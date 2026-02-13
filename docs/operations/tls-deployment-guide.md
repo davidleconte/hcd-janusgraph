@@ -306,7 +306,7 @@ connection = DriverRemoteConnection(
 )
 
 # Test query
-g = traversal().withRemote(connection)
+g = traversal().with_remote(connection)
 count = g.V().count().next()
 print(f"Vertex count: {count}")
 ```

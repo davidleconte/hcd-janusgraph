@@ -270,7 +270,7 @@ def janusgraph_connection(require_janusgraph):
     connection = DriverRemoteConnection(
         "ws://localhost:18182/gremlin", "g", message_serializer=GraphSONSerializersV3d0()
     )
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     yield g
     connection.close()
 

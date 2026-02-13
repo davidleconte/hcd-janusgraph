@@ -63,7 +63,7 @@ def check_janusgraph_available():
         from gremlin_python.process.anonymous_traversal import traversal
 
         conn = DriverRemoteConnection("ws://localhost:18182/gremlin", "g")
-        g = traversal().withRemote(conn)
+        g = traversal().with_remote(conn)
         g.V().count().next()
         conn.close()
         return True

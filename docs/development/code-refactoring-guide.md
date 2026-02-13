@@ -48,13 +48,13 @@ This guide provides comprehensive guidelines for refactoring the HCD JanusGraph 
 # File: src/python/client/janusgraph_client.py
 def connect_to_graph():
     connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     return g
 
 # File: src/python/init/initialize_graph.py
 def connect_to_graph():
     connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
-    g = traversal().withRemote(connection)
+    g = traversal().with_remote(connection)
     return g
 
 # AFTER: Centralized connection utility
@@ -71,7 +71,7 @@ class GraphConnectionManager:
             pool_size=20,
             max_inflight=64
         )
-        return traversal().withRemote(connection)
+        return traversal().with_remote(connection)
 ```
 
 **Refactoring Actions:**

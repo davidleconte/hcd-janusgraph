@@ -21,7 +21,7 @@ from src.python.config.settings import Settings, get_settings
 
 from .dependencies import close_graph_connection, limiter, verify_auth
 from .models import ErrorResponse
-from .routers import aml, fraud, health, ubo
+from .routers import aml, auth, fraud, health, performance, ubo
 
 
 def _configure_logging(settings: Settings) -> None:
@@ -117,6 +117,11 @@ def create_app() -> FastAPI:
     settings = get_settings()
     _allow_credentials = settings.api_cors_origins != "*"
 
+    from src.python.api.middleware import SecurityHeadersMiddleware
+    from src.python.api.waf_middleware import WAFMiddleware
+
+    application.add_middleware(WAFMiddleware)
+    application.add_middleware(SecurityHeadersMiddleware)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
@@ -142,6 +147,8 @@ def create_app() -> FastAPI:
     application.include_router(ubo.router)
     application.include_router(aml.router)
     application.include_router(fraud.router)
+    application.include_router(auth.router)
+    application.include_router(performance.router)
 
     return application
 

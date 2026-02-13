@@ -94,9 +94,16 @@ repos:
   - repo: local
     hooks:
       - id: validate-kebab-case
-        name: Validate Kebab-Case Naming
-        entry: scripts/validation/validate-kebab-case.sh
-        language: script
+        name: Validate Kebab-Case Naming (Docs)
+        entry: python3 scripts/docs/apply-kebab-case.py
+        language: system
         files: \.md$
         pass_filenames: false
-        description: Ensures all documentation files follow kebab-case naming convention
+        description: Ensures all documentation files follow kebab-case naming convention (dry-run mode)
+      
+      - id: naming-convention-linter
+        name: Naming Convention Linter (All Files)
+        entry: python3 scripts/validation/naming-convention-linter.py --root .
+        language: system
+        pass_filenames: false
+        description: Validates naming conventions across all file types (docs, Python, YAML, etc.)

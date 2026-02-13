@@ -8,8 +8,6 @@ FROM --platform=linux/arm64 continuumio/miniconda3:latest
 
 LABEL maintainer="JanusGraph Analysis Environment"
 LABEL description="Jupyter Lab with conda-forge, gremlinpython, and graph visualization tools"
-LABEL maintainer="JanusGraph Analysis Environment"
-LABEL description="Jupyter Lab with conda-forge, gremlinpython, and graph visualization tools"
 
 # CRITICAL: Set PYTHONPATH for banking modules (fixes notebook imports)
 ENV PYTHONPATH="/workspace:/workspace/banking:/workspace/src/python:$PYTHONPATH"
