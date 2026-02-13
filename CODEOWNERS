@@ -1,0 +1,14 @@
+# Default owners for the entire repository
+* @davidleconte
+
+# Banking domain
+/banking/ @davidleconte
+
+# Infrastructure
+/src/python/ @davidleconte
+
+# Security-sensitive files require explicit review
+/config/security/ @davidleconte
+/scripts/security/ @davidleconte
+/.github/workflows/ @davidleconte
+/config/vault/ @davidleconte

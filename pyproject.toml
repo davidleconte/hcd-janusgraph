@@ -172,6 +172,37 @@ ignore = ["E501"]
 "banking/data_generators/tests/conftest.py" = ["E402"]
 "banking/analytics/tests/*" = ["E402"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests", "banking"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--cov=src",
+    "--cov=banking",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-branch",
+    "--cov-fail-under=60",
+    "--tb=short",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests requiring external services",
+    "performance: Performance and benchmark tests",
+    "slow: Slow running tests",
+    "benchmark: Performance benchmark tests",
+]
+norecursedirs = [".git", ".tox", "dist", "build", "*.egg", "hcd-1.2.3", "notebooks"]
+filterwarnings = [
+    "ignore::DeprecationWarning:gremlin_python",
+    "ignore::PendingDeprecationWarning:gremlin_python",
+]
+timeout = 300
+
 [tool.coverage.run]
 source = ["src", "banking"]
 omit = ["**/tests/*", "**/__pycache__/*", "**/htmlcov/*"]
