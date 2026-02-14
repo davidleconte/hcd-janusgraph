@@ -17,12 +17,51 @@ Date: 2026-02-03
 """
 
 import logging
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from gremlin_python.driver import client, serializer
 
 logger = logging.getLogger(__name__)
+
+REQUIRED_PERSON_FIELDS = {"person_id", "first_name", "last_name", "full_name", "nationality", "risk_level"}
+REQUIRED_COMPANY_FIELDS = {"company_id", "legal_name", "registration_country"}
+REQUIRED_ACCOUNT_FIELDS = {"account_id", "account_type", "currency"}
+REQUIRED_TRANSACTION_FIELDS = {"transaction_id", "amount", "currency"}
+
+SKIP_KEYS = {"created_at", "updated_at", "entity_id", "version", "source", "metadata", "id"}
+
+
+def _serialize_value(value: Any) -> Any:
+    """Serialize a Python value for JanusGraph storage."""
+    if value is None:
+        return None
+    if isinstance(value, (int, float, bool)):
+        return value
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, Enum):
+        return value.value
+    if isinstance(value, (date, datetime)):
+        return str(value)
+    if isinstance(value, (list, dict)):
+        import json
+        return json.dumps(value, default=str)
+    return str(value)
+
+
+def _validate_entity(entity_dict: Dict[str, Any], required_fields: set, entity_type: str) -> List[str]:
+    """Validate that required fields are present and non-empty."""
+    missing = []
+    for field in required_fields:
+        val = entity_dict.get(field)
+        if val is None or (isinstance(val, str) and val.strip() == ""):
+            missing.append(field)
+    if missing:
+        logger.warning("Entity %s missing required fields: %s", entity_type, missing)
+    return missing
 
 
 class JanusGraphLoader:
@@ -33,6 +72,9 @@ class JanusGraphLoader:
     - Persons, Companies, Accounts, Transactions, Communications
     - Edge relationships: owns_account, sent_transaction, received_transaction,
       works_for, communicated_with, etc.
+
+    All entity properties are preserved during loading (no field stripping).
+    Required fields are validated before insertion.
     """
 
     def __init__(self, url: str = "ws://localhost:18182/gremlin", traversal_source: str = "g"):
@@ -60,7 +102,6 @@ class JanusGraphLoader:
         self.client = client.Client(
             self.url, self.traversal_source, message_serializer=serializer.GraphSONSerializersV3d0()
         )
-        # Test connection
         result = self.client.submit("g.V().count()").all().result()
         logger.info("Connected. Current vertex count: %s", result[0])
 
@@ -89,9 +130,94 @@ class JanusGraphLoader:
         self._submit("g.V().drop().iterate()")
         logger.info("Graph cleared.")
 
+    _MAX_BINDINGS = 14
+
+    def _create_vertex(
+        self, label: str, id_field: str, id_value: str, entity_dict: Dict[str, Any]
+    ) -> Optional[Any]:
+        """
+        Create a vertex with ALL properties from entity dict.
+
+        Handles JanusGraph's binding limit by creating the vertex first,
+        then updating remaining properties in batches.
+
+        Args:
+            label: Vertex label (e.g., 'person', 'account')
+            id_field: ID property name (e.g., 'person_id')
+            id_value: ID value
+            entity_dict: Full entity dictionary from model_dump()
+
+        Returns:
+            Vertex ID if created, None otherwise
+        """
+        existing = self._submit(
+            f"g.V().has('{label}', '{id_field}', pid).id()", {"pid": id_value}
+        )
+        if existing:
+            return existing[0]
+
+        all_props = []
+        for key, value in entity_dict.items():
+            if key in SKIP_KEYS or key == id_field:
+                continue
+            serialized = _serialize_value(value)
+            if serialized is not None:
+                all_props.append((key, serialized))
+        all_props.append(("created_at", int(datetime.now().timestamp())))
+
+        chunks = []
+        for i in range(0, len(all_props), self._MAX_BINDINGS):
+            chunks.append(all_props[i:i + self._MAX_BINDINGS])
+
+        if not chunks:
+            chunks = [[]]
+
+        first_chunk = chunks[0]
+        bindings = {"pid": id_value}
+        prop_strs = []
+        for key, val in first_chunk:
+            bk = f"p_{key}"[:50]
+            bindings[bk] = val
+            prop_strs.append(f".property('{key}', {bk})")
+
+        props_joined = "\n                ".join(prop_strs)
+        query = f"""
+            g.addV('{label}')
+                .property('{id_field}', pid)
+                {props_joined}
+                .id()
+        """
+
+        result = self._submit(query, bindings)
+        if not result:
+            return None
+
+        vertex_id = result[0]
+        self.stats["vertices_created"] += 1
+
+        for chunk in chunks[1:]:
+            bindings = {"vid": vertex_id}
+            prop_strs = []
+            for key, val in chunk:
+                bk = f"p_{key}"[:50]
+                bindings[bk] = val
+                prop_strs.append(f".property('{key}', {bk})")
+            props_joined = "\n                ".join(prop_strs)
+            query = f"""
+                g.V(vid)
+                    {props_joined}
+                    .id()
+            """
+            self._submit(query, bindings)
+
+        return vertex_id
+
     def load_persons(self, persons: List[Any]) -> Dict[str, int]:
         """
-        Load person vertices into JanusGraph.
+        Load person vertices into JanusGraph with ALL properties.
+
+        Validates required fields before insertion and preserves every
+        property from the Person model.
 
         Args:
             persons: List of Person objects from generator
@@ -103,46 +229,21 @@ class JanusGraphLoader:
         person_id_map = {}
 
         for i, person in enumerate(persons):
-            # Extract person data
             person_dict = person.model_dump()
             person_id = person_dict.get("person_id") or person_dict.get("id")
 
-            # Check if person already exists
-            existing = self._submit(
-                "g.V().has('person', 'person_id', pid).id()", {"pid": person_id}
-            )
-
-            if existing:
-                person_id_map[person_id] = existing[0]
+            if not person_id and person_dict.get("id"):
+                person_id = person_dict["id"]
+            if person_id:
+                person_dict["person_id"] = person_id
+            _validate_entity(person_dict, REQUIRED_PERSON_FIELDS, "person")
+            if not person_id:
+                logger.error("Skipping person: no person_id or id field")
                 continue
 
-            # Create person vertex
-            query = """
-            g.add_v('person')
-                .property('person_id', pid)
-                .property('first_name', fname)
-                .property('last_name', lname)
-                .property('date_of_birth', dob)
-                .property('nationality', nationality)
-                .property('risk_score', risk)
-                .property('created_at', created)
-                .id()
-            """
-
-            bindings = {
-                "pid": person_id,
-                "fname": person_dict.get("first_name", ""),
-                "lname": person_dict.get("last_name", ""),
-                "dob": str(person_dict.get("date_of_birth", "")),
-                "nationality": person_dict.get("nationality", "US"),
-                "risk": float(person_dict.get("risk_score", 0.0)),
-                "created": datetime.now().isoformat(),
-            }
-
-            result = self._submit(query, bindings)
-            if result:
-                person_id_map[person_id] = result[0]
-                self.stats["vertices_created"] += 1
+            vertex_id = self._create_vertex("person", "person_id", person_id, person_dict)
+            if vertex_id is not None:
+                person_id_map[person_id] = vertex_id
 
             if (i + 1) % 50 == 0:
                 logger.info("  Loaded %s/%s persons", i + 1, len(persons))
@@ -152,7 +253,7 @@ class JanusGraphLoader:
 
     def load_companies(self, companies: List[Any]) -> Dict[str, int]:
         """
-        Load company vertices into JanusGraph.
+        Load company vertices into JanusGraph with ALL properties.
 
         Args:
             companies: List of Company objects from generator
@@ -167,39 +268,18 @@ class JanusGraphLoader:
             company_dict = company.model_dump()
             company_id = company_dict.get("company_id") or company_dict.get("id")
 
-            # Check if company already exists
-            existing = self._submit(
-                "g.V().has('company', 'company_id', cid).id()", {"cid": company_id}
-            )
-
-            if existing:
-                company_id_map[company_id] = existing[0]
+            if not company_id and company_dict.get("id"):
+                company_id = company_dict["id"]
+            if company_id:
+                company_dict["company_id"] = company_id
+            _validate_entity(company_dict, REQUIRED_COMPANY_FIELDS, "company")
+            if not company_id:
+                logger.error("Skipping company: no company_id or id field")
                 continue
 
-            query = """
-            g.add_v('company')
-                .property('company_id', cid)
-                .property('name', cname)
-                .property('industry', industry)
-                .property('country', country)
-                .property('risk_score', risk)
-                .property('created_at', created)
-                .id()
-            """
-
-            bindings = {
-                "cid": company_id,
-                "cname": company_dict.get("name", ""),
-                "industry": company_dict.get("industry", "Unknown"),
-                "country": company_dict.get("country", "US"),
-                "risk": float(company_dict.get("risk_score", 0.0)),
-                "created": datetime.now().isoformat(),
-            }
-
-            result = self._submit(query, bindings)
-            if result:
-                company_id_map[company_id] = result[0]
-                self.stats["vertices_created"] += 1
+            vertex_id = self._create_vertex("company", "company_id", company_id, company_dict)
+            if vertex_id is not None:
+                company_id_map[company_id] = vertex_id
 
         logger.info("✓ Loaded %s companies", len(company_id_map))
         return company_id_map
@@ -208,7 +288,7 @@ class JanusGraphLoader:
         self, accounts: List[Any], person_id_map: Dict[str, int], company_id_map: Dict[str, int]
     ) -> Dict[str, int]:
         """
-        Load account vertices and create owns_account edges.
+        Load account vertices with ALL properties and create owns_account edges.
 
         Args:
             accounts: List of Account objects from generator
@@ -225,45 +305,19 @@ class JanusGraphLoader:
             account_dict = account.model_dump()
             account_id = account_dict.get("account_id") or account_dict.get("id")
 
-            # Check if account already exists
-            existing = self._submit(
-                "g.V().has('account', 'account_id', aid).id()", {"aid": account_id}
-            )
-
-            if existing:
-                account_id_map[account_id] = existing[0]
+            if not account_id and account_dict.get("id"):
+                account_id = account_dict["id"]
+            if account_id:
+                account_dict["account_id"] = account_id
+            _validate_entity(account_dict, REQUIRED_ACCOUNT_FIELDS, "account")
+            if not account_id:
+                logger.error("Skipping account: no account_id or id field")
                 continue
 
-            # Create account vertex
-            query = """
-            g.add_v('account')
-                .property('account_id', aid)
-                .property('account_type', atype)
-                .property('currency', currency)
-                .property('balance', balance)
-                .property('status', status)
-                .property('opened_date', opened)
-                .property('created_at', created)
-                .id()
-            """
+            vertex_id = self._create_vertex("account", "account_id", account_id, account_dict)
+            if vertex_id is not None:
+                account_id_map[account_id] = vertex_id
 
-            bindings = {
-                "aid": account_id,
-                "atype": account_dict.get("account_type", "checking"),
-                "currency": account_dict.get("currency", "USD"),
-                "balance": float(account_dict.get("balance", 0.0)),
-                "status": account_dict.get("status", "active"),
-                "opened": str(account_dict.get("opened_date", "")),
-                "created": datetime.now().isoformat(),
-            }
-
-            result = self._submit(query, bindings)
-            if result:
-                account_vertex_id = result[0]
-                account_id_map[account_id] = account_vertex_id
-                self.stats["vertices_created"] += 1
-
-                # Create owns_account edge
                 owner_id = account_dict.get("owner_id")
                 owner_type = account_dict.get("owner_type", "person")
 
@@ -271,10 +325,10 @@ class JanusGraphLoader:
                     if owner_type == "person" and owner_id in person_id_map:
                         owner_vertex_id = person_id_map[owner_id]
                         self._submit(
-                            "g.add_e('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
+                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
                             {
                                 "oid": owner_vertex_id,
-                                "aid": account_vertex_id,
+                                "aid": vertex_id,
                                 "since": str(account_dict.get("opened_date", "")),
                             },
                         )
@@ -282,10 +336,10 @@ class JanusGraphLoader:
                     elif owner_type == "company" and owner_id in company_id_map:
                         owner_vertex_id = company_id_map[owner_id]
                         self._submit(
-                            "g.add_e('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
+                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
                             {
                                 "oid": owner_vertex_id,
-                                "aid": account_vertex_id,
+                                "aid": vertex_id,
                                 "since": str(account_dict.get("opened_date", "")),
                             },
                         )
@@ -301,7 +355,7 @@ class JanusGraphLoader:
         self, transactions: List[Any], account_id_map: Dict[str, int]
     ) -> Dict[str, int]:
         """
-        Load transaction vertices and create sent/received edges.
+        Load transaction vertices with ALL properties and create sent/received edges.
 
         Args:
             transactions: List of Transaction objects from generator
@@ -317,68 +371,38 @@ class JanusGraphLoader:
             tx_dict = tx.model_dump()
             tx_id = tx_dict.get("transaction_id") or tx_dict.get("id")
 
-            # Check if transaction already exists
-            existing = self._submit(
-                "g.V().has('transaction', 'transaction_id', tid).id()", {"tid": tx_id}
-            )
-
-            if existing:
-                transaction_id_map[tx_id] = existing[0]
+            _validate_entity(tx_dict, REQUIRED_TRANSACTION_FIELDS, "transaction")
+            if not tx_id and tx_dict.get("id"):
+                tx_id = tx_dict["id"]
+                tx_dict["transaction_id"] = tx_id
+            if not tx_id:
+                logger.error("Skipping transaction: no transaction_id or id field")
                 continue
 
-            # Create transaction vertex
-            query = """
-            g.add_v('transaction')
-                .property('transaction_id', tid)
-                .property('amount', amount)
-                .property('currency', currency)
-                .property('transaction_type', ttype)
-                .property('timestamp', ts)
-                .property('status', status)
-                .property('is_suspicious', suspicious)
-                .property('created_at', created)
-                .id()
-            """
+            vertex_id = self._create_vertex("transaction", "transaction_id", tx_id, tx_dict)
+            if vertex_id is not None:
+                transaction_id_map[tx_id] = vertex_id
 
-            bindings = {
-                "tid": tx_id,
-                "amount": float(tx_dict.get("amount", 0.0)),
-                "currency": tx_dict.get("currency", "USD"),
-                "ttype": tx_dict.get("transaction_type", "transfer"),
-                "ts": str(tx_dict.get("timestamp", "")),
-                "status": tx_dict.get("status", "completed"),
-                "suspicious": bool(tx_dict.get("is_suspicious", False)),
-                "created": datetime.now().isoformat(),
-            }
-
-            result = self._submit(query, bindings)
-            if result:
-                tx_vertex_id = result[0]
-                transaction_id_map[tx_id] = tx_vertex_id
-                self.stats["vertices_created"] += 1
-
-                # Create sent_transaction edge (from_account -> transaction)
                 from_account_id = tx_dict.get("from_account_id")
                 if from_account_id and from_account_id in account_id_map:
                     self._submit(
-                        "g.add_e('sent_transaction').from(__.V(fid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.addE('sent_transaction').from(__.V(fid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "fid": account_id_map[from_account_id],
-                            "tid": tx_vertex_id,
-                            "ts": str(tx_dict.get("timestamp", "")),
+                            "tid": vertex_id,
+                            "ts": int(datetime.now().timestamp()),
                         },
                     )
                     self.stats["edges_created"] += 1
 
-                # Create received_transaction edge (transaction -> to_account)
                 to_account_id = tx_dict.get("to_account_id")
                 if to_account_id and to_account_id in account_id_map:
                     self._submit(
-                        "g.add_e('received_by').from(__.V(tid)).to(__.V(toid)).property('timestamp', ts)",
+                        "g.addE('received_by').from(__.V(tid)).to(__.V(toid)).property('timestamp', ts)",
                         {
-                            "tid": tx_vertex_id,
+                            "tid": vertex_id,
                             "toid": account_id_map[to_account_id],
-                            "ts": str(tx_dict.get("timestamp", "")),
+                            "ts": int(datetime.now().timestamp()),
                         },
                     )
                     self.stats["edges_created"] += 1
@@ -389,8 +413,6 @@ class JanusGraphLoader:
         logger.info("✓ Loaded %s transactions with edges", len(transaction_id_map))
         return transaction_id_map
 
-        logger.info("✓ Loaded %s transactions with edges", len(transaction_id_map))
-        return transaction_id_map
 
     def load_trades(
         self, trades: List[Any], account_id_map: Dict[str, int], person_id_map: Dict[str, int]
@@ -442,7 +464,7 @@ class JanusGraphLoader:
                 "price": float(trade_dict.get("price", 0.0)),
                 "amount": float(trade_dict.get("total_value", 0.0)),
                 "ts": str(trade_dict.get("trade_date", "")),
-                "created": datetime.now().isoformat(),
+                "created": int(datetime.now().timestamp()),
             }
 
             result = self._submit(query, bindings)
