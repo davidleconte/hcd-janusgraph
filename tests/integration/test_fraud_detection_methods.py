@@ -260,7 +260,7 @@ class TestFraudDetectorWithRealData:
     def test_check_velocity_with_real_account(self, gremlin_client):
         """Test velocity check against a real account in the graph."""
         # Get a real account from the graph
-        result = gremlin_client.execute("g.V().hasLabel('Account').values('account_id').limit(1)")
+        result = gremlin_client.execute("g.V().hasLabel('account').values('id').limit(1)")
 
         if not result:
             pytest.skip("No accounts in graph")
@@ -291,7 +291,7 @@ class TestFraudDetectorWithRealData:
     def test_check_network_with_real_account(self, gremlin_client):
         """Test network check against a real account in the graph."""
         # Get a real account from the graph
-        result = gremlin_client.execute("g.V().hasLabel('Account').values('account_id').limit(1)")
+        result = gremlin_client.execute("g.V().hasLabel('account').values('id').limit(1)")
 
         if not result:
             pytest.skip("No accounts in graph")
@@ -333,11 +333,11 @@ class TestPatternInjectionFraudDetection:
         # Query for accounts with many transactions (potential velocity issue)
         result = gremlin_client.execute(
             """
-            g.V().hasLabel('Account')
-             .where(outE('MADE_TRANSACTION').count().is(gte(5)))
+            g.V().hasLabel('account')
+             .where(outE('made_transaction').count().is(gte(5)))
              .project('account_id', 'txn_count')
-             .by('account_id')
-             .by(outE('MADE_TRANSACTION').count())
+             .by('id')
+             .by(outE('made_transaction').count())
              .limit(5)
         """
         )
@@ -359,12 +359,12 @@ class TestPatternInjectionFraudDetection:
         # Query for large transactions
         result = gremlin_client.execute(
             """
-            g.E().hasLabel('MADE_TRANSACTION')
+            g.E().hasLabel('made_transaction')
              .has('amount', gte(5000.0))
              .project('amount', 'from', 'to')
              .by('amount')
-             .by(outV().values('account_id'))
-             .by(inV().values('account_id'))
+             .by(outV().values('id'))
+             .by(inV().values('id'))
              .limit(10)
         """
         )
@@ -382,11 +382,11 @@ class TestPatternInjectionFraudDetection:
         # Get a real account and recent transaction
         result = gremlin_client.execute(
             """
-            g.V().hasLabel('Account')
-             .where(outE('MADE_TRANSACTION'))
+            g.V().hasLabel('account')
+             .where(outE('made_transaction'))
              .limit(1)
              .project('account_id')
-             .by('account_id')
+             .by('id')
         """
         )
 

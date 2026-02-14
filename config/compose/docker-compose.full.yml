@@ -67,8 +67,9 @@ services:
     healthcheck:
       test: ["CMD", "/opt/hcd/bin/nodetool", "status"]
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 30s
+      retries: 10
+      start_period: 180s
     restart: unless-stopped
 
   opensearch:
@@ -149,14 +150,16 @@ services:
   janusgraph-server:
     image: docker.io/janusgraph/janusgraph:1.0.0
     hostname: janusgraph-server
+    environment:
+      - JAVA_OPTIONS=-Xms1g -Xmx3g -XX:+UseG1GC
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 4G
+          memory: 6G
         reservations:
           cpus: '1.0'
-          memory: 2G
+          memory: 3G
     networks:
       hcd-janusgraph-network:
         aliases:
@@ -174,6 +177,7 @@ services:
       echo 'Waiting for HCD to be fully ready...' &&
       sleep 20 &&
       echo 'Starting JanusGraph with HCD backend...' &&
+      export JAVA_OPTS='$${JAVA_OPTIONS}' &&
       /opt/janusgraph/bin/janusgraph-server.sh /opt/janusgraph/conf/janusgraph-server-hcd.yaml
       "
     depends_on:

@@ -70,9 +70,17 @@ def is_vault_available() -> bool:
 def is_janusgraph_available() -> bool:
     """Check if JanusGraph is available."""
     try:
-        import requests
-        response = requests.get("http://localhost:8182?gremlin=g.V().count()", timeout=5)
-        return response.status_code == 200
+        from gremlin_python.driver import client, serializer
+
+        port = os.getenv("JANUSGRAPH_PORT", "18182")
+        c = client.Client(
+            f"ws://localhost:{port}/gremlin",
+            "g",
+            message_serializer=serializer.GraphSONSerializersV3d0(),
+        )
+        c.submit("g.V().count()").all().result()
+        c.close()
+        return True
     except Exception:
         return False
 
@@ -170,8 +178,8 @@ class TestServiceHealthChecks:
     @pytest.mark.slow
     def test_check_opensearch_healthy(self, health_checker, services_available):
         """Test OpenSearch health check when service is healthy."""
-        # Note: May require actual OpenSearch credentials
-        pytest.skip("Requires OpenSearch with known credentials")
+        result = health_checker.check_opensearch(password="")
+        assert result is True
 
     def test_check_grafana_healthy(self, health_checker):
         """Test Grafana health check."""

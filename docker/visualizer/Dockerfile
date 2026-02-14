@@ -22,8 +22,7 @@ RUN npm install
 ENV GREMLIN_URL=ws://janusgraph-server:8182/gremlin
 
 # Create non-root user
-RUN adduser -D -u 1000 appuser && \
-    chown -R appuser:appuser /app
+RUN adduser -D appuser && chown -R appuser:appuser /app
 
 USER appuser
 

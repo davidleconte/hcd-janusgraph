@@ -22,15 +22,17 @@ pytestmark = pytest.mark.integration
 
 def check_janusgraph() -> bool:
     try:
-        from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
-        from gremlin_python.process.anonymous_traversal import traversal
+        from gremlin_python.driver import client, serializer
 
         host = os.getenv("JANUSGRAPH_HOST", "localhost")
         port = os.getenv("JANUSGRAPH_PORT", "18182")
-        conn = DriverRemoteConnection(f"ws://{host}:{port}/gremlin", "g")
-        g = traversal().with_remote(conn)
-        g.V().limit(1).toList()
-        conn.close()
+        c = client.Client(
+            f"ws://{host}:{port}/gremlin",
+            "g",
+            message_serializer=serializer.GraphSONSerializersV3d0(),
+        )
+        c.submit("g.V().count()").all().result()
+        c.close()
         return True
     except Exception:
         return False

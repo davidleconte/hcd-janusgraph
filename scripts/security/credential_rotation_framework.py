@@ -25,6 +25,7 @@ Usage:
 """
 
 import argparse
+import os
 import json
 import logging
 import secrets
@@ -48,7 +49,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('/var/log/credential-rotation.log'),
+        logging.FileHandler(os.path.expanduser('~/.adal/tmp/credential-rotation.log')),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -129,7 +130,7 @@ class VaultClient:
     def read_secret(self, path: str) -> Dict:
         """Read secret from Vault KV v2"""
         try:
-            response = self.client.secrets.kv.v2.read_secret_version(path=path)
+            response = self.client.secrets.kv.v2.read_secret_version(path=path, mount_point="janusgraph")
             return response['data']['data']
         except Exception as e:
             logger.error(f"Failed to read secret from {path}: {e}")
@@ -138,7 +139,7 @@ class VaultClient:
     def write_secret(self, path: str, data: Dict) -> None:
         """Write secret to Vault KV v2"""
         try:
-            self.client.secrets.kv.v2.create_or_update_secret(path=path, secret=data)
+            self.client.secrets.kv.v2.create_or_update_secret(path=path, secret=data, mount_point="janusgraph")
             logger.info(f"Successfully wrote secret to {path}")
         except Exception as e:
             logger.error(f"Failed to write secret to {path}: {e}")
@@ -201,14 +202,19 @@ class ServiceHealthChecker:
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
     
-    def check_janusgraph(self, host: str = "localhost", port: int = 8182) -> bool:
-        """Check JanusGraph health"""
+    def check_janusgraph(self, host: str = "localhost", port: int = 18182) -> bool:
+        """Check JanusGraph health via Gremlin WebSocket."""
         try:
-            response = self.session.get(
-                f"http://{host}:{port}?gremlin=g.V().count()",
-                timeout=10
+            from gremlin_python.driver import client, serializer
+
+            c = client.Client(
+                f"ws://{host}:{port}/gremlin",
+                "g",
+                message_serializer=serializer.GraphSONSerializersV3d0(),
             )
-            return response.status_code == 200
+            c.submit("g.V().count()").all().result()
+            c.close()
+            return True
         except Exception as e:
             logger.error(f"JanusGraph health check failed: {e}")
             return False
@@ -268,8 +274,8 @@ class CredentialRotator:
                 raise RuntimeError("JanusGraph is not healthy before rotation")
             
             # 2. Create backup of current credentials
-            backup_path = self.vault.create_backup("janusgraph/admin")
-            old_creds = self.vault.read_secret("janusgraph/admin")
+            backup_path = self.vault.create_backup("admin")
+            old_creds = self.vault.read_secret("admin")
             
             # 3. Generate new password
             new_password = self.password_gen.generate_password(length=32)
@@ -281,7 +287,7 @@ class CredentialRotator:
                 "rotated_at": datetime.utcnow().isoformat(),
                 "rotated_by": "credential_rotation_framework"
             }
-            self.vault.write_secret("janusgraph/admin", new_creds)
+            self.vault.write_secret("admin", new_creds)
             
             # 5. Update JanusGraph configuration (requires restart)
             self._update_janusgraph_config(new_password)
@@ -292,7 +298,7 @@ class CredentialRotator:
             # 7. Post-rotation health check
             if not self.health_checker.check_janusgraph():
                 logger.error("JanusGraph health check failed after rotation, rolling back")
-                self._rollback_from_backup(backup_path, "janusgraph/admin")
+                self._rollback_from_backup(backup_path, "admin")
                 self._restart_service("janusgraph", wait_seconds=30)
                 raise RuntimeError("Post-rotation health check failed")
             
@@ -303,7 +309,7 @@ class CredentialRotator:
                 service=service,
                 status=RotationStatus.SUCCESS,
                 old_credential_id=backup_path,
-                new_credential_id="janusgraph/admin",
+                new_credential_id="admin",
                 timestamp=datetime.utcnow(),
                 duration_seconds=duration
             )

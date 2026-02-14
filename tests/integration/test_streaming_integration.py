@@ -193,7 +193,6 @@ class TestConsumerIntegration:
 
         return events
 
-    @pytest.mark.skip(reason="Requires pulsar-client which is not installed in test environment")
     def test_graph_consumer_processes_events(self, sample_events):
         """Test that GraphConsumer can process events (with mocked Gremlin)."""
         # Mock the gremlin connection
@@ -214,9 +213,8 @@ class TestConsumerIntegration:
                 event = sample_events[0]
                 # The actual processing would call Gremlin - we're testing the pipeline
 
-                consumer.close()
+                consumer.disconnect()
 
-    @pytest.mark.skip(reason="Requires pulsar-client which is not installed in test environment")
     def test_vector_consumer_processes_events(self, sample_events):
         """Test that VectorConsumer can process events (with mocked OpenSearch)."""
         # Mock OpenSearch client
@@ -230,7 +228,7 @@ class TestConsumerIntegration:
             # Test that consumer was initialized
             assert consumer is not None
 
-            consumer.close()
+            consumer.disconnect()
 
 
 class TestEventBatchProcessing:

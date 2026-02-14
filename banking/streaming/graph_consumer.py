@@ -200,14 +200,25 @@ class GraphConsumer:
                     .fold()
                     .coalesce(__.unfold(), __.add_v(entity_type).property("entity_id", entity_id))
                     .property("version", version)
-                    .property("created_at", event.timestamp.isoformat())
+                    .property("created_at", int(event.timestamp.timestamp()))
                     .property("source", event.source or "unknown")
                 )
 
                 # Chain all payload properties into the same traversal
+                skip_keys = {"created_at", "updated_at", "entity_id", "version", "source"}
                 for key, value in payload.items():
-                    if value is not None:
-                        prop_val = value if isinstance(value, (int, float, bool)) else str(value)
+                    if value is not None and key not in skip_keys:
+                        if isinstance(value, (int, float, bool)):
+                            prop_val = value
+                        elif isinstance(value, str) and ("timestamp" in key or "date" in key or "_at" in key):
+                            try:
+                                from datetime import datetime
+                                dt = datetime.fromisoformat(value)
+                                prop_val = int(dt.timestamp())
+                            except (ValueError, TypeError):
+                                prop_val = str(value)
+                        else:
+                            prop_val = str(value)
                         t = t.property(key, prop_val)
 
                 t.iterate()
@@ -236,12 +247,22 @@ class GraphConsumer:
                     self.g.V()
                     .has(entity_type, "entity_id", entity_id)
                     .property("version", version)
-                    .property("updated_at", event.timestamp.isoformat())
+                    .property("updated_at", int(event.timestamp.timestamp()))
                 )
 
                 for key, value in payload.items():
-                    if value is not None:
-                        prop_val = value if isinstance(value, (int, float, bool)) else str(value)
+                    if value is not None and key not in skip_keys:
+                        if isinstance(value, (int, float, bool)):
+                            prop_val = value
+                        elif isinstance(value, str) and ("timestamp" in key or "date" in key or "_at" in key):
+                            try:
+                                from datetime import datetime
+                                dt = datetime.fromisoformat(value)
+                                prop_val = int(dt.timestamp())
+                            except (ValueError, TypeError):
+                                prop_val = str(value)
+                        else:
+                            prop_val = str(value)
                         t = t.property(key, prop_val)
 
                 t.iterate()

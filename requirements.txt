@@ -348,12 +348,7 @@ widgetsnbextension @ file:///home/conda/feedstock_root/build_artifacts/widgetsnb
 wordcloud==1.9.3
 wrapt==1.17.3
 xgboost==2.0.3
-xyzservices @ file:///home/conda/feedstock_root/build_artifacts/xyzservices_1763813636763/work
-yarl @ file:///Users/runner/miniforge3/conda-bld/yarl_1761337083317/work
-zipp @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_zipp_1764460141/work
+xyzservices==2024.9.0
+yarl==1.18.3
+zipp==3.21.0
 zstandard==0.25.0
-WARNING: overwriting environment variables set in the machine
-overwriting variable ['JANUSGRAPH_USE_SSL', 'OPENSEARCH_USE_SSL']
-Using Python 3.11.14 environment at: /Users/david.leconte/miniforge3/envs/janusgraph-analysis
-
-

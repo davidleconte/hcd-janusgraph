@@ -239,32 +239,62 @@ class EntityProducer:
 
         return results
 
-    def flush(self):
-        """Flush all pending messages."""
-        for producer in self.producers.values():
-            producer.flush()
-        logger.debug("Flushed all producers")
+    def flush(self, timeout: float = 5.0):
+        """Flush all pending messages with timeout protection.
 
-    def close(self):
-        """Close all producers and the client connection."""
+        Args:
+            timeout: Maximum seconds to wait for flush (default: 5s).
+        """
+        import threading
+
+        def _do_flush():
+            for producer in self.producers.values():
+                try:
+                    producer.flush()
+                except Exception as e:
+                    logger.warning("Error flushing producer: %s", e)
+
+        t = threading.Thread(target=_do_flush, daemon=True)
+        t.start()
+        t.join(timeout=timeout)
+        if t.is_alive():
+            logger.warning("Producer flush timed out after %.1fs", timeout)
+        else:
+            logger.debug("Flushed all producers")
+
+    def close(self, timeout: float = 5.0):
+        """Close all producers and the client connection.
+
+        Args:
+            timeout: Maximum seconds to wait for cleanup (default: 5s).
+        """
+        import threading
+
         logger.info("Closing EntityProducer...")
 
-        for topic, producer in self.producers.items():
-            try:
-                producer.flush()
-                producer.close()
-                logger.debug("Closed producer for %s", topic)
-            except Exception as e:
-                logger.warning("Error closing producer for %s: %s", topic, e)
+        def _do_close():
+            for topic, producer in list(self.producers.items()):
+                try:
+                    producer.flush()
+                    producer.close()
+                    logger.debug("Closed producer for %s", topic)
+                except Exception as e:
+                    logger.warning("Error closing producer for %s: %s", topic, e)
 
-        self.producers.clear()
+            self.producers.clear()
 
-        if self.client:
-            try:
-                self.client.close()
-                logger.info("Closed Pulsar client")
-            except Exception as e:
-                logger.warning("Error closing Pulsar client: %s", e)
+            if self.client:
+                try:
+                    self.client.close()
+                    logger.info("Closed Pulsar client")
+                except Exception as e:
+                    logger.warning("Error closing Pulsar client: %s", e)
+
+        t = threading.Thread(target=_do_close, daemon=True)
+        t.start()
+        t.join(timeout=timeout)
+        if t.is_alive():
+            logger.warning("Producer close timed out after %.1fs — forcing cleanup", timeout)
 
         self._connected = False
 

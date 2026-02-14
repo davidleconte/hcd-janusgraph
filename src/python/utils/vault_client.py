@@ -192,6 +192,8 @@ class VaultClient:
             self._initialized = True
             logger.info("Vault client initialized successfully")
 
+        except (VaultAuthenticationError, VaultConnectionError, VaultSecretNotFoundError):
+            raise
         except hvac.exceptions.VaultError as e:
             raise VaultConnectionError(f"Failed to connect to Vault: {e}")
         except Exception as e:
@@ -236,10 +238,12 @@ class VaultClient:
         for attempt in range(self.config.max_retries + 1):
             try:
                 return operation(*args, **kwargs)
+            except (VaultAuthenticationError, VaultSecretNotFoundError):
+                raise
             except Exception as e:
                 last_error = e
                 if attempt < self.config.max_retries:
-                    delay = self.config.retry_delay * (2**attempt)  # Exponential backoff
+                    delay = self.config.retry_delay * (2**attempt)
                     logger.warning(
                         "Vault operation failed (attempt %d/%d), retrying in %.1fs: %s",
                         attempt + 1,
@@ -295,12 +299,14 @@ class VaultClient:
                 return cached
 
         def _read_secret():
+            response = None
             try:
-                # Read from KV v2
                 response = self._client.secrets.kv.v2.read_secret_version(
                     path=path,
                     mount_point=self.config.vault_mount_point,
                 )
+                if response is None:
+                    raise VaultSecretNotFoundError(f"Secret '{path}' not found")
                 data = response["data"]["data"]
 
                 if key:
@@ -311,8 +317,11 @@ class VaultClient:
                     return data[key]
                 return data
 
+            except VaultSecretNotFoundError:
+                raise
             except Exception as e:
-                if "Invalid path" in str(e) or "not found" in str(e).lower():
+                err_str = str(e).lower()
+                if "invalid path" in err_str or "not found" in err_str or "none, on get" in err_str:
                     raise VaultSecretNotFoundError(f"Secret '{path}' not found")
                 raise VaultError(f"Failed to read secret '{path}': {e}")
 
@@ -423,6 +432,7 @@ class VaultClient:
         self._ensure_initialized()
 
         def _list_secrets():
+            response = None
             try:
                 response = self._client.secrets.kv.v2.list_secrets(
                     path=path,
@@ -430,7 +440,7 @@ class VaultClient:
                 )
                 return response["data"]["keys"]
             except Exception as e:
-                if "not found" in str(e).lower():
+                if "not found" in str(e).lower() or response is None:
                     return []
                 raise VaultError(f"Failed to list secrets at '{path}': {e}")
 

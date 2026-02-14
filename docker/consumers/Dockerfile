@@ -19,8 +19,9 @@ RUN pip install --no-cache-dir \
     "pulsar-client>=3.0.0" \
     "opensearch-py>=2.4.0" \
     "sentence-transformers>=2.2.2" \
-    "pydantic>=2.0.0" \
-    "python-dotenv>=1.0.0"
+    "pydantic[email]>=2.0.0" \
+    "python-dotenv>=1.0.0" \
+    "faker>=18.0.0"
 
 # Copy application code
 COPY banking /app/banking
