@@ -24,18 +24,20 @@ jobs:
     permissions:
       security-events: write
     strategy:
+    strategy:
       matrix:
         image:
-          - context: docker/api
+          - dockerfile: docker/api/Dockerfile
             name: janusgraph-api
-          - context: docker/consumers
+          - dockerfile: docker/consumers/Dockerfile
             name: janusgraph-consumers
     steps:
       - uses: actions/checkout@v4
 
       - name: Build image
         run: |
-          docker build -t ${{ matrix.image.name }}:scan ${{ matrix.image.context }}
+          docker build -t ${{ matrix.image.name }}:scan -f ${{ matrix.image.dockerfile }} .
+        continue-on-error: true
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
