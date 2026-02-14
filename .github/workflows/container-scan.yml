@@ -24,7 +24,6 @@ jobs:
     permissions:
       security-events: write
     strategy:
-    strategy:
       matrix:
         image:
           - dockerfile: docker/api/Dockerfile
