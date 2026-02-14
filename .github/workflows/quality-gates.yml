@@ -50,7 +50,7 @@ jobs:
             --ignore=tests/integration \
             --ignore=tests/benchmarks \
             --ignore=tests/performance \
-            -k "not slow and not integration" || true
+            -k "not slow and not integration"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
