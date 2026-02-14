@@ -87,7 +87,6 @@ gremlinpython==3.7.5
 grpcio==1.78.0
 h11==0.16.0
 h2==4.3.0
-hcd-janusgraph-banking==1.2.0
 hf-xet==1.2.0
 holoviews==1.22.1
 hpack==4.1.0
