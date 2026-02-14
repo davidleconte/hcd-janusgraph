@@ -20,14 +20,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install audit tools
         run: |
-          pip install uv
-          uv pip install --system -r requirements.txt
-          uv pip install --system pip-audit
+          pip install pip-audit
+
+      - name: Prepare requirements for audit
+        run: |
+          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-audit.txt
+          echo "Auditing $(wc -l < requirements-audit.txt) packages (filtered platform-specific)"
 
       - name: Run pip-audit
-        run: pip-audit --desc --fix --dry-run -o audit-results.json -f json || true
+        run: pip-audit -r requirements-audit.txt --desc -o audit-results.json -f json || true
 
       - name: Upload audit results
         uses: actions/upload-artifact@v4
