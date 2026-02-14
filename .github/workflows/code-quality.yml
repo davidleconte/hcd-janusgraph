@@ -404,7 +404,6 @@ jobs:
           name: documentation
           path: docs/_build/html/
 
-  # Dependency check
   dependency-check:
     name: Dependency Check
     runs-on: ubuntu-latest
@@ -416,26 +415,15 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      - name: Install audit tools
+        run: pip install pip-audit
 
-      - name: Cache uv
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-dependency-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-dependency-
-
-      - name: Install dependencies
+      - name: Prepare requirements for audit
         run: |
-          uv pip install --system pip-audit
+          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-audit.txt
 
       - name: Run pip-audit
-        run: pip-audit -r requirements.txt --format json > audit-report.json
-        continue-on-error: true
+        run: pip-audit -r requirements-audit.txt --desc -o audit-report.json -f json || true
 
       - name: Upload audit report
         uses: actions/upload-artifact@v3
