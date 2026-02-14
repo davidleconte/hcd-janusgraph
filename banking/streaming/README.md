@@ -91,7 +91,7 @@ All topics use persistent storage with the `public/banking` namespace:
 ```python
 from banking.streaming import EntityProducer, create_person_event
 
-# Create producer
+# Create producer (connects to Pulsar with 30s operation timeout, 10s connection timeout)
 producer = EntityProducer(pulsar_url="pulsar://localhost:6650")
 
 # Create and publish event
@@ -103,9 +103,13 @@ event = create_person_event(
 )
 
 producer.send(event)
-producer.flush()
-producer.close()
+producer.flush()   # Thread-based timeout: 5s default (prevents C-level hangs)
+producer.close()   # Thread-based timeout: 5s default (graceful cleanup)
 ```
+
+> **Timeout Protection**: Both `flush()` and `close()` use thread-based timeouts
+> to prevent Pulsar's C client from blocking indefinitely. If cleanup exceeds the
+> timeout, operations are forcefully abandoned and a warning is logged.
 
 ### 2. Using StreamingOrchestrator
 

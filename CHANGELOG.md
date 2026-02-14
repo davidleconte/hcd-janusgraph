@@ -20,6 +20,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 4 API routers (`health`, `fraud`, `aml`, `ubo`) refactored to use `GraphRepository` — zero inline Gremlin queries
 - `dependencies.flatten_value_map()` now delegates to repository layer (backward compatible)
 
+## [1.4.0] - 2026-02-14
+
+### Fixed
+
+- **Streaming orchestrator hang** — `test_orchestrator_with_real_pulsar` hung >120s because `GenerationConfig` defaults silently generated 8,500+ entities (5000 communications, 1000 trades, 500 travel, 2000 documents); zeroed unused counts in test config
+- **`EntityProducer.flush()` blocking indefinitely** — added thread-based 5s timeout wrapper to prevent Pulsar C-level flush from hanging the test process
+- **`EntityProducer.close()` slow cleanup** — reduced default timeout from 10s to 5s
+- **Vault integration tests skipping** — reinitialized Vault (1/1 shares, KV v2 at `janusgraph`) after root token was lost between sessions
+- **30+ integration test failures** across `test_vault_integration.py`, `test_credential_rotation.py`, `test_streaming_integration.py`, `test_fraud_detection_methods.py`, `test_e2e_streaming_enhanced.py`, `test_e2e_streaming_pipeline.py`
+- **JanusGraph schema** — epoch Integer timestamps, lowercase vertex/edge labels (`account`, `person`, `transaction`, `made_transaction`, `received_transaction`, `owns_account`)
+- **181 edges created** in JanusGraph for data-dependent fraud detection tests
+
+### Changed
+
+- `EntityProducer.flush()` now accepts `timeout` parameter (default: 5s) with thread-based timeout protection
+- `EntityProducer.close()` default timeout reduced from 10s to 5s
+- Integration test suite: **202 passed, 0 skipped, 0 failed** (previously 150 passed, 52 skipped)
+- Vault client exception propagation and path detection improved
+- OpenSearch health check uses correct SSL/credential defaults
+
 ### Added (previous)
 
 - **Documentation Quality Improvements**
