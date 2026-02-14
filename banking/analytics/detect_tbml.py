@@ -161,9 +161,9 @@ class TBMLDetector:
         # This query finds paths that return to the starting company
         if depth == 2:
             query = """
-            g.V().has_label('company').as('start')
+            g.V().hasLabel('company').as('start')
              .out('owns_account').out('sent_transaction').out('received_by').in('owns_account')
-             .has_label('company').as('mid')
+             .hasLabel('company').as('mid')
              .where(neq('start'))
              .out('owns_account').out('sent_transaction').out('received_by').in('owns_account')
              .where(eq('start'))
@@ -173,11 +173,11 @@ class TBMLDetector:
             """
         elif depth == 3:
             query = """
-            g.V().has_label('company').as('start')
+            g.V().hasLabel('company').as('start')
              .out('owns_account').out('sent_transaction').as('tx1').out('received_by').in('owns_account')
-             .has_label('company').as('hop1').where(neq('start'))
+             .hasLabel('company').as('hop1').where(neq('start'))
              .out('owns_account').out('sent_transaction').as('tx2').out('received_by').in('owns_account')
-             .has_label('company').as('hop2').where(neq('start')).where(neq('hop1'))
+             .hasLabel('company').as('hop2').where(neq('start')).where(neq('hop1'))
              .out('owns_account').out('sent_transaction').as('tx3').out('received_by').in('owns_account')
              .where(eq('start'))
              .select('start', 'hop1', 'hop2', 'tx1', 'tx2', 'tx3')
@@ -192,8 +192,8 @@ class TBMLDetector:
         else:
             # Generic approach for depth 4+
             query = f"""
-            g.V().has_label('company').as('start')
-             .repeat(out('owns_account').out('sent_transaction').out('received_by').in('owns_account').has_label('company').simplePath())
+            g.V().hasLabel('company').as('start')
+             .repeat(out('owns_account').out('sent_transaction').out('received_by').in('owns_account').hasLabel('company').simplePath())
              .times({depth})
              .where(eq('start'))
              .path()
@@ -287,7 +287,7 @@ class TBMLDetector:
 
         # Query trades/invoices with amounts and product info
         query = """
-        g.V().has_label('transaction')
+        g.V().hasLabel('transaction')
          .has('transaction_type', within('invoice', 'trade', 'wire'))
          .project('tx_id', 'amount', 'description', 'currency', 'from_company', 'to_company')
          .by('transaction_id')
@@ -412,7 +412,7 @@ class TBMLDetector:
 
         # Query for companies with shell company indicators
         query = """
-        g.V().has_label('company')
+        g.V().hasLabel('company')
          .project('id', 'name', 'employee_count', 'registration_date', 'is_shell',
                   'country', 'tx_count', 'tx_total', 'connected_companies')
          .by(id)
@@ -423,7 +423,7 @@ class TBMLDetector:
          .by(coalesce(values('registration_country'), constant('US')))
          .by(coalesce(out('owns_account').out('sent_transaction').count(), constant(0)))
          .by(coalesce(out('owns_account').out('sent_transaction').values('amount').sum(), constant(0)))
-         .by(coalesce(out('owns_account').out('sent_transaction').out('received_by').in('owns_account').has_label('company').dedup().count(), constant(0)))
+         .by(coalesce(out('owns_account').out('sent_transaction').out('received_by').in('owns_account').hasLabel('company').dedup().count(), constant(0)))
          .limit(200)
         """
 

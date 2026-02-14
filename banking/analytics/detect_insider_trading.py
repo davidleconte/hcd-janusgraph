@@ -150,7 +150,7 @@ class InsiderTradingDetector:
 
         # Query for high-value trades
         query = """
-        g.V().has_label('trade')
+        g.V().hasLabel('trade')
          .order().by('total_value', desc)
          .limit(200)
          .project('trade_id', 'trader_id', 'symbol', 'side', 'quantity', 'price',
@@ -341,7 +341,7 @@ class InsiderTradingDetector:
 
         # Query for trades grouped by symbol and time
         query = """
-        g.V().has_label('trade')
+        g.V().hasLabel('trade')
          .project('trade_id', 'trader_id', 'symbol', 'side', 'quantity', 'price',
                   'total_value', 'trade_date', 'trader_name')
          .by('trade_id')
@@ -513,12 +513,12 @@ class InsiderTradingDetector:
 
         # Query for communications that might indicate insider information sharing
         query = """
-        g.V().has_label('trade')
+        g.V().hasLabel('trade')
          .has('total_value', gt(50000))
          .as('trade')
          .in('performed_trade').as('trader')
          .in('sent_to', 'sent_from')
-         .has_label('communication')
+         .hasLabel('communication')
          .as('comm')
          .select('trade', 'trader', 'comm')
          .by(valueMap('trade_id', 'symbol', 'total_value', 'side', 'trade_date'))
@@ -641,7 +641,7 @@ class InsiderTradingDetector:
 
         # Query for traders connected to company insiders
         query = """
-        g.V().has_label('company').as('company')
+        g.V().hasLabel('company').as('company')
          .in('works_for', 'director_of', 'officer_of').as('insider')
          .out('knows', 'related_to', 'colleague_of').as('contact')
          .out('performed_trade').as('trade')

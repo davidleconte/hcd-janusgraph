@@ -76,7 +76,7 @@ class AMLStructuringDetector:
         print("=" * 60)
 
         # Get all transaction amounts
-        amounts = self._query("g.V().has_label('transaction').values('amount')")
+        amounts = self._query("g.V().hasLabel('transaction').values('amount')")
 
         if not amounts:
             print("⚠️  No transactions found in graph")
@@ -147,7 +147,7 @@ class AMLStructuringDetector:
 
         # Get accounts with transaction counts (outgoing)
         query = """
-        g.V().has_label('account').as('acc')
+        g.V().hasLabel('account').as('acc')
             .out('sent_transaction').count().as('sent_count')
             .select('acc', 'sent_count')
             .by('account_id')
@@ -161,7 +161,7 @@ class AMLStructuringDetector:
         except Exception:
             logger.warning("Primary query failed, falling back to simpler query", exc_info=True)
             query = """
-            g.V().has_label('account')
+            g.V().hasLabel('account')
                 .project('account_id', 'sent', 'received')
                 .by('account_id')
                 .by(out('sent_transaction').count())
@@ -212,7 +212,7 @@ class AMLStructuringDetector:
 
         # Find accounts sending transactions near threshold
         query = """
-        g.V().has_label('account').as('acc')
+        g.V().hasLabel('account').as('acc')
             .out('sent_transaction')
             .has('amount', between(9000.0, 10000.0))
             .group()
@@ -243,7 +243,7 @@ class AMLStructuringDetector:
             logger.debug("Complex query failed, using fallback: %s", e)
 
             # Fallback: analyze all accounts individually
-            accounts = self._query("g.V().has_label('account').values('account_id')")
+            accounts = self._query("g.V().hasLabel('account').values('account_id')")
 
             for account_id in accounts[:50]:  # Limit for performance
                 try:
@@ -297,7 +297,7 @@ class AMLStructuringDetector:
 
         # Find 2-hop transaction chains
         query = """
-        g.V().has_label('account').as('start')
+        g.V().hasLabel('account').as('start')
             .out('sent_transaction').as('tx1')
             .out('received_by').as('middle')
             .out('sent_transaction').as('tx2')

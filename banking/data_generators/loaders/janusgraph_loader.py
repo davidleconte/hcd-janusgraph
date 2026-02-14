@@ -443,7 +443,7 @@ class JanusGraphLoader:
 
             # Create trade vertex
             query = """
-            g.add_v('trade')
+            g.addV('trade')
                 .property('trade_id', tid)
                 .property('symbol', symbol)
                 .property('side', side)
@@ -463,7 +463,7 @@ class JanusGraphLoader:
                 "qty": int(trade_dict.get("quantity", 0)),
                 "price": float(trade_dict.get("price", 0.0)),
                 "amount": float(trade_dict.get("total_value", 0.0)),
-                "ts": str(trade_dict.get("trade_date", "")),
+                "ts": int(datetime.now().timestamp()),
                 "created": int(datetime.now().timestamp()),
             }
 
@@ -477,7 +477,7 @@ class JanusGraphLoader:
                 acc_id = trade_dict.get("account_id")
                 if acc_id and acc_id in account_id_map:
                     self._submit(
-                        "g.add_e('executed_trade').from(__.V(aid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.addE('executed_trade').from(__.V(aid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "aid": account_id_map[acc_id],
                             "tid": trade_vertex_id,
@@ -490,7 +490,7 @@ class JanusGraphLoader:
                 trader_id = trade_dict.get("trader_id")
                 if trader_id and trader_id in person_id_map:
                     self._submit(
-                        "g.add_e('performed_trade').from(__.V(pid)).to(__.V(tid)).property('timestamp', ts)",
+                        "g.addE('performed_trade').from(__.V(pid)).to(__.V(tid)).property('timestamp', ts)",
                         {
                             "pid": person_id_map[trader_id],
                             "tid": trade_vertex_id,
@@ -541,7 +541,7 @@ class JanusGraphLoader:
 
                 if from_vertex and to_vertex:
                     self._submit(
-                        """g.add_e('communicated_with')
+                        """g.addE('communicated_with')
                             .from(__.V(fid)).to(__.V(tid))
                             .property('comm_type', ctype)
                             .property('timestamp', ts)
@@ -550,7 +550,7 @@ class JanusGraphLoader:
                             "fid": from_vertex,
                             "tid": to_vertex,
                             "ctype": comm_dict.get("communication_type", "email"),
-                            "ts": str(comm_dict.get("timestamp", "")),
+                            "ts": int(datetime.now().timestamp()),
                             "suspicious": bool(comm_dict.get("is_suspicious", False)),
                         },
                     )
