@@ -176,3 +176,4 @@ banking/notebooks/*.html
 output/
 site/
 .hypothesis/
+*.nbconvert.ipynb
