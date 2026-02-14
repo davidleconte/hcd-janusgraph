@@ -667,6 +667,6 @@ MFA integration is a **high-value, low-risk enhancement** that can be safely def
 ---
 
 **Document Created:** 2026-02-11  
-**Author:** IBM Bob (Advanced AI Agent)  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** Approved for Post-Deployment Implementation  
 **Target Release:** 1.4.0 (Q1 2026)

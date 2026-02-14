@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: docker/hcd/healthcheck.sh
 # Created: 2026-01-28T10:33:30.345
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 #
 # Health check for HCD container
 

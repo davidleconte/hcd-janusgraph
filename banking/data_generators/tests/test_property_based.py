@@ -6,7 +6,7 @@ Uses Hypothesis for property-based testing to verify invariants hold across
 wide range of inputs. Tests verify that generators maintain consistency,
 uniqueness, and validity constraints regardless of seed or configuration.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-11
 """
 

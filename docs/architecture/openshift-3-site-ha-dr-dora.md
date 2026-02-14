@@ -4,7 +4,7 @@
 **Version:** 1.0  
 **Status:** Architecture Design - Production Ready  
 **Compliance:** DORA (Digital Operational Resilience Act)  
-**Author:** IBM Bob
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

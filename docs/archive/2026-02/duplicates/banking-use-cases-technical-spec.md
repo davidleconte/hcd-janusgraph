@@ -257,7 +257,7 @@ Embedding Generation Utilities
 Provides functions to generate vector embeddings for text, behavioral patterns,
 and other data types used in banking use cases.
 
-Author: IBM Bob
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-01-28
 """
 

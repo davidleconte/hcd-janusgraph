@@ -5,7 +5,7 @@ Property-Based Tests for Analytics Modules
 Simplified property-based tests for analytics detection algorithms.
 Tests verify invariants and edge cases without requiring live JanusGraph connections.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-11
 """
 

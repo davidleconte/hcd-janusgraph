@@ -8,7 +8,7 @@ Tests for Insider Trading detection algorithms including:
 - Communication-based detection
 - Network analysis
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 Updated: 2026-02-11 (Week 2 Day 8 - Enhanced to 40+ tests, 80%+ coverage)
 """

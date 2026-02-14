@@ -3,7 +3,7 @@ Production-ready JanusGraph client with authentication, SSL/TLS, and validation.
 
 File: janusgraph_client.py
 Updated: 2026-01-28 - Security Hardening
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 import logging

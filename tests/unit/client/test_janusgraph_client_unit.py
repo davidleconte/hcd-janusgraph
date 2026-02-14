@@ -10,7 +10,7 @@ Comprehensive test suite for janusgraph_client.py covering:
 - SSL/TLS configuration
 - Context manager usage
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-29
 Phase: Week 3 - Test Coverage Implementation (Days 1-2)
 """

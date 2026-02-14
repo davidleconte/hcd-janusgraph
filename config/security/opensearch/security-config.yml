@@ -2,7 +2,7 @@
 # OpenSearch Security Configuration
 # Production-Ready TLS and Authentication Settings
 #
-# Author: IBM Bob
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-02-04
 #
 # Usage: Mount this file at /usr/share/opensearch/config/opensearch-security/config.yml

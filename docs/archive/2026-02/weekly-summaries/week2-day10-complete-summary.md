@@ -658,4 +658,4 @@ This completes the fourth of seven analytics/streaming module testing tasks in W
 
 **Document Version:** 1.0  
 **Last Updated:** 2026-02-11  
-**Author:** IBM Bob (Code Quality Enhancement - Week 2)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

@@ -1064,5 +1064,5 @@ Phase 2 Security Hardening has successfully implemented enterprise-grade securit
 
 **Document Version:** 1.0  
 **Last Updated:** 2026-02-11  
-**Author:** Security Team  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** ✅ APPROVED FOR IMPLEMENTATION

@@ -2,7 +2,7 @@
 AML Structuring Detection Module
 Detects structuring (smurfing) patterns in financial transactions
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: Week 1 Remediation (CRITICAL-001)
 """

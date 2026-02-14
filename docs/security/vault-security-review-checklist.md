@@ -3,7 +3,7 @@
 **Date:** 2026-02-11  
 **Version:** 1.0  
 **Phase:** Phase 2 - Infrastructure Security  
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

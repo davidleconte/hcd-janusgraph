@@ -1,6 +1,6 @@
 # REST API Reference
 
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Contact:**
 
 > **Auto-generated docs:** Run `./scripts/docs/generate_api_docs.sh` for full Python API documentation.

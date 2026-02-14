@@ -3,7 +3,7 @@
 # Stop Full HCD + JanusGraph Visualization Stack
 # ==============================================================================
 #
-# Author: Bob (AI Assistant)
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-02-11
 # Version: 2.0.0 (Refactored to use common.sh)
 # ==============================================================================

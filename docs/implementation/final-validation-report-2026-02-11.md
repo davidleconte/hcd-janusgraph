@@ -350,5 +350,5 @@ The project now has:
 ---
 
 **Report Generated:** 2026-02-11  
-**Author:** IBM Bob (AI Assistant)  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Project:** HCD + JanusGraph Banking Platform

@@ -1,6 +1,6 @@
 # File: docker-compose.opensearch.yml
 # Created: 2026-01-28T18:35:00.000
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Purpose: OpenSearch service for JanusGraph vector search backend
 
 version: '3.8'

@@ -5,7 +5,7 @@ AML Structuring Data Loader
 Loads synthetic structuring data into JanusGraph.
 Connects entities with proper relationships and validates loading.
 
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Contact: team@example.com
 Date: 2026-02-06
 """

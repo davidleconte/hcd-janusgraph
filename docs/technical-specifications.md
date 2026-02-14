@@ -5,7 +5,7 @@
 **Version:** 1.0.0
 **Date:** 2026-01-30
 **Status:** Complete Outline/Template
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (David Leconte)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Project:** Hierarchical Content Delivery + JanusGraph Banking Compliance System
 
 ---

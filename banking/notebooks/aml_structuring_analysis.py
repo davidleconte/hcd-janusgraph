@@ -2,7 +2,7 @@
 AML Structuring Detection - Analysis Notebook
 Interactive analysis of money laundering structuring patterns
 
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Contact: team@example.com
 Date: 2026-02-06
 """

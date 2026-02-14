@@ -4,7 +4,7 @@ Unit Tests for JanusGraph Client Exceptions
 
 Test suite for custom exception classes in exceptions.py
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-29
 Phase: Week 3 - Test Coverage Implementation (Days 1-2)
 """

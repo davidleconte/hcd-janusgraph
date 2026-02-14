@@ -3,7 +3,7 @@
 **Date:** 2026-02-12  
 **Version:** 1.0  
 **Status:** Ready for Execution  
-**Author:** IBM Bob
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 
@@ -719,5 +719,5 @@ This plan provides a comprehensive strategy for applying kebab-case naming conve
 
 **Version:** 1.0  
 **Date:** 2026-02-12  
-**Author:** IBM Bob  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** Ready for Execution

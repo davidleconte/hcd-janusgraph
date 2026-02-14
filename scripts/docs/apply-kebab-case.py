@@ -2,7 +2,7 @@
 """
 File: scripts/docs/apply-kebab-case.py
 Purpose: Apply kebab-case naming convention to all documentation files
-Author: IBM Bob
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-12
 """
 

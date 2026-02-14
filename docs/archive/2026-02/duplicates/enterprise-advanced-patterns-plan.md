@@ -2,7 +2,7 @@
 # Enterprise Advanced Patterns & Use Cases - Master Plan
 
 **Date:** 2026-01-28  
-**Author:** IBM Bob  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Purpose:** Plan the most advanced, complex, and business-valuable patterns for retail, corporate, and investment banking
 
 ---

@@ -2,7 +2,7 @@
 Enhanced AML Structuring Detection
 Combines graph pattern detection with semantic transaction analysis
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: 6 (Complete AML Implementation)
 """

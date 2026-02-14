@@ -3,7 +3,7 @@
 # This script generates strong random credentials and sets up the security environment.
 # Adapted from the Security Audit findings.
 #
-# Author: Gemini CLI Agent
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-28
 
 set -euo pipefail

@@ -2,7 +2,7 @@
 Authentication Utilities
 Shared authentication helpers for consistent credential handling
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: Week 1 Remediation - Security Hardening
 """

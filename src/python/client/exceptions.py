@@ -3,7 +3,7 @@ Custom exceptions for JanusGraph client operations.
 
 File: exceptions.py
 Created: 2026-01-28
-Author: David LECONTE - IBM Worldwide | Data & AI
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 

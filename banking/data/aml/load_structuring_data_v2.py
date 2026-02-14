@@ -3,7 +3,7 @@
 Improved AML Structuring Data Loader
 Better error handling and compatibility
 
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

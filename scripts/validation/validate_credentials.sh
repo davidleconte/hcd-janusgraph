@@ -2,7 +2,7 @@
 # File: scripts/validation/validate_credentials.sh
 # Purpose: Validate that default/placeholder credentials are not used in production
 # Created: 2026-02-06
-# Author: David Leconte (AI Assistant)
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 set -e
 

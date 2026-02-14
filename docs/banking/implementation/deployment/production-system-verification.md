@@ -435,5 +435,5 @@ result = screener.screen_customer(
 ---
 
 **Report Generated:** 2026-01-28 19:59:00 UTC
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Version:** 1.0

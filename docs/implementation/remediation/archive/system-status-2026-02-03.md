@@ -3,7 +3,7 @@
 **Date:** 2026-02-03
 **Last Updated:** 2026-02-03 22:30
 **Status:** OPERATIONAL
-**Author:** David Leconte
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

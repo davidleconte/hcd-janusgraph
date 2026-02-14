@@ -2,7 +2,7 @@
 # File: scripts/security/setup_vault_policies.sh
 # Created: 2026-02-11
 # Purpose: Setup Vault policies and create service-specific tokens
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Phase: Phase 2 - Infrastructure Security
 
 set -euo pipefail
@@ -188,6 +188,6 @@ echo -e "${BLUE}🔄 Token Renewal:${NC}"
 echo "  vault token renew \$VAULT_API_TOKEN"
 echo ""
 
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 # Made with Bob

@@ -2,7 +2,7 @@
 Fraud Detection Module
 Real-time fraud detection using graph analysis and ML
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: 7 (Fraud Detection)
 """

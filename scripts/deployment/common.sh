@@ -7,7 +7,7 @@
 # Source this file at the beginning of deployment scripts:
 #   source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 #
-# Author: Bob (AI Assistant)
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-02-11
 # Version: 1.0.0
 #

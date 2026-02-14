@@ -4,7 +4,7 @@
 **Status:** ✅ Complete  
 **Date:** 2026-01-28  
 **Duration:** Week 13-14  
-**Author:** IBM Bob
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

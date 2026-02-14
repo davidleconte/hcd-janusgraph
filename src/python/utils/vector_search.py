@@ -2,7 +2,7 @@
 OpenSearch Vector Search Integration
 Provides k-NN vector search capabilities using OpenSearch 3.3.4+ with JVector plugin
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Updated: 2026-01-28 - Security Hardening
 Phase: 5 (Vector/AI Foundation)

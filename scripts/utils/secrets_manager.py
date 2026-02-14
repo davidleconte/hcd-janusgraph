@@ -5,7 +5,7 @@ Provides interface to retrieve secrets from various backends (Vault, AWS Secrets
 
 File: scripts/utils/secrets_manager.py
 Created: 2026-01-28
-Author: Security Remediation Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 import logging

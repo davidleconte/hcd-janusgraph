@@ -8,7 +8,7 @@ for anti-money laundering detection.
 Pattern: Multiple small deposits (<$10,000 reporting threshold) from
 coordinated accounts converging to a single beneficiary account.
 
-Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Contact: team@example.com
 Date: 2026-02-06
 """

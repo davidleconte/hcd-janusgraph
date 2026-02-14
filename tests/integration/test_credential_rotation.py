@@ -5,7 +5,7 @@ Integration Tests for Credential Rotation Framework
 End-to-end tests for credential rotation across all services.
 Tests rotation, rollback, health checks, and Vault integration.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-02-11
 Phase: Phase 2 - Infrastructure Security (Final 15%)
 

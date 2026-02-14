@@ -2,7 +2,7 @@
 Pattern Generator Tests
 Tests for AML/Fraud pattern generation modules.
 
-Author: David Leconte
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-02-04
 """
 

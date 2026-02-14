@@ -1,6 +1,6 @@
 #!/bin/bash
 # File: scripts/docs/generate_api_docs.sh
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Purpose: Generate Python API documentation using pdoc
 # Date: 2026-02-06
 

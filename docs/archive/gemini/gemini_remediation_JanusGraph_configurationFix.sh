@@ -3,7 +3,7 @@
 # This script configures JanusGraph to use OpenSearch as the indexing backend.
 # It explicitly acknowledges the OpenSearch 3.3.4+ environment with JVector plugin.
 #
-# Author: Gemini CLI Agent
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-28
 
 set -e

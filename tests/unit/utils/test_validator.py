@@ -4,7 +4,7 @@ Unit Tests for Validator Class
 
 Tests for the Validator utility class covering all validation methods.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 Updated: 2026-02-04 - Fixed for Exception-based validation pattern
 """

@@ -2,7 +2,7 @@
 AML Sanctions Screening Module
 Fuzzy name matching using vector embeddings for sanctions list screening
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: 6 (Complete AML Implementation)
 """

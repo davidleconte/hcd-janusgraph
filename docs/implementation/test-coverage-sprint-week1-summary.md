@@ -373,5 +373,5 @@ The established testing patterns and comprehensive test suites provide a solid f
 
 **Document Version:** 1.0  
 **Last Updated:** 2026-02-11  
-**Author:** IBM Bob (AI Assistant)  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Review Status:** Ready for Review

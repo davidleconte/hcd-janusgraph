@@ -2,7 +2,7 @@
 # Encrypted Backup Script for HCD and JanusGraph
 # File: scripts/backup/backup_volumes_encrypted.sh
 # Created: 2026-01-28
-# Author: Security Remediation Team - Phase 2
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 set -euo pipefail
 
@@ -414,4 +414,4 @@ main
 
 exit 0
 
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

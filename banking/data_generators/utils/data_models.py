@@ -5,7 +5,7 @@ Data Models for Synthetic Data Generation
 Pydantic models for all entity types used in synthetic data generation.
 These models ensure type safety, validation, and consistent data structures.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

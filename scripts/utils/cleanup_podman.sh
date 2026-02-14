@@ -85,4 +85,4 @@ echo "  1. cd config/compose && bash ../../scripts/deployment/deploy_full_stack.
 echo "  2. Wait 90 seconds for services to start"
 echo "  3. ./scripts/security/init_vault.sh"
 
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

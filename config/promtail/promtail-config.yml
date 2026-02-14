@@ -1,7 +1,7 @@
 # Promtail Configuration
 # File: config/promtail/promtail-config.yml
 # Created: 2026-01-28
-# Author: Security Remediation Team
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 server:
   http_listen_port: 9080

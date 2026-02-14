@@ -9,7 +9,7 @@ Requires:
 - JanusGraph running at localhost:18182
 - Graph populated with test data
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-04
 """
 

@@ -8,7 +8,7 @@ Performance benchmarks for data generation including:
 - Memory profiling
 - Throughput tests
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

@@ -7,7 +7,7 @@ Provides reusable fixtures and mocks for testing analytics modules:
 - Sample data generators
 - Test utilities
 
-Author: David Leconte, IBM Worldwide | Tiger-Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-11
 Week 2: Analytics Testing Infrastructure
 """

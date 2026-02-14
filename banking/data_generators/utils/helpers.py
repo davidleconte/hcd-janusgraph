@@ -4,7 +4,7 @@ Helper Functions for Synthetic Data Generation
 
 Common utility functions for data generation, validation, and manipulation.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

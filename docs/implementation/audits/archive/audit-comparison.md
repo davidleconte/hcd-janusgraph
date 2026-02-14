@@ -1,7 +1,7 @@
 # Audit Comparison: Gemini Audit vs. Previous Audit
 
 **Date:** January 28, 2026
-**Author:** Gemini CLI Agent
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

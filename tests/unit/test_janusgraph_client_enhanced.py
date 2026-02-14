@@ -5,7 +5,7 @@ Comprehensive test coverage for production-ready client
 
 File: tests/unit/test_janusgraph_client_enhanced.py
 Created: 2026-01-28
-Author: Security Remediation Team
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 from unittest.mock import Mock, patch

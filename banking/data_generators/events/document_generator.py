@@ -4,7 +4,7 @@ Document Generator for Banking Compliance Use Cases
 Generates realistic business documents (invoices, contracts, reports) with
 Trade-Based Money Laundering (TBML) indicators for compliance monitoring.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

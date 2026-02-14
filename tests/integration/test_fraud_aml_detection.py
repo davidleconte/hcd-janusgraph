@@ -5,7 +5,7 @@ Integration Tests for Fraud and AML Detection
 Tests fraud detection and AML structuring detection against a real JanusGraph instance.
 Requires JanusGraph to be running on port 18182.
 
-Author: AdaL
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-02-06
 """
 

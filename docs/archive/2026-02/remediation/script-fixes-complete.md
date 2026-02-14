@@ -390,5 +390,5 @@ All CRITICAL and HIGH severity issues have been successfully resolved. The syste
 ---
 
 **Report Generated:** 2026-01-29T02:16:00Z
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Advanced Mode)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** ✅ All Issues Resolved

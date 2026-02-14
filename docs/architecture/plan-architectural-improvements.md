@@ -1,7 +1,7 @@
 # Architectural Improvement Plan
 
 **Date:** 2026-02-09
-**Author:** David Leconte / AdaL
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** In Progress
 **Version:** 1.1
 

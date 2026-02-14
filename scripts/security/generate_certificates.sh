@@ -3,7 +3,7 @@
 # Generates self-signed certificates for all services
 # File: scripts/security/generate_certificates.sh
 # Created: 2026-01-28
-# Author: Security Remediation Team - Phase 2
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 set -euo pipefail
 
@@ -314,4 +314,4 @@ main
 
 echo "Certificate generation script completed successfully!"
 
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

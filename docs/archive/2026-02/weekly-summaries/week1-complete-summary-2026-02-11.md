@@ -370,7 +370,7 @@ act -j test-coverage
 
 **Document Version:** 1.0  
 **Last Updated:** 2026-02-11  
-**Author:** Bob (AI Assistant)  
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Status:** Final
 
 # Made with Bob

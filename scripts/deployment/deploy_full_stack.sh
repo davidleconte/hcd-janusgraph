@@ -5,7 +5,7 @@
 # Platform: macOS M3 Pro (Sequoia 26.2)
 # Podman machine: configurable via .env
 #
-# Author: Bob (AI Assistant)
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-02-11
 # Version: 2.0.0 (Refactored to use common.sh)
 # ==============================================================================

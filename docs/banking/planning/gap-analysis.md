@@ -1,7 +1,7 @@
 # Banking Use Cases: Comprehensive Gap Analysis & Enhanced Remediation Plan
 
 **Date:** 2026-01-28
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS (Senior Technical Leader)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Context:** Analysis of IBM HCD + JanusGraph + OpenSearch (JVector) Banking Use Cases Implementation
 
 ---

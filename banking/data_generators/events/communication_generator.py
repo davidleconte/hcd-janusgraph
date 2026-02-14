@@ -5,7 +5,7 @@ Generates realistic multi-modal communications (email, SMS, phone, chat, video, 
 with multi-lingual content, sentiment analysis, and suspicious keyword injection for
 insider trading, market manipulation, and fraud detection scenarios.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-06
 """
 

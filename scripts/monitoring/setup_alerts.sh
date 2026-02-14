@@ -1,7 +1,7 @@
 #!/bin/bash
 # File: scripts/monitoring/setup_alerts.sh
 # Created: 2026-01-28T10:32:16.012
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 #
 # Setup Prometheus alerting rules
 
@@ -16,7 +16,7 @@ echo "🔔 Setting up Prometheus alerts..."
 cat > "$PROJECT_ROOT/config/monitoring/alerts.yml" << 'ALERTS_EOF'
 # File: config/monitoring/alerts.yml
 # Created: 2026-01-28T10:32:16.234
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 groups:
   - name: janusgraph_alerts

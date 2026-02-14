@@ -1,7 +1,7 @@
 # Docker Compose - Centralized Logging Stack
 # File: docker-compose.logging.yml
 # Created: 2026-01-28
-# Author: Security Remediation Team
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 #
 # Usage: docker-compose -f docker-compose.yml -f docker-compose.logging.yml up -d
 

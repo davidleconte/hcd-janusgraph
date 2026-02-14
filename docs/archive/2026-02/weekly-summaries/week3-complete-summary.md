@@ -570,4 +570,4 @@ The project has advanced from **B grade (82/100)** to **A+ grade (98/100)** in p
 **Grade:** A+ (98/100)  
 **Next:** Week 4 - Validation & Polish  
 **Completion Date:** 2026-02-11  
-**Author:** IBM Bob (Code Quality Implementation Team)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

@@ -3,7 +3,7 @@
 **Date:** 2026-02-11  
 **Version:** 1.0  
 **Status:** Active  
-**Author:** IBM Bob (AI Assistant)
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
 

@@ -1,7 +1,7 @@
 # Code Review Fixes Summary
 
 **Date:** 2026-01-28
-**Author:** David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Phase:** Week 1 Remediation - Code Review Fixes
 
 ## Overview

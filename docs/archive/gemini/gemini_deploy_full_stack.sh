@@ -3,7 +3,7 @@
 # This script uses podman-compose to deploy the full integrated stack,
 # ensuring configuration consistency and proper networking.
 #
-# Author: Gemini CLI Agent
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-28
 
 set -e

@@ -2,7 +2,7 @@
 # HCD Health Check Script
 # File: health_check.sh
 # Purpose: Monitor HCD/Cassandra cluster health for JanusGraph
-# Author: David LECONTE - IBM Worldwide
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-29
 
 set -euo pipefail

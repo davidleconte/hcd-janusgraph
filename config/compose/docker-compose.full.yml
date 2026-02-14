@@ -2,7 +2,7 @@
 # NOTE: This is the DEVELOPMENT configuration with permissive defaults.
 # For PRODUCTION, use: docker-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 # Created: 2026-01-28T10:37:00.567
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS) - david.leconte1@ibm.com | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 #
 
 # Complete HCD + JanusGraph Stack with Visualization Tools

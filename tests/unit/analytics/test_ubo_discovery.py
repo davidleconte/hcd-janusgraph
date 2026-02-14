@@ -4,7 +4,7 @@ Unit tests for UBO Discovery module
 Test Coverage Target: 60%+
 Total Tests: 30+
 
-Author: Bob (AI Agent)
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Date: 2026-02-11
 """
 

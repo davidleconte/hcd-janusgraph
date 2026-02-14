@@ -4,7 +4,7 @@
 #
 # Comprehensive test execution script for data generators
 #
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data Global Product Specialist (GPS)
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 # Date: 2026-01-28
 
 set -e
@@ -140,4 +140,4 @@ echo "=========================================="
 echo -e "${GREEN}Test execution complete!${NC}"
 echo "=========================================="
 
-# Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS | +33614126117
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

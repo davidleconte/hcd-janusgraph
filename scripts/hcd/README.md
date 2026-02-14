@@ -2,7 +2,7 @@
 
 Scripts for managing and validating HCD/Cassandra deployment for JanusGraph.
 
-**Author:** David LECONTE - IBM Worldwide
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Date:** 2026-01-29
 
 ## Overview

@@ -5,7 +5,7 @@ Import Security Dashboard to Grafana
 
 Imports the security dashboard JSON into Grafana instance.
 
-Author: David Leconte, IBM Worldwide | Tiger-Team, Watsonx.Data GPS
+Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-02-11
 Phase: Phase 2 - Infrastructure Security (Final 15%)
 

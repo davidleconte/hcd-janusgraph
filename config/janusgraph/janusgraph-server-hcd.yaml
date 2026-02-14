@@ -1,6 +1,6 @@
 # JanusGraph Server Configuration for HCD Backend
 # Created: 2026-01-28
-# Author: David LECONTE
+# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 host: 0.0.0.0
 port: 8182
