@@ -10,8 +10,15 @@ Phase: 5 (Vector/AI Foundation)
 import logging
 from typing import List, Optional, Union
 
-import numpy as np
-from sentence_transformers import SentenceTransformer
+try:
+    import numpy as np
+    from sentence_transformers import SentenceTransformer
+
+    _HAS_ML_DEPS = True
+except ImportError:
+    np = None  # type: ignore[assignment]
+    SentenceTransformer = None  # type: ignore[assignment,misc]
+    _HAS_ML_DEPS = False
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +54,11 @@ class EmbeddingGenerator:
             model_name: Model to use ('mini' or 'mpnet')
             device: Device to run on ('cpu', 'cuda', 'mps'). Auto-detected if None.
         """
+        if not _HAS_ML_DEPS:
+            raise ImportError(
+                "EmbeddingGenerator requires 'sentence-transformers' and 'numpy'. "
+                "Install with: uv pip install sentence-transformers numpy"
+            )
         if model_name not in self.MODELS:
             raise ValueError(
                 f"Unknown model: {model_name}. Choose from: {list(self.MODELS.keys())}"
