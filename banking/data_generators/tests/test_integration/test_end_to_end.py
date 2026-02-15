@@ -32,6 +32,7 @@ class TestEndToEndWorkflow:
             company_count=20,
             account_count=100,
             transaction_count=500,
+            communication_count=20,
             insider_trading_patterns=1,
             fraud_ring_patterns=1,
             output_dir=tmp_path,
@@ -72,6 +73,7 @@ class TestEndToEndWorkflow:
             company_count=10,
             account_count=40,
             transaction_count=200,
+            communication_count=10,
             output_dir=tmp_path,
         )
 
@@ -115,6 +117,7 @@ class TestEndToEndWorkflow:
             company_count=50,
             account_count=200,
             transaction_count=1000,
+            communication_count=50,
             insider_trading_patterns=2,
             tbml_patterns=1,
             fraud_ring_patterns=1,
@@ -151,6 +154,7 @@ class TestDataQualityValidation:
             company_count=50,
             account_count=200,
             transaction_count=1000,
+            communication_count=50,
             output_dir=tmp_path,
         )
 
@@ -183,6 +187,7 @@ class TestDataQualityValidation:
             company_count=50,
             account_count=200,
             transaction_count=1000,
+            communication_count=50,
             output_dir=tmp_path,
         )
 
@@ -196,7 +201,7 @@ class TestDataQualityValidation:
             data = json.load(f)
 
         # Check person ID uniqueness
-        person_ids = [p["person_id"] for p in data["persons"]]
+        person_ids = [p.get("person_id") or p.get("id") for p in data["persons"]]
         assert len(person_ids) == len(set(person_ids))
 
         # Check transaction ID uniqueness

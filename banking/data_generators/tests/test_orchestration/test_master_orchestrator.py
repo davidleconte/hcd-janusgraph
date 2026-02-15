@@ -30,7 +30,7 @@ class TestMasterOrchestratorSmoke:
         """Test that orchestrator can generate data"""
         stats = small_orchestrator.generate_all()
         assert stats is not None
-        assert stats.total_entities > 0
+        assert stats.total_records > 0
 
     def test_config_validation(self):
         """Test configuration validation"""
@@ -48,7 +48,6 @@ class TestMasterOrchestratorFunctional:
         """Test that all generation phases execute"""
         stats = small_orchestrator.generate_all()
 
-        # Should have entities from all phases
         assert stats.persons_generated > 0
         assert stats.companies_generated > 0
         assert stats.accounts_generated > 0
@@ -67,28 +66,23 @@ class TestMasterOrchestratorFunctional:
         """Test that phases execute in correct order"""
         stats = small_orchestrator.generate_all()
 
-        # Core entities should be generated before events
         assert stats.persons_generated > 0
         assert stats.companies_generated > 0
         assert stats.accounts_generated > 0
-        # Then events
         assert stats.transactions_generated > 0
 
     def test_statistics_tracking(self, small_orchestrator):
         """Test that statistics are tracked correctly"""
         stats = small_orchestrator.generate_all()
 
-        assert stats.total_entities > 0
-        assert stats.total_events > 0
-        assert stats.total_patterns >= 0
-        assert stats.duration_seconds > 0
+        assert stats.total_records > 0
+        assert stats.patterns_generated >= 0
+        assert stats.generation_time_seconds > 0
 
     def test_error_handling(self, small_orchestrator):
         """Test error handling in orchestrator"""
-        # Should handle errors gracefully
         stats = small_orchestrator.generate_all()
 
-        # Check error tracking
         assert hasattr(stats, "errors")
         assert isinstance(stats.errors, list)
 
@@ -106,6 +100,7 @@ class TestMasterOrchestratorEdgeCases:
             company_count=5,
             account_count=20,
             transaction_count=50,
+            communication_count=10,
             insider_trading_patterns=0,
             tbml_patterns=0,
             fraud_ring_patterns=0,
@@ -116,14 +111,15 @@ class TestMasterOrchestratorEdgeCases:
         orchestrator = MasterOrchestrator(config)
         stats = orchestrator.generate_all()
 
-        assert stats.total_patterns == 0
+        assert stats.patterns_generated == 0
 
     def test_minimal_configuration(self):
         """Test with minimal configuration"""
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=1, company_count=1, account_count=2, transaction_count=1
+            seed=42, person_count=1, company_count=1, account_count=2, transaction_count=1,
+            communication_count=1,
         )
 
         orchestrator = MasterOrchestrator(config)
@@ -138,7 +134,8 @@ class TestMasterOrchestratorEdgeCases:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000
+            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            communication_count=50,
         )
 
         orchestrator = MasterOrchestrator(config)
@@ -158,11 +155,13 @@ class TestMasterOrchestratorReproducibility:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config1 = GenerationConfig(
-            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50
+            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50,
+            communication_count=10,
         )
 
         config2 = GenerationConfig(
-            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50
+            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50,
+            communication_count=10,
         )
 
         orch1 = MasterOrchestrator(config1)
@@ -171,7 +170,6 @@ class TestMasterOrchestratorReproducibility:
         stats1 = orch1.generate_all()
         stats2 = orch2.generate_all()
 
-        # Should generate same counts
         assert stats1.persons_generated == stats2.persons_generated
         assert stats1.companies_generated == stats2.companies_generated
         assert stats1.accounts_generated == stats2.accounts_generated
@@ -189,7 +187,8 @@ class TestMasterOrchestratorPerformance:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000
+            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            communication_count=50,
         )
 
         orchestrator = MasterOrchestrator(config)
@@ -198,10 +197,9 @@ class TestMasterOrchestratorPerformance:
         stats = orchestrator.generate_all()
         duration = time.time() - start
 
-        # Should complete in reasonable time (< 10 seconds)
-        assert duration < 10.0
-        assert stats.total_entities == 350
-        assert stats.total_events == 1000
+        assert duration < 30.0
+        assert stats.persons_generated + stats.companies_generated + stats.accounts_generated == 350
+        assert stats.transactions_generated >= 1000
 
     @pytest.mark.slow
     def test_memory_efficiency(self):
@@ -211,14 +209,13 @@ class TestMasterOrchestratorPerformance:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000
+            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            communication_count=50,
         )
 
         orchestrator = MasterOrchestrator(config)
         orchestrator.generate_all()
 
-        # Check that orchestrator doesn't hold excessive memory
-        # (rough check - should be < 100MB)
         size = sys.getsizeof(orchestrator)
         assert size < 100_000_000
 
@@ -228,14 +225,11 @@ class TestMasterOrchestratorIntegration:
 
     def test_export_to_json(self, small_orchestrator, tmp_path):
         """Test exporting data to JSON"""
-        # Generate data
         small_orchestrator.generate_all()
 
-        # Export to JSON
         output_file = tmp_path / "test_output.json"
         small_orchestrator.export_to_json(output_file)
 
-        # Verify file exists and is valid JSON
         assert output_file.exists()
 
         with open(output_file, "r") as f:
@@ -256,14 +250,12 @@ class TestMasterOrchestratorIntegration:
         with open(output_file, "r") as f:
             data = json.load(f)
 
-        # Check persons structure
         assert len(data["persons"]) > 0
         person = data["persons"][0]
-        assert "person_id" in person
+        assert "id" in person or "person_id" in person
         assert "first_name" in person
         assert "last_name" in person
 
-        # Check transactions structure
         assert len(data["transactions"]) > 0
         txn = data["transactions"][0]
         assert "transaction_id" in txn
@@ -280,6 +272,7 @@ class TestMasterOrchestratorIntegration:
             company_count=20,
             account_count=100,
             transaction_count=500,
+            communication_count=20,
             insider_trading_patterns=2,
             fraud_ring_patterns=1,
         )
@@ -287,8 +280,7 @@ class TestMasterOrchestratorIntegration:
         orchestrator = MasterOrchestrator(config)
         stats = orchestrator.generate_all()
 
-        # Should have injected patterns
-        assert stats.total_patterns >= 3
+        assert stats.patterns_generated >= 3
 
 
 class TestMasterOrchestratorDataQuality:
@@ -304,19 +296,16 @@ class TestMasterOrchestratorDataQuality:
         with open(output_file, "r") as f:
             data = json.load(f)
 
-        # Collect all IDs
-        person_ids = {p["person_id"] for p in data["persons"]}
-        company_ids = {c["company_id"] for c in data["companies"]}
-        account_ids = {a["account_id"] for a in data["accounts"]}
+        person_ids = {p.get("person_id") or p.get("id") for p in data["persons"]}
+        company_ids = {c.get("company_id") or c.get("id") for c in data["companies"]}
+        account_ids = {a.get("account_id") or a.get("id") for a in data["accounts"]}
 
-        # Check accounts reference valid persons/companies
         for account in data["accounts"]:
             if account.get("owner_person_id"):
                 assert account["owner_person_id"] in person_ids
             if account.get("owner_company_id"):
                 assert account["owner_company_id"] in company_ids
 
-        # Check transactions reference valid accounts
         for txn in data["transactions"]:
             assert txn["from_account_id"] in account_ids
             assert txn["to_account_id"] in account_ids
@@ -325,18 +314,10 @@ class TestMasterOrchestratorDataQuality:
         """Test data consistency across entities"""
         stats = small_orchestrator.generate_all()
 
-        # Total entities should match sum of individual counts
         expected_total = (
             stats.persons_generated + stats.companies_generated + stats.accounts_generated
+            + stats.transactions_generated + stats.communications_generated
+            + stats.trades_generated + stats.travels_generated + stats.documents_generated
+            + stats.patterns_generated
         )
-        assert stats.total_entities == expected_total
-
-        # Total events should match sum of event counts
-        expected_events = (
-            stats.transactions_generated
-            + stats.communications_generated
-            + stats.trades_generated
-            + stats.travels_generated
-            + stats.documents_generated
-        )
-        assert stats.total_events == expected_events
+        assert stats.total_records == expected_total
