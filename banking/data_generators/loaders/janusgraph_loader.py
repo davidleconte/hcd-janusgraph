@@ -31,7 +31,7 @@ REQUIRED_COMPANY_FIELDS = {"company_id", "legal_name", "registration_country"}
 REQUIRED_ACCOUNT_FIELDS = {"account_id", "account_type", "currency"}
 REQUIRED_TRANSACTION_FIELDS = {"transaction_id", "amount", "currency"}
 
-SKIP_KEYS = {"created_at", "updated_at", "entity_id", "version", "source", "metadata", "id"}
+SKIP_KEYS = {"updated_at", "entity_id", "version", "source", "metadata", "id"}
 
 
 def _serialize_value(value: Any) -> Any:
@@ -44,8 +44,11 @@ def _serialize_value(value: Any) -> Any:
         return float(value)
     if isinstance(value, Enum):
         return value.value
-    if isinstance(value, (date, datetime)):
-        return str(value)
+    if isinstance(value, datetime):
+        return int(value.timestamp())
+    if isinstance(value, date):
+        from calendar import timegm
+        return timegm(value.timetuple())
     if isinstance(value, (list, dict)):
         import json
         return json.dumps(value, default=str)
@@ -163,7 +166,7 @@ class JanusGraphLoader:
             serialized = _serialize_value(value)
             if serialized is not None:
                 all_props.append((key, serialized))
-        all_props.append(("created_at", int(datetime.now().timestamp())))
+
 
         chunks = []
         for i in range(0, len(all_props), self._MAX_BINDINGS):
@@ -390,7 +393,7 @@ class JanusGraphLoader:
                         {
                             "fid": account_id_map[from_account_id],
                             "tid": vertex_id,
-                            "ts": int(datetime.now().timestamp()),
+                            "ts": _serialize_value(tx_dict.get("transaction_date")) or 0,
                         },
                     )
                     self.stats["edges_created"] += 1
@@ -402,7 +405,7 @@ class JanusGraphLoader:
                         {
                             "tid": vertex_id,
                             "toid": account_id_map[to_account_id],
-                            "ts": int(datetime.now().timestamp()),
+                            "ts": _serialize_value(tx_dict.get("transaction_date")) or 0,
                         },
                     )
                     self.stats["edges_created"] += 1
@@ -463,8 +466,8 @@ class JanusGraphLoader:
                 "qty": int(trade_dict.get("quantity", 0)),
                 "price": float(trade_dict.get("price", 0.0)),
                 "amount": float(trade_dict.get("total_value", 0.0)),
-                "ts": int(datetime.now().timestamp()),
-                "created": int(datetime.now().timestamp()),
+                "ts": _serialize_value(trade_dict.get("trade_date")) or 0,
+                "created": _serialize_value(trade_dict.get("created_at")) or 0,
             }
 
             result = self._submit(query, bindings)
@@ -550,7 +553,7 @@ class JanusGraphLoader:
                             "fid": from_vertex,
                             "tid": to_vertex,
                             "ctype": comm_dict.get("communication_type", "email"),
-                            "ts": int(datetime.now().timestamp()),
+                            "ts": _serialize_value(comm_dict.get("timestamp")) or 0,
                             "suspicious": bool(comm_dict.get("is_suspicious", False)),
                         },
                     )

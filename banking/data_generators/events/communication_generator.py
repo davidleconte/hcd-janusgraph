@@ -11,6 +11,8 @@ Date: 2026-02-06
 
 import random
 from datetime import datetime, timedelta, timezone
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 from typing import Any, Dict, List, Optional, Tuple
 
 from faker import Faker
@@ -144,7 +146,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
 
         # Generate timestamp (within last 90 days)
         timestamp = random_datetime_between(
-            datetime.now(timezone.utc) - timedelta(days=90), datetime.now(timezone.utc)
+            REFERENCE_TIMESTAMP - timedelta(days=90), REFERENCE_TIMESTAMP
         )
 
         # Generate content based on type and language
@@ -492,7 +494,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         """
         f"THREAD-{self.faker.uuid4()[:12]}"
         base_time = random_datetime_between(
-            datetime.now(timezone.utc) - timedelta(days=30), datetime.now(timezone.utc)
+            REFERENCE_TIMESTAMP - timedelta(days=30), REFERENCE_TIMESTAMP
         )
 
         # Select communication type for entire thread

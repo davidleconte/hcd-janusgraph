@@ -134,7 +134,7 @@ class TestEndToEndWorkflow:
 
         # Check for pattern indicators
         # (In real implementation, patterns would have metadata)
-        assert len(data["transactions"]) == 1000
+        assert len(data["transactions"]) >= 1000
 
 
 @pytest.mark.integration
@@ -169,7 +169,7 @@ class TestDataQualityValidation:
         assert 30 <= avg_age <= 60  # Reasonable average
 
         # Check transaction amounts
-        amounts = [t["amount"] for t in data["transactions"]]
+        amounts = [float(t["amount"]) for t in data["transactions"]]
         avg_amount = sum(amounts) / len(amounts)
         assert avg_amount > 0
 

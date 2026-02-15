@@ -10,6 +10,8 @@ Date: 2026-02-06
 
 import random
 from datetime import datetime, timedelta, timezone
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
@@ -134,7 +136,7 @@ class DocumentGenerator(BaseGenerator[Document]):
 
         # Generate issue date
         issue_date = random_datetime_between(
-            datetime.now(timezone.utc) - timedelta(days=180), datetime.now(timezone.utc)
+            REFERENCE_TIMESTAMP - timedelta(days=180), REFERENCE_TIMESTAMP
         )
 
         # Generate document number
@@ -218,7 +220,7 @@ class DocumentGenerator(BaseGenerator[Document]):
         }
         prefix = prefix_map.get(document_type, "DOC")
         number = random.randint(100000, 999999)
-        year = datetime.now().year
+        year = REFERENCE_TIMESTAMP.year
         return f"{prefix}-{year}-{number}"
 
     def _generate_line_items(self, currency: str, is_tbml: bool) -> List[Dict[str, Any]]:
@@ -384,7 +386,7 @@ class DocumentGenerator(BaseGenerator[Document]):
             List of Document objects with TBML indicators
         """
         documents = []
-        base_date = datetime.now(timezone.utc) - timedelta(days=random.randint(30, 180))
+        base_date = REFERENCE_TIMESTAMP - timedelta(days=random.randint(30, 180))
 
         for i in range(document_count):
             # Generate document with TBML indicators

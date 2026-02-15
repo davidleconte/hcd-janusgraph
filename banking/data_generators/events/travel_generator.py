@@ -10,6 +10,8 @@ Date: 2026-02-06
 
 import random
 from datetime import datetime, timedelta, timezone
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 from typing import Any, Dict, List, Optional
 
 from pydantic import Field
@@ -129,8 +131,8 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
 
         # Generate travel dates
         departure_date = random_datetime_between(
-            datetime.now(timezone.utc) - timedelta(days=90),
-            datetime.now(timezone.utc) + timedelta(days=30),
+            REFERENCE_TIMESTAMP - timedelta(days=90),
+            REFERENCE_TIMESTAMP + timedelta(days=30),
         )
 
         # Travel duration (1-30 days)
@@ -283,7 +285,7 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             "purpose": purpose,
             "duration_days": duration_days,
             "booking_date": (
-                datetime.now(timezone.utc) - timedelta(days=random.randint(1, 60))
+                REFERENCE_TIMESTAMP - timedelta(days=random.randint(1, 60))
             ).isoformat(),
         }
 
@@ -318,7 +320,7 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             List of TravelEvent objects forming suspicious pattern
         """
         travels = []
-        base_date = datetime.now(timezone.utc) - timedelta(days=time_window_days)
+        base_date = REFERENCE_TIMESTAMP - timedelta(days=time_window_days)
 
         # Select high-risk or tax haven destinations
         risky_destinations = list(HIGH_RISK_COUNTRIES) + list(TAX_HAVENS)

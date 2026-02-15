@@ -245,7 +245,8 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             List of structuring transactions
         """
         transactions = []
-        base_time = datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30))
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        base_time = REFERENCE_TIMESTAMP - timedelta(days=random.randint(1, 30))
 
         for i in range(count):
             # Spread transactions across time window
@@ -282,7 +283,8 @@ class TransactionGenerator(BaseGenerator[Transaction]):
     def _generate_transaction_date(self) -> datetime:
         """Generate transaction date."""
         # Transactions in last 90 days
-        end_date = datetime.now(timezone.utc)
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=90)
 
         # 70% during business hours

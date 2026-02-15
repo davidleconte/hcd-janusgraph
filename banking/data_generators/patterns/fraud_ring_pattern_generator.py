@@ -116,7 +116,8 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
             duration_days = random.randint(7, 90)
 
         # Generate pattern dates
-        end_date = datetime.now(timezone.utc)
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=duration_days)
 
         # Generate ring accounts
@@ -159,7 +160,7 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
         return Pattern(
             pattern_id=f"PTN-FRAUD-{self.faker.uuid4()[:12]}",
             pattern_type="fraud_ring",
-            detection_date=datetime.now(timezone.utc),
+            detection_date=REFERENCE_TIMESTAMP,
             detection_method=f"network_analysis_{pattern_type}",
             confidence_score=confidence_score,
             entity_ids=entity_ids,

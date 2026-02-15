@@ -131,7 +131,8 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             duration_days = random.randint(30, 180)
 
         # Generate pattern dates
-        end_date = datetime.now(timezone.utc)
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=duration_days)
         # Generate entities involved (or select from existing)
         if existing_entity_ids:
@@ -185,7 +186,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         pattern = Pattern(
             pattern_id=f"PTN-TBML-{self.faker.uuid4()[:12]}",
             pattern_type="tbml",
-            detection_date=datetime.now(timezone.utc),
+            detection_date=REFERENCE_TIMESTAMP,
             detection_method=f"tbml_analysis_{pattern_type}",
             confidence_score=confidence_score,
             entity_ids=entity_ids,

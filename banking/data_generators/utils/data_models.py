@@ -19,6 +19,12 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from pydantic.functional_serializers import PlainSerializer
 from typing_extensions import Annotated
 
+from banking.data_generators.utils.deterministic import (
+    REFERENCE_TIMESTAMP,
+    reference_now,
+    seeded_uuid_hex,
+)
+
 # Custom serializers for Pydantic V2
 DatetimeSerializer = Annotated[datetime, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
 DateSerializer = Annotated[date, PlainSerializer(lambda v: v.isoformat(), return_type=str)]
@@ -153,9 +159,9 @@ class BaseEntity(BaseModel):
         ser_json_bytes="utf8",
     )
 
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    id: str = Field(default_factory=lambda: seeded_uuid_hex())
+    created_at: datetime = Field(default_factory=reference_now)
+    updated_at: datetime = Field(default_factory=reference_now)
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
@@ -434,7 +440,7 @@ class Transaction(BaseEntity):
     """Financial transaction entity"""
 
     # Transaction Identification
-    transaction_id: str = Field(default_factory=lambda: f"TXN-{uuid.uuid4().hex[:12].upper()}")
+    transaction_id: str = Field(default_factory=lambda: f"TXN-{seeded_uuid_hex()}")
     reference_number: Optional[str] = None
 
     # Transaction Details
@@ -496,7 +502,7 @@ class Trade(BaseEntity):
     """Trade/Securities transaction entity"""
 
     # Trade Identification
-    trade_id: str = Field(default_factory=lambda: f"TRADE-{uuid.uuid4().hex[:12].upper()}")
+    trade_id: str = Field(default_factory=lambda: f"TRADE-{seeded_uuid_hex()}")
 
     # Trader & Account
     trader_id: str
@@ -541,7 +547,7 @@ class Communication(BaseEntity):
     """Communication event entity"""
 
     # Communication Identification
-    communication_id: str = Field(default_factory=lambda: f"COMM-{uuid.uuid4().hex[:12].upper()}")
+    communication_id: str = Field(default_factory=lambda: f"COMM-{seeded_uuid_hex()}")
 
     # Communication Details
     communication_type: CommunicationType
@@ -592,7 +598,7 @@ class Relationship(BaseEntity):
     """Relationship between entities"""
 
     # Relationship Identification
-    relationship_id: str = Field(default_factory=lambda: f"REL-{uuid.uuid4().hex[:12].upper()}")
+    relationship_id: str = Field(default_factory=lambda: f"REL-{seeded_uuid_hex()}")
 
     # Entities
     from_entity_id: str
@@ -633,11 +639,11 @@ class Pattern(BaseEntity):
     """Detected pattern entity"""
 
     # Pattern Identification
-    pattern_id: str = Field(default_factory=lambda: f"PTN-{uuid.uuid4().hex[:12].upper()}")
+    pattern_id: str = Field(default_factory=lambda: f"PTN-{seeded_uuid_hex()}")
     pattern_type: str  # insider_trading, tbml, fraud_ring, structuring, cato
 
     # Detection
-    detection_date: datetime = Field(default_factory=datetime.utcnow)
+    detection_date: datetime = Field(default_factory=reference_now)
     detection_method: str
     confidence_score: float  # 0-1 scale
 

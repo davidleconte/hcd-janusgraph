@@ -59,10 +59,12 @@ class BaseGenerator(ABC, Generic[T]):
         self.locale = locale
         self.config = config or {}
 
-        # Initialize Faker with seed
+        # Initialize Faker with seed and reset deterministic counter
         if seed is not None:
             Faker.seed(seed)
             random.seed(seed)
+            from banking.data_generators.utils.deterministic import reset_counter
+            reset_counter(0)
         self.faker = Faker(locale)
         if seed is not None:
             self.faker.seed_instance(seed)

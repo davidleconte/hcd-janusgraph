@@ -89,7 +89,8 @@ class StructuringPatternGenerator(BaseGenerator[Pattern]):
         if time_window_hours is None:
             time_window_hours = random.randint(24, 168)  # 1-7 days
 
-        end_date = datetime.now(timezone.utc)
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(hours=time_window_hours)
 
         entity_ids = [f"PER-{self.faker.uuid4()[:8]}" for _ in range(smurf_count)]
@@ -116,7 +117,7 @@ class StructuringPatternGenerator(BaseGenerator[Pattern]):
         return Pattern(
             pattern_id=f"PTN-STRUCT-{self.faker.uuid4()[:12]}",
             pattern_type="structuring",
-            detection_date=datetime.now(timezone.utc),
+            detection_date=REFERENCE_TIMESTAMP,
             detection_method=f"structuring_analysis_{pattern_type}",
             confidence_score=confidence_score,
             entity_ids=entity_ids,

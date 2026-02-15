@@ -10,6 +10,8 @@ Date: 2026-02-06
 
 import random
 from datetime import datetime, timedelta, timezone
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
@@ -126,7 +128,7 @@ class TradeGenerator(BaseGenerator[Trade]):
 
         # Generate timestamp (within last 90 days)
         trade_date = random_datetime_between(
-            datetime.now(timezone.utc) - timedelta(days=90), datetime.now(timezone.utc)
+            REFERENCE_TIMESTAMP - timedelta(days=90), REFERENCE_TIMESTAMP
         )
 
         # Determine if insider trade
@@ -175,14 +177,14 @@ class TradeGenerator(BaseGenerator[Trade]):
             return generate_stock_ticker()
         elif asset_type == "option":
             base = generate_stock_ticker()
-            expiry = (datetime.now() + timedelta(days=random.randint(30, 365))).strftime("%y%m%d")
+            expiry = (REFERENCE_TIMESTAMP + timedelta(days=random.randint(30, 365))).strftime("%y%m%d")
             strike = random.randint(50, 500)
             call_put = random.choice(["C", "P"])
             return f"{base}{expiry}{call_put}{strike:05d}"
         elif asset_type == "future":
             commodity = random.choice(["CL", "GC", "SI", "ES", "NQ", "ZB"])
             month = random.choice(["H", "M", "U", "Z"])  # Mar, Jun, Sep, Dec
-            year = datetime.now().year % 100
+            year = REFERENCE_TIMESTAMP.year % 100
             return f"{commodity}{month}{year}"
         elif asset_type == "bond":
             return f"US{random.randint(1, 30)}Y"
@@ -350,7 +352,7 @@ class TradeGenerator(BaseGenerator[Trade]):
             List of Trade objects forming insider pattern
         """
         trades = []
-        announcement_date = datetime.now(timezone.utc)
+        announcement_date = REFERENCE_TIMESTAMP
 
         for i in range(trade_count):
             # Trades get closer to announcement date
