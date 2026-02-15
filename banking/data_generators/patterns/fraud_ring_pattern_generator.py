@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional
 from ..core.account_generator import AccountGenerator
 from ..core.base_generator import BaseGenerator
 from ..events.transaction_generator import TransactionGenerator
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.data_models import Pattern, RiskLevel
 from ..utils.helpers import (
     calculate_pattern_confidence,
@@ -116,7 +117,6 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
             duration_days = random.randint(7, 90)
 
         # Generate pattern dates
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=duration_days)
 

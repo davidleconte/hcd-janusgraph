@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional
 
 from ..core.base_generator import BaseGenerator
 from ..utils.constants import COUNTRIES, CURRENCIES
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.data_models import Transaction, TransactionType
 from ..utils.helpers import (
     calculate_transaction_risk_score,
@@ -245,7 +246,6 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             List of structuring transactions
         """
         transactions = []
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         base_time = REFERENCE_TIMESTAMP - timedelta(days=random.randint(1, 30))
 
         for i in range(count):
@@ -283,7 +283,6 @@ class TransactionGenerator(BaseGenerator[Transaction]):
     def _generate_transaction_date(self) -> datetime:
         """Generate transaction date."""
         # Transactions in last 90 days
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=90)
 

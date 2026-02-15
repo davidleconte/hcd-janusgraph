@@ -68,7 +68,7 @@ class GenerationConfig:
 
     # Event counts
     transaction_count: int = 10000
-    communication_count: int = 5000
+    communication_count: int = 200
     trade_count: int = 1000
     travel_count: int = 500
     document_count: int = 2000

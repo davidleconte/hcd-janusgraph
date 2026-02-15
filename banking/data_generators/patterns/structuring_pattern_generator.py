@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 from ..core.base_generator import BaseGenerator
 from ..events.transaction_generator import TransactionGenerator
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.data_models import Pattern, RiskLevel
 from ..utils.helpers import (
     calculate_pattern_confidence,
@@ -89,7 +90,6 @@ class StructuringPatternGenerator(BaseGenerator[Pattern]):
         if time_window_hours is None:
             time_window_hours = random.randint(24, 168)  # 1-7 days
 
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(hours=time_window_hours)
 

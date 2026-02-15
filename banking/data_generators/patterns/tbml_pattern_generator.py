@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..core.base_generator import BaseGenerator
 from ..events.document_generator import DocumentGenerator
 from ..events.transaction_generator import TransactionGenerator
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.constants import COUNTRIES, TAX_HAVENS
 from ..utils.data_models import Pattern, RiskLevel
 from ..utils.helpers import (
@@ -131,7 +132,6 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             duration_days = random.randint(30, 180)
 
         # Generate pattern dates
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         end_date = REFERENCE_TIMESTAMP
         start_date = end_date - timedelta(days=duration_days)
         # Generate entities involved (or select from existing)

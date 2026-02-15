@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..core.base_generator import BaseGenerator
 from ..events.communication_generator import CommunicationGenerator
 from ..events.trade_generator import TradeGenerator
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.data_models import Pattern, RiskLevel
 from ..utils.helpers import (
     calculate_pattern_confidence,
@@ -141,7 +142,6 @@ class InsiderTradingPatternGenerator(BaseGenerator[Pattern]):
             days_before_announcement = random.randint(1, 90)
 
         # Generate announcement date (future or recent past)
-        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
         announcement_date = REFERENCE_TIMESTAMP - timedelta(days=random.randint(0, 30))
 
         # Generate pattern start date
