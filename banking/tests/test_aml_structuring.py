@@ -27,7 +27,7 @@ class TestStructuringDetectorInitialization:
 
         assert detector.ctr_threshold == Decimal("10000.00")
         assert detector.suspicious_threshold == Decimal("9000.00")
-        assert detector.graph_url == "ws://localhost:8182/gremlin"
+        assert detector.graph_url == "ws://localhost:18182/gremlin"
 
     def test_custom_threshold(self):
         """Test detector with custom CTR threshold"""

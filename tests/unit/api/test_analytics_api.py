@@ -103,10 +103,23 @@ class TestHealthEndpoint:
             assert data["status"] == "healthy"
             assert data["services"]["janusgraph"] is True
 
-    @pytest.mark.skip(reason="Requires service unavailability - test covered by integration tests")
     def test_health_returns_degraded_when_disconnected(self, client):
         """Test health returns degraded when JanusGraph is not connected."""
-        pass
+        from src.python.api.routers.health import readiness
+
+        mock_g = MagicMock()
+        mock_g.V.return_value.limit.return_value.count.return_value.next.side_effect = (
+            Exception("Connection failed")
+        )
+        original_fn = readiness.__globals__["get_graph_connection"]
+        readiness.__globals__["get_graph_connection"] = lambda *a, **kw: mock_g
+        try:
+            result = readiness()
+
+            assert result.status == "degraded"
+            assert result.services["janusgraph"] is False
+        finally:
+            readiness.__globals__["get_graph_connection"] = original_fn
 
 
 class TestStatsEndpoint:
@@ -166,12 +179,19 @@ class TestUBODiscoverEndpoint:
 
             assert response.status_code in [200, 404, 500]
 
-    @pytest.mark.skip(
-        reason="Mock gremlin_python returns mock objects - cannot simulate missing company"
-    )
     def test_ubo_discover_returns_404_for_missing_company(self, client):
         """Test UBO discover returns 404 for non-existent company."""
-        pass
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
+            mock_g = MagicMock()
+            mock_conn.return_value = mock_g
+            with patch("src.python.api.routers.ubo.GraphRepository") as mock_repo_cls:
+                mock_repo = MagicMock()
+                mock_repo.get_company.return_value = None
+                mock_repo_cls.return_value = mock_repo
+
+                response = client.post("/api/v1/ubo/discover", json={"company_id": "NONEXIST"})
+
+                assert response.status_code == 404
 
     def test_ubo_discover_validates_request_body(self, client):
         """Test UBO discover validates required fields."""
@@ -225,12 +245,19 @@ class TestUBONetworkEndpoint:
 
             assert response.status_code in [200, 404, 500]
 
-    @pytest.mark.skip(
-        reason="Mock gremlin_python returns mock objects - cannot simulate missing company"
-    )
     def test_network_returns_404_for_missing_company(self, client):
         """Test network returns 404 for non-existent company."""
-        pass
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
+            mock_g = MagicMock()
+            mock_conn.return_value = mock_g
+            with patch("src.python.api.routers.ubo.GraphRepository") as mock_repo_cls:
+                mock_repo = MagicMock()
+                mock_repo.get_company.return_value = None
+                mock_repo_cls.return_value = mock_repo
+
+                response = client.get("/api/v1/ubo/network/NONEXIST")
+
+                assert response.status_code == 404
 
     def test_network_accepts_depth_parameter(self, client):
         """Test network endpoint accepts depth query parameter."""
@@ -437,12 +464,24 @@ class TestRequestValidation:
 class TestErrorHandling:
     """Tests for error handling."""
 
-    @pytest.mark.skip(
-        reason="Requires dependency injection refactor for proper error simulation"
-    )
     def test_internal_error_returns_500(self, client):
-        """Test internal errors return 500 status."""
-        pass
+        """Test internal errors return 500 status - verifies unhandled exceptions propagate."""
+        from src.python.api.routers.ubo import discover_ubo
+
+        inner_fn = discover_ubo.__wrapped__
+        mock_g = MagicMock()
+        mock_g.V.return_value.has.return_value.value_map.return_value.toList.side_effect = (
+            RuntimeError("Unexpected internal error")
+        )
+        original_fn = inner_fn.__globals__["get_graph_connection"]
+        inner_fn.__globals__["get_graph_connection"] = lambda *a, **kw: mock_g
+        try:
+            from src.python.api.models import UBORequest
+
+            with pytest.raises(RuntimeError, match="Unexpected internal error"):
+                inner_fn(MagicMock(), UBORequest(company_id="COMP-001"))
+        finally:
+            inner_fn.__globals__["get_graph_connection"] = original_fn
 
     def test_error_response_includes_detail(self, client):
         """Test error responses include detail message."""

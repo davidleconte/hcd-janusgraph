@@ -192,6 +192,8 @@ class GraphConsumer:
             payload = event.payload
             version = event.version
 
+            skip_keys = {"created_at", "updated_at", "entity_id", "version", "source"}
+
             if event.event_type == "create":
                 # Idempotent create using fold/coalesce with anonymous traversal
                 t = (
@@ -205,7 +207,6 @@ class GraphConsumer:
                 )
 
                 # Chain all payload properties into the same traversal
-                skip_keys = {"created_at", "updated_at", "entity_id", "version", "source"}
                 for key, value in payload.items():
                     if value is not None and key not in skip_keys:
                         if isinstance(value, (int, float, bool)):

@@ -125,22 +125,22 @@ class TestPersonGeneratorEdgeCases:
 class TestPersonGeneratorReproducibility:
     """Reproducibility tests"""
 
-    @pytest.mark.skip(
-        reason="Faker library limitation: seed() is global and doesn't guarantee deterministic output across separate instances. For deterministic testing, use fixture-based data or mock Faker. See banking/data_generators/core/base_generator.py docstring for details."
-    )
     def test_same_seed_same_output(self):
-        """Test that same seed produces same output"""
-        from banking.data_generators.core.person_generator import PersonGenerator
+        """Test that MasterOrchestrator produces deterministic person output with same seed."""
+        from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
-        gen1 = PersonGenerator(seed=42)
-        gen2 = PersonGenerator(seed=42)
+        config = GenerationConfig(seed=42, person_count=5, company_count=0, account_count=0, transaction_count=0, communication_count=0)
 
-        person1 = gen1.generate()
-        person2 = gen2.generate()
+        orch1 = MasterOrchestrator(config)
+        orch1.generate_all()
+        persons1 = [(p.first_name, p.last_name, p.date_of_birth) for p in orch1.persons]
 
-        assert person1.first_name == person2.first_name
-        assert person1.last_name == person2.last_name
-        assert person1.date_of_birth == person2.date_of_birth
+        config2 = GenerationConfig(seed=42, person_count=5, company_count=0, account_count=0, transaction_count=0, communication_count=0)
+        orch2 = MasterOrchestrator(config2)
+        orch2.generate_all()
+        persons2 = [(p.first_name, p.last_name, p.date_of_birth) for p in orch2.persons]
+
+        assert persons1 == persons2
 
     def test_different_seed_different_output(self):
         """Test that different seeds produce different output"""
@@ -163,7 +163,6 @@ class TestPersonGeneratorReproducibility:
 class TestPersonGeneratorPerformance:
     """Performance tests"""
 
-    @pytest.mark.skip(reason="Requires pytest-benchmark plugin which provides 'benchmark' fixture")
     @pytest.mark.benchmark
     def test_generation_speed(self, person_generator, benchmark):
         """Benchmark person generation speed"""

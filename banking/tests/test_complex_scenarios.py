@@ -151,11 +151,9 @@ class TestCheckBehaviorComplexScenarios:
         mock_g = MagicMock()
         mock_traversal = MagicMock()
         mock_traversal.toList.return_value = []  # No transaction history
-        mock_g.V.return_value.has.return_value.outE.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value = (
+        mock_g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value = (
             mock_traversal
         )
-        mock_conn.return_value.__enter__ = Mock(return_value=mock_g)
-        mock_conn.return_value.__exit__ = Mock(return_value=False)
 
         with patch("banking.fraud.fraud_detection.traversal") as mock_traversal_func:
             mock_traversal_func.return_value.with_remote.return_value = mock_g
@@ -167,8 +165,7 @@ class TestCheckBehaviorComplexScenarios:
                 description="Online purchase",
             )
 
-            # First transaction should have moderate baseline risk
-            assert 0.2 <= risk_score <= 0.5, "First transaction should have moderate risk"
+            assert 0.2 <= risk_score <= 0.5, f"First transaction should have moderate risk, got {risk_score}"
 
     @patch("banking.fraud.fraud_detection.EmbeddingGenerator")
     @patch("banking.fraud.fraud_detection.VectorSearchClient")

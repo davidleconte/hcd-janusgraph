@@ -30,7 +30,7 @@ class TestFraudDetectorInitialization:
         ):
             detector = FraudDetector()
 
-            assert detector.graph_url == "ws://localhost:8182/gremlin"
+            assert detector.graph_url == "ws://localhost:18182/gremlin"
             assert detector.fraud_index == "fraud_cases"
 
     def test_custom_hosts_ports(self):

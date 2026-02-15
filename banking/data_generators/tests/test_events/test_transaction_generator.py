@@ -144,26 +144,22 @@ class TestTransactionGeneratorEdgeCases:
 class TestTransactionGeneratorReproducibility:
     """Reproducibility tests"""
 
-    @pytest.mark.skip(
-        reason="Faker library does not guarantee deterministic output across separate instances even with same seed. This is a known limitation."
-    )
     def test_same_seed_same_output(self, sample_accounts):
-        """Test that same seed produces same output"""
-        from banking.data_generators.events.transaction_generator import TransactionGenerator
+        """Test that MasterOrchestrator produces deterministic transaction output with same seed."""
+        from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
-        gen1 = TransactionGenerator(seed=42)
-        gen2 = TransactionGenerator(seed=42)
+        config = GenerationConfig(seed=42, person_count=5, company_count=2, account_count=10, transaction_count=20, communication_count=0)
 
-        txn1 = gen1.generate(
-            from_account_id=sample_accounts[0].id, to_account_id=sample_accounts[1].id
-        )
-        txn2 = gen2.generate(
-            from_account_id=sample_accounts[0].id, to_account_id=sample_accounts[1].id
-        )
+        orch1 = MasterOrchestrator(config)
+        orch1.generate_all()
+        txns1 = [(t.amount, t.currency, t.transaction_type) for t in orch1.transactions]
 
-        assert txn1.amount == txn2.amount
-        assert txn1.currency == txn2.currency
-        assert txn1.transaction_type == txn2.transaction_type
+        config2 = GenerationConfig(seed=42, person_count=5, company_count=2, account_count=10, transaction_count=20, communication_count=0)
+        orch2 = MasterOrchestrator(config2)
+        orch2.generate_all()
+        txns2 = [(t.amount, t.currency, t.transaction_type) for t in orch2.transactions]
+
+        assert txns1 == txns2
 
 
 class TestTransactionGeneratorPerformance:
