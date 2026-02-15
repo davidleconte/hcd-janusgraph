@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Embedding Generator for Banking Use Cases
 Generates vector embeddings for text data using sentence-transformers
