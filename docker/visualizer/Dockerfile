@@ -14,8 +14,9 @@ RUN apk add --no-cache git curl
 # Clone JanusGraph Visualizer
 RUN git clone https://github.com/JanusGraph/janusgraph-visualizer.git .
 
-# Install dependencies
+# Install dependencies and build production assets
 RUN npm install
+RUN npm run build
 
 # Configure connection to JanusGraph server
 # The visualizer reads configuration from environment variables

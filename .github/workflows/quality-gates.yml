@@ -37,8 +37,10 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install --system pytest pytest-cov pytest-asyncio pytest-mock pytest-timeout
-          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-ci.txt
-          uv pip install --system -r requirements-ci.txt || true
+          grep -ivE "appnope|pyobjc|pycairo|pygobject|accelerate|bitsandbytes|triton|torch" requirements.txt > requirements-ci.txt
+          uv pip install --system -r requirements-ci.txt
+          echo "Installed $(uv pip list --system 2>/dev/null | wc -l) packages"
+          python -c "import pydantic, starlette, numpy; print('Critical imports OK')"
 
       - name: Run tests with coverage
         run: |

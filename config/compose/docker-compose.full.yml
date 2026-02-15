@@ -119,7 +119,7 @@ services:
     restart: unless-stopped
 
   opensearch-dashboards:
-    image: docker.io/opensearchproject/opensearch-dashboards:2.11.1
+    image: docker.io/opensearchproject/opensearch-dashboards:3.4.0
     hostname: opensearch-dashboards
     deploy:
       resources:

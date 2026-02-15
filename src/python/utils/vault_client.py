@@ -440,7 +440,7 @@ class VaultClient:
                 )
                 return response["data"]["keys"]
             except Exception as e:
-                if "not found" in str(e).lower() or response is None:
+                if "not found" in str(e).lower():
                     return []
                 raise VaultError(f"Failed to list secrets at '{path}': {e}")
 
