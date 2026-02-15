@@ -19,6 +19,7 @@ All audit events are logged in structured JSON format with:
 
 import json
 import logging
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
@@ -129,7 +130,7 @@ class AuditLogger:
 
     def __init__(
         self,
-        log_dir: str = "/var/log/janusgraph",
+        log_dir: str = os.environ.get("AUDIT_LOG_DIR", "/var/log/janusgraph"),
         log_file: str = "audit.log",
         min_severity: AuditSeverity = AuditSeverity.INFO,
     ):

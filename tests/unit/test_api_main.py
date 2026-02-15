@@ -154,5 +154,128 @@ class TestHealthEndpoints:
         assert "/healthz" in schema["paths"]
 
 
+class TestConfigureLogging:
+    @patch("banking.compliance.audit_logger.Path.mkdir")
+    def test_configure_logging_text_format(self, _mock_mkdir):
+        from src.python.api.main import _configure_logging
+
+        settings = MagicMock()
+        settings.log_level = "INFO"
+        settings.log_json = False
+        _configure_logging(settings)
+
+    @patch("banking.compliance.audit_logger.Path.mkdir")
+    def test_configure_logging_json_format(self, _mock_mkdir):
+        from src.python.api.main import _configure_logging
+
+        settings = MagicMock()
+        settings.log_level = "DEBUG"
+        settings.log_json = True
+        _configure_logging(settings)
+
+
+@patch("banking.compliance.audit_logger.Path.mkdir")
+class TestErrorResponse:
+    def test_error_response_structure(self, _mock_mkdir):
+        from src.python.api.main import _error_response
+
+        resp = _error_response(404, "not_found", "Resource not found")
+        assert resp.status_code == 404
+
+    def test_error_response_500(self, _mock_mkdir):
+        from src.python.api.main import _error_response
+
+        resp = _error_response(500, "internal_error", "Something went wrong")
+        assert resp.status_code == 500
+
+
+@patch("banking.compliance.audit_logger.Path.mkdir")
+class TestLifespan:
+    @patch("src.python.api.main.get_settings")
+    @patch("src.python.utils.startup_validation.validate_startup")
+    @patch("src.python.utils.tracing.initialize_tracing")
+    @patch("src.python.api.main.close_graph_connection")
+    def test_lifespan_happy_path(self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir):
+        from fastapi.testclient import TestClient
+
+        from src.python.api.main import create_app
+
+        mock_settings.return_value = MagicMock(
+            log_level="INFO",
+            log_json=False,
+            tracing_enabled=False,
+            api_cors_origins="*",
+            cors_origins_list=["*"],
+            rate_limit_per_minute=60,
+        )
+        mock_result = MagicMock()
+        mock_result.has_errors = False
+        mock_result.issues = []
+        mock_validate.return_value = mock_result
+        mock_tracing.return_value = MagicMock()
+
+        app = create_app()
+        with TestClient(app):
+            pass
+
+        mock_close.assert_called_once()
+
+    @patch("src.python.api.main.get_settings")
+    @patch("src.python.utils.startup_validation.validate_startup")
+    def test_lifespan_validation_errors(self, mock_validate, mock_settings, _mock_mkdir):
+        from fastapi.testclient import TestClient
+
+        from src.python.api.main import create_app
+
+        mock_settings.return_value = MagicMock(
+            log_level="INFO",
+            log_json=False,
+            tracing_enabled=False,
+            api_cors_origins="*",
+            cors_origins_list=["*"],
+            rate_limit_per_minute=60,
+        )
+        mock_result = MagicMock()
+        mock_result.has_errors = True
+        mock_issue = MagicMock()
+        mock_issue.message = "Invalid config"
+        mock_result.issues = [mock_issue]
+        mock_validate.return_value = mock_result
+
+        app = create_app()
+        with pytest.raises(RuntimeError, match="Startup validation failed"):
+            with TestClient(app):
+                pass
+
+    @patch("src.python.api.main.get_settings")
+    @patch("src.python.utils.startup_validation.validate_startup")
+    @patch("src.python.utils.tracing.initialize_tracing")
+    @patch("src.python.api.main.close_graph_connection")
+    def test_lifespan_with_warnings(self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir):
+        from fastapi.testclient import TestClient
+
+        from src.python.api.main import create_app
+
+        mock_settings.return_value = MagicMock(
+            log_level="INFO",
+            log_json=False,
+            tracing_enabled=False,
+            api_cors_origins="*",
+            cors_origins_list=["*"],
+            rate_limit_per_minute=60,
+        )
+        mock_result = MagicMock()
+        mock_result.has_errors = False
+        mock_issue = MagicMock()
+        mock_issue.message = "Non-critical warning"
+        mock_result.issues = [mock_issue]
+        mock_validate.return_value = mock_result
+        mock_tracing.return_value = MagicMock()
+
+        app = create_app()
+        with TestClient(app):
+            pass
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
