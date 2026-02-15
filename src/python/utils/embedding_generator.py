@@ -14,11 +14,14 @@ from typing import List, Optional, Union
 
 try:
     import numpy as np
+except ImportError:
+    np = None  # type: ignore[assignment]
+
+try:
     from sentence_transformers import SentenceTransformer
 
     _HAS_ML_DEPS = True
 except ImportError:
-    np = None  # type: ignore[assignment]
     SentenceTransformer = None  # type: ignore[assignment,misc]
     _HAS_ML_DEPS = False
 
