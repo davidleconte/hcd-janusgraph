@@ -42,6 +42,10 @@ RUN sed -i \
         -e "s|- seeds:.*|- seeds: \"hcd-server\"|" \
         -e "s|^auto_bootstrap:.*|auto_bootstrap: false|" \
         -e "/^auto_bootstrap:/! s|^endpoint_snitch:|auto_bootstrap: false\nendpoint_snitch:|" \
+        /opt/hcd/resources/cassandra/conf/cassandra.yaml && \
+    sed -i \
+        -e 's/^# guardrails:/guardrails:/' \
+        -e 's/^  # tombstone_failure_threshold: 100000/  tombstone_failure_threshold: 500000/' \
         /opt/hcd/resources/cassandra/conf/cassandra.yaml
 
 # Expose ports
