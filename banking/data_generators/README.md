@@ -62,10 +62,37 @@ banking/data_generators/
 └── utils/                             # Utility functions
     ├── __init__.py
     ├── data_models.py                # Pydantic data models
+    ├── deterministic.py              # Seeded UUID + reference timestamp for reproducibility
     ├── constants.py                  # Constants (countries, currencies, etc.)
     ├── helpers.py                    # Helper functions
     └── validators.py                 # Data validation
 ```
+
+---
+
+## Deterministic Pipeline
+
+All generators produce **fully reproducible output** given the same seed. This is enforced by three mechanisms:
+
+1. **Seeded UUIDs** — `data_models.py` default factories use `seeded_uuid_hex()` (SHA-256 counter) instead of `uuid.uuid4()`
+2. **Fixed Reference Timestamp** — all date ranges use `REFERENCE_TIMESTAMP = 2026-01-15T12:00:00Z` instead of `datetime.now()`
+3. **Counter Reset** — `BaseGenerator.__init__` resets the deterministic counter when a seed is provided
+
+```python
+from banking.data_generators.core.person_generator import PersonGenerator
+
+gen1 = PersonGenerator(seed=42)
+gen2 = PersonGenerator(seed=42)
+
+p1 = gen1.generate()
+p2 = gen2.generate()
+
+assert p1.id == p2.id              # Same ID
+assert p1.full_name == p2.full_name  # Same name
+assert p1.created_at == p2.created_at  # Same timestamp
+```
+
+The deterministic utilities are in `banking/data_generators/utils/deterministic.py`.
 
 ---
 

@@ -545,10 +545,24 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 
 ### Data Generators
 
-**Generators MUST use seeds for reproducibility** - all generators inherit from BaseGenerator and require seed parameter:
+**Generators are fully deterministic with seeds** — all generators inherit from BaseGenerator. When a seed is provided, three mechanisms ensure identical output across runs:
+
+1. `Faker.seed(seed)` + `random.seed(seed)` for all random values
+2. `reset_counter(0)` resets the seeded UUID counter (SHA-256 based)
+3. All timestamps use `REFERENCE_TIMESTAMP = 2026-01-15T12:00:00Z` instead of `datetime.now()`
 
 ```python
-generator = PersonGenerator(seed=42)  # Required for deterministic output
+generator = PersonGenerator(seed=42)  # Fully deterministic output
+```
+
+**IMPORTANT: Always set `communication_count` in test configs** — `GenerationConfig` defaults to `communication_count=5000`, which takes 90+ seconds. For tests, always set explicitly:
+
+```python
+config = GenerationConfig(
+    seed=42,
+    person_count=10,
+    communication_count=10,  # REQUIRED — default 5000 causes timeouts
+)
 ```
 
 **Pattern generators require ALL entity lists** - cannot inject patterns without complete context:

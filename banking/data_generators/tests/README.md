@@ -176,8 +176,27 @@ Common fixtures available in all tests (defined in `conftest.py`):
 
 ### Orchestrator Fixtures
 
-- `small_orchestrator` - Orchestrator with small config (10/5/20 entities)
-- `medium_orchestrator` - Orchestrator with medium config (100/50/200 entities)
+- `small_orchestrator` - Orchestrator with small config (10/2/15 entities, communication_count=20)
+- `medium_orchestrator` - Orchestrator with medium config (100/20/200 entities, communication_count=500)
+
+> **⚠️ IMPORTANT**: Always set `communication_count` explicitly in `GenerationConfig`.
+> The default is 5000, which takes 90+ seconds per test. Use 10-50 for unit tests.
+
+## Deterministic Testing
+
+All generators produce identical output given the same seed. The test suite verifies this:
+
+```python
+# Two runs with same seed produce identical data
+gen1 = PersonGenerator(seed=42)
+gen2 = PersonGenerator(seed=42)
+assert gen1.generate().id == gen2.generate().id
+```
+
+This is powered by `banking/data_generators/utils/deterministic.py`:
+- **Seeded UUIDs**: SHA-256 counter reset on each `BaseGenerator.__init__`
+- **Fixed timestamps**: `REFERENCE_TIMESTAMP = 2026-01-15T12:00:00Z`
+- **Seeded random**: `random.seed(seed)` + `Faker.seed(seed)`
 
 ## Test Coverage
 

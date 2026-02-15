@@ -9,16 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Fully Deterministic Data Pipeline** — all generators now produce identical output given the same seed
+  - `banking/data_generators/utils/deterministic.py` — seeded SHA-256 UUID counter + fixed reference timestamp (`2026-01-15T12:00:00Z`)
+  - `reset_counter(0)` called automatically in `BaseGenerator.__init__` when seed is provided
+  - All `uuid.uuid4()` default factories in `data_models.py` replaced with `seeded_uuid_hex()`
+  - All `datetime.utcnow()` / `datetime.now()` in 9 generator files replaced with `REFERENCE_TIMESTAMP`
 - **Repository Pattern** — `src/python/repository/graph_repository.py` centralizes all Gremlin traversals behind a typed interface (100% test coverage, 25 tests)
 - **Test Suites for 0% Coverage Modules**
   - `tests/unit/init/test_initialize_graph.py` — 15 tests (87% coverage)
   - `tests/unit/loaders/test_janusgraph_loader.py` — 20 tests (44% coverage)
   - `tests/unit/repository/test_graph_repository.py` — 25 tests (100% coverage)
 
+### Fixed
+
+- **Orchestrator test timeouts** — all `GenerationConfig` inline instances now set explicit `communication_count` (was defaulting to 5000, causing 90s+ per test); 19/19 orchestrator tests pass in 21s
+- **E2E test timeouts** — same `communication_count` fix applied; 5/5 E2E tests pass in 10s
+- **GenerationStats attribute mismatches** — tests updated to use actual attributes (`total_records`, `patterns_generated`, `generation_time_seconds`)
+- **Export structure assertions** — tests updated to handle both `id` and `person_id` field names
+- **Amount type casting** — `float()` applied to JSON-serialized Decimal amounts in statistical validation
+
 ### Changed
 
 - All 4 API routers (`health`, `fraud`, `aml`, `ubo`) refactored to use `GraphRepository` — zero inline Gremlin queries
 - `dependencies.flatten_value_map()` now delegates to repository layer (backward compatible)
+- Data generator test suite: **190 passed, 3 skipped, 0 failed** (previously 12 timeouts + attribute errors)
 
 ## [1.4.0] - 2026-02-14
 
