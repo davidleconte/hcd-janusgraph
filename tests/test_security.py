@@ -206,6 +206,7 @@ class TestAuthentication:
             os.environ.pop("JANUSGRAPH_USERNAME", None)
             os.environ.pop("JANUSGRAPH_PASSWORD", None)
 
+    @pytest.mark.integration
     def test_opensearch_requires_auth(self):
         """Test OpenSearch client requires authentication."""
         from src.python.utils.vector_search import VectorSearchClient

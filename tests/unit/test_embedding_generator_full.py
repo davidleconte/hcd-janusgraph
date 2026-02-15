@@ -16,7 +16,8 @@ class FakeSentenceTransformer:
 
 @pytest.fixture(autouse=True)
 def mock_sentence_transformer():
-    with patch("src.python.utils.embedding_generator.SentenceTransformer", FakeSentenceTransformer):
+    with patch("src.python.utils.embedding_generator.SentenceTransformer", FakeSentenceTransformer), \
+         patch("src.python.utils.embedding_generator._HAS_ML_DEPS", True):
         yield
 
 
