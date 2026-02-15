@@ -435,8 +435,8 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 
 ### Project Status
 
-- **Production Readiness:** A+ (98/100)
-- **Test Coverage:** 2948 tests collected, 202 integration tests (100% pass rate, 0 skipped)
+- **Production Readiness:** B+ (90/100) — See `docs/implementation/remediation-plan-workingB-plus.md`
+- **Test Coverage:** 64% line coverage, 1597 unit tests pass in CI, 144/202 integration tests pass (2 Cassandra tombstone failures, 56 skipped)
 - **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging, Startup Validation)
 - **Compliance:** GDPR, SOC 2, BSA/AML, PCI DSS ready
 - **CI Quality Gates:** 8 workflows (coverage, docstrings, security, types, lint)
@@ -555,13 +555,13 @@ podman exec -e VAULT_TOKEN=$VAULT_APP_TOKEN vault-server vault kv get janusgraph
 generator = PersonGenerator(seed=42)  # Fully deterministic output
 ```
 
-**IMPORTANT: Always set `communication_count` in test configs** — `GenerationConfig` defaults to `communication_count=5000`, which takes 90+ seconds. For tests, always set explicitly:
+**IMPORTANT: Always set `communication_count` in test configs** — `GenerationConfig` defaults to `communication_count=200`. For large-scale tests, set explicitly:
 
 ```python
 config = GenerationConfig(
     seed=42,
     person_count=10,
-    communication_count=10,  # REQUIRED — default 5000 causes timeouts
+    communication_count=10,  # Override default 200 for fast tests
 )
 ```
 
@@ -837,7 +837,7 @@ pytest -v -m "slow"
 
 ### Test Coverage
 
-**2948 tests collected** | **202 integration tests** (100% pass, 0 skipped) | **~18% line coverage** (broad codebase, focused on critical paths):
+**1597 unit tests pass in CI** | **144 integration tests pass** (2 Cassandra tombstone failures, 56 skipped) | **64% line coverage**:
 
 ```
 Module                          Coverage    Notes
@@ -1073,7 +1073,7 @@ Brief overview...
 
 ### Current Status
 
-**Overall Grade:** A+ (98/100) ✅
+**Overall Grade:** B+ (90/100) — Post-P0 remediation
 
 **Category Scores:**
 
