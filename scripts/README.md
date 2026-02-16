@@ -210,6 +210,19 @@ Scripts for running automated tests.
 - **Usage:** `./run_integration_tests.sh`
 - **Requirements:** Full stack must be running
 
+#### [`run_notebooks_live_repeatable.sh`](testing/run_notebooks_live_repeatable.sh)
+
+- **Purpose:** Run all banking + exploratory notebooks in live mode with deterministic settings
+- **Usage:** `./run_notebooks_live_repeatable.sh`
+- **Output:** `notebook_run_report.tsv` with status, runtime, and error-cell counts per notebook
+- **Controls:**
+  - `DEMO_RUN_ID`
+  - `DEMO_SEED`
+  - `DEMO_FORCE_MOCK_PULSAR` (`1` to force mock streaming in Notebook 11)
+  - `DEMO_NOTEBOOK_TOTAL_TIMEOUT`
+  - `DEMO_NOTEBOOK_CELL_TIMEOUT`
+- **Requirements:** Jupyter service must be reachable and service stack running
+
 #### [`test_phase5_setup.py`](testing/test_phase5_setup.py)
 
 - **Purpose:** Validate Phase 5 ML/AI setup

@@ -354,6 +354,74 @@ Pre-loaded graph includes:
 
 ---
 
+## Demo Determinism and Generator Impact
+
+### Simple mental model
+
+Think of data generators like a shared kitchen:
+- **Generators are shared tools** (`PersonGenerator`, `TransactionGenerator`, `CompanyGenerator`, ...).
+- **Notebooks are recipes** that use some of those tools.
+- If you change one generator, every recipe that uses that generator can change.
+
+So: not one generator per notebook, but many notebooks can use the same generator family.
+
+### What this means in this project (now)
+
+| Notebook | Direct generator usage | Shared generator impact surface |
+|----------|-----------------------|-------------------------------|
+| `banking/notebooks/11_Streaming_Pipeline_Demo.ipynb` | `StreamingOrchestrator`, `StreamingConfig`, `EntityEvent` factories | Uses `MasterOrchestrator` and all core/event/pattern generators through one shared path (`banking/data_generators/orchestration/master_orchestrator.py`) |
+| `banking/notebooks/10_Integrated_Architecture_Demo.ipynb` | `create_person_event` | Uses `banking/streaming/events.py` mapping and topic routing only |
+| Other banking demos | No direct data generator imports | Usually read/consume already-loaded/served data; any core generator change only impacts them when shared orchestrator services are used upstream |
+
+### Notebook #11 impact and stability
+
+- Notebook 11 is special because it **creates and publishes an end-to-end synthetic data stream** in one run.
+- It is deterministic by default when you keep `seed=42`, but non-deterministic effects can still come from runtime state:
+  - temporary folders and file paths,
+  - service availability (real Pulsar vs mock producer branch),
+  - timing and retries from external services.
+
+### Repeatable live pipeline (implemented)
+
+Use:
+
+```bash
+cd /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph
+./scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+What it enforces for demo runs:
+
+1. Fixed execution shape
+   - stable run id: `DEMO_RUN_ID`
+   - stable random seed: `DEMO_SEED` (default `42`)
+   - stable hash seed: `PYTHONHASHSEED=0`
+   - optional mock-only streaming mode: `DEMO_FORCE_MOCK_PULSAR=1` (forces deterministic mock producer in Notebook 11)
+
+2. Deterministic runtime boundaries
+   - notebook-level timeout: `DEMO_NOTEBOOK_TOTAL_TIMEOUT` (default `420s`)
+   - per-cell timeout: `DEMO_NOTEBOOK_CELL_TIMEOUT` (default `180s`)
+
+3. Post-run validation
+   - each executed notebook is checked for `output_type: "error"`
+   - a consolidated report is written to `exports/<run_id>/notebook_run_report.tsv`
+
+Example (full control):
+
+```bash
+DEMO_RUN_ID=stable-2026-02-16 \
+DEMO_SEED=42 \
+DEMO_FORCE_MOCK_PULSAR=1 \
+DEMO_NOTEBOOK_TOTAL_TIMEOUT=600 \
+DEMO_NOTEBOOK_CELL_TIMEOUT=200 \
+PODMAN_CONNECTION=podman-wxd \
+./scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+This gives you a strong, repeatable demo baseline without touching generator logic.
+
+---
+
 ## Requirements
 
 - **Podman** 4.9+ (or Docker with Compose plugin)
