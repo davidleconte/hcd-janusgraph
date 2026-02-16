@@ -319,7 +319,7 @@ tomli_w==1.2.0
 tomlkit==0.14.0
 torch==2.10.0
 torchaudio==2.1.0
-torchvision==0.16.0
+torchvision==0.25.0
 tornado==6.5.4
 tqdm==4.67.3
 traitlets==5.14.3
