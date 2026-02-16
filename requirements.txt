@@ -96,7 +96,7 @@ huggingface_hub==1.4.1
 hvac==2.4.0
 hvplot==0.12.2
 hyperframe==6.1.0
-hypothesis==6.151.6
+hypothesis==6.151.7
 identify==2.6.16
 idna==3.11
 igraph==1.0.0
