@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `tests/unit/init/test_initialize_graph.py` — 15 tests (87% coverage)
   - `tests/unit/loaders/test_janusgraph_loader.py` — 20 tests (44% coverage)
   - `tests/unit/repository/test_graph_repository.py` — 25 tests (100% coverage)
+- **Streaming and Pipeline Reliability Test Expansion** — additional unit and integration tests for AML/fraud/streaming paths
+  - Added integration utility helpers and coverage-focused unit tests (`tests/integration/_integration_test_utils.py`, `tests/unit/test_streaming_coverage.py`,
+    `tests/unit/test_aml_enhanced.py`, `tests/unit/test_dlq_handler.py`, `tests/unit/test_notebook_compat.py`, etc.)
+- **Notebook and Streaming Pipeline Assets** — updated execution-focused notebooks (`07_Insider_Trading_Detection_Demo`, `08_UBO_Discovery_Demo`, `11_Streaming_Pipeline_Demo`) and exploratory materials with current routing/compatibility fixes
 
 ### Fixed
 
@@ -27,12 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **GenerationStats attribute mismatches** — tests updated to use actual attributes (`total_records`, `patterns_generated`, `generation_time_seconds`)
 - **Export structure assertions** — tests updated to handle both `id` and `person_id` field names
 - **Amount type casting** — `float()` applied to JSON-serialized Decimal amounts in statistical validation
+- **Streaming and service integration gaps** — hardening updates in streaming producer/event handling and deployment/validation scripts
+- **Authentication/session edge cases** — MFA and session lifecycle paths updated in API and security modules to reduce login/session flakiness
+- **Vault bootstrap reliability** — improved initialization and policy flow handling across setup/security scripts
 
 ### Changed
 
 - All 4 API routers (`health`, `fraud`, `aml`, `ubo`) refactored to use `GraphRepository` — zero inline Gremlin queries
 - `dependencies.flatten_value_map()` now delegates to repository layer (backward compatible)
 - Data generator test suite: **190 passed, 3 skipped, 0 failed** (previously 12 timeouts + attribute errors)
+- **Deployment/test automation** scripts now include stricter podman/service lifecycle checks (`scripts/deployment`, `scripts/testing`, `scripts/validation`, `scripts/hcd/health_check.sh`)
+- **Production readiness tooling** expanded (`scripts/security/credential_rotation_framework.py`, `scripts/validation/production_readiness_check.py`) to tighten preflight checks and credential policy handling
 
 ## [1.4.0] - 2026-02-14
 
