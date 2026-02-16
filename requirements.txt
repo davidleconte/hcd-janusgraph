@@ -279,7 +279,7 @@ ruamel.yaml==0.19.1
 ruff==0.15.0
 safetensors==0.7.0
 safety==3.7.0
-safety-schemas==0.0.16
+safety-schemas==0.0.18
 scikit-learn==1.8.0
 scipy==1.17.0
 seaborn==0.13.0
