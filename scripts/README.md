@@ -223,6 +223,16 @@ Scripts for running automated tests.
   - `DEMO_NOTEBOOK_CELL_TIMEOUT`
 - **Requirements:** Jupyter service must be reachable and service stack running
 
+#### [`check_graph_counts.sh`](testing/check_graph_counts.sh)
+
+- **Purpose:** Verify HCD keyspace storage health and true JanusGraph cardinality in one command.
+- **Usage:** `./check_graph_counts.sh`
+- **Output:**
+  - CQL storage metrics (`edgestore`, `janusgraph_ids`, `graphindex` row counts)
+  - Gremlin graph metrics (true `vertices`, `edges`)
+  - A short interpretation block that explains why storage-row counts are not the same as graph entity/edge counts.
+- **Requirements:** Containers for `janusgraph-demo_cqlsh-client_1`, `janusgraph-demo_jupyter_1` (or `janusgraph-demo_gremlin-console_1`), and `janusgraph-demo_hcd-server_1` must be running.
+
 #### [`test_phase5_setup.py`](testing/test_phase5_setup.py)
 
 - **Purpose:** Validate Phase 5 ML/AI setup
