@@ -10,9 +10,33 @@ import time
 import pytest
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.protocol import GremlinServerError
+from tests.integration._integration_test_utils import run_with_timeout_bool
 
 
-@pytest.fixture(scope="module")
+def _check_janusgraph_available() -> bool:
+    """Check whether JanusGraph is reachable within a short timeout."""
+
+    def _check() -> bool:
+        test_client = client.Client(
+            "ws://localhost:18182/gremlin",
+            "g",
+            message_serializer=serializer.GraphSONSerializersV3d0(),
+        )
+        test_client.submit("g.V().limit(1)").all().result()
+        test_client.close()
+        return True
+
+    return run_with_timeout_bool(_check, timeout_seconds=5.0, default=False)
+
+
+JANUSGRAPH_AVAILABLE = _check_janusgraph_available()
+pytestmark = pytest.mark.skipif(
+    not JANUSGRAPH_AVAILABLE,
+    reason="JanusGraph not available",
+)
+
+
+@pytest.fixture(scope="function")
 def jg():
     """Fixture to provide JanusGraphClient instance"""
     client = JanusGraphClient(host="localhost", port=18182)
@@ -75,6 +99,12 @@ class JanusGraphClient:
             print("🔌 Disconnected from JanusGraph")
 
 
+def assert_result(result, description):
+    """Assert a Gremlin query returned a result."""
+    assert result is not None, f"{description} returned no result"
+
+
+@pytest.mark.timeout(30)
 def test_basic_queries(jg):
     """Run basic test queries"""
     print("\n" + "=" * 60)
@@ -84,22 +114,26 @@ def test_basic_queries(jg):
     # Count vertices
     print("\n1️⃣  Count all vertices:")
     result = jg.execute("g.V().count()")
-    print(f"   Total vertices: {result[0] if result else 'N/A'}")
+    assert_result(result, "g.V().count()")
+    print(f"   Total vertices: {result[0]}")
 
     # Count edges
     print("\n2️⃣  Count all edges:")
     result = jg.execute("g.E().count()")
-    print(f"   Total edges: {result[0] if result else 'N/A'}")
+    assert_result(result, "g.E().count()")
+    print(f"   Total edges: {result[0]}")
 
     # Count by vertex label
     print("\n3️⃣  Count vertices by label:")
     labels = ["person", "company", "product"]
     for label in labels:
         result = jg.execute(f"g.V().hasLabel('{label}').count()")
-        count = result[0] if result else 0
+        assert_result(result, f"Count query for {label}")
+        count = result[0]
         print(f"   {label}: {count}")
 
 
+@pytest.mark.timeout(45)
 def test_person_queries(jg):
     """Run queries for person vertices"""
     print("\n" + "=" * 60)
@@ -109,33 +143,42 @@ def test_person_queries(jg):
     # Get all person names
     print("\n1️⃣  All people:")
     result = jg.execute("g.V().hasLabel('person').values('name')")
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(result, "g.V().hasLabel('person').values('name')")
+    for name in result:
+        print(f"   - {name}")
 
     # Find person by name
     print("\n2️⃣  Find Alice Johnson:")
     result = jg.execute("g.V().has('person', 'name', 'Alice Johnson').valueMap()")
-    if result:
-        print(f"   {result[0]}")
+    assert_result(
+        result, "g.V().has('person', 'name', 'Alice Johnson').valueMap()"
+    )
+    print(f"   {result[0]}")
 
     # Get people in San Francisco
     print("\n3️⃣  People in San Francisco:")
     result = jg.execute("g.V().hasLabel('person').has('location', 'San Francisco').values('name')")
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(
+        result,
+        "g.V().hasLabel('person').has('location', 'San Francisco').values('name')",
+    )
+    for name in result:
+        print(f"   - {name}")
 
     # People aged 25-30
     print("\n4️⃣  People aged 25-30:")
     result = jg.execute(
         "g.V().hasLabel('person').has('age', gte(25)).has('age', lte(30)).values('name')"
     )
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(
+        result,
+        "g.V().hasLabel('person').has('age', gte(25)).has('age', lte(30)).values('name')",
+    )
+    for name in result:
+        print(f"   - {name}")
 
 
+@pytest.mark.timeout(45)
 def test_relationship_queries(jg):
     """Run queries exploring relationships"""
     print("\n" + "=" * 60)
@@ -145,40 +188,53 @@ def test_relationship_queries(jg):
     # Alice's friends
     print("\n1️⃣  Who does Alice know?")
     result = jg.execute("g.V().has('person', 'name', 'Alice Johnson').out('knows').values('name')")
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(
+        result,
+        "g.V().has('person', 'name', 'Alice Johnson').out('knows').values('name')",
+    )
+    for name in result:
+        print(f"   - {name}")
 
     # Who works at DataStax
     print("\n2️⃣  Who works at DataStax?")
     result = jg.execute(
         "g.V().has('company', 'name', 'DataStax').in('worksFor').valueMap('name', 'role')"
     )
-    if result:
-        for person in result:
-            name = person.get("name", ["N/A"])[0]
-            role = person.get("role", ["N/A"])[0]
-            print(f"   - {name} ({role})")
+    assert_result(
+        result,
+        "g.V().has('company', 'name', 'DataStax').in('worksFor').valueMap('name', 'role')",
+    )
+    for person in result:
+        name = person.get("name", ["N/A"])[0]
+        role = person.get("role", ["N/A"])[0]
+        print(f"   - {name} ({role})")
 
     # Products created by companies
     print("\n3️⃣  Products created by each company:")
     result = jg.execute(
         "g.V().hasLabel('company').as('company').out('created').as('product').select('company', 'product').by('name')"
     )
-    if result:
-        for item in result:
-            company = item.get("company", "N/A")
-            product = item.get("product", "N/A")
-            print(f"   {company} → {product}")
+    assert_result(
+        result,
+        (
+            "g.V().hasLabel('company').as('company').out('created').as('product')"
+            ".select('company', 'product').by('name')"
+        ),
+    )
+    for item in result:
+        company = item.get("company", "N/A")
+        product = item.get("product", "N/A")
+        print(f"   {company} → {product}")
 
     # Who uses JanusGraph
     print("\n4️⃣  Who uses JanusGraph?")
     result = jg.execute("g.V().has('product', 'name', 'JanusGraph').in('uses').values('name')")
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(result, "g.V().has('product', 'name', 'JanusGraph').in('uses').values('name')")
+    for name in result:
+        print(f"   - {name}")
 
 
+@pytest.mark.timeout(60)
 def test_path_queries(jg):
     """Run path traversal queries"""
     print("\n" + "=" * 60)
@@ -196,9 +252,9 @@ def test_path_queries(jg):
          .by('name')
     """
     )
-    if result:
-        for path in result:
-            print(f"   {' → '.join(path)}")
+    assert_result(result, "path query from Alice Johnson")
+    for path in result:
+        print(f"   {' → '.join(path)}")
 
     # Friends of friends
     print("\n2️⃣  Alice's friends of friends (2-hop):")
@@ -210,11 +266,12 @@ def test_path_queries(jg):
          .values('name')
     """
     )
-    if result:
-        for name in result:
-            print(f"   - {name}")
+    assert_result(result, "friends-of-friends query from Alice Johnson")
+    for name in result:
+        print(f"   - {name}")
 
 
+@pytest.mark.timeout(30)
 def test_aggregation_queries(jg):
     """Run aggregation queries"""
     print("\n" + "=" * 60)
@@ -224,22 +281,22 @@ def test_aggregation_queries(jg):
     # Average age
     print("\n1️⃣  Average age of people:")
     result = jg.execute("g.V().hasLabel('person').values('age').mean()")
-    if result:
-        print(f"   {result[0]:.1f} years")
+    assert_result(result, "g.V().hasLabel('person').values('age').mean()")
+    print(f"   {result[0]:.1f} years")
 
     # Count edges by label
     print("\n2️⃣  Edge counts by type:")
     result = jg.execute("g.E().groupCount().by(label)")
-    if result:
-        for label, count in result[0].items():
-            print(f"   {label}: {count}")
+    assert_result(result, "g.E().groupCount().by(label)")
+    for label, count in result[0].items():
+        print(f"   {label}: {count}")
 
     # People grouped by location
     print("\n3️⃣  People by location:")
     result = jg.execute("g.V().hasLabel('person').groupCount().by('location')")
-    if result:
-        for location, count in result[0].items():
-            print(f"   {location}: {count}")
+    assert_result(result, "g.V().hasLabel('person').groupCount().by('location')")
+    for location, count in result[0].items():
+        print(f"   {location}: {count}")
 
 
 def run_initialization_check(jg):

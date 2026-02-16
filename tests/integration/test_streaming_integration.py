@@ -124,9 +124,10 @@ class TestStreamingPipelineWithMock:
                 topics.add(event.get_topic())
 
             # Should have topics for each entity type
-            # Note: topic naming uses {entity_type}s-events, so "company" -> "companys-events"
+            # Note: topic naming uses singular->plural transformation.
+            # "company" maps to "companies-events".
             assert any("persons-events" in t for t in topics)
-            assert any("companys-events" in t for t in topics)
+            assert any("companies-events" in t for t in topics)
             assert any("accounts-events" in t for t in topics)
             assert any("transactions-events" in t for t in topics)
             assert any("communications-events" in t for t in topics)

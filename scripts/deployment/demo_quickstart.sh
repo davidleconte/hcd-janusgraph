@@ -29,6 +29,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Default values
 PROJECT_NAME="janusgraph-demo"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -112,16 +113,20 @@ echo ""
 # Step 4: Display access information
 echo -e "${BLUE}Step 4/4: Verifying services...${NC}"
 
+podman_cmd() {
+    podman --remote --connection "$PODMAN_CONNECTION" "$@"
+}
+
 # Check if services are running
 cd "$PROJECT_ROOT"
 SERVICES_RUNNING=true
 
-if ! podman ps --filter "label=project=$PROJECT_NAME" | grep -q "hcd-server"; then
+if ! podman_cmd ps --filter "label=project=$PROJECT_NAME" | grep -q "hcd-server"; then
     echo -e "${YELLOW}⚠️  Warning: HCD server may not be running${NC}"
     SERVICES_RUNNING=false
 fi
 
-if ! podman ps --filter "label=project=$PROJECT_NAME" | grep -q "janusgraph"; then
+if ! podman_cmd ps --filter "label=project=$PROJECT_NAME" | grep -q "janusgraph"; then
     echo -e "${YELLOW}⚠️  Warning: JanusGraph may not be running${NC}"
     SERVICES_RUNNING=false
 fi
@@ -138,7 +143,7 @@ if [ "$SERVICES_RUNNING" = true ]; then
     echo -e "${GREEN}✅ All services deployed successfully${NC}"
 else
     echo -e "${YELLOW}⚠️  Some services may still be starting${NC}"
-    echo -e "   Check status: podman ps --filter \"label=project=$PROJECT_NAME\""
+    echo -e "   Check status: podman --remote --connection $PODMAN_CONNECTION ps --filter \"label=project=$PROJECT_NAME\""
 fi
 
 echo ""

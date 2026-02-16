@@ -14,6 +14,12 @@ with _patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self,
 
 import pyotp
 
+
+@pytest.fixture(autouse=True)
+def mfa_store_path(monkeypatch, tmp_path):
+    """Use a temporary MFA enrollment store for every test."""
+    monkeypatch.setenv("JANUSGRAPH_MFA_STORE_PATH", str(tmp_path / "mfa_enrollments.json"))
+
 from src.python.security.mfa import (
     MFAMethod,
     MFAConfig,

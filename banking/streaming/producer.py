@@ -130,7 +130,12 @@ class EntityProducer:
 
     def _get_topic(self, entity_type: str) -> str:
         """Get the topic name for an entity type."""
-        return f"persistent://{self.namespace}/{entity_type}s-events"
+        if entity_type == "company":
+            topic_suffix = "companies-events"
+        else:
+            topic_suffix = f"{entity_type}s-events"
+
+        return f"persistent://{self.namespace}/{topic_suffix}"
 
     def _get_producer(self, entity_type: str) -> Producer:
         """

@@ -15,13 +15,15 @@ from pathlib import Path
 
 import pytest
 
+from tests.integration._integration_test_utils import run_with_timeout_bool
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.integration, pytest.mark.timeout(180)]
 
 
 def check_janusgraph() -> bool:
-    try:
+    def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
         host = os.getenv("JANUSGRAPH_HOST", "localhost")
@@ -34,12 +36,11 @@ def check_janusgraph() -> bool:
         c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception:
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch() -> bool:
-    try:
+    def _check() -> bool:
         from opensearchpy import OpenSearch
 
         client = OpenSearch(
@@ -54,8 +55,7 @@ def check_opensearch() -> bool:
         )
         client.info()
         return True
-    except Exception:
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 JG_AVAILABLE = check_janusgraph()

@@ -163,7 +163,7 @@ class InsiderTradingDetector:
          .by('price')
          .by('total_value')
          .by(coalesce(values('trade_date'), constant('2026-01-01')))
-         .by(coalesce(__.in('performed_trade').value_map('first_name', 'last_name', 'is_pep'), constant({})))
+         .by(coalesce(__.in('performed_trade').valueMap('first_name', 'is_pep'), constant({})))
         """
 
         try:

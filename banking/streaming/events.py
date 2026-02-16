@@ -163,7 +163,11 @@ class EntityEvent:
         Returns:
             Topic name in format: persistent://public/banking/{entity_type}s-events
         """
-        return f"persistent://public/banking/{self.entity_type}s-events"
+        if self.entity_type == "company":
+            topic_suffix = "companies-events"
+        else:
+            topic_suffix = f"{self.entity_type}s-events"
+        return f"persistent://public/banking/{topic_suffix}"
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "EntityEvent":

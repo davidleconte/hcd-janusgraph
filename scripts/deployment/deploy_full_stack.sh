@@ -50,7 +50,7 @@ main() {
     log_info "(Services continue initializing in background)"
     echo ""
     sleep 90
-    log_success "Core services should be ready (check health with: podman ps)"
+    log_success "Core services should be ready (check health with: podman --remote --connection $PODMAN_CONNECTION ps)"
     echo ""
     
     # Display access information

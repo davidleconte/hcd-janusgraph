@@ -32,27 +32,33 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from tests.integration._integration_test_utils import run_with_timeout_bool
+
 from banking.streaming.events import EntityEvent, create_person_event
 from banking.streaming.producer import EntityProducer, MockEntityProducer, get_producer
 from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
+
+pytestmark = [pytest.mark.integration, pytest.mark.timeout(180)]
 
 
 # Check if services are available
 def check_pulsar_available():
     """Check if Pulsar is available."""
-    try:
+    def _check() -> bool:
         import pulsar
 
         client = pulsar.Client("pulsar://localhost:6650", operation_timeout_seconds=5)
+        producer = client.create_producer("persistent://public/default/__healthcheck__")
+        producer.close()
         client.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=6.0)
 
 
 def check_janusgraph_available():
     """Check if JanusGraph is available."""
-    try:
+    def _check() -> bool:
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
         from gremlin_python.process.anonymous_traversal import traversal
 
@@ -62,18 +68,18 @@ def check_janusgraph_available():
         g.V().count().next()
         conn.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
-    try:
+    def _check() -> bool:
         import os
 
         from opensearchpy import OpenSearch
 
-        use_ssl = os.getenv("OPENSEARCH_USE_SSL", "true").lower() == "true"
+        use_ssl = os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true"
         client = OpenSearch(
             hosts=[{"host": "localhost", "port": 9200}],
             http_auth=("admin", "admin"),
@@ -83,8 +89,8 @@ def check_opensearch_available():
         )
         client.info()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 # Skip markers
@@ -117,6 +123,7 @@ class TestE2EPulsarPublishing:
     """Tests for publishing to real Pulsar."""
 
     @skip_no_pulsar
+    @pytest.mark.timeout(90)
     def test_publish_single_event(self):
         """Test publishing a single event to Pulsar."""
         event = create_person_event(
@@ -139,6 +146,7 @@ class TestE2EPulsarPublishing:
             producer.close()
 
     @skip_no_pulsar
+    @pytest.mark.timeout(120)
     def test_publish_batch_events(self):
         """Test publishing a batch of events to Pulsar."""
         events = [
@@ -172,6 +180,7 @@ class TestE2EStreamingOrchestrator:
     """E2E tests for StreamingOrchestrator with real Pulsar."""
 
     @skip_no_pulsar
+    @pytest.mark.timeout(180)
     def test_orchestrator_with_real_pulsar(self):
         """Test StreamingOrchestrator publishes to real Pulsar."""
         config = StreamingConfig(
@@ -204,6 +213,7 @@ class TestE2EStreamingOrchestrator:
             shutil.rmtree(config.output_dir, ignore_errors=True)
 
     @skip_no_pulsar
+    @pytest.mark.timeout(240)
     def test_orchestrator_event_consistency(self):
         """Test that orchestrator event count matches published count."""
         config = StreamingConfig(

@@ -220,6 +220,7 @@ class MFAVerifyRequest(BaseModel):
     token: str = Field(..., min_length=6, max_length=8)
     secret: Optional[str] = None
     hashed_backup_codes: Optional[List[str]] = None
+    mfa_login_challenge: Optional[str] = None
 
 
 class MFAVerifyResponse(BaseModel):
@@ -228,6 +229,11 @@ class MFAVerifyResponse(BaseModel):
     success: bool
     message: str
     user_id: str
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    token_type: Optional[str] = None
+    expires_in: Optional[int] = None
+    session_id: Optional[str] = None
 
 
 class MFAStatusResponse(BaseModel):
@@ -236,6 +242,11 @@ class MFAStatusResponse(BaseModel):
     user_id: str
     is_locked_out: bool = False
     lockout_remaining_seconds: Optional[int] = None
+    is_enrolled: bool = False
+    status: Optional[str] = None
+    method: Optional[str] = None
+    enrolled_at: Optional[str] = None
+    backup_codes_remaining: Optional[int] = None
 
 
 class MFADisableRequest(BaseModel):
@@ -252,4 +263,66 @@ class MFADisableResponse(BaseModel):
 
     success: bool
     user_id: str
+    message: str
+
+
+class LoginRequest(BaseModel):
+    """Request to authenticate via API credentials."""
+
+    username: str = Field(..., min_length=1, max_length=100)
+    password: str = Field(..., min_length=1, max_length=255)
+    mfa_secret: Optional[str] = Field(
+        None,
+        description="TOTP secret required when completing MFA login challenge",
+    )
+    mfa_token: Optional[str] = Field(None, description="TOTP or backup code")
+    mfa_login_challenge: Optional[str] = None
+
+
+class LoginResponse(BaseModel):
+    """Response from login endpoint."""
+
+    success: bool
+    user_id: str
+    mfa_required: bool = False
+    mfa_secret: Optional[str] = None
+    mfa_login_challenge: Optional[str] = None
+    roles: List[str] = Field(default_factory=list)
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    token_type: Optional[str] = None
+    expires_in: Optional[int] = None
+    message: str
+    session_id: Optional[str] = None
+
+
+class RefreshTokenRequest(BaseModel):
+    """Request to refresh an access token."""
+
+    refresh_token: str = Field(..., min_length=32)
+    session_id: str = Field(..., min_length=1)
+
+
+class RefreshTokenResponse(BaseModel):
+    """Response to refresh request."""
+
+    success: bool
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+    session_id: str
+    message: str
+
+
+class LogoutRequest(BaseModel):
+    """Request to revoke one or all active sessions."""
+
+    session_id: Optional[str] = Field(None, min_length=1)
+
+
+class LogoutResponse(BaseModel):
+    """Response from logout endpoint."""
+
+    success: bool
     message: str

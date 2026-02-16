@@ -10,6 +10,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+
+podman_exec() {
+    podman --remote --connection "$PODMAN_CONNECTION" exec "$@"
+}
+
+podman_cp() {
+    podman --remote --connection "$PODMAN_CONNECTION" cp "$@"
+}
 
 BACKUP_DIR="${BACKUP_DIR:-/backups/janusgraph}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
@@ -21,13 +30,13 @@ echo "📦 Starting backup at $TIMESTAMP"
 
 # 1. Backup HCD data
 echo "Backing up HCD..."
-${PODMAN_CONNECTION} exec hcd-server nodetool snapshot janusgraph
-${PODMAN_CONNECTION} cp hcd-server:/var/lib/cassandra/data "$BACKUP_DIR/hcd_$TIMESTAMP"
+podman_exec hcd-server nodetool snapshot janusgraph
+podman_cp hcd-server:/var/lib/cassandra/data "$BACKUP_DIR/hcd_$TIMESTAMP"
 
 # 2. Backup JanusGraph data
 echo "Backing up JanusGraph..."
-${PODMAN_CONNECTION} exec janusgraph-server tar -czf /tmp/jg_backup.tar.gz /var/lib/janusgraph 2>/dev/null || true
-${PODMAN_CONNECTION} cp janusgraph-server:/tmp/jg_backup.tar.gz "$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
+podman_exec janusgraph-server tar -czf /tmp/jg_backup.tar.gz /var/lib/janusgraph 2>/dev/null || true
+podman_cp janusgraph-server:/tmp/jg_backup.tar.gz "$BACKUP_DIR/janusgraph_$TIMESTAMP.tar.gz"
 
 # 3. Export graph to GraphML
 echo "Exporting graph..."

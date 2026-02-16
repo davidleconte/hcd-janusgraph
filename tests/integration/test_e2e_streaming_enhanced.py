@@ -41,33 +41,31 @@ from banking.streaming.metrics import StreamingMetrics, streaming_metrics
 from banking.streaming.producer import EntityProducer, get_producer
 from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
 from banking.streaming.vector_consumer import VectorConsumer
+from tests.integration._integration_test_utils import run_with_timeout_bool
 
 
 # Service availability checks
 def check_pulsar_available():
-    """Check if Pulsar is available (with thread-based timeout)."""
-    import threading
+    """Check if Pulsar is available with an actual client metadata probe."""
+    def _check() -> bool:
+        import pulsar
 
-    result = [False]
+        client = pulsar.Client(
+            "pulsar://localhost:6650",
+            operation_timeout_seconds=2,
+            connection_timeout_ms=1000,
+        )
+        producer = client.create_producer("persistent://public/default/__healthcheck__")
+        producer.close()
+        client.close()
+        return True
 
-    def _check():
-        try:
-            import pulsar
-            client = pulsar.Client("pulsar://localhost:6650", operation_timeout_seconds=5)
-            client.close()
-            result[0] = True
-        except Exception:
-            pass
-
-    t = threading.Thread(target=_check, daemon=True)
-    t.start()
-    t.join(timeout=10)
-    return result[0]
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_janusgraph_available():
     """Check if JanusGraph is available."""
-    try:
+    def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
         c = client.Client(
@@ -78,13 +76,13 @@ def check_janusgraph_available():
         c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
-    try:
+    def _check() -> bool:
         from opensearchpy import OpenSearch
 
         use_ssl = os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true"
@@ -97,8 +95,8 @@ def check_opensearch_available():
         )
         client.info()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 # Skip markers
@@ -124,6 +122,7 @@ class TestGraphConsumerIntegration:
 
     @skip_no_janusgraph
     @skip_no_pulsar
+    @pytest.mark.timeout(30)
     def test_graph_consumer_processes_person_event(self):
         """Test GraphConsumer processes person event to JanusGraph."""
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
@@ -162,6 +161,7 @@ class TestGraphConsumerIntegration:
         assert "first_name" in event.payload
 
     @skip_no_janusgraph
+    @pytest.mark.timeout(30)
     def test_graph_consumer_handles_batch_events(self):
         """Test GraphConsumer can handle batch of events."""
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
@@ -208,6 +208,7 @@ class TestVectorConsumerIntegration:
 
     @skip_no_opensearch
     @skip_no_pulsar
+    @pytest.mark.timeout(30)
     def test_vector_consumer_processes_person_event(self):
         """Test VectorConsumer processes person event to OpenSearch."""
         # Create unique test ID
@@ -242,6 +243,7 @@ class TestVectorConsumerIntegration:
         assert "email" in event.payload
 
     @skip_no_opensearch
+    @pytest.mark.timeout(30)
     def test_vector_consumer_index_creation(self):
         """Test that VectorConsumer can create indices."""
         client = self._get_opensearch_client()
@@ -291,6 +293,7 @@ class TestDLQIntegration:
     """Integration tests for DLQ handler with real Pulsar."""
 
     @skip_no_pulsar
+    @pytest.mark.timeout(30)
     def test_dlq_handler_connection(self):
         """Test DLQ handler can connect to Pulsar."""
         dlq_handler = get_dlq_handler(
@@ -307,6 +310,7 @@ class TestDLQIntegration:
             dlq_handler.close()
 
     @skip_no_pulsar
+    @pytest.mark.timeout(20)
     def test_dlq_message_archiving(self):
         """Test DLQ handler archives failed messages."""
         archive_dir = Path(tempfile.mkdtemp())
@@ -369,6 +373,7 @@ class TestErrorHandlingIntegration:
     """Integration tests for error handling and recovery."""
 
     @skip_no_pulsar
+    @pytest.mark.timeout(20)
     def test_producer_handles_invalid_url(self):
         """Test producer handles invalid Pulsar URL gracefully."""
         with pytest.raises(Exception):
@@ -411,7 +416,7 @@ class TestPerformanceIntegration:
     """Integration tests for performance and throughput."""
 
     @skip_no_pulsar
-    @pytest.mark.timeout(120)
+    @pytest.mark.timeout(45)
     def test_high_throughput_publishing(self):
         """Test publishing high volume of events."""
         start_time = time.time()
@@ -446,6 +451,7 @@ class TestPerformanceIntegration:
             producer.close()
 
     @skip_no_pulsar
+    @pytest.mark.timeout(60)
     def test_concurrent_producers(self):
         """Test multiple producers can publish concurrently."""
         import threading
@@ -593,7 +599,7 @@ class TestStreamingOrchestratorIntegration:
             shutil.rmtree(config.output_dir, ignore_errors=True)
 
     @skip_no_pulsar
-    @pytest.mark.timeout(60)
+    @pytest.mark.timeout(45)
     @pytest.mark.slow
     def test_orchestrator_with_real_pulsar(self):
         """Test orchestrator with real Pulsar."""

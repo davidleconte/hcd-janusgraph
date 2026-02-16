@@ -34,29 +34,39 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
+from tests.integration._integration_test_utils import run_with_timeout_bool
+
 # Add paths
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "banking"))
 
 logger = logging.getLogger(__name__)
+pytestmark = [pytest.mark.timeout(120)]
 
 
 # Service availability checks
 def check_pulsar_available():
     """Check if Pulsar is available."""
-    try:
+
+    def _check() -> bool:
         import pulsar
 
-        client = pulsar.Client("pulsar://localhost:6650", operation_timeout_seconds=5)
+        client = pulsar.Client(
+            "pulsar://localhost:6650",
+            operation_timeout_seconds=2,
+            connection_timeout_ms=1000,
+        )
+        producer = client.create_producer("persistent://public/default/__healthcheck__")
+        producer.close()
         client.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=5.0)
 
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
-    try:
+    def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
         c = client.Client(
@@ -64,16 +74,16 @@ def check_janusgraph_available():
             "g",
             message_serializer=serializer.GraphSONSerializersV3d0(),
         )
-        result = c.submit("g.V().count()").all().result()
+        c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
-    try:
+    def _check() -> bool:
         from opensearchpy import OpenSearch
 
         # Default to false for local dev (matches conda env OPENSEARCH_USE_SSL=false)
@@ -87,8 +97,8 @@ def check_opensearch_available():
         )
         client.info()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 # Skip markers
@@ -100,6 +110,7 @@ skip_no_full_stack = pytest.mark.skipif(
     not (PULSAR_AVAILABLE and JANUSGRAPH_AVAILABLE and OPENSEARCH_AVAILABLE),
     reason="Full stack (Pulsar, JanusGraph, OpenSearch) not available",
 )
+pytestmark = [pytest.mark.timeout(120), skip_no_full_stack]
 skip_no_janusgraph = pytest.mark.skipif(not JANUSGRAPH_AVAILABLE, reason="JanusGraph not available")
 skip_no_pulsar = pytest.mark.skipif(not PULSAR_AVAILABLE, reason="Pulsar not available")
 
@@ -145,7 +156,7 @@ def temp_output_dir():
 class TestE2EDataGeneratorToPulsar:
     """Test data generator → Pulsar flow."""
 
-    @skip_no_pulsar
+    @pytest.mark.timeout(180)
     def test_generate_and_publish_persons(self, temp_output_dir):
         """Test generating persons and publishing to Pulsar."""
         from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
@@ -174,7 +185,7 @@ class TestE2EDataGeneratorToPulsar:
             assert stats.events_published > 0
             assert stats.events_failed == 0
 
-    @skip_no_pulsar
+    @pytest.mark.timeout(240)
     def test_generate_with_transactions(self, temp_output_dir):
         """Test generating full dataset with transactions."""
         from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
@@ -208,7 +219,7 @@ class TestE2EDataGeneratorToPulsar:
 class TestE2EGraphConsumerIntegration:
     """Test Pulsar → GraphConsumer → JanusGraph flow."""
 
-    @skip_no_full_stack
+    @pytest.mark.timeout(120)
     def test_graph_consumer_initialization(self):
         """Test GraphConsumer can be initialized."""
         from banking.streaming.graph_consumer import GraphConsumer
@@ -219,7 +230,7 @@ class TestE2EGraphConsumerIntegration:
         assert consumer is not None
         assert consumer.pulsar_url == "pulsar://localhost:6650"
 
-    @skip_no_full_stack
+    @pytest.mark.timeout(180)
     def test_graph_consumer_connect(self):
         """Test GraphConsumer can connect to services."""
         from banking.streaming.graph_consumer import GraphConsumer
@@ -239,7 +250,7 @@ class TestE2EGraphConsumerIntegration:
 class TestE2EJanusGraphDataVerification:
     """Test that data exists in JanusGraph after pipeline."""
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(180)
     def test_count_persons_in_graph(self, gremlin_client):
         """Verify persons exist in JanusGraph."""
         result = gremlin_client.execute("g.V().hasLabel('Person').count()")
@@ -248,7 +259,7 @@ class TestE2EJanusGraphDataVerification:
         logger.info("Persons in graph: %s", person_count)
         assert isinstance(person_count, int)
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(180)
     def test_count_accounts_in_graph(self, gremlin_client):
         """Verify accounts exist in JanusGraph."""
         result = gremlin_client.execute("g.V().hasLabel('Account').count()")
@@ -256,7 +267,7 @@ class TestE2EJanusGraphDataVerification:
         logger.info("Accounts in graph: %s", account_count)
         assert isinstance(account_count, int)
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(180)
     def test_count_transactions_in_graph(self, gremlin_client):
         """Verify transactions exist in JanusGraph."""
         result = gremlin_client.execute("g.E().hasLabel('MADE_TRANSACTION').count()")
@@ -264,7 +275,7 @@ class TestE2EJanusGraphDataVerification:
         logger.info("Transactions in graph: %s", txn_count)
         assert isinstance(txn_count, int)
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(180)
     def test_query_transaction_amounts(self, gremlin_client):
         """Query transaction amounts for AML analysis."""
         result = gremlin_client.execute(
@@ -277,7 +288,7 @@ class TestE2EJanusGraphDataVerification:
 class TestE2EFraudDetection:
     """Test fraud detection against JanusGraph data."""
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(60)
     def test_fraud_detector_initialization(self):
         """Test FraudDetector initializes with real JanusGraph."""
         from fraud.fraud_detection import FraudDetector
@@ -294,7 +305,7 @@ class TestE2EFraudDetection:
         except Exception as e:
             pytest.skip(f"FraudDetector init failed: {e}")
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(60)
     def test_fraud_detector_thresholds_match_config(self):
         """Verify fraud detector thresholds are correctly configured."""
         from fraud.fraud_detection import FraudDetector
@@ -308,7 +319,7 @@ class TestE2EFraudDetection:
 class TestE2EAMLStructuringDetection:
     """Test AML structuring detection against JanusGraph data."""
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(120)
     def test_structuring_detector_initialization(self):
         """Test StructuringDetector initializes with real JanusGraph."""
         from aml.structuring_detection import StructuringDetector
@@ -318,7 +329,7 @@ class TestE2EAMLStructuringDetection:
         assert detector.graph_url == "ws://localhost:18182/gremlin"
         assert detector.ctr_threshold == Decimal("10000.00")
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(180)
     def test_detect_smurfing_against_real_data(self):
         """Test smurfing detection against real JanusGraph data."""
         from aml.structuring_detection import StructuringDetector
@@ -344,7 +355,7 @@ class TestE2EAMLStructuringDetection:
         finally:
             client.close()
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(120)
     def test_query_suspicious_transactions(self, gremlin_client):
         """Query for transactions that might indicate structuring."""
         # Look for transactions between $9,000-$10,000 (suspicious range)
@@ -364,7 +375,7 @@ class TestE2EAMLStructuringDetection:
 class TestE2EFullPipelineValidation:
     """Validate the complete pipeline end-to-end."""
 
-    @skip_no_full_stack
+    @pytest.mark.timeout(240)
     def test_data_consistency_across_pipeline(self, gremlin_client, temp_output_dir):
         """Test that data generated matches what's queryable in JanusGraph."""
         from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
@@ -404,7 +415,7 @@ class TestE2EFullPipelineValidation:
             # Note: Consumer must be running to load into JanusGraph
             # This test validates the publishing side of the pipeline
 
-    @skip_no_janusgraph
+    @pytest.mark.timeout(120)
     def test_graph_statistics_summary(self, gremlin_client):
         """Get summary statistics of what's in the graph."""
         # Vertex counts by label
@@ -427,7 +438,7 @@ class TestE2EFullPipelineValidation:
 class TestE2EPatternInjection:
     """Test fraud/AML pattern injection through the pipeline."""
 
-    @skip_no_full_stack
+    @pytest.mark.timeout(240)
     def test_generate_with_structuring_patterns(self, temp_output_dir):
         """Test generating data with structuring patterns enabled."""
         from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator

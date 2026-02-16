@@ -18,6 +18,7 @@ HCD_HOST="${HCD_HOST:-localhost}"
 HCD_PORT="${HCD_PORT:-19042}"
 CONTAINER_NAME="${CONTAINER_NAME:-janusgraph-demo_hcd-server_1}"
 KEYSPACE="${KEYSPACE:-janusgraph}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
 # Check if running in container or host
 if [ -f /.dockerenv ]; then
@@ -26,8 +27,8 @@ if [ -f /.dockerenv ]; then
     CQLSH="cqlsh"
 else
     IN_CONTAINER=false
-    NODETOOL="podman exec $CONTAINER_NAME nodetool"
-    CQLSH="podman exec -i $CONTAINER_NAME cqlsh"
+    NODETOOL="podman --remote --connection $PODMAN_CONNECTION exec $CONTAINER_NAME nodetool"
+    CQLSH="podman --remote --connection $PODMAN_CONNECTION exec -i $CONTAINER_NAME cqlsh"
 fi
 
 echo "========================================"
@@ -55,7 +56,7 @@ print_status() {
 # Check 1: Container running (if not in container)
 if [ "$IN_CONTAINER" = false ]; then
     echo "1. Checking container status..."
-    if podman ps --filter "name=$CONTAINER_NAME" --filter "status=running" | grep -q "$CONTAINER_NAME"; then
+    if podman --remote --connection "$PODMAN_CONNECTION" ps --filter "name=$CONTAINER_NAME" --filter "status=running" | grep -q "$CONTAINER_NAME"; then
         print_status "ok" "Container is running"
     else
         print_status "error" "Container is not running"

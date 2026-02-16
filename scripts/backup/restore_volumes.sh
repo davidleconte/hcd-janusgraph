@@ -10,6 +10,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+
+podman_exec() {
+    podman --remote --connection "$PODMAN_CONNECTION" exec "$@"
+}
+
+podman_cp() {
+    podman --remote --connection "$PODMAN_CONNECTION" cp "$@"
+}
 
 BACKUP_DIR="${1:-}"
 
@@ -58,13 +67,13 @@ bash "$PROJECT_ROOT/scripts/deployment/stop_full_stack.sh"
 
 # Restore HCD data
 echo "📦 Restoring HCD data..."
-${PODMAN_CONNECTION} cp "$HCD_BACKUP" hcd-server:/var/lib/cassandra/data
+podman_cp "$HCD_BACKUP" hcd-server:/var/lib/cassandra/data
 
 # Restore JanusGraph data
 echo "📦 Restoring JanusGraph data..."
-${PODMAN_CONNECTION} cp "$JG_BACKUP" janusgraph-server:/tmp/janusgraph_restore.tar.gz
-${PODMAN_CONNECTION} exec janusgraph-server tar -xzf /tmp/janusgraph_restore.tar.gz -C /
-${PODMAN_CONNECTION} exec janusgraph-server rm /tmp/janusgraph_restore.tar.gz
+podman_cp "$JG_BACKUP" janusgraph-server:/tmp/janusgraph_restore.tar.gz
+podman_exec janusgraph-server tar -xzf /tmp/janusgraph_restore.tar.gz -C /
+podman_exec janusgraph-server rm /tmp/janusgraph_restore.tar.gz
 
 # Start services
 echo "🚀 Starting services..."

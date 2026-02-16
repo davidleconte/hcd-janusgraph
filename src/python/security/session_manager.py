@@ -13,7 +13,7 @@ import hashlib
 import logging
 import secrets
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
@@ -43,6 +43,8 @@ class Session:
     created_at: datetime
     last_active: datetime
     expires_at: datetime
+    roles: List[str] = field(default_factory=list)
+    mfa_verified: bool = False
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     revoked: bool = False
@@ -61,6 +63,7 @@ class SessionManager:
         self,
         user_id: str,
         roles: List[str] | None = None,
+        mfa_verified: bool = False,
         ip_address: str | None = None,
         user_agent: str | None = None,
     ) -> dict:
@@ -70,7 +73,12 @@ class SessionManager:
             session_id = secrets.token_urlsafe(32)
             now = datetime.now(timezone.utc)
 
-            access_token = self._issue_access_token(user_id, session_id, roles or [])
+            access_token = self._issue_access_token(
+                user_id,
+                session_id,
+                roles or [],
+                mfa_verified=mfa_verified,
+            )
             refresh_token = secrets.token_urlsafe(48)
             refresh_hash = self._hash(refresh_token)
 
@@ -81,6 +89,8 @@ class SessionManager:
                 created_at=now,
                 last_active=now,
                 expires_at=now + timedelta(minutes=self.config.refresh_token_ttl_minutes),
+                roles=roles or [],
+                mfa_verified=mfa_verified,
                 ip_address=ip_address,
                 user_agent=user_agent,
             )
@@ -118,7 +128,12 @@ class SessionManager:
                 )
                 raise SessionError("Invalid refresh token — session revoked")
 
-            access_token = self._issue_access_token(session.user_id, session_id, [])
+            access_token = self._issue_access_token(
+                session.user_id,
+                session_id,
+                session.roles,
+                mfa_verified=session.mfa_verified,
+            )
 
             new_refresh_token = refresh_token
             if self.config.rotate_refresh_on_use:
@@ -237,13 +252,19 @@ class SessionManager:
                 user_ids.remove(session_id)
 
     def _issue_access_token(
-        self, user_id: str, session_id: str, roles: List[str]
+        self,
+        user_id: str,
+        session_id: str,
+        roles: List[str],
+        *,
+        mfa_verified: bool = False,
     ) -> str:
         now = datetime.now(timezone.utc)
         payload = {
             "sub": user_id,
             "sid": session_id,
             "roles": roles,
+            "mfa_verified": mfa_verified,
             "iss": self.config.issuer,
             "iat": now,
             "exp": now + timedelta(minutes=self.config.access_token_ttl_minutes),

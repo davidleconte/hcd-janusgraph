@@ -18,6 +18,11 @@ NC='\033[0m'
 
 # Project-specific prefixes
 PROJECT_PREFIXES=("janusgraph" "hcd" "opensearch" "vault" "prometheus" "grafana" "alertmanager" "jupyter")
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+
+podman_cmd() {
+    podman --remote --connection "$PODMAN_CONNECTION" "$@"
+}
 
 echo -e "${YELLOW}🧹 JanusGraph Project Cleanup${NC}"
 echo "=================================="
@@ -46,36 +51,51 @@ echo ""
 # Stop project containers
 echo "1️⃣  Stopping project containers..."
 for prefix in "${PROJECT_PREFIXES[@]}"; do
-    podman ps --format "{{.Names}}" | grep "^${prefix}" | xargs -r podman stop 2>/dev/null || true
+    while IFS= read -r container; do
+        [[ -z "$container" ]] && continue
+        podman_cmd stop "$container" 2>/dev/null || true
+    done < <(podman_cmd ps --format "{{.Names}}" | grep "^${prefix}" || true)
 done
 
 # Remove project containers
 echo "2️⃣  Removing project containers..."
 for prefix in "${PROJECT_PREFIXES[@]}"; do
-    podman ps -a --format "{{.Names}}" | grep "^${prefix}" | xargs -r podman rm -f 2>/dev/null || true
+    while IFS= read -r container; do
+        [[ -z "$container" ]] && continue
+        podman_cmd rm -f "$container" 2>/dev/null || true
+    done < <(podman_cmd ps -a --format "{{.Names}}" | grep "^${prefix}" || true)
 done
 
 # Remove project pods
 echo "3️⃣  Removing project pods..."
 for prefix in "${PROJECT_PREFIXES[@]}"; do
-    podman pod ps --format "{{.Name}}" | grep "^${prefix}" | xargs -r podman pod rm -f 2>/dev/null || true
+    while IFS= read -r pod_name; do
+        [[ -z "$pod_name" ]] && continue
+        podman_cmd pod rm -f "$pod_name" 2>/dev/null || true
+    done < <(podman_cmd pod ps --format "{{.Name}}" | grep "^${prefix}" || true)
 done
 
 # Remove project volumes
 echo "4️⃣  Removing project volumes..."
 for prefix in "${PROJECT_PREFIXES[@]}"; do
-    podman volume ls --format "{{.Name}}" | grep "^${prefix}" | xargs -r podman volume rm -f 2>/dev/null || true
+    while IFS= read -r volume; do
+        [[ -z "$volume" ]] && continue
+        podman_cmd volume rm -f "$volume" 2>/dev/null || true
+    done < <(podman_cmd volume ls --format "{{.Name}}" | grep "^${prefix}" || true)
 done
 
 # Remove project networks
 echo "5️⃣  Removing project networks..."
 for prefix in "${PROJECT_PREFIXES[@]}"; do
-    podman network ls --format "{{.Name}}" | grep "^${prefix}" | xargs -r podman network rm 2>/dev/null || true
+    while IFS= read -r network; do
+        [[ -z "$network" ]] && continue
+        podman_cmd network rm "$network" 2>/dev/null || true
+    done < <(podman_cmd network ls --format "{{.Name}}" | grep "^${prefix}" || true)
 done
 
 # Prune unused resources (safe - only removes unused)
 echo "6️⃣  Pruning unused resources..."
-podman system prune -f 2>/dev/null || true
+podman_cmd system prune -f 2>/dev/null || true
 
 echo ""
 echo -e "${GREEN}✅ Cleanup complete${NC}"

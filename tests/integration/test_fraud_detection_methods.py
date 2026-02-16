@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import pytest
+from tests.integration._integration_test_utils import run_with_timeout_bool
 
 # Add paths
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
-    try:
+    def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
         c = client.Client(
@@ -44,16 +45,16 @@ def check_janusgraph_available():
             "g",
             message_serializer=serializer.GraphSONSerializersV3d0(),
         )
-        result = c.submit("g.V().count()").all().result()
+        c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
-    try:
+    def _check() -> bool:
         from opensearchpy import OpenSearch
 
         use_ssl = os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true"
@@ -66,8 +67,8 @@ def check_opensearch_available():
         )
         client.info()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 JANUSGRAPH_AVAILABLE = check_janusgraph_available()

@@ -8,12 +8,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 VAULT_KEYS_FILE="$PROJECT_ROOT/.vault-keys"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
+podman_exec() {
+    podman --remote --connection "$PODMAN_CONNECTION" exec "$@"
+}
 
 echo -e "${BLUE}🔧 Fixing Vault Policy for KV v2 with UI Support${NC}"
 echo "=================================================="
@@ -60,14 +65,14 @@ path "auth/token/renew-self" {
 POLICY_EOF
 
 echo "2️⃣  Copying policy to Vault container..."
-podman cp /tmp/janusgraph-policy.hcl vault-server:/tmp/janusgraph-policy.hcl
+podman --remote --connection "$PODMAN_CONNECTION" cp /tmp/janusgraph-policy.hcl vault-server:/tmp/janusgraph-policy.hcl
 
 echo "3️⃣  Creating policy with ROOT token..."
-podman exec -e VAULT_TOKEN=$VAULT_ROOT_TOKEN vault-server \
+podman_exec -e VAULT_TOKEN=$VAULT_ROOT_TOKEN vault-server \
     vault policy write janusgraph-policy /tmp/janusgraph-policy.hcl
 
 echo "4️⃣  Creating new application token..."
-NEW_APP_TOKEN=$(podman exec -e VAULT_TOKEN=$VAULT_ROOT_TOKEN vault-server \
+NEW_APP_TOKEN=$(podman_exec -e VAULT_TOKEN=$VAULT_ROOT_TOKEN vault-server \
     vault token create \
     -policy=janusgraph-policy \
     -ttl=720h \

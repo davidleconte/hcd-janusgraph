@@ -17,6 +17,8 @@ from decimal import Decimal
 
 import pytest
 
+from tests.integration._integration_test_utils import run_with_timeout_bool
+
 # Add paths for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src/python"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../banking"))
@@ -35,19 +37,20 @@ GRAPH_URL = f"ws://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin"
 
 def is_janusgraph_available() -> bool:
     """Check if JanusGraph is available using client approach."""
-    try:
+    def _check() -> bool:
         c = client.Client(GRAPH_URL, "g", message_serializer=serializer.GraphSONSerializersV3d0())
-        result = c.submit("g.V().count()").all().result()
+        c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception:
-        return False
+
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 # Skip all tests if JanusGraph is not available
-pytestmark = pytest.mark.skipif(
-    not is_janusgraph_available(), reason="JanusGraph not available at localhost:18182"
-)
+pytestmark = [
+    pytest.mark.skipif(not is_janusgraph_available(), reason="JanusGraph not available at localhost:18182"),
+    pytest.mark.timeout(180),
+]
 
 
 class GremlinClient:

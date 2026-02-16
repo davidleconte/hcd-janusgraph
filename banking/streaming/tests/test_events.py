@@ -298,7 +298,7 @@ class TestEntityEventBatch:
         grouped = batch.by_topic()
 
         assert "persistent://public/banking/persons-events" in grouped
-        assert "persistent://public/banking/companys-events" in grouped
+        assert "persistent://public/banking/companies-events" in grouped
 
 
 class TestFactoryFunctions:

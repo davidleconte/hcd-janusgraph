@@ -11,6 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 POLICIES_DIR="$PROJECT_ROOT/config/vault/policies"
 VAULT_KEYS_FILE="$PROJECT_ROOT/.vault-keys"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -18,6 +19,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+podman_exec() {
+    podman --remote --connection "$PODMAN_CONNECTION" exec "$@"
+}
 
 echo -e "${BLUE}🔐 Vault Policy Setup${NC}"
 echo "====================="
@@ -36,7 +41,7 @@ export VAULT_ADDR=http://localhost:8200
 export VAULT_TOKEN=$VAULT_ROOT_TOKEN
 
 # Check Vault connection
-if ! podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault status >/dev/null 2>&1; then
+if ! podman_exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server vault status >/dev/null 2>&1; then
     echo -e "${RED}❌ Cannot connect to Vault${NC}"
     echo "Ensure Vault container is running and unsealed"
     exit 1
@@ -53,10 +58,10 @@ apply_policy() {
     echo -e "${BLUE}📋 Applying policy: ${policy_name}${NC}"
     
     # Copy policy to container
-    podman cp "$policy_file" vault-server:/tmp/policy.hcl
+    podman --remote --connection "$PODMAN_CONNECTION" cp "$policy_file" vault-server:/tmp/policy.hcl
     
     # Apply policy
-    if podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
+    if podman_exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
         vault policy write "$policy_name" /tmp/policy.hcl >/dev/null 2>&1; then
         echo -e "${GREEN}✅ Policy applied: ${policy_name}${NC}"
     else
@@ -73,7 +78,7 @@ create_token() {
     
     echo -e "${BLUE}🔑 Creating token for: ${description}${NC}"
     
-    local token=$(podman exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
+    local token=$(podman_exec -e VAULT_TOKEN=$VAULT_TOKEN vault-server \
         vault token create \
         -policy="$policy_name" \
         -ttl="$ttl" \

@@ -171,6 +171,11 @@ check_podman() {
     return 0
 }
 
+# Wrapper to route podman commands through configured remote connection.
+podman_cmd() {
+    podman --remote --connection "$PODMAN_CONNECTION" "$@"
+}
+
 check_podman_compose() {
     log_step "Checking podman-compose"
     
@@ -238,7 +243,7 @@ check_service() {
     local service_name=$1
     local project="${2:-$COMPOSE_PROJECT_NAME}"
     
-    if podman ps --filter "label=project=$project" --format "{{.Names}}" | grep -q "$service_name"; then
+    if podman_cmd ps --filter "label=project=$project" --format "{{.Names}}" | grep -q "$service_name"; then
         return 0
     else
         return 1
@@ -324,10 +329,10 @@ cleanup_containers() {
     log_step "Cleaning up containers for project: $project"
     
     # Stop containers
-    podman stop $(podman ps -q --filter "label=project=$project") 2>/dev/null || true
+    podman_cmd stop $(podman_cmd ps -q --filter "label=project=$project") 2>/dev/null || true
     
     # Remove containers
-    podman rm $(podman ps -aq --filter "label=project=$project") 2>/dev/null || true
+    podman_cmd rm $(podman_cmd ps -aq --filter "label=project=$project") 2>/dev/null || true
     
     log_success "Containers cleaned up"
 }
@@ -335,7 +340,7 @@ cleanup_containers() {
 cleanup_networks() {
     log_step "Cleaning up networks"
     
-    podman network prune -f 2>/dev/null || true
+    podman_cmd network prune -f 2>/dev/null || true
     
     log_success "Networks cleaned up"
 }
@@ -350,10 +355,10 @@ cleanup_volumes() {
         log_info "Aborted"
         return 1
     fi
-    
+
     log_step "Cleaning up volumes"
     
-    podman volume rm $(podman volume ls -q --filter "label=project=$project") 2>/dev/null || true
+    podman_cmd volume rm $(podman_cmd volume ls -q --filter "label=project=$project") 2>/dev/null || true
     
     log_success "Volumes cleaned up"
 }

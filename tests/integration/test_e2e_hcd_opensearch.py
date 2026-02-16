@@ -32,11 +32,14 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
+from tests.integration._integration_test_utils import run_with_timeout_bool
+
 # Add paths
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "banking"))
 
 logger = logging.getLogger(__name__)
+pytestmark = [pytest.mark.timeout(240)]
 
 # =============================================================================
 # Service Availability Checks
@@ -45,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 def check_hcd_available():
     """Check if HCD/Cassandra is available."""
-    try:
+    def _check() -> bool:
         from cassandra.cluster import Cluster
 
         # HCD port 9042 is mapped to 19042 on host
@@ -55,14 +58,12 @@ def check_hcd_available():
         session.execute("SELECT now() FROM system.local")
         cluster.shutdown()
         return True
-    except Exception as e:
-        logger.debug("HCD not available: %s", e)
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
-    try:
+    def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
         c = client.Client(
@@ -73,14 +74,12 @@ def check_janusgraph_available():
         result = c.submit("g.V().count()").all().result()
         c.close()
         return True
-    except Exception as e:
-        logger.debug("JanusGraph not available: %s", e)
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
-    try:
+    def _check() -> bool:
         from opensearchpy import OpenSearch
 
         use_ssl = os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true"
@@ -93,22 +92,18 @@ def check_opensearch_available():
         )
         client.info()
         return True
-    except Exception as e:
-        logger.debug("OpenSearch not available: %s", e)
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_pulsar_available():
     """Check if Pulsar is available."""
-    try:
+    def _check() -> bool:
         import pulsar
 
         client = pulsar.Client("pulsar://localhost:6650", operation_timeout_seconds=5)
         client.close()
         return True
-    except Exception as e:
-        logger.debug("Pulsar not available: %s", e)
-        return False
+    return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 # Service availability flags

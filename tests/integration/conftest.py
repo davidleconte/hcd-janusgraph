@@ -18,13 +18,19 @@ from typing import Dict, Optional
 
 import pytest
 import requests
-from cassandra.auth import PlainTextAuthProvider
-from cassandra.cluster import Cluster
+try:
+    from cassandra.auth import PlainTextAuthProvider
+    from cassandra.cluster import Cluster
+except ModuleNotFoundError:
+    PlainTextAuthProvider = None  # type: ignore[assignment]
+    Cluster = None  # type: ignore[assignment]
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.driver.serializer import GraphSONSerializersV3d0
 from gremlin_python.process.anonymous_traversal import traversal
 
 logger = logging.getLogger(__name__)
+
+CASSANDRA_AVAILABLE = PlainTextAuthProvider is not None and Cluster is not None
 
 
 # Service configuration
@@ -168,6 +174,40 @@ To run integration tests, deploy the full stack:
 
 # Pytest fixtures
 
+# Integration suites that currently lack per-test timeout markers.
+# Applying timeouts at collection time keeps hanging behavior bounded without editing
+# every function in those suites.
+INTEGRATION_TEST_TIMEOUTS = {
+    "test_credential_rotation.py": 240,
+    "test_fraud_detection_methods.py": 180,
+    "test_full_stack.py": 240,
+    "test_streaming_integration.py": 240,
+    "test_vault_integration.py": 180,
+}
+
+
+def pytest_collection_modifyitems(config, items):
+    """Add timeout markers to selected integration tests that may otherwise run unbounded.
+
+    This is intentionally scoped to specific suites with historical long-running
+    or hanging behavior and only applies when no timeout marker is already set
+    at function/class/module level.
+    """
+    for item in items:
+        filename = item.fspath.basename
+        timeout = INTEGRATION_TEST_TIMEOUTS.get(filename)
+        if timeout is None:
+            continue
+
+        has_timeout = (
+            item.get_closest_marker("timeout") is not None
+            or item.parent.get_closest_marker("timeout") is not None
+        )
+        if has_timeout:
+            continue
+
+        item.add_marker(pytest.mark.timeout(timeout))
+
 
 @pytest.fixture(scope="session")
 def service_health_check():
@@ -254,7 +294,14 @@ def hcd_session(require_hcd):
     """
     Fixture providing HCD/Cassandra session.
     """
+    if not CASSANDRA_AVAILABLE:
+        pytest.skip(
+            "cassandra package is required for HCD integration tests. "
+            "Run tests with the janusgraph-analysis environment."
+        )
+
     auth_provider = PlainTextAuthProvider(username="cassandra", password="cassandra")
+    assert Cluster is not None
     cluster = Cluster(["localhost"], port=19042, auth_provider=auth_provider)
     session = cluster.connect()
     yield session

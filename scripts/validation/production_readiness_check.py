@@ -103,8 +103,33 @@ class ProductionReadinessChecker:
             sec["rejects_default_passwords"] = "changeit" in content.lower()
         
         # MFA
-        sec["mfa_planned"] = True  # From previous audits
-        sec["mfa_implemented"] = False  # Not yet complete
+        mfa_module = self.root_dir / "src/python/security/mfa.py"
+        auth_router = self.root_dir / "src/python/api/routers/auth.py"
+        mfa_tests = [
+            self.root_dir / "tests/unit/test_mfa_full.py",
+            self.root_dir / "tests/unit/test_mfa_security.py",
+            self.root_dir / "tests/unit/test_mfa_verification.py",
+            self.root_dir / "tests/unit/test_auth_router.py",
+        ]
+        sec["mfa_module_exists"] = mfa_module.exists()
+        mfa_module_text = mfa_module.read_text() if sec["mfa_module_exists"] else ""
+        sec["mfa_auth_router_exists"] = auth_router.exists()
+        sec["mfa_test_coverage_exists"] = all(test.exists() for test in mfa_tests)
+        mfa_endpoints_present = False
+        sec["mfa_login_challenge_flow"] = False
+        if sec["mfa_auth_router_exists"]:
+            router_text = auth_router.read_text().lower()
+            mfa_endpoints_present = "/mfa/enroll" in router_text and "/mfa/verify" in router_text
+            sec["mfa_login_challenge_flow"] = mfa_endpoints_present and "mfa_login_challenge" in router_text
+
+        sec["mfa_implemented"] = (
+            sec["mfa_module_exists"]
+            and sec["mfa_auth_router_exists"]
+            and sec["mfa_test_coverage_exists"]
+            and sec["mfa_login_challenge_flow"]
+            and "Not yet implemented" not in mfa_module_text
+        )
+        sec["mfa_planned"] = not sec["mfa_implemented"]
         
         # Audit Logging
         audit_logger = self.root_dir / "banking/compliance/audit_logger.py"
@@ -122,7 +147,10 @@ class ProductionReadinessChecker:
         sec["pentest_script_exists"] = pentest_script.exists()
         
         print(f"  ✅ Startup Validation: {'Exists' if sec['startup_validation_exists'] else 'Missing'}")
-        print(f"  ⚠️  MFA: {'Planned' if sec['mfa_planned'] else 'Not planned'} (not yet implemented)")
+        if sec["mfa_implemented"]:
+            print("  ✅ MFA: Implemented (TOTP + challenge + verification flow)")
+        else:
+            print("  ⚠️  MFA: Planned but not yet fully implemented")
         print(f"  ✅ Audit Logging: {'Exists' if sec['audit_logging_exists'] else 'Missing'}")
         print(f"  ✅ Security Scans: Bandit={sec['bandit_available']}, Safety={sec['safety_available']}")
         print(f"  ✅ Pentest Script: {'Exists' if sec['pentest_script_exists'] else 'Missing'}")
@@ -205,7 +233,7 @@ class ProductionReadinessChecker:
         sec = self.results["security"]
         sec_score = 0
         sec_score += 5 if sec.get("startup_validation_exists") else 0
-        sec_score += 5 if sec.get("mfa_planned") else 0  # Partial credit for planning
+        sec_score += 5 if (sec.get("mfa_implemented") or sec.get("mfa_planned")) else 0  # Partial/full credit
         sec_score += 10 if sec.get("audit_logging_exists") else 0
         sec_score += 5 if sec.get("bandit_available") else 0
         sec_score += 5 if sec.get("pentest_script_exists") else 0

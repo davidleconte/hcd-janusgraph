@@ -32,6 +32,7 @@ import secrets
 import string
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -44,14 +45,33 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+
+def _build_logging_handlers() -> list[logging.Handler]:
+    """Build resilient logging handlers for environments with restricted home directories."""
+    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
+    preferred_paths = [
+        os.path.expanduser("~/.adal/tmp/credential-rotation.log"),
+        os.path.join(tempfile.gettempdir(), "adal", "credential-rotation.log"),
+    ]
+
+    for path in preferred_paths:
+        candidate = Path(path)
+        try:
+            candidate.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(candidate)
+            handlers.insert(0, file_handler)
+            return handlers
+        except OSError:
+            continue
+
+    return handlers
+
+
 # Configure logging (must be before metrics import)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.expanduser('~/.adal/tmp/credential-rotation.log')),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=_build_logging_handlers(),
 )
 logger = logging.getLogger(__name__)
 

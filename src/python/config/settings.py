@@ -47,7 +47,16 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8001
     api_key: str = ""
+    api_jwt_secret: str = ""
+    api_access_token_ttl_minutes: int = 15
+    api_refresh_token_ttl_minutes: int = 1440
+    api_user: str = "admin"
+    api_user_password: str = ""
+    api_user_roles: str = "admin"
+    api_user_email: str = "admin@localhost"
     auth_enabled: bool = False
+    auth_default_roles: str = "user"
+    mfa_required_roles: str = "admin,developer"
     api_cors_origins: str = "http://localhost:3000,http://localhost:8080"
 
     rate_limit_per_minute: int = Field(60, description="Requests per minute per client")

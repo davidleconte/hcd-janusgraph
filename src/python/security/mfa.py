@@ -5,14 +5,19 @@ Provides TOTP-based multi-factor authentication for enhanced security.
 Supports QR code generation, backup codes, and MFA enforcement policies.
 """
 
+import json
 import hashlib
 import logging
+import os
+import tempfile
+import threading
+from pathlib import Path
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from io import BytesIO
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pyotp
 import qrcode
@@ -313,14 +318,37 @@ class MFAManager:
 class MFAEnrollment:
     """Manages MFA enrollment for users."""
 
-    def __init__(self, mfa_manager: MFAManager):
+    def __init__(self, mfa_manager: MFAManager, storage_path: str = None):
         """
         Initialize MFA enrollment manager.
 
         Args:
             mfa_manager: MFA manager instance
+            storage_path: Optional path for storing enrollment records.
         """
         self.mfa_manager = mfa_manager
+        self._lock = threading.Lock()
+        self._storage_path = Path(
+            storage_path
+            or os.getenv(
+                "JANUSGRAPH_MFA_STORE_PATH",
+                str(Path(tempfile.gettempdir()) / "janusgraph_mfa_enrollment.json"),
+            )
+        )
+        self._enrollments = self._load_enrollments()
+
+    def get_user_enrollment(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """Return stored enrollment data for a user, if any."""
+        with self._lock:
+            record = self._enrollments.get(user_id)
+        if not record:
+            return None
+        return {**record}
+
+    def is_user_enrolled(self, user_id: str) -> bool:
+        """Return True if the user has an active enrollment."""
+        data = self.get_user_enrollment(user_id)
+        return bool(data and data.get("status") == "active")
 
     def enroll_user(
         self, user_id: str, user_email: str, method: MFAMethod = MFAMethod.TOTP
@@ -343,6 +371,7 @@ class MFAEnrollment:
             # Hash backup codes for storage
             hashed_codes = [self.mfa_manager.hash_backup_code(code) for code in backup_codes]
 
+            now = datetime.now(timezone.utc).isoformat()
             enrollment_data = {
                 "user_id": user_id,
                 "method": method.value,
@@ -350,9 +379,12 @@ class MFAEnrollment:
                 "qr_code": qr_code,
                 "backup_codes": backup_codes,
                 "hashed_backup_codes": hashed_codes,
-                "enrolled_at": datetime.now(timezone.utc).isoformat(),
+                "enrolled_at": now,
+                "updated_at": now,
                 "status": "pending_verification",
             }
+
+            self._save_user_enrollment(user_id, enrollment_data)
 
             logger.info("User %s enrolled in MFA (TOTP)", user_id)
             return enrollment_data
@@ -372,10 +404,31 @@ class MFAEnrollment:
         Returns:
             True if enrollment verified, False otherwise
         """
-        is_valid = self.mfa_manager.verify_totp(secret, token, user_id)
+        enrolled_data = self.get_user_enrollment(user_id)
+        expected_secret = enrolled_data.get("secret") if enrolled_data else secret
+        hashed_backup_codes = []
+        if enrolled_data:
+            hashed_backup_codes = enrolled_data.get("hashed_backup_codes", [])
+            if enrolled_data.get("status") == "active":
+                hashed_backup_codes = []
 
-        if is_valid:
+        is_valid = self.mfa_manager.verify_totp(expected_secret, token, user_id)
+
+        if not is_valid and hashed_backup_codes:
+            is_valid = self.mfa_manager.verify_backup_code(token, hashed_backup_codes)
+            if is_valid and expected_secret:
+                self.consume_backup_code(user_id, token)
+
+        if is_valid and enrolled_data:
+            enrolled_data["status"] = "active"
+            enrolled_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_user_enrollment(user_id, enrolled_data)
             logger.info("MFA enrollment verified for user: %s", user_id)
+        elif is_valid:
+            logger.info(
+                "MFA enrollment verification passed for untracked user: %s",
+                user_id,
+            )
         else:
             logger.warning("MFA enrollment verification failed for user: %s", user_id)
 
@@ -389,8 +442,106 @@ class MFAEnrollment:
             user_id: User identifier
             reason: Optional reason for unenrollment
         """
+        self._remove_user_enrollment(user_id)
         logger.info("User %s unenrolled from MFA. Reason: %s", user_id, reason)
-        # Implementation would remove MFA data from storage
+
+    def consume_backup_code(self, user_id: str, token: str) -> bool:
+        """
+        Consume a backup code if it is valid and tracked for the user.
+
+        Args:
+            user_id: User identifier
+            token: Backup code to consume
+
+        Returns:
+            True when the code was consumed
+        """
+        if not user_id or not token:
+            return False
+
+        record = self.get_user_enrollment(user_id)
+        if not record:
+            return False
+
+        stored_codes = record.get("hashed_backup_codes", [])
+        return self._consume_backup_code(user_id, token, stored_codes)
+
+    def _load_enrollments(self) -> Dict[str, Dict[str, Any]]:
+        """Load persisted enrollment records from storage."""
+        if not self._storage_path.exists():
+            return {}
+
+        try:
+            with self._storage_path.open("r", encoding="utf-8") as handle:
+                data = json.load(handle)
+            if isinstance(data, dict):
+                return {
+                    user_id: enrollment
+                    for user_id, enrollment in data.items()
+                    if isinstance(user_id, str) and isinstance(enrollment, dict)
+                }
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning("Failed to load MFA enrollments from %s: %s", self._storage_path, exc)
+        return {}
+
+    def _save_user_enrollment(self, user_id: str, data: Dict[str, Any]) -> None:
+        """Persist a user enrollment record."""
+        if not user_id:
+            return
+        with self._lock:
+            self._enrollments[user_id] = {k: v for k, v in data.items() if k != "qr_code"}
+            self._persist_enrollments()
+
+    def _remove_user_enrollment(self, user_id: str) -> None:
+        """Remove a user enrollment record."""
+        with self._lock:
+            if self._enrollments.pop(user_id, None) is not None:
+                self._persist_enrollments()
+
+    def _persist_enrollments(self) -> None:
+        """Write enrollment records to disk."""
+        self._storage_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = self._storage_path.with_suffix(".tmp")
+        payload = {
+            user_id: {
+                k: v
+                for k, v in record.items()
+                if k != "qr_code" and k != "backup_codes"
+            }
+            for user_id, record in self._enrollments.items()
+        }
+        with tmp_path.open("w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+        tmp_path.replace(self._storage_path)
+
+    def _consume_backup_code(
+        self, user_id: str, token: str, hashed_backup_codes: List[str]
+    ) -> bool:
+        """
+        Remove a consumed backup code from the stored list.
+        """
+        if not user_id or not token:
+            return False
+        code_hash = self.mfa_manager.hash_backup_code(token)
+        if code_hash not in hashed_backup_codes:
+            return False
+        try:
+            with self._lock:
+                record = self._enrollments.get(user_id)
+                if not record:
+                    return False
+                record_codes = record.get("hashed_backup_codes", [])
+                if code_hash in record_codes:
+                    record_codes.remove(code_hash)
+                    record["hashed_backup_codes"] = record_codes
+                    record["updated_at"] = datetime.now(timezone.utc).isoformat()
+                    self._persist_enrollments()
+                    return True
+            return False
+        except (OSError, ValueError, TypeError) as exc:
+            logger.warning("Failed consuming backup code for user %s: %s", user_id, exc)
+        return False
+
 
 
 class MFAMiddleware:

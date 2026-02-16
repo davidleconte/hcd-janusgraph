@@ -110,7 +110,7 @@ check_python_environment() {
             log_success "Removed .venv directory"
         else
             log_info "Fix: rm -rf $PROJECT_ROOT/.venv"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     else
         log_success "No .venv directory (good!)"
@@ -120,7 +120,7 @@ check_python_environment() {
     log_subsection "Checking conda"
     if ! command -v conda &> /dev/null; then
         log_error "Conda is not installed"
-        ((ERRORS++))
+        ((ERRORS += 1))
         return
     fi
     log_success "Conda is available"
@@ -129,7 +129,7 @@ check_python_environment() {
     if ! conda env list | grep -q "^${REQUIRED_CONDA_ENV} "; then
         log_error "Conda environment '$REQUIRED_CONDA_ENV' does not exist"
         log_info "Create: conda create -n $REQUIRED_CONDA_ENV python=$REQUIRED_PYTHON_VERSION"
-        ((ERRORS++))
+        ((ERRORS += 1))
         return
     fi
     log_success "Conda environment exists"
@@ -139,10 +139,10 @@ check_python_environment() {
     if [[ -z "${CONDA_DEFAULT_ENV:-}" ]]; then
         log_error "No conda environment is active"
         log_info "Activate: conda activate $REQUIRED_CONDA_ENV"
-        ((ERRORS++))
+        ((ERRORS += 1))
     elif [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
         log_error "Wrong conda environment: $CONDA_DEFAULT_ENV (expected: $REQUIRED_CONDA_ENV)"
-        ((ERRORS++))
+        ((ERRORS += 1))
     else
         log_success "Correct conda environment active: $CONDA_DEFAULT_ENV"
     fi
@@ -156,11 +156,11 @@ check_python_environment() {
             log_success "Python version correct: $py_ver"
         else
             log_error "Wrong Python version: $py_ver (expected: $REQUIRED_PYTHON_VERSION)"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     else
         log_error "Python not available"
-        ((ERRORS++))
+        ((ERRORS += 1))
     fi
 
     # Check uv available
@@ -170,7 +170,7 @@ check_python_environment() {
     else
         log_warning "uv is not installed (recommended for faster package management)"
         log_info "Install: pip install uv"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 }
 
@@ -193,7 +193,7 @@ check_environment_config() {
             log_success "Created .env from .env.example"
         else
             log_info "Fix: cp $PROJECT_ROOT/.env.example $env_file"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
         return
     fi
@@ -215,7 +215,7 @@ check_environment_config() {
             log_success "Added COMPOSE_PROJECT_NAME"
         else
             log_info "Fix: Add 'COMPOSE_PROJECT_NAME=janusgraph-demo' to .env"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     fi
 
@@ -231,7 +231,7 @@ check_environment_config() {
             echo "PODMAN_CONNECTION=podman-wxd" >> "$env_file"
             log_success "Added PODMAN_CONNECTION"
         else
-            ((WARNINGS++))
+            ((WARNINGS += 1))
         fi
     fi
 
@@ -248,7 +248,7 @@ check_environment_config() {
     if [[ $placeholder_count -gt 0 ]]; then
         log_warning "Found placeholder passwords in .env (OK for development)"
         log_info "Update passwords before production deployment"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     else
         log_success "No placeholder passwords found"
     fi
@@ -265,7 +265,7 @@ check_podman_config() {
     log_subsection "Checking Podman"
     if ! command -v podman &> /dev/null; then
         log_error "Podman is not installed"
-        ((ERRORS++))
+        ((ERRORS += 1))
         return
     fi
     log_success "Podman is installed"
@@ -274,7 +274,7 @@ check_podman_config() {
     if ! command -v podman-compose &> /dev/null; then
         log_warning "podman-compose is not installed"
         log_info "Install: pip install podman-compose"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     else
         log_success "podman-compose is available"
     fi
@@ -286,7 +286,7 @@ check_podman_config() {
     else
         log_warning "Cannot connect to Podman machine '$PODMAN_CONNECTION'"
         log_info "Start with: podman machine start $PODMAN_CONNECTION"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 
     # Check for container_name overrides in compose files
@@ -308,7 +308,7 @@ check_podman_config() {
         if [[ $total_overrides -gt 0 ]]; then
             log_error "CRITICAL: $total_overrides container_name overrides found"
             log_info "This BREAKS project isolation. Remove all container_name: lines."
-            ((ERRORS++))
+            ((ERRORS += 1))
         else
             log_success "No container_name overrides found (good!)"
         fi
@@ -333,19 +333,19 @@ check_build_prerequisites() {
         else
             log_error "HCD directory exists but missing bin/hcd"
             log_info "Verify vendor/hcd-1.2.3 is complete or re-extract"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     else
         # Check if vendor has HCD
         if [[ -d "$PROJECT_ROOT/vendor/hcd-1.2.3" ]]; then
             log_error "HCD not found at project root"
             log_info "Create symlink: ln -sf vendor/hcd-1.2.3 hcd-1.2.3"
-            ((ERRORS++))
+            ((ERRORS += 1))
         else
             log_error "HCD not found in vendor/ directory"
             log_info "Run: git lfs pull"
             log_info "Then: ln -sf vendor/hcd-1.2.3 hcd-1.2.3"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     fi
 
@@ -364,7 +364,7 @@ check_build_prerequisites() {
             log_success "$df exists"
         else
             log_error "$df MISSING"
-            ((ERRORS++))
+            ((ERRORS += 1))
         fi
     done
 }
@@ -388,7 +388,7 @@ check_dependencies() {
             log_success "$req exists"
         else
             log_warning "$req not found"
-            ((WARNINGS++))
+            ((WARNINGS += 1))
         fi
     done
 
@@ -402,7 +402,7 @@ check_dependencies() {
                 log_success "$pkg is installed"
             else
                 log_warning "$pkg is not installed"
-                ((WARNINGS++))
+                ((WARNINGS += 1))
             fi
         done
     fi
@@ -432,7 +432,7 @@ check_security() {
     else
         log_warning "SSL certificates not found"
         log_info "Generate with: ./scripts/security/generate_certificates.sh"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 
     # Check .gitignore for sensitive files
@@ -445,7 +445,7 @@ check_security() {
                 log_success ".gitignore includes: $pattern"
             else
                 log_warning ".gitignore may be missing: $pattern"
-                ((WARNINGS++))
+                ((WARNINGS += 1))
             fi
         done
     fi
@@ -475,7 +475,7 @@ check_ports() {
             local pid
             pid=$(lsof -Pi ":$port" -sTCP:LISTEN -t 2>/dev/null | head -1)
             log_warning "Port $port ($service) is in use (PID: $pid)"
-            ((WARNINGS++))
+            ((WARNINGS += 1))
         else
             log_success "Port $port ($service) is available"
         fi
