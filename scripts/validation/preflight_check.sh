@@ -297,7 +297,10 @@ check_podman_config() {
         for file in "$compose_dir"/*.yml; do
             if [[ -f "$file" ]]; then
                 local count
-                count=$(grep -c "container_name:" "$file" 2>/dev/null || echo "0")
+                count=0
+                if ! count=$(grep -c "container_name:" "$file" 2>/dev/null); then
+                    count=0
+                fi
                 if [[ $count -gt 0 ]]; then
                     log_error "  $(basename "$file"): $count container_name override(s)"
                     total_overrides=$((total_overrides + count))

@@ -31,14 +31,19 @@ readonly NC='\033[0m' # No Color
 # Configuration
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-readonly PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
-readonly PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
+
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 
 # Load .env if exists
 if [[ -f "$PROJECT_ROOT/.env" ]]; then
     # shellcheck disable=SC1091
     source "$PROJECT_ROOT/.env"
 fi
+
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$PROJECT_NAME}"
+
 
 # Logging functions
 log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
@@ -237,7 +242,10 @@ validate_compose_config() {
     for file in "$compose_dir"/*.yml; do
         if [[ -f "$file" ]]; then
             local count
-            count=$(grep -c "container_name:" "$file" 2>/dev/null || echo "0")
+            count=0
+            if ! count=$(grep -c "container_name:" "$file" 2>/dev/null); then
+                count=0
+            fi
             if [[ $count -gt 0 ]]; then
                 log_error "  $file: $count container_name override(s)"
                 container_name_count=$((container_name_count + count))

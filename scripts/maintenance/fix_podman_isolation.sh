@@ -83,7 +83,10 @@ remove_container_names() {
 
             # Count container_name lines before
             local count_before
-            count_before=$(grep -c "container_name:" "$file" 2>/dev/null || echo "0")
+            count_before=0
+            if ! count_before=$(grep -c "container_name:" "$file" 2>/dev/null); then
+                count_before=0
+            fi
 
             if [[ $count_before -gt 0 ]]; then
                 if [[ "$DRY_RUN" == "true" ]]; then
@@ -115,7 +118,10 @@ verify_changes() {
     for file in "$COMPOSE_DIR"/*.yml; do
         if [[ -f "$file" ]]; then
             local count
-            count=$(grep -c "container_name:" "$file" 2>/dev/null || echo "0")
+            count=0
+            if ! count=$(grep -c "container_name:" "$file" 2>/dev/null); then
+                count=0
+            fi
             if [[ $count -gt 0 ]]; then
                 log_error "$(basename "$file"): Still has $count container_name override(s)"
                 remaining=$((remaining + count))

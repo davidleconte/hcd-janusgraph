@@ -102,6 +102,7 @@ class JanusGraphClient:
 def assert_result(result, description):
     """Assert a Gremlin query returned a result."""
     assert result is not None, f"{description} returned no result"
+    assert len(result) > 0, f"{description} returned an empty result"
 
 
 @pytest.mark.timeout(30)

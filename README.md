@@ -175,6 +175,83 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
+## Deterministic Full Demo Pipeline (MBP Pro)
+
+### One-click command for reproducible demos
+
+Use this command to run a full, repeatable pipeline for MBP Pro demos:
+
+```bash
+export COMPOSE_PROJECT_NAME=janusgraph-demo   # optional
+export PODMAN_CONNECTION=podman-wxd            # optional
+./scripts/testing/run_demo_pipeline_repeatable.sh
+```
+
+Optional flags:
+
+```bash
+./scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
+./scripts/testing/run_demo_pipeline_repeatable.sh --skip-data-generators
+./scripts/testing/run_demo_pipeline_repeatable.sh --dry-run
+```
+
+Outputs land under `exports/<RUN_ID>/` and include:
+
+```bash
+preflight.log
+podman_isolation.log
+deploy.log
+health.log
+notebooks.log
+notebook_run_report.tsv
+data_generators_smoke.log
+pipeline_summary.txt
+```
+
+Force a specific run id with:
+
+```bash
+DEMO_PIPELINE_RUN_ID=demo-2026-02-16 ./scripts/testing/run_demo_pipeline_repeatable.sh
+```
+
+### Determinism controls in this pipeline
+
+1. **Preflight gates first**
+   - Environment and Podman isolation checks run before deployment.
+2. **Bounded execution**
+   - Notebook total runtime and per-cell runtime are capped.
+   - On timeout, failing notebooks are isolated and flagged.
+3. **Repeatable inputs**
+   - Fixed seed (`DEMO_SEED`) and fixed output root (`DEMO_PIPELINE_RUN_ID`).
+   - Post-run check for notebook output cells of type `error`.
+
+### Data generator / notebook impact map
+
+Data generators are shared modules across notebooks; they are configured with different parameters per notebook.
+
+| Notebook | Main data path | Services required | Failure impact |
+|---|---|---|---|
+| `01_Sanctions_Screening_Demo.ipynb` | Core/person data paths | JanusGraph, HCD | Empty sanctions dataset |
+| `02_AML_Structuring_Detection_Demo.ipynb` | Core + event + pattern data | JanusGraph, HCD | Pattern injection mismatch |
+| `03_Fraud_Detection_Demo.ipynb` | Core + event data | JanusGraph, HCD | Missing fraud signals |
+| `04_Customer_360_View_Demo.ipynb` | Core relationship graph | JanusGraph, HCD | Broken entity links |
+| `05_Advanced_Analytics_OLAP_Demo.ipynb` | Analytical graph queries | JanusGraph | Query shape drift |
+| `06_TBML_Detection_Demo.ipynb` | Pattern + transaction flow | JanusGraph, OpenSearch (optional) | Detection window drift |
+| `07_Insider_Trading_Detection_Demo.ipynb` | Pattern + behavior data | JanusGraph | Missing pattern seeds |
+| `08_UBO_Discovery_Demo.ipynb` | UBO + ownership graph | JanusGraph | Missing owner/beneficiary fields |
+| `09_API_Integration_Demo.ipynb` | Seeded graph + API calls | JanusGraph, HCD, API surface | API contract mismatch |
+| `10_Integrated_Architecture_Demo.ipynb` | Full architecture walkthrough | JanusGraph, HCD, OpenSearch, Pulsar | Service dependency timing |
+| `11_Streaming_Pipeline_Demo.ipynb` | Streaming orchestrator + Pulsar topics + consumers | JanusGraph, HCD, OpenSearch, Pulsar | Topic routing / consumer lag |
+| Exploratory notebooks | Depends on selected demo path | Same as selected demo | Notebook-specific |
+
+### How to read the output
+
+1. `preflight.log` and `podman_isolation.log`: startup gating.
+2. `health.log`: confirm storage + traversal health before notebooks.
+3. `notebook_run_report.tsv`: every notebook should be `PASS`.
+4. `data_generators_smoke.log`: generator stability smoke test status.
+5. `pipeline_summary.txt`: one-command post-run summary.
+
 ### Production Deployment
 
 For production environments with security hardening:

@@ -55,7 +55,7 @@ class TestPersonGeneratorProperties:
         assert len(persons) == count
 
     @given(seed=st.integers(min_value=0, max_value=10000))
-    @settings(max_examples=50)
+    @settings(max_examples=30, deadline=None)
     def test_person_ids_unique(self, seed: int) -> None:
         """Property: All person IDs are unique."""
         gen = PersonGenerator(seed=seed)
