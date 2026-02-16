@@ -129,7 +129,11 @@ run_notebook() {
 
   base=$(basename "$src")
   stem="${base%.ipynb}"
-  container_src="/workspace/${src}"
+  if [[ "${src}" == notebooks-exploratory/* ]]; then
+    container_src="/workspace/notebooks/${base}"
+  else
+    container_src="/workspace/${src}"
+  fi
   out="${CONTAINER_OUTDIR}/${stem}.executed.ipynb"
   log="${LOCAL_OUTDIR}/${stem}.log"
   start_ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -162,9 +166,9 @@ run_notebook() {
   local cmd=(
     timeout "${TOTAL_TIMEOUT_SEC}"
     env
-    PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}"
     -u MallocStackLogging
     -u MallocStackLoggingNoCompact
+    PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}"
     podman
     --remote
     exec

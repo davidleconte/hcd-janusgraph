@@ -35,6 +35,7 @@ REPORT_DIR="${PROJECT_ROOT}/exports/${RUN_ID}"
 
 SKIP_NOTEBOOKS=false
 SKIP_DATA_GENERATORS=false
+SKIP_GRAPH_SEED=false
 DRY_RUN=false
 
 while [[ $# -gt 0 ]]; do
@@ -45,6 +46,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-data-generators)
             SKIP_DATA_GENERATORS=true
+            shift
+            ;;
+        --skip-graph-seed)
+            SKIP_GRAPH_SEED=true
             shift
             ;;
         --dry-run)
@@ -58,6 +63,7 @@ Usage: run_demo_pipeline_repeatable.sh [OPTIONS]
 Options:
   --skip-notebooks        Skip notebook execution step.
   --skip-data-generators  Skip data generator smoke tests.
+  --skip-graph-seed       Skip JanusGraph demo seed check/load.
   --dry-run               Print commands only, do not execute.
   --help, -h              Show this help.
 EOF
@@ -161,6 +167,15 @@ if [[ "$DRY_RUN" == "false" ]]; then
         exit 1
     fi
     echo "✅ Services healthy"
+fi
+
+if [[ "$SKIP_GRAPH_SEED" == "false" ]]; then
+    run_cmd "Seed/Validate Demo Graph Data" \
+        "scripts/testing/seed_demo_graph.sh" \
+        "${REPORT_DIR}/seed_graph.log" \
+        bash scripts/testing/seed_demo_graph.sh
+else
+    echo "⏭️  Skipping graph seed check"
 fi
 
 if [[ "$SKIP_NOTEBOOKS" == "false" ]]; then

@@ -192,6 +192,7 @@ Optional flags:
 ```bash
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-data-generators
+./scripts/testing/run_demo_pipeline_repeatable.sh --skip-graph-seed
 ./scripts/testing/run_demo_pipeline_repeatable.sh --dry-run
 ```
 
@@ -202,6 +203,7 @@ preflight.log
 podman_isolation.log
 deploy.log
 health.log
+seed_graph.log
 notebooks.log
 notebook_run_report.tsv
 data_generators_smoke.log
@@ -224,6 +226,8 @@ DEMO_PIPELINE_RUN_ID=demo-2026-02-16 ./scripts/testing/run_demo_pipeline_repeata
 3. **Repeatable inputs**
    - Fixed seed (`DEMO_SEED`) and fixed output root (`DEMO_PIPELINE_RUN_ID`).
    - Post-run check for notebook output cells of type `error`.
+   - Optional demo graph auto-seed step (`seed_demo_graph.sh`) ensures a deterministic dataset
+     exists before notebook execution.
 
 ### Data generator / notebook impact map
 
@@ -248,9 +252,10 @@ Data generators are shared modules across notebooks; they are configured with di
 
 1. `preflight.log` and `podman_isolation.log`: startup gating.
 2. `health.log`: confirm storage + traversal health before notebooks.
-3. `notebook_run_report.tsv`: every notebook should be `PASS`.
-4. `data_generators_smoke.log`: generator stability smoke test status.
-5. `pipeline_summary.txt`: one-command post-run summary.
+3. `seed_graph.log`: ensures minimal required graph dataset is present.
+4. `notebook_run_report.tsv`: every notebook should be `PASS`.
+5. `data_generators_smoke.log`: generator stability smoke test status.
+6. `pipeline_summary.txt`: one-command post-run summary.
 
 ### Production Deployment
 

@@ -223,6 +223,17 @@ Scripts for running automated tests.
   - `DEMO_NOTEBOOK_CELL_TIMEOUT`
 - **Requirements:** Jupyter service must be reachable and service stack running
 
+#### [`seed_demo_graph.sh`](testing/seed_demo_graph.sh)
+
+- **Purpose:** Ensure JanusGraph contains a minimal deterministic baseline dataset for notebook/integration demos.
+- **Usage:** `./seed_demo_graph.sh`
+- **Output:** `seed_graph.log` (when run through repeatable pipeline)
+- **Controls:**
+  - `DEMO_REQUIRED_PERSON` (default `Alice Johnson`)
+  - `DEMO_REQUIRED_MIN_VERTICES` (default `11`)
+  - `DEMO_REQUIRED_MIN_PERSONS` (default `5`)
+- **Requirements:** Full stack must be running with `janusgraph-demo` namespace containers.
+
 #### [`check_graph_counts.sh`](testing/check_graph_counts.sh)
 
 - **Purpose:** Verify HCD keyspace storage health and true JanusGraph cardinality in one command.
