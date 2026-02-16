@@ -19,6 +19,10 @@ set -euo pipefail
 #
 #   # Skip data generator smoke tests
 #   ./run_demo_pipeline_repeatable.sh --skip-data-generators
+#
+#   # Skip strict preflight check (useful when services are already
+#   # running and you want deterministic live verification of the stack)
+#   ./run_demo_pipeline_repeatable.sh --skip-preflight
 # =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,6 +40,8 @@ REPORT_DIR="${PROJECT_ROOT}/exports/${RUN_ID}"
 SKIP_NOTEBOOKS=false
 SKIP_DATA_GENERATORS=false
 SKIP_GRAPH_SEED=false
+SKIP_DEPLOY=false
+SKIP_PREFLIGHT=false
 DRY_RUN=false
 
 while [[ $# -gt 0 ]]; do
@@ -48,8 +54,16 @@ while [[ $# -gt 0 ]]; do
             SKIP_DATA_GENERATORS=true
             shift
             ;;
+        --skip-preflight)
+            SKIP_PREFLIGHT=true
+            shift
+            ;;
         --skip-graph-seed)
             SKIP_GRAPH_SEED=true
+            shift
+            ;;
+        --skip-deploy)
+            SKIP_DEPLOY=true
             shift
             ;;
         --dry-run)
@@ -63,7 +77,9 @@ Usage: run_demo_pipeline_repeatable.sh [OPTIONS]
 Options:
   --skip-notebooks        Skip notebook execution step.
   --skip-data-generators  Skip data generator smoke tests.
+  --skip-preflight        Skip preflight checks.
   --skip-graph-seed       Skip JanusGraph demo seed check/load.
+  --skip-deploy           Skip full stack deployment (assume services already up).
   --dry-run               Print commands only, do not execute.
   --help, -h              Show this help.
 EOF
@@ -124,6 +140,7 @@ mkdir -p "${REPORT_DIR}"
 export COMPOSE_PROJECT_NAME="$PROJECT_NAME"
 export PODMAN_CONNECTION="$PODMAN_CONNECTION"
 
+export DEMO_RUN_ID="$RUN_ID"
 export DEMO_FIXED_RUN_ID="$RUN_ID"
 export DEMO_FIXED_OUTPUT_ROOT="$REPORT_DIR"
 export DEMO_SEED="$DEMO_SEED"
@@ -134,20 +151,27 @@ sanitize_malloc_logging
 
 cd "$PROJECT_ROOT"
 
-run_cmd "Preflight Validation" \
-    "scripts/validation/preflight_check.sh --strict" \
-    "${REPORT_DIR}/preflight.log" \
-    bash scripts/validation/preflight_check.sh --strict
+if [[ "$SKIP_PREFLIGHT" == "false" ]]; then
+    run_cmd "Preflight Validation" \
+        "scripts/validation/preflight_check.sh --strict" \
+        "${REPORT_DIR}/preflight.log" \
+        bash scripts/validation/preflight_check.sh --strict
+    run_cmd "Podman Isolation Validation" \
+        "scripts/validation/validate_podman_isolation.sh --strict" \
+        "${REPORT_DIR}/podman_isolation.log" \
+        bash scripts/validation/validate_podman_isolation.sh --strict
+else
+    echo "⏭️  Skipping strict preflight and podman isolation validation"
+fi
 
-run_cmd "Podman Isolation Validation" \
-    "scripts/validation/validate_podman_isolation.sh --strict" \
-    "${REPORT_DIR}/podman_isolation.log" \
-    bash scripts/validation/validate_podman_isolation.sh --strict
-
-run_cmd "Deploy Full Stack" \
-    "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh" \
-    "${REPORT_DIR}/deploy.log" \
-    bash -c "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh"
+if [[ "$SKIP_DEPLOY" == "false" ]]; then
+    run_cmd "Deploy Full Stack" \
+        "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh" \
+        "${REPORT_DIR}/deploy.log" \
+        bash -c "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh"
+else
+    echo "⏭️  Skipping full stack deployment"
+fi
 
 if [[ "$DRY_RUN" == "false" ]]; then
     echo "[STEP] Waiting for service readiness"
@@ -167,6 +191,16 @@ if [[ "$DRY_RUN" == "false" ]]; then
         exit 1
     fi
     echo "✅ Services healthy"
+
+    {
+        echo "=== service snapshot: podman ps (label filter) ==="
+        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
+        echo ""
+        echo "=== service snapshot: inspect key services ==="
+        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+    } > "${REPORT_DIR}/services_snapshot.log"
 fi
 
 if [[ "$SKIP_GRAPH_SEED" == "false" ]]; then
@@ -186,6 +220,14 @@ if [[ "$SKIP_NOTEBOOKS" == "false" ]]; then
 
     if [[ "$DRY_RUN" == "false" ]]; then
         notebook_report="${REPORT_DIR}/notebook_run_report.tsv"
+
+        if [[ ! -f "$notebook_report" ]]; then
+            fallback_report="${PROJECT_ROOT}/exports/${RUN_ID}/notebook_run_report.tsv"
+            if [[ -f "$fallback_report" ]]; then
+                ln -sf "$fallback_report" "$notebook_report"
+            fi
+        fi
+
         if [[ ! -f "$notebook_report" ]]; then
             echo "❌ Notebook report not found: ${notebook_report}"
             exit 1
@@ -218,7 +260,12 @@ SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"
     echo "Project: ${PROJECT_NAME}"
     echo "Podman connection: ${PODMAN_CONNECTION}"
     echo "Report directory: ${REPORT_DIR}"
-    echo "Steps: preflight, isolation, deploy, service-boot, notebooks, data-generators"
+    echo "Steps: preflight, isolation, deploy, service-boot, service-snapshot, notebooks, data-generators"
+    echo "SKIP_PREFLIGHT=${SKIP_PREFLIGHT}"
+    echo "SKIP_DEPLOY=${SKIP_DEPLOY}"
+    echo "SKIP_NOTEBOOKS=${SKIP_NOTEBOOKS}"
+    echo "SKIP_DATA_GENERATORS=${SKIP_DATA_GENERATORS}"
+    echo "SKIP_GRAPH_SEED=${SKIP_GRAPH_SEED}"
 } > "${SUMMARY_FILE}"
 
 echo "✅ Repeatable demo pipeline complete"

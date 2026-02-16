@@ -217,10 +217,12 @@ Scripts for running automated tests.
 - **Output:** `notebook_run_report.tsv` with status, runtime, and error-cell counts per notebook
 - **Controls:**
   - `DEMO_RUN_ID`
+  - `DEMO_FIXED_RUN_ID` (alternate run identifier override)
   - `DEMO_SEED`
   - `DEMO_FORCE_MOCK_PULSAR` (`1` to force mock streaming in Notebook 11)
   - `DEMO_NOTEBOOK_TOTAL_TIMEOUT`
   - `DEMO_NOTEBOOK_CELL_TIMEOUT`
+  - `DEMO_FIXED_OUTPUT_ROOT` (forced output directory, defaults to `PROJECT_ROOT/exports/<RUN_ID>`)
 - **Requirements:** Jupyter service must be reachable and service stack running
 
 #### [`seed_demo_graph.sh`](testing/seed_demo_graph.sh)

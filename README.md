@@ -193,6 +193,8 @@ Optional flags:
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-data-generators
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-graph-seed
+./scripts/testing/run_demo_pipeline_repeatable.sh --skip-preflight
+./scripts/testing/run_demo_pipeline_repeatable.sh --skip-deploy
 ./scripts/testing/run_demo_pipeline_repeatable.sh --dry-run
 ```
 
@@ -207,13 +209,25 @@ seed_graph.log
 notebooks.log
 notebook_run_report.tsv
 data_generators_smoke.log
+services_snapshot.log
 pipeline_summary.txt
 ```
+
+`notebook_run_report.tsv` includes notebook-level timeout/exit-code/error-cell metrics.
+`services_snapshot.log` captures container status/ports and startup timestamps for audit evidence.
 
 Force a specific run id with:
 
 ```bash
 DEMO_PIPELINE_RUN_ID=demo-2026-02-16 ./scripts/testing/run_demo_pipeline_repeatable.sh
+```
+
+For an already-running stack (useful during demos/validation), use:
+
+```bash
+./scripts/testing/run_demo_pipeline_repeatable.sh \
+  --skip-preflight \
+  --skip-deploy
 ```
 
 ### Determinism controls in this pipeline
@@ -256,6 +270,32 @@ Data generators are shared modules across notebooks; they are configured with di
 4. `notebook_run_report.tsv`: every notebook should be `PASS`.
 5. `data_generators_smoke.log`: generator stability smoke test status.
 6. `pipeline_summary.txt`: one-command post-run summary.
+
+### Deterministic full live verification (recommended)
+
+Use this command on a running stack when you need one complete, auditable end-to-end pass:
+
+```bash
+export DEMO_PIPELINE_RUN_ID=demo-live-$(date -u +%Y%m%dT%H%M%SZ)
+export PODMAN_CONNECTION=podman-wxd
+export COMPOSE_PROJECT_NAME=janusgraph-demo
+
+./scripts/testing/run_demo_pipeline_repeatable.sh \
+  --skip-preflight \
+  --skip-data-generators
+```
+
+`--skip-preflight` is useful when ports are intentionally occupied by your already-running demo stack; it still records all health/notebook artifacts and validates notebook results.
+
+### Service health snapshot for evidence capture
+
+After or during verification:
+
+```bash
+podman --remote ps --filter "name=janusgraph-demo_" --format "table {{.Names}} {{.Status}}"
+podman --remote inspect janusgraph-demo_jupyter_1 --format "Status={{.State.Status}} StartedAt={{.State.StartedAt}}"
+scripts/testing/check_graph_counts.sh
+```
 
 ### Production Deployment
 

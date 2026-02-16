@@ -27,7 +27,7 @@ CONTAINER_NAME="${CONTAINER_NAME:-janusgraph-demo_jupyter_1}"
 CONTAINER_OUT_ROOT="/workspace/exports"
 
 PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-podman-wxd}"
-RUN_ID="${DEMO_RUN_ID:-live-notebooks-stable-$(date -u +%Y%m%dT%H%M%SZ)}"
+RUN_ID="${DEMO_RUN_ID:-${DEMO_FIXED_RUN_ID:-live-notebooks-stable-$(date -u +%Y%m%dT%H%M%SZ)}}"
 DEMO_SEED="${DEMO_SEED:-42}"
 DEMO_FORCE_MOCK_PULSAR="${DEMO_FORCE_MOCK_PULSAR:-}"
 PYTHON_HASH_SEED="${PYTHON_HASH_SEED:-0}"
@@ -36,8 +36,11 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 TOTAL_TIMEOUT_SEC="${DEMO_NOTEBOOK_TOTAL_TIMEOUT:-420}"
 CELL_TIMEOUT_SEC="${DEMO_NOTEBOOK_CELL_TIMEOUT:-180}"
 
-LOCAL_OUTDIR="${PROJECT_ROOT}/exports/${RUN_ID}"
-CONTAINER_OUTDIR="${CONTAINER_OUT_ROOT}/${RUN_ID}"
+# Allow callers (like the repeatable pipeline) to force a deterministic output
+# directory while keeping container path stable and predictable.
+LOCAL_OUTDIR="${DEMO_FIXED_OUTPUT_ROOT:-${PROJECT_ROOT}/exports/${RUN_ID}}"
+RUN_BASENAME="$(basename "${LOCAL_OUTDIR}")"
+CONTAINER_OUTDIR="${CONTAINER_OUT_ROOT}/${RUN_BASENAME}"
 REPORT_TSV="${LOCAL_OUTDIR}/notebook_run_report.tsv"
 
 export DEMO_FIXED_RUN_ID="${RUN_ID}"
