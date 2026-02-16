@@ -38,6 +38,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 readonly REQUIRED_CONDA_ENV="janusgraph-analysis"
 readonly REQUIRED_PYTHON_VERSION="3.11"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 
 # Load .env BEFORE setting defaults (to allow .env to override)
 if [[ -f "$PROJECT_ROOT/.env" ]]; then
@@ -50,7 +51,8 @@ fi
 
 # Set defaults after .env is loaded (only if not already set)
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 # Logging functions
 log_info() { echo -e "${BLUE}[INFO]${NC} $*"; }
@@ -228,7 +230,7 @@ check_environment_config() {
     else
         log_warning "PODMAN_CONNECTION not set (using default: $PODMAN_CONNECTION)"
         if [[ "$AUTO_FIX" == "true" ]]; then
-            echo "PODMAN_CONNECTION=podman-wxd" >> "$env_file"
+            echo "PODMAN_CONNECTION=${PODMAN_CONNECTION}" >> "$env_file"
             log_success "Added PODMAN_CONNECTION"
         else
             ((WARNINGS += 1))

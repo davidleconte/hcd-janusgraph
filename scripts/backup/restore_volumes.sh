@@ -9,8 +9,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 podman_exec() {
     podman --remote --connection "$PODMAN_CONNECTION" exec "$@"

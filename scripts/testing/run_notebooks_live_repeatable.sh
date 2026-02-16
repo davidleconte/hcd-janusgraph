@@ -21,12 +21,14 @@ sanitize_malloc_logging
 # - Post-run validation for execution-level errors.
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 export PROJECT_ROOT
 
 CONTAINER_NAME="${CONTAINER_NAME:-janusgraph-demo_jupyter_1}"
 CONTAINER_OUT_ROOT="/workspace/exports"
 
-PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION_VALUE="$(resolve_podman_connection "${PODMAN_CONNECTION_VALUE}")"
 RUN_ID="${DEMO_RUN_ID:-${DEMO_FIXED_RUN_ID:-live-notebooks-stable-$(date -u +%Y%m%dT%H%M%SZ)}}"
 DEMO_SEED="${DEMO_SEED:-42}"
 DEMO_FORCE_MOCK_PULSAR="${DEMO_FORCE_MOCK_PULSAR:-}"
@@ -80,8 +82,7 @@ EXPLORATORY_NOTEBOOKS=(
 )
 
 check_container() {
-  if ! PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}" \
-    podman --remote ps --filter "name=${CONTAINER_NAME}" --format '{{.Names}}' | \
+  if ! podman --remote --connection "${PODMAN_CONNECTION_VALUE}" ps --filter "name=${CONTAINER_NAME}" --format '{{.Names}}' | \
     grep -q "^${CONTAINER_NAME}$"; then
     echo "Container '${CONTAINER_NAME}' is not running (connection: ${PODMAN_CONNECTION_VALUE})."
     echo "Start the full stack and retry before running this script."
@@ -171,9 +172,10 @@ run_notebook() {
     env
     -u MallocStackLogging
     -u MallocStackLoggingNoCompact
-    PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}"
     podman
     --remote
+    --connection
+    "${PODMAN_CONNECTION_VALUE}"
     exec
     "${env_args[@]}"
     "${CONTAINER_NAME}"

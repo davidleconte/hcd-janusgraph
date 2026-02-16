@@ -33,7 +33,11 @@ S3_ENCRYPTION="${S3_ENCRYPTION:-aws:kms}"
 S3_KMS_KEY="${AWS_KMS_KEY_ID:-}"
 
 # Podman configuration
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 # Colors
 RED='\033[0;31m'
@@ -217,7 +221,8 @@ encrypt_backup() {
     log_info "Encrypting backup files..."
 
     # Encrypt each file
-    for file in "$TEMP_DIR"/*.tar.gz "$TEMP_DIR"/*.graphml 2>/dev/null; do
+    shopt -s nullglob
+    for file in "$TEMP_DIR"/*.tar.gz "$TEMP_DIR"/*.graphml; do
         if [ -f "$file" ]; then
             log_info "Encrypting $(basename "$file")..."
             gpg --encrypt --recipient "$GPG_RECIPIENT" \
@@ -232,6 +237,7 @@ encrypt_backup() {
             log_success "Encrypted: $(basename "$file").gpg"
         fi
     done
+    shopt -u nullglob
 
     # Encrypt metadata
     gpg --encrypt --recipient "$GPG_RECIPIENT" \

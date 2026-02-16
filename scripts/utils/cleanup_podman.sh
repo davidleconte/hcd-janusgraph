@@ -8,6 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 
 # Colors
 RED='\033[0;31m'
@@ -18,7 +19,8 @@ NC='\033[0m'
 
 # Project-specific prefixes
 PROJECT_PREFIXES=("janusgraph" "hcd" "opensearch" "vault" "prometheus" "grafana" "alertmanager" "jupyter")
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 podman_cmd() {
     podman --remote --connection "$PODMAN_CONNECTION" "$@"

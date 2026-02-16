@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 
 # Load environment variables
 if [ -f "$PROJECT_ROOT/.env" ]; then
@@ -20,7 +21,8 @@ fi
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 
 # Configure Podman connection for remote machine
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 echo "=========================================="
 echo "HCD + JanusGraph Stack Deployment"

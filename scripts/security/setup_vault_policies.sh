@@ -9,9 +9,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 POLICIES_DIR="$PROJECT_ROOT/config/vault/policies"
 VAULT_KEYS_FILE="$PROJECT_ROOT/.vault-keys"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 # Colors for output
 RED='\033[0;31m'

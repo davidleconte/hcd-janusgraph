@@ -14,11 +14,16 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
+
 HCD_HOST="${HCD_HOST:-localhost}"
 HCD_PORT="${HCD_PORT:-19042}"
 CONTAINER_NAME="${CONTAINER_NAME:-janusgraph-demo_hcd-server_1}"
 KEYSPACE="${KEYSPACE:-janusgraph}"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 
 # Check if running in container or host
 if [ -f /.dockerenv ]; then

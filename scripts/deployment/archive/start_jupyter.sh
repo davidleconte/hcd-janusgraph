@@ -1,6 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 source "$PROJECT_ROOT/.env" || source "$PROJECT_ROOT/.env.example"
 # Quick Start: Jupyter Lab for JanusGraph Analysis
 # Platform: macOS M3 Pro, Podman
@@ -16,7 +17,8 @@ if [ -f ".env" ]; then
 fi
 
 # Set defaults
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 PODMAN_PLATFORM="${PODMAN_PLATFORM:-linux/arm64}"
 JUPYTER_PORT="${JUPYTER_PORT:-8888}"
 NETWORK_NAME="${NETWORK_NAME:-hcd-janusgraph-network}"

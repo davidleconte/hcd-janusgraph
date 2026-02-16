@@ -16,6 +16,14 @@
 set -euo pipefail
 
 # ==============================================================================
+# Path resolution (for helper imports)
+COMMON_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT_FROM_COMMON="$(cd "$COMMON_DIR/../.." && pwd)"
+
+if [[ -f "$PROJECT_ROOT_FROM_COMMON/scripts/utils/podman_connection.sh" ]]; then
+    source "$PROJECT_ROOT_FROM_COMMON/scripts/utils/podman_connection.sh"
+fi
+
 # 1. PATH RESOLUTION
 # ==============================================================================
 
@@ -67,7 +75,17 @@ set_defaults() {
     export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
     
     # Podman Configuration
-    export PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+    local requested_connection="${PODMAN_CONNECTION:-}"
+    if [[ -n "$requested_connection" ]]; then
+        if ! resolved_connection="$(resolve_podman_connection "$requested_connection" 2>/dev/null)"; then
+            resolved_connection="podman-machine-default"
+        fi
+    else
+        if ! resolved_connection="$(resolve_podman_connection "" 2>/dev/null)"; then
+            resolved_connection="podman-machine-default"
+        fi
+    fi
+    export PODMAN_CONNECTION="$resolved_connection"
     export PODMAN_PLATFORM="${PODMAN_PLATFORM:-linux/arm64}"
     
     # Port Configuration

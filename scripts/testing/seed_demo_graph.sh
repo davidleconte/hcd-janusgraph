@@ -15,8 +15,10 @@ set -euo pipefail
 # =============================================================================
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 DEMO_REQUIRED_MIN_VERTICES="${DEMO_REQUIRED_MIN_VERTICES:-11}"
 DEMO_REQUIRED_MIN_PERSONS="${DEMO_REQUIRED_MIN_PERSONS:-5}"
@@ -25,8 +27,7 @@ CONTAINER_LIST=""
 GREMLIN_CONTAINER="${GREMLIN_CONTAINER:-}"
 
 run_podman_ps() {
-  PODMAN_CONNECTION="${PODMAN_CONNECTION}" \
-    podman --remote ps --format '{{.Names}}'
+  podman --remote --connection "$PODMAN_CONNECTION" ps --format '{{.Names}}'
 }
 
 load_container_list() {
@@ -58,7 +59,7 @@ run_gremlin() {
   local script="$1"
   local output
 
-  if ! output="$(PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote exec -i "${GREMLIN_CONTAINER}" ./bin/gremlin.sh 2>&1 <<EOF
+  if ! output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec -i "${GREMLIN_CONTAINER}" ./bin/gremlin.sh 2>&1 <<EOF
 :remote connect tinkerpop.server conf/remote.yaml
 :remote console
 ${script}

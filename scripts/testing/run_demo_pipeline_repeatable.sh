@@ -27,10 +27,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
 RUN_ID="${DEMO_PIPELINE_RUN_ID:-demo-$(date -u +%Y%m%dT%H%M%SZ)}"
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 DEMO_SEED="${DEMO_SEED:-42}"
 NOTEBOOK_TIMEOUT="${DEMO_NOTEBOOK_TOTAL_TIMEOUT:-420}"
 NOTEBOOK_CELL_TIMEOUT="${DEMO_NOTEBOOK_CELL_TIMEOUT:-180}"
@@ -194,12 +196,12 @@ if [[ "$DRY_RUN" == "false" ]]; then
 
     {
         echo "=== service snapshot: podman ps (label filter) ==="
-        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
+        podman --remote --connection "${PODMAN_CONNECTION}" ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
         echo ""
         echo "=== service snapshot: inspect key services ==="
-        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        PODMAN_CONNECTION="${PODMAN_CONNECTION}" podman --remote inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
     } > "${REPORT_DIR}/services_snapshot.log"
 fi
 

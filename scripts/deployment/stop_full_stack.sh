@@ -13,6 +13,7 @@ set -e
 # Source common deployment functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
+init_common
 
 # ==============================================================================
 # MAIN STOP FUNCTION

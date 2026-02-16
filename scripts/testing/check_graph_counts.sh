@@ -2,9 +2,14 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
+
 # Validate HCD storage and JanusGraph traversal health in one command.
 
-PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-podman-wxd}"
+PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-}"
+PODMAN_CONNECTION_VALUE="$(resolve_podman_connection "${PODMAN_CONNECTION_VALUE}")"
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 
 HCD_CONTAINER="${HCD_CONTAINER:-}"
@@ -13,7 +18,7 @@ GREMLIN_CONTAINER="${GREMLIN_CONTAINER:-}"
 CONTAINER_LIST=""
 
 run_podman_ps() {
-  PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}" podman --remote ps --format '{{.Names}}'
+  podman --remote --connection "${PODMAN_CONNECTION_VALUE}" ps --format '{{.Names}}'
 }
 
 load_container_list() {
@@ -63,8 +68,8 @@ print_container_hint() {
 
 if ! load_container_list; then
   echo "❌ Verify Podman machine + socket path; environment example:"
-  echo "   export PODMAN_CONNECTION=podman-wxd"
-  exit 1
+    echo "   export PODMAN_CONNECTION=${PODMAN_CONNECTION_VALUE}"
+    exit 1
 fi
 
 if [[ -z "${HCD_CONTAINER}" ]]; then
@@ -134,8 +139,7 @@ echo ""
 
 cql_query() {
   local cql="$1"
-  PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}" \
-    podman --remote exec "${CQL_CONTAINER}" cqlsh hcd-server -e "${cql}"
+  podman --remote --connection "${PODMAN_CONNECTION_VALUE}" exec "${CQL_CONTAINER}" cqlsh hcd-server -e "${cql}"
 }
 
 cql_scalar() {
@@ -161,7 +165,7 @@ echo "   - graphindex row count:    ${graphindex_rows:-N/A}"
 echo ""
 
 echo "2) Graph-layer checks (Gremlin)"
-graph_counts="$(PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}" podman --remote exec "${GREMLIN_CONTAINER}" bash -lc "python - <<'PY'
+graph_counts="$(podman --remote --connection "${PODMAN_CONNECTION_VALUE}" exec "${GREMLIN_CONTAINER}" bash -lc "python - <<'PY'
 from gremlin_python.process.anonymous_traversal import traversal
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 
