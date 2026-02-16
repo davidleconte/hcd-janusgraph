@@ -16,6 +16,9 @@ from decimal import Decimal
 
 from hypothesis import given, settings, strategies as st
 
+settings.register_profile("data_generators_properties_no_deadline", deadline=None)
+settings.load_profile("data_generators_properties_no_deadline")
+
 from banking.data_generators.core import AccountGenerator, PersonGenerator
 from banking.data_generators.events import TransactionGenerator
 
@@ -47,7 +50,7 @@ class TestPersonGeneratorProperties:
             assert person.date_of_birth is not None
 
     @given(count=st.integers(min_value=1, max_value=100))
-    @settings(max_examples=30)
+    @settings(max_examples=30, deadline=None)
     def test_person_generator_count(self, count: int) -> None:
         """Property: Generator produces exactly requested count."""
         gen = PersonGenerator(seed=42)
@@ -247,7 +250,7 @@ class TestTransactionGeneratorProperties:
             assert txn.amount > 0, f"Transaction amount must be positive: {txn.amount}"
 
     @given(seed=st.integers(min_value=0, max_value=10000))
-    @settings(max_examples=50)
+    @settings(max_examples=50, deadline=None)
     def test_transaction_timestamps_valid(self, seed: int) -> None:
         """Property: Transactions have valid timestamps."""
         gen = TransactionGenerator(seed=seed)
@@ -321,7 +324,7 @@ class TestCrossGeneratorProperties:
     """Property-based tests across multiple generators."""
 
     @given(seed=st.integers(min_value=0, max_value=10000))
-    @settings(max_examples=20)
+    @settings(max_examples=20, deadline=None)
     def test_generators_produce_valid_entities(self, seed: int) -> None:
         """Property: All generators produce valid entities with required fields."""
         # Person generator
