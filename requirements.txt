@@ -309,7 +309,7 @@ terminado==0.18.1
 textblob==0.17.1
 texttable==1.7.0
 textual==7.5.0
-thinc==8.2.5
+thinc==9.1.1
 threadpoolctl==3.6.0
 thrift==0.22.0
 tinycss2==1.4.0
