@@ -2,6 +2,17 @@
 
 set -euo pipefail
 
+function sanitize_malloc_logging() {
+  if [[ -n "${MallocStackLogging+x}" ]]; then
+    unset MallocStackLogging
+  fi
+  if [[ -n "${MallocStackLoggingNoCompact+x}" ]]; then
+    unset MallocStackLoggingNoCompact
+  fi
+}
+
+sanitize_malloc_logging
+
 # Deterministic notebook execution wrapper for live demo runs.
 #
 # - Fixed environment + hash seed.
@@ -82,7 +93,7 @@ detect_error_cells() {
     return
   fi
 
-  "${PYTHON_BIN}" - "$notebook_file" <<'PY'
+  env -u MallocStackLogging -u MallocStackLoggingNoCompact "${PYTHON_BIN}" - "$notebook_file" <<'PY'
 import json
 import sys
 
@@ -150,7 +161,10 @@ run_notebook() {
 
   local cmd=(
     timeout "${TOTAL_TIMEOUT_SEC}"
+    env
     PODMAN_CONNECTION="${PODMAN_CONNECTION_VALUE}"
+    -u MallocStackLogging
+    -u MallocStackLoggingNoCompact
     podman
     --remote
     exec
