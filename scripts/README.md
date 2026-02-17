@@ -210,6 +210,33 @@ Scripts for running automated tests.
 - **Usage:** `./run_integration_tests.sh`
 - **Requirements:** Full stack must be running
 
+#### [`run_demo_pipeline_repeatable.sh`](testing/run_demo_pipeline_repeatable.sh)
+
+- **Purpose:** One-command live demo pipeline with deterministic output and strict regression checkpoints.
+- **Usage:** `./run_demo_pipeline_repeatable.sh`
+- **Outputs:**
+  - `exports/<run-id>/preflight.log`
+  - `exports/<run-id>/podman_isolation.log`
+  - `exports/<run-id>/deploy.log`
+  - `exports/<run-id>/health.log`
+  - `exports/<run-id>/services_snapshot.log`
+  - `exports/<run-id>/seed_graph.log`
+  - `exports/<run-id>/notebooks.log`
+  - `exports/<run-id>/notebook_run_report.tsv`
+  - `exports/<run-id>/data_generators_smoke.log`
+  - `exports/<run-id>/pipeline_summary.txt`
+- **Protocol summary:**
+  1. `preflight_check --strict`
+  2. `validate_podman_isolation --strict`
+  3. full stack deployment
+  4. health wait + podman service snapshot
+  5. deterministic graph seed check
+  6. deterministic notebook replay with fixed seed + timeout budget
+  7. data-generator smoke verification (optional skip via flag)
+- **Single-command deterministic mode:** set `DEMO_PIPELINE_RUN_ID`, `DEMO_SEED`, `DEMO_NOTEBOOK_TOTAL_TIMEOUT`, `DEMO_NOTEBOOK_CELL_TIMEOUT` before run.
+- **Failure behavior:** any non-PASS notebook or service step causes non-zero exit and prints the failing notebook/cell summary.
+- **Requirements:** Full stack must be running with podman remoting functional.
+
 #### [`run_notebooks_live_repeatable.sh`](testing/run_notebooks_live_repeatable.sh)
 
 - **Purpose:** Run all banking + exploratory notebooks in live mode with deterministic settings

@@ -155,10 +155,42 @@ def validate_production_mode(result: ValidationResult) -> None:
         result.add_error("Debug mode must be disabled in production", "DEBUG")
 
 
+def validate_auth_settings(result: ValidationResult, strict: bool = False) -> None:
+    """Validate auth-specific startup requirements."""
+    auth_enabled = os.getenv("AUTH_ENABLED", "").lower() in {"1", "true", "yes", "on"}
+    api_jwt_secret = os.getenv("API_JWT_SECRET", "")
+
+    if not auth_enabled:
+        return
+
+    if not api_jwt_secret:
+        result.add_error(
+            "AUTH_ENABLED is true but API_JWT_SECRET is not set",
+            variable="API_JWT_SECRET",
+            recommendation=(
+                "Set API_JWT_SECRET with a strong random value before starting the API."
+            ),
+        )
+        return
+
+    if _is_default_password(api_jwt_secret):
+        result.add_error(
+            "AUTH_ENABLED is true but API_JWT_SECRET appears to use a default value",
+            variable="API_JWT_SECRET",
+            recommendation="Set API_JWT_SECRET to a production-quality secret.",
+        )
+        return
+
+    if strict:
+        for issue in _check_password_strength(api_jwt_secret):
+            result.add_warning(issue, variable="API_JWT_SECRET")
+
+
 def validate_startup(strict: bool = False, exit_on_error: bool = False) -> ValidationResult:
     """Run all startup validations."""
     result = ValidationResult()
     validate_passwords(result, strict=strict)
+    validate_auth_settings(result, strict=strict)
     validate_production_mode(result)
 
     if result.has_errors:

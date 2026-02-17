@@ -50,19 +50,23 @@ def discover_ubo(request: Request, body: UBORequest):
     ubos: List[UBOOwner] = []
     high_risk_indicators: List[str] = []
 
-    direct_owners = repo.find_direct_owners(body.company_id)
+    ubos_payload, total_layers = repo.find_ubo_owners(
+        body.company_id,
+        ownership_threshold=body.ownership_threshold,
+        include_indirect=body.include_indirect,
+        max_depth=body.max_depth,
+    )
 
-    for owner in direct_owners:
-        if owner.get("ownership_percentage", 0) >= body.ownership_threshold:
-            ubos.append(
-                UBOOwner(
-                    person_id=owner["person_id"],
-                    name=owner["name"],
-                    ownership_percentage=owner["ownership_percentage"],
-                    ownership_type="direct",
-                    chain_length=1,
-                )
+    for owner in ubos_payload:
+        ubos.append(
+            UBOOwner(
+                person_id=owner["person_id"],
+                name=owner["name"],
+                ownership_percentage=owner["ownership_percentage"],
+                ownership_type=owner.get("ownership_type", "direct"),
+                chain_length=owner.get("chain_length", 1),
             )
+        )
 
     risk_score = 0.0
     if not ubos:
@@ -77,7 +81,7 @@ def discover_ubo(request: Request, body: UBORequest):
             "legal_name", company_info.get("company_name", "Unknown")
         ),
         ubos=ubos,
-        total_layers=1 if ubos else 0,
+        total_layers=total_layers,
         high_risk_indicators=high_risk_indicators,
         risk_score=min(risk_score, 100.0),
         query_time_ms=round(query_time, 2),

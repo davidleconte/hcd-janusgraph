@@ -31,8 +31,6 @@ source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
 RUN_ID="${DEMO_PIPELINE_RUN_ID:-demo-$(date -u +%Y%m%dT%H%M%SZ)}"
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
-PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
-PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
 DEMO_SEED="${DEMO_SEED:-42}"
 NOTEBOOK_TIMEOUT="${DEMO_NOTEBOOK_TOTAL_TIMEOUT:-420}"
 NOTEBOOK_CELL_TIMEOUT="${DEMO_NOTEBOOK_CELL_TIMEOUT:-180}"
@@ -94,6 +92,13 @@ EOF
             ;;
     esac
 done
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
+else
+    PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
+    PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
+fi
 
 sanitize_malloc_logging() {
     if [[ -n "${MallocStackLogging+x}" ]]; then

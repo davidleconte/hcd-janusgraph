@@ -8,6 +8,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+_STRONG_TEST_SECRET = "unit-test-secret-key-for-session-manager-strong-32chars"
+
 # Load module directly to avoid src.python.security.__init__ triggering audit logger
 _spec = importlib.util.spec_from_file_location(
     "session_manager",
@@ -24,7 +26,7 @@ SessionManager = _mod.SessionManager
 @pytest.fixture
 def mgr():
     config = SessionConfig(
-        secret_key="test-secret-key-for-unit-tests",
+        secret_key=_STRONG_TEST_SECRET,
         access_token_ttl_minutes=1,
         refresh_token_ttl_minutes=60,
         max_concurrent_sessions=3,
@@ -115,7 +117,7 @@ class TestRefreshSession:
 
     def test_refresh_without_rotation(self):
         config = SessionConfig(
-            secret_key="test-key",
+            secret_key=_STRONG_TEST_SECRET,
             rotate_refresh_on_use=False,
         )
         mgr = SessionManager(config)
@@ -188,7 +190,7 @@ class TestCleanupExpired:
 class TestExpiredTokens:
     def test_expired_access_token(self):
         config = SessionConfig(
-            secret_key="test-key",
+            secret_key=_STRONG_TEST_SECRET,
             access_token_ttl_minutes=0,
         )
         mgr = SessionManager(config)
@@ -196,3 +198,14 @@ class TestExpiredTokens:
         time.sleep(1)
         with pytest.raises(SessionError, match="expired"):
             mgr.verify_access_token(result["access_token"])
+
+
+class TestSessionSecretValidation:
+    def test_rejects_short_secret(self):
+        with pytest.raises(ValueError, match="Session secret key is too weak"):
+            SessionManager(SessionConfig(secret_key="short-key"))
+
+    def test_accepts_long_high_entropy_secret(self):
+        secret = "0123456789abcdef" * 4
+        mgr = SessionManager(SessionConfig(secret_key=secret))
+        assert mgr.config.secret_key == secret

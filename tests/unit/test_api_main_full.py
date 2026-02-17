@@ -90,9 +90,10 @@ class TestAPIEndpoints:
             mock_repo_cls = MagicMock()
             mock_repo = MagicMock()
             mock_repo.get_company.return_value = {"legal_name": "Acme"}
-            mock_repo.find_direct_owners.return_value = [
-                {"person_id": "p-1", "name": "Alice", "ownership_percentage": 30.0}
-            ]
+            mock_repo.find_ubo_owners.return_value = (
+                [{"person_id": "p-1", "name": "Alice", "ownership_percentage": 30.0, "ownership_type": "direct", "chain_length": 1}],
+                1,
+            )
             mock_repo_cls.return_value = mock_repo
             mock_conn.return_value = MagicMock()
 

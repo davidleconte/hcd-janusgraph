@@ -12,6 +12,7 @@ Week 2: Event Schema & Producers
 
 import json
 import uuid
+import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -136,6 +137,12 @@ class EntityEvent:
 
         return json.dumps(self.to_dict(), default=json_serializer)
 
+    @staticmethod
+    def _deterministic_sequence_id(event_id: str) -> int:
+        """Create a deterministic positive sequence id from an event id."""
+        digest = hashlib.sha256(event_id.encode("utf-8")).digest()[:8]
+        return int.from_bytes(digest, byteorder="big", signed=False)
+
     def to_bytes(self) -> bytes:
         """Serialize event to bytes for Pulsar message content."""
         return self.to_json().encode("utf-8")
@@ -147,12 +154,12 @@ class EntityEvent:
         Returns:
             Dictionary with:
                 - partition_key: entity_id (ensures ordering per entity)
-                - sequence_id: hash of event_id (for deduplication)
+                - sequence_id: deterministic sha256 hash of event_id
                 - content: serialized event payload
         """
         return {
             "partition_key": self.entity_id,
-            "sequence_id": hash(self.event_id) % (2**63),  # Pulsar needs positive int
+            "sequence_id": self._deterministic_sequence_id(self.event_id) % (2**63),
             "content": self.to_bytes(),
         }
 

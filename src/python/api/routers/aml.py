@@ -39,7 +39,7 @@ def detect_structuring(request: Request, body: StructuringAlertRequest):
 
     threshold_low = body.threshold_amount * 0.8
 
-    query_result = repo.get_account_transaction_summaries()
+    query_result = repo.get_account_transaction_summaries(account_id=body.account_id)
 
     for result in query_result:
         txn_count = result.get("txn_count", 0)

@@ -28,7 +28,10 @@ def detect_fraud_rings(
     Detect potential fraud rings based on shared addresses/phones and transaction patterns.
     """
     repo = GraphRepository(get_graph_connection())
-    rings = repo.find_shared_addresses(min_members=min_members)
+    rings = repo.find_shared_addresses_with_accounts(
+        min_members=min_members,
+        include_accounts=include_accounts,
+    )
 
     total = len(rings)
     page = rings[offset : offset + limit]

@@ -59,7 +59,9 @@ async def lifespan(app: FastAPI):
 
     from src.python.utils.startup_validation import validate_startup
 
-    result = validate_startup(strict=False)
+    settings = get_settings()
+    strict = settings.environment.lower() in {"production", "prod"}
+    result = validate_startup(strict=strict)
     if result.has_errors:
         for issue in result.issues:
             logger.error("Startup validation: %s", issue.message)

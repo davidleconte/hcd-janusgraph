@@ -109,6 +109,23 @@ class TestFraudDetection:
         assert result[0]["type"] == "shared_address"
         assert result[0]["member_count"] == 3
 
+    def test_find_shared_addresses_with_accounts(self, repo, mock_g):
+        mock_g.toList.return_value = [
+            {
+                "address_id": "ADDR-2",
+                "city": "Zurich",
+                "members": [
+                    {"person_id": "P1", "account_ids": ["ACC-1", "ACC-2"]},
+                    {"person_id": "P2", "account_ids": ["ACC-3"]},
+                ],
+            }
+        ]
+        result = repo.find_shared_addresses_with_accounts(min_members=2, include_accounts=True)
+        assert len(result) == 1
+        assert result[0]["members"][0]["person_id"] == "P1"
+        assert result[0]["member_accounts"][0] == ["ACC-1", "ACC-2"]
+        assert result[0]["member_count"] == 2
+
 
 class TestAMLStructuring:
     @pytest.fixture(autouse=True)
@@ -130,6 +147,12 @@ class TestAMLStructuring:
         result = repo.get_account_transaction_summaries()
         assert len(result) == 1
         assert result[0]["account_id"] == "ACC-1"
+
+    def test_get_account_transaction_summaries_filtered(self, repo, mock_g):
+        mock_g.toList.return_value = []
+        result = repo.get_account_transaction_summaries(account_id="ACC-001")
+        assert len(result) == 0
+        mock_g.has.assert_called_with("account_id", "ACC-001")
 
 
 class TestUBODiscovery:
@@ -160,6 +183,15 @@ class TestUBODiscovery:
         result = repo.find_direct_owners("COMP-1")
         assert len(result) == 1
         assert result[0]["person_id"] == "P-1"
+
+    def test_find_ubo_owners_direct_only(self, repo, mock_g):
+        mock_g.toList.return_value = [
+            {"person_id": "P-1", "name": "Alice", "ownership_percentage": 60.0}
+        ]
+        result, layers = repo.find_ubo_owners("COMP-1", include_indirect=False)
+        assert layers == 1
+        assert len(result) == 1
+        assert result[0]["ownership_type"] == "direct"
 
     def test_get_owner_vertices(self, repo, mock_g):
         mock_g.toList.return_value = [

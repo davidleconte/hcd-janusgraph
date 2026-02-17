@@ -130,9 +130,14 @@ def get_auth_session_manager() -> SessionManager:
     """Get or create the shared auth session manager."""
     global _session_manager
     if _session_manager is None:
+        secret = get_settings().api_jwt_secret
+        if not secret:
+            raise RuntimeError(
+                "api_jwt_secret must be configured when authentication or session features are used."
+            )
         _session_manager = SessionManager(
             config=SessionConfig(
-                secret_key=get_settings().api_jwt_secret,
+                secret_key=secret,
                 access_token_ttl_minutes=get_settings().api_access_token_ttl_minutes,
                 refresh_token_ttl_minutes=get_settings().api_refresh_token_ttl_minutes,
             )

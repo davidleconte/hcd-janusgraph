@@ -18,7 +18,7 @@ Design decisions
 
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.process.graph_traversal import GraphTraversalSource, __
 from gremlin_python.process.traversal import P, T
@@ -99,23 +99,61 @@ class GraphRepository:
 
     def find_shared_addresses(self, min_members: int = 3) -> List[Dict[str, Any]]:
         """Find addresses shared by >= *min_members* persons."""
-        results = (
-            self._g.V()
-            .has_label("address")
-            .where(__.in_("has_address").count().is_(P.gte(min_members)))
-            .project("address_id", "city", "persons")
-            .by(__.values("address_id"))
-            .by(__.values("city"))
-            .by(__.in_("has_address").values("person_id").fold())
-            .toList()
-        )
+        return self.find_shared_addresses_with_accounts(min_members=min_members, include_accounts=False)
+
+    def find_shared_addresses_with_accounts(
+        self, min_members: int = 3, include_accounts: bool = False
+    ) -> List[Dict[str, Any]]:
+        """Find shared addresses with optional per-member account enrichment."""
+        if include_accounts:
+            results = (
+                self._g.V()
+                .has_label("address")
+                .where(__.in_("has_address").count().is_(P.gte(min_members)))
+                .project("address_id", "city", "members")
+                .by(__.values("address_id"))
+                .by(__.values("city"))
+                .by(
+                    __.in_("has_address")
+                    .project("person_id", "account_ids")
+                    .by(__.values("person_id"))
+                    .by(__.out("owns_account").values("account_id").fold())
+                    .fold()
+                )
+                .toList()
+            )
+        else:
+            results = (
+                self._g.V()
+                .has_label("address")
+                .where(__.in_("has_address").count().is_(P.gte(min_members)))
+                .project("address_id", "city", "persons")
+                .by(__.values("address_id"))
+                .by(__.values("city"))
+                .by(__.in_("has_address").values("person_id").fold())
+                .toList()
+            )
+
+        def _normalise_members(raw: Any) -> List[Dict[str, Any]]:
+            if not include_accounts:
+                return [{"person_id": member} for member in (raw or [])]
+            return raw or []
+
         return [
             {
                 "type": "shared_address",
                 "indicator": r.get("address_id"),
                 "location": r.get("city"),
-                "members": r.get("persons", []),
-                "member_count": len(r.get("persons", [])),
+                "members": (
+                    r.get("persons", r.get("members", []))
+                    if not include_accounts
+                    else _normalise_members(r.get("members"))
+                ),
+                "members_simple": r.get("persons", r.get("members", [])),
+                "member_count": len(r.get("persons", r.get("members", []))),
+                "member_accounts": [entry.get("account_ids", []) for entry in _normalise_members(r.get("members"))]
+                if include_accounts
+                else [],
             }
             for r in results
         ]
@@ -124,12 +162,16 @@ class GraphRepository:
     # AML structuring detection
     # ------------------------------------------------------------------
 
-    def get_account_transaction_summaries(self) -> List[Dict[str, Any]]:
+    def get_account_transaction_summaries(
+        self, account_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         """Return per-account transaction count and total for structuring analysis."""
+        traversal = self._g.V().has_label("account")
+        if account_id is not None:
+            traversal = traversal.has("account_id", account_id)
+
         return (
-            self._g.V()
-            .has_label("account")
-            .project("account_id", "holder", "txn_count", "total")
+            traversal.project("account_id", "holder", "txn_count", "total")
             .by(__.values("account_id"))
             .by(
                 __.in_("owns_account").coalesce(
@@ -139,7 +181,7 @@ class GraphRepository:
                 )
             )
             .by(__.out_e("from_account").count())
-            .by(__.out_e("from_account").in_v().values("amount").sum())
+            .by(__.out_e("from_account").in_v().values("amount").sum_())
             .toList()
         )
 
@@ -174,6 +216,66 @@ class GraphRepository:
             .by(__.coalesce(__.values("ownership_percentage"), __.constant(0.0)))
             .toList()
         )
+
+    def find_ubo_owners(
+        self,
+        company_id: str,
+        ownership_threshold: float = 25.0,
+        *,
+        include_indirect: bool = True,
+        max_depth: int = 10,
+    ) -> Tuple[List[Dict[str, Any]], int]:
+        """Discover UBOs with optional indirect traversal."""
+        direct_owners = [
+            owner
+            for owner in self.find_direct_owners(company_id)
+            if owner.get("ownership_percentage", 0.0) >= ownership_threshold
+        ]
+
+        for owner in direct_owners:
+            owner["ownership_type"] = "direct"
+            owner["chain_length"] = 1
+
+        if not include_indirect:
+            return direct_owners, 1 if direct_owners else 0
+
+        # Import lazily to avoid introducing a hard dependency at module import.
+        from src.python.analytics.ubo_discovery import UBODiscovery
+
+        indirect_owners: List[Dict[str, Any]] = []
+        try:
+            discovery = UBODiscovery(ownership_threshold=ownership_threshold)
+            discovery.g = self._g
+            result = discovery.find_ubos_for_company(
+                company_id=company_id,
+                include_indirect=True,
+                max_depth=max_depth,
+            )
+            for ubo in result.ubos:
+                if ubo["chain_length"] <= 1:
+                    continue
+                indirect_owners.append(ubo)
+        except Exception as exc:
+            logger.debug("Fallback to direct owners only: %s", exc)
+            return direct_owners, 1 if direct_owners else 0
+
+        # Deduplicate UBOs by person and keep the strongest chain.
+        merged: Dict[str, Dict[str, Any]] = {
+            owner["person_id"]: owner for owner in direct_owners
+        }
+        for owner in indirect_owners:
+            current = merged.get(owner["person_id"])
+            if current is None or owner["ownership_percentage"] > current.get(
+                "ownership_percentage", 0.0
+            ):
+                merged[owner["person_id"]] = owner
+
+        merged_owners = list(merged.values())
+        total_layers = max(
+            [1] + [owner.get("chain_length", 1) for owner in merged_owners]
+        ) if merged_owners else 0
+
+        return merged_owners, total_layers
 
     def get_owner_vertices(self, company_id: str) -> List[Dict[str, Any]]:
         """Return full valueMap of persons who own a company (for network view)."""

@@ -11,6 +11,7 @@ JWT-based session management with:
 
 import hashlib
 import logging
+import math
 import secrets
 import threading
 from dataclasses import dataclass, field
@@ -21,7 +22,33 @@ import jwt
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_SECRET = secrets.token_hex(32)
+_DEFAULT_SECRET = ""
+_MIN_SECRET_LENGTH = 32
+_MIN_SECRET_ENTROPY_BITS = 128.0
+
+
+_KNOWN_WEAK_SECRETS = {
+    "changeit",
+    "password",
+    "changeme",
+    "default_secret",
+    "secret",
+}
+
+
+def _is_weak_secret(secret: str) -> bool:
+    if len(secret) < _MIN_SECRET_LENGTH:
+        return True
+    normalized = secret.strip()
+    if not normalized:
+        return True
+
+    lowered = normalized.lower()
+    return (
+        lowered in _KNOWN_WEAK_SECRETS
+        or len(set(lowered)) == 1
+        or (math.log2(len(set(lowered)) or 1) * len(lowered)) < _MIN_SECRET_ENTROPY_BITS
+    )
 
 
 @dataclass
@@ -55,6 +82,12 @@ class SessionManager:
 
     def __init__(self, config: SessionConfig | None = None):
         self.config = config or SessionConfig()
+        if not self.config.secret_key:
+            raise ValueError("Session secret key must be configured and non-empty.")
+        if _is_weak_secret(self.config.secret_key):
+            raise ValueError(
+                "Session secret key is too weak. Use a strong secret (>=32 chars)."
+            )
         self._sessions: Dict[str, Session] = {}
         self._user_sessions: Dict[str, List[str]] = {}
         self._lock = threading.Lock()
