@@ -18,10 +18,15 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
 PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
-PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"
+if ! PODMAN_CONNECTION="$(resolve_podman_connection "${PODMAN_CONNECTION}")"; then
+  echo "[ERROR] Unable to resolve a reachable podman connection."
+  exit 1
+fi
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 DEMO_REQUIRED_MIN_VERTICES="${DEMO_REQUIRED_MIN_VERTICES:-11}"
 DEMO_REQUIRED_MIN_PERSONS="${DEMO_REQUIRED_MIN_PERSONS:-5}"
+DEMO_REQUIRED_PERSON="${DEMO_REQUIRED_PERSON:-Alice Johnson}"
+DEMO_STRICT_SEED="${DEMO_STRICT_SEED:-1}"
 
 CONTAINER_LIST=""
 GREMLIN_CONTAINER="${GREMLIN_CONTAINER:-}"
@@ -118,14 +123,33 @@ query_gremlin_ok() {
 
 run_gremlin_file() {
   local file_path="$1"
-  local script
+  local script=""
+  local line
+  local trimmed
 
   if [[ ! -f "${file_path}" ]]; then
     echo "[ERROR] File not found: ${file_path}"
     return 1
   fi
 
-  script="$(tr '\n' ';' < "${file_path}")"
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    trimmed="$(printf '%s' "${line}" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+    if [[ -z "${trimmed}" ]]; then
+      continue
+    fi
+    if [[ "${trimmed}" == //* ]]; then
+      continue
+    fi
+    if [[ "${trimmed}" == .* ]]; then
+      script="${script} ${trimmed}"
+      continue
+    fi
+    if [[ -n "${script}" ]]; then
+      script="${script}; "
+    fi
+    script="${script}${trimmed}"
+  done < "${file_path}"
+
   run_gremlin "${script}"
 }
 
@@ -189,14 +213,14 @@ main() {
     echo "[WARN] Could not read person count; seeding graph."
     person_count="0"
   fi
-  if [[ -n "${DEMO_REQUIRED_PERSON:-}" ]]; then
+  if [[ -n "${DEMO_REQUIRED_PERSON}" ]]; then
     if ! required_person_count="$(query_gremlin_scalar "g.V().hasLabel('person').has('name', '${DEMO_REQUIRED_PERSON}').count().next()")"; then
       echo "[WARN] Could not read required-person check; seeding decision will use graph cardinality only."
       required_person_count="0"
     fi
   fi
 
-  if [[ -n "${DEMO_REQUIRED_PERSON:-}" ]]; then
+  if [[ -n "${DEMO_REQUIRED_PERSON}" ]]; then
     echo "[INFO] Current graph: vertices=${total_vertices}, persons=${person_count}, ${DEMO_REQUIRED_PERSON}=${required_person_count}"
   else
     echo "[INFO] Current graph: vertices=${total_vertices}, persons=${person_count}"
@@ -209,8 +233,13 @@ main() {
   if ! query_gremlin_ok "g.V().hasLabel('person').count().next()" "${DEMO_REQUIRED_MIN_PERSONS}" >/dev/null 2>&1; then
     need_seed="true"
   fi
-  if [[ -n "${DEMO_REQUIRED_PERSON:-}" ]] && ! query_gremlin_ok "g.V().hasLabel('person').has('name', '${DEMO_REQUIRED_PERSON}').count().next()" "1" >/dev/null 2>&1; then
-    echo "[WARN] Required seed entity '${DEMO_REQUIRED_PERSON}' missing. Continuing with cardinality-based seeding guard."
+  if [[ -n "${DEMO_REQUIRED_PERSON}" ]] && ! query_gremlin_ok "g.V().hasLabel('person').has('name', '${DEMO_REQUIRED_PERSON}').count().next()" "1" >/dev/null 2>&1; then
+    if [[ "${DEMO_STRICT_SEED}" == "1" ]]; then
+      echo "[WARN] Required seed entity '${DEMO_REQUIRED_PERSON}' missing. Strict mode will trigger seeding."
+      need_seed="true"
+    else
+      echo "[WARN] Required seed entity '${DEMO_REQUIRED_PERSON}' missing. Continuing with cardinality-only guard."
+    fi
   fi
 
   if [[ "${need_seed}" == "false" ]]; then
@@ -231,6 +260,12 @@ main() {
   if ! query_gremlin_ok "g.V().hasLabel('person').count().next()" "${DEMO_REQUIRED_MIN_PERSONS}" >/dev/null 2>&1; then
     echo "[ERROR] Post-seed person check failed"
     return 1
+  fi
+  if [[ -n "${DEMO_REQUIRED_PERSON}" ]] && [[ "${DEMO_STRICT_SEED}" == "1" ]]; then
+    if ! query_gremlin_ok "g.V().hasLabel('person').has('name', '${DEMO_REQUIRED_PERSON}').count().next()" "1" >/dev/null 2>&1; then
+      echo "[ERROR] Post-seed required-person check failed for '${DEMO_REQUIRED_PERSON}'"
+      return 1
+    fi
   fi
 
   echo "[PASS] Demo graph seed completed."
