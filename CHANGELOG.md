@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data generator test suite: **190 passed, 3 skipped, 0 failed** (previously 12 timeouts + attribute errors)
 - **Deployment/test automation** scripts now include stricter podman/service lifecycle checks (`scripts/deployment`, `scripts/testing`, `scripts/validation`, `scripts/hcd/health_check.sh`)
 - **Production readiness tooling** expanded (`scripts/security/credential_rotation_framework.py`, `scripts/validation/production_readiness_check.py`) to tighten preflight checks and credential policy handling
+- **Root governance cleanup** — removed accidental root artifacts, normalized Podman connection defaults (no hardcoded machine name), aligned package version metadata, and consolidated secret-scan baseline usage to `.secrets.baseline`
 
 ## [1.4.0] - 2026-02-14
 

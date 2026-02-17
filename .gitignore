@@ -53,6 +53,9 @@ ENV/
 ehthumbs.db
 Thumbs.db
 
+# Accidental shell/pip transcript artifacts
+=[0-9]*
+
 # Logs
 *.log
 logs/
@@ -167,6 +170,9 @@ coverage.xml
 htmlcov/
 *.pyc
 __pycache__/
+
+# Secret scanning scratch files
+.secrets.baseline.new
 
 # Notebooks output
 notebooks/*.html

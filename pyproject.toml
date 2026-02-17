@@ -1,6 +1,6 @@
 [project]
 name = "hcd-janusgraph-banking"
-version = "1.2.0"
+version = "1.4.0"
 description = "Production-ready banking analytics platform with HCD and JanusGraph"
 readme = "README.md"
 requires-python = ">=3.11"
