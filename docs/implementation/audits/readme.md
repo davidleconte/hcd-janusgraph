@@ -71,5 +71,6 @@ Historical and superseded audit documents have been archived to:
 ## Related Documentation
 
 - [Remediation Tracking](../remediation/)
+- [Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](../remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)
 - [Production Readiness](../production-readiness-audit-2026.md)
 - [Historical Archive](../../archive/2026-02/)

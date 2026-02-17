@@ -113,6 +113,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Codex Remediation Log (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Issue-by-issue solutions and evidence
 - **Executive Summary** - High-level findings (see [Production Readiness Audit](implementation/PRODUCTION_READINESS_AUDIT_2026.md))
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
+- **[Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)** - Detailed implementation plan for end-to-end deterministic runs
 
 #### Gap Analysis
 
