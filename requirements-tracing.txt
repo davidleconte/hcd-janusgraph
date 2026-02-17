@@ -233,7 +233,7 @@ opentelemetry-exporter-otlp-proto-grpc==1.34.1
     # via
     #   hcd-janusgraph-banking
     #   opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.34.1
+opentelemetry-exporter-otlp-proto-http==1.39.1
     # via opentelemetry-exporter-otlp
 opentelemetry-instrumentation==0.55b1
     # via
