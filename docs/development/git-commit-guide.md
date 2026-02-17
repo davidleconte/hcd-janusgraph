@@ -6,9 +6,9 @@ The remediation script successfully:
 
 - ✅ Removed build artifacts (.coverage, htmlcov/, .pytest_cache)
 - ✅ Moved vendor code (hcd-1.2.3/) to vendor/
-- ✅ Consolidated docker-compose files to config/compose/
+- ✅ Consolidated compose files to config/compose/
 - ✅ Removed empty exports/ directory
-- ✅ Fixed build contexts in docker-compose files
+- ✅ Fixed build contexts in compose files
 - ✅ Updated .gitignore with comprehensive exclusions
 
 ## Git Status Analysis
@@ -41,12 +41,12 @@ git commit -m "fix: complete audit remediation - structure and security cleanup
 
 BREAKING CHANGES:
 - Moved hcd-1.2.3/ to vendor/ (download via scripts/setup/download_hcd.sh)
-- Consolidated docker-compose files to config/compose/
+- Consolidated compose files to config/compose/
 - Fixed build contexts (must run from config/compose/)
 
 Changes:
 - Security: Updated .gitignore to exclude vendor/, certs, vault data
-- Structure: Moved 5 docker-compose files to config/compose/
+- Structure: Moved 5 compose files to config/compose/
 - Build: Fixed build contexts in all compose files
 - Cleanup: Removed build artifacts and empty directories
 - Docs: Updated deployment instructions in README, QUICKSTART, AGENTS
@@ -96,7 +96,7 @@ BREAKING CHANGE: Run scripts/setup/download_hcd.sh to download HCD"
 ```bash
 git add config/compose/docker-compose.*.yml
 git add docker-compose.*.yml  # If any remain at root
-git commit -m "refactor: consolidate docker-compose files to config/compose/
+git commit -m "refactor: consolidate compose files to config/compose/
 
 - Moved 5 compose files to config/compose/
 - Fixed build contexts (context: ../.. for project root)
@@ -158,7 +158,7 @@ git ls-files | grep -E '\.env$|\.key$|\.pem$|vault-keys'
 cd config/compose
 podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 # Wait 90 seconds
-curl http://localhost:8182?gremlin=g.V().count()
+curl http://localhost:18182?gremlin=g.V().count()
 podman-compose -p janusgraph-demo down
 cd ../..
 ```
@@ -174,12 +174,12 @@ git commit -m "fix: complete audit remediation - structure and security cleanup
 
 BREAKING CHANGES:
 - Moved hcd-1.2.3/ to vendor/ (download via scripts/setup/download_hcd.sh)
-- Consolidated docker-compose files to config/compose/
+- Consolidated compose files to config/compose/
 - Fixed build contexts (must run from config/compose/)
 
 Changes:
 - Security: Updated .gitignore to exclude vendor/, certs, vault data
-- Structure: Moved 5 docker-compose files to config/compose/
+- Structure: Moved 5 compose files to config/compose/
 - Build: Fixed build contexts in all compose files
 - Cleanup: Removed build artifacts and empty directories
 - Docs: Updated deployment instructions in README, QUICKSTART, AGENTS

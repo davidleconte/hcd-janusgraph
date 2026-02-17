@@ -434,7 +434,7 @@ class GraphConsumer:
     def __init__(
         self,
         pulsar_url: str = "pulsar://localhost:6650",
-        janusgraph_url: str = "ws://localhost:8182/gremlin",
+        janusgraph_url: str = "ws://localhost:18182/gremlin",
         topics: list = None
     ):
         self.pulsar = Client(pulsar_url)

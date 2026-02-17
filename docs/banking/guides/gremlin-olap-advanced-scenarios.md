@@ -979,7 +979,7 @@ suspicious_companies = [
 
 # Step 2: Gremlin - Analyze company networks
 g = traversal().with_remote(
-    DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
 )
 
 for company_id in suspicious_companies:

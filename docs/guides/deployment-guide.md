@@ -53,7 +53,7 @@ cp config/environments/prod/.env.example .env
 
 # 3. Deploy with health checks
 cd config/compose
-podman-compose -f docker-compose.full.yml -f docker-compose.prod.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml -f docker-compose.prod.yml up -d
 
 # 4. Verify deployment
 bash scripts/testing/run_tests.sh

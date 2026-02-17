@@ -330,21 +330,21 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 ./scripts/security/generate_certificates.sh
 
 # Deploy with TLS
-docker-compose -f docker-compose.yml -f docker-compose.tls.yml up -d
+podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
 ```
 
 ### 2. Deploy with Rate Limiting
 
 ```bash
 # Deploy with nginx reverse proxy
-docker-compose -f docker-compose.yml -f docker-compose.nginx.yml up -d
+podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.nginx.yml up -d
 ```
 
 ### 3. Deploy Full Stack (Recommended)
 
 ```bash
 # Deploy everything: TLS + Rate Limiting + Logging + Monitoring
-docker-compose \
+podman-compose -p janusgraph-demo \
   -f docker-compose.yml \
   -f docker-compose.tls.yml \
   -f docker-compose.nginx.yml \
@@ -403,7 +403,7 @@ except ValidationError as e:
 openssl s_client -connect localhost:9142 -showcerts
 
 # Test TLS connection to JanusGraph
-openssl s_client -connect localhost:8182 -showcerts
+openssl s_client -connect localhost:18182 -showcerts
 
 # Verify certificate chain
 openssl verify -CAfile config/certs/ca.crt config/certs/hcd-server.crt

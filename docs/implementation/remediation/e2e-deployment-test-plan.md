@@ -101,7 +101,7 @@ podman ps | grep hcd-server | grep 7199
 # Should return nothing (no JMX port mapping)
 
 # 5. Check JanusGraph connectivity
-curl -s http://localhost:8182?gremlin=g.V().count()
+curl -s http://localhost:18182?gremlin=g.V().count()
 
 # 6. Check HCD connectivity
 podman exec hcd-server nodetool status
@@ -195,7 +195,7 @@ python -c "
 from src.python.client import JanusGraphClient
 from src.python.init.initialize_graph import initialize_schema, load_sample_data
 
-client = JanusGraphClient('ws://localhost:8182/gremlin')
+client = JanusGraphClient('ws://localhost:18182/gremlin')
 client.connect()
 print('Schema init:', initialize_schema(client))
 print('Data load:', load_sample_data(client))
@@ -203,7 +203,7 @@ client.close()
 "
 
 # 4. Verify data loaded
-curl -s "http://localhost:8182?gremlin=g.V().count()" | jq .
+curl -s "http://localhost:18182?gremlin=g.V().count()" | jq .
 # Should show vertices created
 ```
 
@@ -263,7 +263,7 @@ podman inspect jupyter-notebook | jq '.[0].Mounts'
 
 ```bash
 # 1. Create test data
-curl -X POST "http://localhost:8182" \
+curl -X POST "http://localhost:18182" \
   -H "Content-Type: application/json" \
   -d '{"gremlin":"g.addV(\"test\").property(\"name\",\"backup-test\")"}'
 
@@ -281,7 +281,7 @@ TIMESTAMP=$(ls /backups/janusgraph/ | grep hcd_ | head -1 | sed 's/hcd_//')
 ./scripts/backup/restore_volumes.sh /backups/janusgraph $TIMESTAMP
 
 # 6. Verify data restored
-curl -s "http://localhost:8182?gremlin=g.V().has('name','backup-test').count()"
+curl -s "http://localhost:18182?gremlin=g.V().has('name','backup-test').count()"
 ```
 
 **Expected Results:**
@@ -438,7 +438,7 @@ conda activate janusgraph-analysis
 python -c "
 from src.python.client import JanusGraphClient
 from src.python.init.initialize_graph import initialize_schema, load_sample_data
-client = JanusGraphClient('ws://localhost:8182/gremlin')
+client = JanusGraphClient('ws://localhost:18182/gremlin')
 client.connect()
 initialize_schema(client)
 load_sample_data(client)
@@ -446,7 +446,7 @@ client.close()
 "
 
 # 6. Run sample query
-curl -X POST "http://localhost:8182" \
+curl -X POST "http://localhost:18182" \
   -H "Content-Type: application/json" \
   -d '{"gremlin":"g.V().hasLabel(\"person\").values(\"name\")"}'
 

@@ -378,7 +378,7 @@ QUERY_TIMEOUT_SECONDS=30
 
 1. **TLS Configuration** (12 hours)
    - Run certificate generation script
-   - Update docker-compose files
+   - Update compose files
    - Configure each service for TLS
    - Test encrypted connections
 

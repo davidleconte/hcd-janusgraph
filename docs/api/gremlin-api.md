@@ -30,7 +30,7 @@ from gremlin_python.driver.driver_remote_connection import DriverRemoteConnectio
 
 # Connect to JanusGraph
 connection = DriverRemoteConnection(
-    'ws://localhost:8182/gremlin',
+    'ws://localhost:18182/gremlin',
     'g'
 )
 
@@ -49,7 +49,7 @@ connection.close()
 ```python
 # Alternative: Using client API for raw Gremlin strings
 gremlin_client = client.Client(
-    'ws://localhost:8182/gremlin',
+    'ws://localhost:18182/gremlin',
     'g',
     message_serializer=serializer.GraphSONSerializersV3d0()
 )
@@ -689,7 +689,7 @@ results = g.V().out().barrier().out().toList()
 
 ```python
 try:
-    connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
     g = traversal().with_remote(connection)
     # Your queries here
 finally:
@@ -703,7 +703,7 @@ from contextlib import contextmanager
 
 @contextmanager
 def graph_connection():
-    connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
     try:
         yield traversal().with_remote(connection)
     finally:

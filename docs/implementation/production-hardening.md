@@ -16,7 +16,7 @@ This guide covers production hardening for the JanusGraph/HCD banking analytics 
 # 1. Generate certificates
 ./scripts/security/generate_opensearch_certs.sh
 
-# 2. Update docker-compose with security enabled
+# 2. Update compose configuration with security enabled
 # In docker-compose.full.yml, change:
 #   - plugins.security.disabled=true
 # To:

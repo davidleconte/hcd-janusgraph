@@ -23,7 +23,7 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 sleep 90
 
 # Test JanusGraph
-curl http://localhost:8182?gremlin=g.V().count()
+curl http://localhost:18182?gremlin=g.V().count()
 
 # Stop services
 podman-compose -p janusgraph-demo -f docker-compose.full.yml down
@@ -45,7 +45,7 @@ podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 sleep 90
 
 # Test
-curl http://localhost:8182?gremlin=g.V().count()
+curl http://localhost:18182?gremlin=g.V().count()
 
 # Stop
 podman-compose -p janusgraph-demo -f docker-compose.full.yml down
@@ -60,7 +60,7 @@ cd ../..
 
 ```bash
 # Deploy full stack
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d && sleep 90 && curl http://localhost:8182?gremlin=g.V().count()
+podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d && sleep 90 && curl http://localhost:18182?gremlin=g.V().count()
 
 # If successful, stop services
 podman-compose -p janusgraph-demo -f docker-compose.full.yml down
@@ -80,7 +80,7 @@ make deploy
 
 # Wait and test
 sleep 90
-curl http://localhost:8182?gremlin=g.V().count()
+curl http://localhost:18182?gremlin=g.V().count()
 
 # Stop
 make stop
@@ -94,14 +94,14 @@ make stop
 ✓ Creating network janusgraph-demo_hcd-janusgraph-network
 ✓ Creating volume janusgraph-demo_hcd-data
 ✓ Creating container janusgraph-demo_hcd-server_1
-✓ Creating container janusgraph-demo_janusgraph_1
+✓ Creating container janusgraph-demo_janusgraph-server_1
 ✓ Creating container janusgraph-demo_jupyter_1
 ```
 
 ### Successful Test
 
 ```bash
-$ curl http://localhost:8182?gremlin=g.V().count()
+$ curl http://localhost:18182?gremlin=g.V().count()
 {"result":{"data":[0],"meta":{}},"requestId":"...","status":{"code":200,"message":""}}
 ```
 
@@ -109,7 +109,7 @@ $ curl http://localhost:8182?gremlin=g.V().count()
 
 ```
 ✓ Stopping janusgraph-demo_jupyter_1
-✓ Stopping janusgraph-demo_janusgraph_1
+✓ Stopping janusgraph-demo_janusgraph-server_1
 ✓ Stopping janusgraph-demo_hcd-server_1
 ✓ Removing containers
 ✓ Removing network
@@ -121,7 +121,7 @@ $ curl http://localhost:8182?gremlin=g.V().count()
 
 ```bash
 # Check logs
-podman logs janusgraph-demo_janusgraph_1
+podman logs janusgraph-demo_janusgraph-server_1
 podman logs janusgraph-demo_hcd-server_1
 
 # Check if ports are in use
@@ -144,10 +144,10 @@ sleep 120
 podman ps | grep janusgraph
 
 # Check JanusGraph logs
-podman logs janusgraph-demo_janusgraph_1 | tail -50
+podman logs janusgraph-demo_janusgraph-server_1 | tail -50
 
 # Try direct connection test
-podman exec janusgraph-demo_janusgraph_1 curl localhost:8182?gremlin=g.V().count()
+podman exec janusgraph-demo_janusgraph-server_1 curl 127.0.0.1:8182?gremlin=g.V().count()
 ```
 
 ## Production Readiness Confirmation

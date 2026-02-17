@@ -287,8 +287,8 @@ properties:
 ### 3.1.1 Connection Endpoint
 
 ```
-WebSocket: ws://localhost:8182/gremlin
-WebSocket+TLS: wss://localhost:8182/gremlin
+WebSocket: ws://localhost:18182/gremlin
+WebSocket+TLS: wss://localhost:18182/gremlin
 ```
 
 ### 3.1.2 Authentication
@@ -377,7 +377,7 @@ Response: 200 OK
 from src.python.client.janusgraph_client import JanusGraphClient
 
 client = JanusGraphClient(
-    url='ws://localhost:8182/gremlin',
+    url='ws://localhost:18182/gremlin',
     username='admin',
     password=os.getenv('JANUSGRAPH_PASSWORD')
 )

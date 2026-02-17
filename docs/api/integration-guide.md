@@ -19,7 +19,7 @@ This guide provides practical examples and best practices for integrating with t
 
 ### Prerequisites
 
-- JanusGraph server running on `localhost:8182`
+- JanusGraph server running on `localhost:18182`
 - Python 3.8+
 - Network access to the graph database
 
@@ -490,7 +490,7 @@ class GraphApplication:
     def run(self):
         """Main application loop."""
         self.connection = DriverRemoteConnection(
-            'ws://localhost:8182/gremlin', 'g'
+            'ws://localhost:18182/gremlin', 'g'
         )
 
         while self.running:

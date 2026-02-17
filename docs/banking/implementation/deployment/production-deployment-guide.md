@@ -69,11 +69,11 @@ This guide provides step-by-step instructions for deploying the banking complian
 cd /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph
 
 # Start HCD using Docker Compose
-docker-compose up -d hcd
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d hcd
 
 # Verify HCD is running
-docker-compose ps hcd
-docker-compose logs hcd | tail -20
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps hcd
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd | tail -20
 
 # Wait for HCD to be ready (30-60 seconds)
 sleep 60
@@ -90,7 +90,7 @@ Listening for CQL clients on port 9042
 
 ```bash
 # Start OpenSearch
-docker-compose up -d opensearch
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d opensearch
 
 # Verify OpenSearch is running
 curl -X GET "http://localhost:9200"
@@ -119,17 +119,17 @@ opensearch-node   jvector   3.3.4
 
 ```bash
 # Start JanusGraph
-docker-compose up -d janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d janusgraph
 
 # Verify JanusGraph is running
-docker-compose ps janusgraph
-docker-compose logs janusgraph | tail -20
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph | tail -20
 
 # Wait for JanusGraph to be ready (30-60 seconds)
 sleep 60
 
 # Test Gremlin connection
-curl -X POST "http://localhost:8182" \
+curl -X POST "http://localhost:18182" \
   -H "Content-Type: application/json" \
   -d '{"gremlin":"g.V().count()"}'
 ```
@@ -197,11 +197,11 @@ gremlin_python: 3.7.2
 
 ```bash
 # Load AML schema
-docker-compose exec janusgraph bin/gremlin.sh \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph bin/gremlin.sh \
   -e banking/schema/graph/aml_schema.groovy
 
 # Verify schema
-docker-compose exec janusgraph bin/gremlin.sh \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph bin/gremlin.sh \
   -e "g.V().label().dedup().toList()"
 ```
 
@@ -277,7 +277,7 @@ PYTHON
 python banking/data/aml/load_structuring_data_v2.py
 
 # Verify data loaded
-docker-compose exec janusgraph bin/gremlin.sh \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph bin/gremlin.sh \
   -e "g.V().hasLabel('Person').count()"
 ```
 
@@ -391,7 +391,7 @@ FRAUD DETECTION MODULE - TEST
 
 ```bash
 # Start Prometheus
-docker-compose -f docker-compose.full.yml up -d prometheus
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d prometheus
 
 # Verify Prometheus
 curl http://localhost:9090/-/healthy
@@ -401,7 +401,7 @@ curl http://localhost:9090/-/healthy
 
 ```bash
 # Start Grafana
-docker-compose -f docker-compose.full.yml up -d grafana
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d grafana
 
 # Access Grafana
 open http://localhost:3000
@@ -426,7 +426,7 @@ cat config/monitoring/alert-rules.yml
 
 ```bash
 # Check all services
-docker-compose ps
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
 
 # Expected: All services "Up"
 # - hcd
@@ -513,7 +513,7 @@ PYTHON
 
 ```bash
 # Check logs
-docker-compose logs opensearch
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs opensearch
 
 # Common issues:
 # 1. Port 9200 already in use
@@ -537,13 +537,13 @@ sudo chown -R 1000:1000 data/opensearch
 
 ```bash
 # Check if HCD is ready
-docker-compose exec hcd nodetool status
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd nodetool status
 
 # Check JanusGraph logs
-docker-compose logs janusgraph | grep ERROR
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph | grep ERROR
 
 # Restart JanusGraph
-docker-compose restart janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart janusgraph
 ```
 
 ### Conda Environment Issues
@@ -572,14 +572,14 @@ If deployment fails:
 
 ```bash
 # 1. Stop all services
-docker-compose down
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo down
 
 # 2. Restore from backup (if needed)
 ./scripts/backup/restore_volumes.sh
 
 # 3. Restart with previous version
 git checkout <previous-tag>
-docker-compose up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
 
 # 4. Verify rollback
 ./scripts/testing/run_tests.sh

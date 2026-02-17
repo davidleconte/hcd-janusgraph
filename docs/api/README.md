@@ -129,10 +129,10 @@ Complete `SocialNetworkGraph` class demonstrating:
 
 ```bash
 # Health check
-curl http://localhost:8182/health
+curl http://localhost:18182/health
 
 # Create vertex
-curl -X POST http://localhost:8182/v1/vertices \
+curl -X POST http://localhost:18182/v1/vertices \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -144,7 +144,7 @@ curl -X POST http://localhost:8182/v1/vertices \
   }'
 
 # Execute Gremlin query
-curl -X POST http://localhost:8182/v1/queries/gremlin \
+curl -X POST http://localhost:18182/v1/queries/gremlin \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -160,7 +160,7 @@ from gremlin_python.driver.driver_remote_connection import DriverRemoteConnectio
 from gremlin_python.process.anonymous_traversal import traversal
 
 # Connect
-connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
 g = traversal().with_remote(connection)
 
 # Query
@@ -249,13 +249,13 @@ All API endpoints (except health checks) require authentication using one of:
 ### 1. API Key
 
 ```bash
-curl -H "X-API-Key: your-api-key" http://localhost:8182/v1/vertices
+curl -H "X-API-Key: your-api-key" http://localhost:18182/v1/vertices
 ```
 
 ### 2. JWT Bearer Token
 
 ```bash
-curl -H "Authorization: Bearer your-jwt-token" http://localhost:8182/v1/vertices
+curl -H "Authorization: Bearer your-jwt-token" http://localhost:18182/v1/vertices
 ```
 
 ### 3. WebSocket Authentication
@@ -347,10 +347,10 @@ See [Gremlin API Reference](./gremlin-api.md) for:
 
 ```bash
 # Using curl
-curl -X GET http://localhost:8182/health
+curl -X GET http://localhost:18182/health
 
 # Using httpie
-http GET http://localhost:8182/v1/vertices X-API-Key:your-key
+http GET http://localhost:18182/v1/vertices X-API-Key:your-key
 
 # Using Postman
 # Import openapi.yaml into Postman for interactive testing

@@ -234,11 +234,11 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
 
 ```bash
 # Test TLS connection with cqlsh
-PODMAN_CONNECTION=podman-wxd podman --remote exec -it janusgraph-demo_hcd-server_1 cqlsh \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd cqlsh \
   --ssl \
   -u cassandra \
   -p "${HCD_PASSWORD}" \
-  hcd-server 9142
+  hcd 9142
 
 # Should connect successfully
 ```
@@ -264,8 +264,8 @@ curl -k https://localhost:3443/api/health
 **Prometheus**:
 
 ```bash
-# Test HTTPS connection
-curl -k https://localhost:9443/-/healthy
+# Test HTTP connection
+curl http://localhost:9090/-/healthy
 
 # Should return: Prometheus is Healthy.
 ```
@@ -355,8 +355,8 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose
 
 ```bash
 # Check service logs
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd-server
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph
 
 # Verify ports are listening
 netstat -tlnp | grep -E '9142|8182'
@@ -420,11 +420,11 @@ environment:
 
 ```bash
 # Check TLS handshake logs
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd-server | grep -i "ssl\|tls"
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server | grep -i "ssl\|tls"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd | grep -i "ssl\|tls"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph | grep -i "ssl\|tls"
 
 # Check certificate loading
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd-server | grep -i "keystore\|truststore"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs hcd | grep -i "keystore\|truststore"
 ```
 
 ---
@@ -502,7 +502,7 @@ cp -r config/certs config/certs.backup.$(date +%Y%m%d)
 
 # 3. Restart services with zero downtime
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml \
-  up -d --force-recreate --no-deps hcd-server janusgraph-server
+  up -d --force-recreate --no-deps hcd janusgraph
 
 # 4. Verify new certificates
 openssl x509 -in config/certs/hcd-server.crt -noout -dates

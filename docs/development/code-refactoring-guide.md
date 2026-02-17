@@ -47,13 +47,13 @@ This guide provides comprehensive guidelines for refactoring the HCD JanusGraph 
 # BEFORE: Duplicated connection logic
 # File: src/python/client/janusgraph_client.py
 def connect_to_graph():
-    connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
     g = traversal().with_remote(connection)
     return g
 
 # File: src/python/init/initialize_graph.py
 def connect_to_graph():
-    connection = DriverRemoteConnection('ws://localhost:8182/gremlin', 'g')
+    connection = DriverRemoteConnection('ws://localhost:18182/gremlin', 'g')
     g = traversal().with_remote(connection)
     return g
 

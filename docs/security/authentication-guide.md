@@ -171,7 +171,7 @@ Error: Authentication required: username and password must be provided
 ### Connection Refused
 
 ```
-Error: Failed to connect to wss://localhost:8182/gremlin
+Error: Failed to connect to wss://localhost:18182/gremlin
 ```
 
 **Solution:**

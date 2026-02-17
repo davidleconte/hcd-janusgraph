@@ -127,10 +127,10 @@ This will:
 ```bash
 # Full stack (all services)
 cd config/compose
-podman-compose -f docker-compose.full.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 
 # Or core stack only (HCD + JanusGraph)
-podman-compose -f docker-compose.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml up -d
 ```
 
 ### Wait for Startup

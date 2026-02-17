@@ -53,7 +53,7 @@ Créer le document complet avec:
 
 ---
 
-### 🔴 CRITIQUE 2: Manque de Conversion Réelle docker-compose → OpenShift
+### 🔴 CRITIQUE 2: Manque de Conversion Réelle compose → OpenShift
 
 **Fichier:** [`docs/architecture/openshift-migration-operations.md`](openshift-migration-operations.md)  
 **Lignes:** 310-348  
@@ -414,13 +414,13 @@ watch oc get pods -l app=janusgraph -n banking-production
 3. **Validate each pod:**
 ```bash
 # Test pod 0
-oc exec janusgraph-0 -n banking-production -- curl -f http://localhost:8182?gremlin=g.V().count()
+oc exec janusgraph-0 -n banking-production -- curl -f http://127.0.0.1:8182?gremlin=g.V().count()
 
 # Test pod 1
-oc exec janusgraph-1 -n banking-production -- curl -f http://localhost:8182?gremlin=g.V().count()
+oc exec janusgraph-1 -n banking-production -- curl -f http://127.0.0.1:8182?gremlin=g.V().count()
 
 # Test pod 2
-oc exec janusgraph-2 -n banking-production -- curl -f http://localhost:8182?gremlin=g.V().count()
+oc exec janusgraph-2 -n banking-production -- curl -f http://127.0.0.1:8182?gremlin=g.V().count()
 ```
 
 4. **Rollback if needed:**
@@ -615,7 +615,7 @@ Certains scripts utilisent encore `docker` au lieu de `podman`:
 ```bash
 # ❌ Incorrect
 docker ps
-docker-compose up
+podman-compose -p janusgraph-demo up
 
 # ✅ Correct
 podman ps

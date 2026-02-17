@@ -252,7 +252,7 @@ Max Wait:  30s       (max_delay cap)
 ```yaml
 # All services have health checks
 healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:8182/"]
+  test: ["CMD", "curl", "-f", "http://127.0.0.1:8182/"]
   interval: 30s      # Check every 30s
   timeout: 10s       # Fail if no response in 10s
   retries: 5         # Mark unhealthy after 5 failures

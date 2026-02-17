@@ -1291,7 +1291,7 @@ echo "=== Health Check ==="
 
 # JanusGraph health
 echo "JanusGraph:"
-oc exec -n $NAMESPACE janusgraph-0 -- curl -s http://localhost:8182/?gremlin=1+1
+oc exec -n $NAMESPACE janusgraph-0 -- curl -s http://127.0.0.1:8182/?gremlin=1+1
 
 # Cassandra health
 echo "Cassandra:"

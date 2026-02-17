@@ -261,7 +261,7 @@ podman run --pod janusgraph-demo-pod ...
 
 ### Option 3: Use Compose Project Name (Recommended)
 
-**Leverage docker-compose project naming:**
+**Leverage compose project naming:**
 
 ```bash
 # Deploy with project name

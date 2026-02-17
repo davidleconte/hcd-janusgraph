@@ -319,7 +319,7 @@ curl -X POST http://localhost:8000/api/v1/import \
 **Procedure:**
 ```bash
 # Test SSL/TLS configuration
-testssl.sh --full https://localhost:8182
+testssl.sh --full https://localhost:18182
 
 # Check for:
 # - TLS 1.2+ only
@@ -339,7 +339,7 @@ testssl.sh --full https://localhost:8182
 **Procedure:**
 ```bash
 # Test with self-signed certificate
-curl -k https://localhost:8182  # Should fail without -k
+curl -k https://localhost:18182  # Should fail without -k
 
 # Test with expired certificate
 # Test with wrong hostname
@@ -620,7 +620,7 @@ nmap -sV -sC -p- localhost -oA "$REPORT_DIR/nmap-$TIMESTAMP" || true
 
 # 2. SSL/TLS Testing
 echo "[2/7] Testing SSL/TLS configuration..."
-testssl.sh --full https://localhost:8182 > "$REPORT_DIR/testssl-$TIMESTAMP.txt" || true
+testssl.sh --full https://localhost:18182 > "$REPORT_DIR/testssl-$TIMESTAMP.txt" || true
 
 # 3. Container Scanning
 echo "[3/7] Scanning container images..."

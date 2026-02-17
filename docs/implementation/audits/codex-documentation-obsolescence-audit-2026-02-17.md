@@ -85,5 +85,5 @@ The audit used four obsolescence criteria:
 
 ## Residual Risks (Not Archived Yet)
 
-- `docs/operations/operations-runbook.md` still includes legacy `docker-compose` command patterns and should be remediated to `podman` command standards.
+- Operations runbook legacy command-pattern drift was remediated in follow-up passes; remaining drift now primarily affects non-operations active docs (API, setup/deployment, and selected development/banking guides).
 - Additional content-level consistency review is recommended for long-form operational procedures to enforce current environment conventions.

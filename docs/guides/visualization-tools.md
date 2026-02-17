@@ -11,7 +11,7 @@ This guide covers graph visualization options for the HCD + JanusGraph stack.
 
 ### 1. JanusGraph Visualizer (Included)
 
-**Status:** Included in docker-compose stack
+**Status:** Included in compose stack
 **Port:** 3000
 **License:** Open Source
 
@@ -39,7 +39,7 @@ open http://localhost:3000
 
 ### 2. GraphExp (Included)
 
-**Status:** Included in docker-compose stack
+**Status:** Included in compose stack
 **Port:** 8183
 **License:** Open Source
 

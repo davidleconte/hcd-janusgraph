@@ -188,7 +188,7 @@ curl http://localhost:8184/metrics
 
 ```bash
 # Check exposed ports (should not include 7199, 9160, 8184)
-docker-compose config | grep -A 5 "ports:"
+podman-compose -p janusgraph-demo config | grep -A 5 "ports:"
 ```
 
 **Security Impact**: 🔴 CRITICAL → 🟢 RESOLVED
@@ -242,7 +242,7 @@ docker-compose config | grep -A 5 "ports:"
 
 ```bash
 # Deploy logging stack
-docker-compose -f docker-compose.yml -f docker-compose.logging.yml up -d
+podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.logging.yml up -d
 
 # View logs in Grafana
 # 1. Add Loki datasource: http://loki:3100
@@ -432,10 +432,10 @@ chmod 600 .env
 mkdir -p config/grafana/datasources
 
 # Deploy with logging
-docker-compose -f docker-compose.yml -f docker-compose.logging.yml up -d
+podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.logging.yml up -d
 
 # Verify logging services
-docker-compose ps loki promtail
+podman-compose -p janusgraph-demo ps loki promtail
 ```
 
 ### 3. Configure JanusGraph Authentication
@@ -468,7 +468,7 @@ pytest tests/unit/test_janusgraph_client_enhanced.py -v --cov
 ./scripts/security/scan_credentials.sh
 
 # Verify management ports not exposed
-docker-compose config | grep -A 5 "ports:"
+podman-compose -p janusgraph-demo config | grep -A 5 "ports:"
 
 # Test authentication (after JanusGraph restart)
 python -c "from src.python.client.janusgraph_client import JanusGraphClient; \

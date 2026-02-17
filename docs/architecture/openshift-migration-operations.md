@@ -16,7 +16,7 @@ Ce document guide la migration complète de la plateforme Banking Graph Analytic
 
 **Contenu:**
 - Migration étape par étape Podman → OpenShift
-- Conversion docker-compose → manifests OpenShift
+- Conversion compose → manifests OpenShift
 - Procédures opérationnelles complètes
 - DR drills spécifiques OpenShift
 - Troubleshooting guide

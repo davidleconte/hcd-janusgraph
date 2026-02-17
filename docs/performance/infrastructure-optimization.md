@@ -186,7 +186,7 @@ from gremlin_python.driver import client
 
 # Connection pool configuration
 gremlin_client = client.Client(
-    'ws://localhost:8182/gremlin',
+    'ws://localhost:18182/gremlin',
     'g',
     pool_size=20,  # Adjust based on concurrency
     max_inflight=64,  # Max concurrent requests

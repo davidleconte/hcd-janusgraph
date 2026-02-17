@@ -509,7 +509,7 @@ certbot renew --dry-run
 certbot renew
 
 # Update certificate in containers
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart nginx janusgraph-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart janusgraph-server
 
 # Verify new certificate
 openssl s_client -connect localhost:18182 -showcerts

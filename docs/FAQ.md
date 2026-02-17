@@ -33,7 +33,7 @@ The environment includes all dependencies and pre-configured environment variabl
 
 ### Q: Why do I need to run podman-compose from config/compose?
 
-**A:** The docker-compose files use relative paths for Dockerfiles. Running from the wrong directory causes path resolution errors:
+**A:** The compose files use relative paths for Dockerfiles. Running from the wrong directory causes path resolution errors:
 
 ```bash
 # CORRECT

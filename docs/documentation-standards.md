@@ -268,7 +268,7 @@ Use proper heading hierarchy:
 
 ```bash
 # Use code blocks for commands
-docker-compose up -d
+podman-compose -p janusgraph-demo up -d
 ```
 
 **File Paths:**
@@ -298,7 +298,7 @@ def example():
 ```
 
 ```bash
-docker-compose up -d
+podman-compose -p janusgraph-demo up -d
 ```
 
 ```yaml
@@ -584,7 +584,7 @@ bash ../../scripts/deployment/deploy_full_stack.sh
 Check service health:
 
 ```bash
-docker-compose ps
+podman-compose -p janusgraph-demo ps
 ```
 
 All services should show "healthy" status.
@@ -596,7 +596,7 @@ All services should show "healthy" status.
 **Solution:** Check logs:
 
 ```bash
-docker-compose logs -f
+podman-compose -p janusgraph-demo logs -f
 ```
 
 ## References
