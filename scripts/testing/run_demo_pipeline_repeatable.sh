@@ -265,9 +265,9 @@ if [[ "$DRY_RUN" == "false" ]]; then
         podman --remote --connection "${PODMAN_CONNECTION}" ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
         echo ""
         echo "=== service snapshot: inspect key services ==="
-        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        podman --remote --connection "${PODMAN_CONNECTION}" inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
     } > "${REPORT_DIR}/services_snapshot.log"
 fi
 
@@ -326,7 +326,7 @@ if [[ "$SKIP_DATA_GENERATORS" == "false" ]]; then
     run_cmd "Data Generator Smoke Tests" \
         "Data generator non-slow/integration/benchmark tests (coverage gate disabled)" \
         "${REPORT_DIR}/data_generators_smoke.log" \
-        bash -lc "cd banking/data_generators/tests && conda run -n janusgraph-analysis pytest -m \"not slow and not integration and not benchmark\" --override-ini addopts='' -q"
+        bash -lc "cd banking/data_generators/tests && conda run -n janusgraph-analysis python -m pytest -m \"not slow and not integration and not benchmark\" --override-ini addopts='' -q"
 fi
 
 SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"

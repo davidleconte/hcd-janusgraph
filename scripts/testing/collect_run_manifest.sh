@@ -40,6 +40,22 @@ hash_file() {
     echo "no-hash-tool"
 }
 
+hash_notebook_report_canonical() {
+    local report_path="$1"
+    if [[ ! -f "${report_path}" ]]; then
+        echo "missing"
+        return
+    fi
+
+    local tmp
+    tmp="$(mktemp)"
+    # Keep only stable fields: notebook, status, exit_code, error_cells.
+    # Sort to avoid accidental ordering drift.
+    awk -F'\t' 'BEGIN{OFS="\t"} NR>1 {print $1,$2,$3,$6}' "${report_path}" | LC_ALL=C sort > "${tmp}"
+    hash_file "${tmp}"
+    rm -f "${tmp}"
+}
+
 collect_images() {
     : > "${IMAGE_DIGESTS_FILE}"
     while IFS= read -r name; do
@@ -88,7 +104,7 @@ main() {
     collect_images
     collect_dependency_fingerprint
 
-    notebook_report_hash="$(file_hash_or_missing "${OUT_DIR}/notebook_run_report.tsv")"
+    notebook_report_hash="$(hash_notebook_report_canonical "${OUT_DIR}/notebook_run_report.tsv")"
     image_digests_hash="$(file_hash_or_missing "${IMAGE_DIGESTS_FILE}")"
     dependency_hash="$(file_hash_or_missing "${DEPENDENCY_FINGERPRINT_FILE}")"
 

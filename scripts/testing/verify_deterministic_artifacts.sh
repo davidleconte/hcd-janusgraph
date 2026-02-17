@@ -32,6 +32,22 @@ hash_file() {
     echo "no-hash-tool"
 }
 
+hash_notebook_report_canonical() {
+    local report_path="$1"
+    if [[ ! -f "${report_path}" ]]; then
+        echo "missing"
+        return
+    fi
+
+    local tmp
+    tmp="$(mktemp)"
+    # Keep only stable fields: notebook, status, exit_code, error_cells.
+    # Sort to avoid accidental ordering drift.
+    awk -F'\t' 'BEGIN{OFS="\t"} NR>1 {print $1,$2,$3,$6}' "${report_path}" | LC_ALL=C sort > "${tmp}"
+    hash_file "${tmp}"
+    rm -f "${tmp}"
+}
+
 manifest_value() {
     local key="$1"
     local manifest_path="${OUT_DIR}/run_manifest.json"
@@ -43,7 +59,7 @@ manifest_value() {
 }
 
 main() {
-    local file
+    local file file_hash base_name
     local commit_sha seed baseline_file gate_status
     local -a files=(
         "${OUT_DIR}/notebook_run_report.tsv"
@@ -55,7 +71,13 @@ main() {
     : > "${CHECKSUM_FILE}"
     for file in "${files[@]}"; do
         if [[ -f "${file}" ]]; then
-            printf "%s  %s\n" "$(hash_file "${file}")" "$(basename "${file}")" >> "${CHECKSUM_FILE}"
+            base_name="$(basename "${file}")"
+            if [[ "${base_name}" == "notebook_run_report.tsv" ]]; then
+                file_hash="$(hash_notebook_report_canonical "${file}")"
+            else
+                file_hash="$(hash_file "${file}")"
+            fi
+            printf "%s  %s\n" "${file_hash}" "${base_name}" >> "${CHECKSUM_FILE}"
         fi
     done
 
