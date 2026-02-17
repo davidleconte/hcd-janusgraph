@@ -6,6 +6,11 @@ This directory contains operational scripts for managing, deploying, and maintai
 **Version:** 1.0
 **Status:** Active
 
+## Runtime Policy Note
+
+- This project is operated with **Podman/podman-compose** as the supported container runtime.
+- Any Docker references below should be treated as legacy wording; use Podman equivalents.
+
 ## Directory Structure
 
 ```
@@ -240,9 +245,11 @@ Scripts for running automated tests.
 #### [`run_notebooks_live_repeatable.sh`](testing/run_notebooks_live_repeatable.sh)
 
 - **Purpose:** Run all banking + exploratory notebooks in live mode with deterministic settings
-- **Usage:** `./run_notebooks_live_repeatable.sh`
+- **Usage:** `PODMAN_CONNECTION=podman-wxd-root bash scripts/testing/run_notebooks_live_repeatable.sh [optional notebook paths...]`
 - **Output:** `notebook_run_report.tsv` with status, runtime, and error-cell counts per notebook
 - **Controls:**
+  - `PODMAN_CONNECTION` (set to the active service connection; often `podman-wxd-root` when using rootful machine services)
+  - `CONTAINER_NAME` (default `janusgraph-demo_jupyter_1`)
   - `DEMO_RUN_ID`
   - `DEMO_FIXED_RUN_ID` (alternate run identifier override)
   - `DEMO_SEED`
@@ -250,6 +257,8 @@ Scripts for running automated tests.
   - `DEMO_NOTEBOOK_TOTAL_TIMEOUT`
   - `DEMO_NOTEBOOK_CELL_TIMEOUT`
   - `DEMO_FIXED_OUTPUT_ROOT` (forced output directory, defaults to `PROJECT_ROOT/exports/<RUN_ID>`)
+- **Targeted rerun mode:** pass one or more notebook paths as positional args to execute only those notebooks.
+- **Path mapping detail:** exploratory notebooks execute from `/workspace/notebooks-exploratory`.
 - **Requirements:** Jupyter service must be reachable and service stack running
 
 #### [`seed_demo_graph.sh`](testing/seed_demo_graph.sh)

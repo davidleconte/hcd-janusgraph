@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated:** 2026-02-14
+**Last Updated:** 2026-02-17
 **Project:** HCD + JanusGraph Banking Compliance Platform
 
 Welcome to the comprehensive documentation index for the HCD + JanusGraph project. This index provides quick navigation to all project documentation organized by role and topic.
@@ -109,6 +109,8 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Codex Executive Summary (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - Deployment recovery and notebook proof closure
+- **[Codex Remediation Log (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Issue-by-issue solutions and evidence
 - **Executive Summary** - High-level findings (see [Production Readiness Audit](implementation/PRODUCTION_READINESS_AUDIT_2026.md))
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
 

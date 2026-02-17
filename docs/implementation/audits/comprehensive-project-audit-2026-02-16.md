@@ -13,6 +13,28 @@ The repository is functionally advanced and close to a high-quality production d
 - **Primary strengths:** modular code structure, robust service orchestration scripts, mature notebook execution and repeatability tooling, strong test surface breadth.
 - **Primary risk:** inconsistent enforcement of quality/security contracts at key boundaries (startup, API parameter semantics, CI gating, deterministic behavior for streaming paths).
 
+## Addendum — 2026-02-17 (Operational Remediation Closure)
+
+This addendum captures post-audit remediation evidence executed on 2026-02-17.
+
+### What was closed
+
+- Deployment recovery on `podman-wxd` completed (active runtime path: `podman-wxd-root`).
+- Vault restored to healthy state (initialized + unsealed).
+- Analytics API startup chain fixed (dependency set + startup env contract).
+- Live notebook proof run completed with full pass result.
+
+### Evidence
+
+- Final full notebook sweep report: `exports/live-notebooks-final-20260217T170000Z/notebook_run_report.tsv` (**15/15 PASS**).
+- Detailed remediation artifact: `docs/implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md`.
+- Executive remediation status: `docs/implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md`.
+
+### Remaining strategic items from original audit
+
+- CI hard-gate strictness remains an open improvement area (blocking semantics across all critical checks).
+- Determinism posture is materially improved but not absolute without clean-reset orchestration for every run.
+
 ## Methodology and Evidence Inputs
 
 - **Code and docs scanned:** entire repository `*.py`, workflow files, scripts, notebooks, documentation tree and run artifacts

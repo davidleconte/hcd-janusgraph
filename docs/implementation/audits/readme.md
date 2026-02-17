@@ -1,7 +1,7 @@
 # Audit Reports
 
 **Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Last Updated:** 2026-02-16
+**Last Updated:** 2026-02-17
 
 ## Overview
 
@@ -9,10 +9,20 @@ This directory contains current audit reports and analysis documents for the HCD
 
 ## Active Audits
 
+- **[codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md](codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - 1-page executive status for deployment recovery and notebook proof
+- **[codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md](codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Full issue-by-issue remediation log with evidence
 - **[comprehensive-project-audit-2026-02-16.md](comprehensive-project-audit-2026-02-16.md)** - Full project audit and detailed remediation plan
 - **[comprehensive-project-audit-2026-01-30.md](comprehensive-project-audit-2026-01-30.md)** - Full project audit
 - **[deployment-scripts-audit-2026-02-11.md](deployment-scripts-audit-2026-02-11.md)** - Deployment scripts audit
 - **[workflow-pip-audit-2026-02-11.md](workflow-pip-audit-2026-02-11.md)** - Workflow pip audit
+
+## 2026-02-17 Closure Snapshot (Codex Run)
+
+- Full deployment recovered and healthy on `podman-wxd-root`.
+- Vault initialized/unsealed and healthy.
+- Analytics API healthy after dependency/startup contract remediation.
+- Final full notebook sweep: **15/15 PASS**.
+- Final evidence artifact: `exports/live-notebooks-final-20260217T170000Z/notebook_run_report.tsv`.
 
 ## Impact Map — Deterministic Demo Reliability
 
