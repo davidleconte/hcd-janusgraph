@@ -16,7 +16,7 @@ The remediation script successfully:
 ### Modified Files (Core Changes)
 
 - `.gitignore` - Added vendor/, hcd-*/, certs, build artifacts
-- `config/compose/docker-compose.*.yml` - Fixed build contexts
+- `config/compose/*.yml` - Fixed build contexts
 - `README.md`, `QUICKSTART.md` - Updated deployment instructions
 - `AGENTS.md` - Added deployment standards
 
@@ -94,8 +94,8 @@ BREAKING CHANGE: Run scripts/setup/download_hcd.sh to download HCD"
 #### Commit 3: Docker Compose Consolidation
 
 ```bash
-git add config/compose/docker-compose.*.yml
-git add docker-compose.*.yml  # If any remain at root
+git add config/compose/*.yml
+git add *compose*.yml  # If any compose files remain at root
 git commit -m "refactor: consolidate compose files to config/compose/
 
 - Moved 5 compose files to config/compose/
@@ -156,7 +156,7 @@ git ls-files | grep -E '\.env$|\.key$|\.pem$|vault-keys'
 
 # 4. Test deployment still works
 cd config/compose
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+bash ../../scripts/deployment/deploy_full_stack.sh
 # Wait 90 seconds
 curl http://localhost:18182?gremlin=g.V().count()
 podman-compose -p janusgraph-demo down
@@ -215,7 +215,7 @@ git clone <your-repo-url> test-clone
 cd test-clone
 ./scripts/setup/download_hcd.sh  # If needed
 cd config/compose
-podman-compose -p test -f docker-compose.full.yml up -d
+COMPOSE_PROJECT_NAME=test bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
 ## Rollback (If Needed)

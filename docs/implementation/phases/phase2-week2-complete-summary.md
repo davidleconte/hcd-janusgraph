@@ -35,7 +35,7 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 
 #### Files Created
 
-1. **docker-compose.tls.yml** (96 lines)
+1. **TLS compose overlay** (96 lines)
    - TLS overlay for all services
    - Certificate mounting
    - Encrypted port configuration
@@ -212,7 +212,7 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
    - User-friendly messaging
    - Rate limit information
 
-3. **docker-compose.nginx.yml** (67 lines)
+3. **Nginx compose overlay** (67 lines)
    - Nginx service configuration
    - Network integration
    - Volume management
@@ -254,7 +254,7 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 
 **TLS/SSL (6 files)**:
 
-1. docker-compose.tls.yml
+1. TLS compose overlay (in compose directory)
 2. config/janusgraph/janusgraph-server-tls.yaml
 3. config/janusgraph/janusgraph-hcd-tls.properties
 4. config/janusgraph/cassandra-tls.yaml
@@ -272,7 +272,7 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 **Rate Limiting (3 files)**:
 11. config/nginx/nginx.conf
 12. config/nginx/429.html
-13. docker-compose.nginx.yml
+13. Nginx compose overlay (in compose directory)
 
 **Previously Created (4 files)**:
 14. scripts/security/generate_certificates.sh (from Week 2 start)
@@ -283,7 +283,7 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 ### Files Modified (2)
 
 1. .env.example - Added TLS environment variables
-2. config/compose/docker-compose.banking.yml - OpenSearch security fixes
+2. Banking compose overlay file - OpenSearch security fixes
 
 ### Total Lines of Code
 
@@ -330,14 +330,19 @@ Phase 2 Week 2 has been **successfully completed** with all 4 high-priority secu
 ./scripts/security/generate_certificates.sh
 
 # Deploy with TLS
-podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
+COMPOSE_BASE=config/compose/<base-compose-file>
+COMPOSE_TLS=config/compose/<tls-compose-file>
+COMPOSE_NGINX=config/compose/<nginx-compose-file>
+COMPOSE_LOGGING=config/compose/<logging-compose-file>
+COMPOSE_FULL=config/compose/<full-stack-compose-file>
+podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_TLS" up -d
 ```
 
 ### 2. Deploy with Rate Limiting
 
 ```bash
 # Deploy with nginx reverse proxy
-podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.nginx.yml up -d
+podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_NGINX" up -d
 ```
 
 ### 3. Deploy Full Stack (Recommended)
@@ -345,11 +350,11 @@ podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.nginx.
 ```bash
 # Deploy everything: TLS + Rate Limiting + Logging + Monitoring
 podman-compose -p janusgraph-demo \
-  -f docker-compose.yml \
-  -f docker-compose.tls.yml \
-  -f docker-compose.nginx.yml \
-  -f docker-compose.logging.yml \
-  -f docker-compose.full.yml \
+  -f "$COMPOSE_BASE" \
+  -f "$COMPOSE_TLS" \
+  -f "$COMPOSE_NGINX" \
+  -f "$COMPOSE_LOGGING" \
+  -f "$COMPOSE_FULL" \
   up -d
 ```
 

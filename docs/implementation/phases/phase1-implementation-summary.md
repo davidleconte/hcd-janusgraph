@@ -157,7 +157,7 @@ authentication.config.auditLog=true
 **Status**: COMPLETED
 **Files Modified:**
 
-- `docker-compose.yml` - Removed public exposure of management ports
+- Base compose file - Removed public exposure of management ports
 - `.env.example` - Commented out management port variables
 
 **Changes:**
@@ -200,7 +200,7 @@ podman-compose -p janusgraph-demo config | grep -A 5 "ports:"
 **Status**: COMPLETED
 **Files Created:**
 
-- `docker-compose.logging.yml` - Logging stack configuration
+- Logging compose overlay - Logging stack configuration
 - `config/loki/loki-config.yml` - Loki configuration
 - `config/promtail/promtail-config.yml` - Promtail configuration
 
@@ -242,7 +242,9 @@ podman-compose -p janusgraph-demo config | grep -A 5 "ports:"
 
 ```bash
 # Deploy logging stack
-podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.logging.yml up -d
+BASE_COMPOSE_FILE=config/compose/<base-compose-file>
+LOGGING_COMPOSE_FILE=config/compose/<logging-compose-file>
+podman-compose -p janusgraph-demo -f "$BASE_COMPOSE_FILE" -f "$LOGGING_COMPOSE_FILE" up -d
 
 # View logs in Grafana
 # 1. Add Loki datasource: http://loki:3100
@@ -368,7 +370,7 @@ pytest tests/unit/test_janusgraph_client_enhanced.py::TestJanusGraphClientInitia
 
 1. `scripts/utils/secrets_manager.py` - Secrets management utility
 2. `config/janusgraph/janusgraph-auth.properties` - Authentication config
-3. `docker-compose.logging.yml` - Logging stack
+3. Logging compose overlay - Logging stack
 4. `config/loki/loki-config.yml` - Loki configuration
 5. `config/promtail/promtail-config.yml` - Promtail configuration
 6. `tests/unit/test_janusgraph_client_enhanced.py` - Unit tests
@@ -379,7 +381,7 @@ pytest tests/unit/test_janusgraph_client_enhanced.py::TestJanusGraphClientInitia
 
 1. `scripts/deployment/deploy_full_stack.sh` - Removed hardcoded credentials
 2. `.env.example` - Added comprehensive security configuration
-3. `docker-compose.yml` - Restricted management ports
+3. Base compose file - Restricted management ports
 
 ---
 
@@ -432,7 +434,7 @@ chmod 600 .env
 mkdir -p config/grafana/datasources
 
 # Deploy with logging
-podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.logging.yml up -d
+podman-compose -p janusgraph-demo -f "$BASE_COMPOSE_FILE" -f "$LOGGING_COMPOSE_FILE" up -d
 
 # Verify logging services
 podman-compose -p janusgraph-demo ps loki promtail
@@ -444,7 +446,7 @@ podman-compose -p janusgraph-demo ps loki promtail
 # Create credentials file (will be automated in Phase 2)
 # For now, mount janusgraph-auth.properties in container
 
-# Update docker-compose.yml to mount auth config
+# Update base compose file to mount auth config
 # volumes:
 #   - ./config/janusgraph/janusgraph-auth.properties:/etc/opt/janusgraph/janusgraph-auth.properties:ro
 ```

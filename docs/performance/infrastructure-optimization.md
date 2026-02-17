@@ -45,7 +45,7 @@ This document provides comprehensive guidance for optimizing the HCD JanusGraph 
 **Recommended Configuration:**
 
 ```yaml
-# docker-compose.yml
+# base compose file
 services:
   janusgraph:
     deploy:

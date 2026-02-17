@@ -20,7 +20,7 @@ Revue approfondie de la documentation OpenShift 3-sites HA/DR et du codebase pou
 1. [Issues Critiques Identifiées](#1-issues-critiques-identifiées)
 2. [Enrichissements Recommandés](#2-enrichissements-recommandés)
 3. [Corrections Mineures](#3-corrections-mineures)
-4. [Analyse Docker Compose](#4-analyse-docker-compose)
+4. [Analyse de la pile Compose](#4-analyse-de-la-pile-compose)
 5. [Gaps de Documentation](#5-gaps-de-documentation)
 6. [Plan d'Action](#6-plan-daction)
 7. [Recommendations](#7-recommendations)
@@ -78,12 +78,12 @@ Créer un vrai script de conversion automatisé:
 
 set -e
 
-COMPOSE_FILE="${1:-docker-compose.full.yml}"
+COMPOSE_FILE="${1:-config/compose/<full-stack-compose-file>}"
 OUTPUT_DIR="${2:-manifests/generated}"
 
-echo "=== Automated Docker Compose → OpenShift Conversion ==="
+echo "=== Automated Compose Stack → OpenShift Conversion ==="
 
-# Parse docker-compose.yml
+# Parse compose base YAML
 yq eval '.services | keys | .[]' "$COMPOSE_FILE" | while read service; do
   echo "Converting service: $service"
   
@@ -625,7 +625,7 @@ podman-compose up
 **Solution:**
 Rechercher et remplacer globalement:
 ```bash
-grep -r "docker-compose" docs/architecture/
+grep -r "compose" docs/architecture/
 grep -r "docker ps" docs/architecture/
 ```
 
@@ -633,21 +633,23 @@ grep -r "docker ps" docs/architecture/
 
 ---
 
-## 4. Analyse Docker Compose
+## 4. Analyse de la pile Compose
 
 ### 4.1 Fichiers Docker Compose Existants
 
 | Fichier | Purpose | OpenShift Equivalent | Status |
 |---------|---------|---------------------|--------|
-| `docker-compose.yml` | Base config | Base manifests | ✅ Converti |
-| `docker-compose.full.yml` | Full stack | Complete deployment | ⚠️ Partiel |
-| `docker-compose.prod.yml` | Production hardening | Production overlays | ❌ Manquant |
-| `docker-compose.tls.yml` | TLS config | TLS secrets | ✅ Converti |
-| `docker-compose.tracing.yml` | Jaeger tracing | Jaeger operator | ❌ Manquant |
-| `docker-compose.logging.yml` | Loki logging | Logging operator | ❌ Manquant |
-| `docker-compose.nginx.yml` | Nginx proxy | OpenShift Route | ✅ Converti |
-| `docker-compose.banking.yml` | Banking services | Banking namespace | ⚠️ Partiel |
-| `docker-compose.vault-agent.yml` | Vault agent | Vault sidecar | ❌ Manquant |
+| Base compose file | Base config | Base manifests | ✅ Converti |
+| Full-stack compose overlay | Full stack | Complete deployment | ⚠️ Partiel |
+| Production compose overlay | Production hardening | Production overlays | ❌ Manquant |
+| TLS compose overlay | TLS config | TLS secrets | ✅ Converti |
+| Tracing compose overlay | Jaeger tracing | Jaeger operator | ❌ Manquant |
+| Logging compose overlay | Loki logging | Logging operator | ❌ Manquant |
+| Nginx compose overlay | Nginx proxy | OpenShift Route | ✅ Converti |
+| Banking compose overlay | Banking services | Banking namespace | ⚠️ Partiel |
+| Vault-agent compose overlay | Vault agent | Vault sidecar | ❌ Manquant |
+
+> Fichiers concernés: `config/compose/*compose*.yml`
 
 ### 4.2 Gaps Identifiés
 

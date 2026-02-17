@@ -825,7 +825,7 @@ def screen_and_enrich(customer_name: str) -> List[Dict]:
 
 ### Phase 1: Infrastructure (Week 1)
 
-- [ ] Add Apache Pulsar to `docker-compose.full.yml`
+- [ ] Add Apache Pulsar to full-stack compose file
 - [ ] Configure Pulsar topics and namespaces
 - [ ] Set up Pulsar admin console
 
@@ -869,7 +869,7 @@ def screen_and_enrich(customer_name: str) -> List[Dict]:
 ## Appendix: Docker Compose Addition
 
 ```yaml
-# Add to config/compose/docker-compose.full.yml
+# Add to full-stack compose file under config/compose
 
 services:
   # ... existing services ...

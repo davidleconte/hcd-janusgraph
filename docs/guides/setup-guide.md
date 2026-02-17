@@ -127,10 +127,10 @@ This will:
 ```bash
 # Full stack (all services)
 cd config/compose
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f <full-stack-compose-file> up -d
 
 # Or core stack only (HCD + JanusGraph)
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f <base-compose-file> up -d
 ```
 
 ### Wait for Startup
@@ -260,3 +260,44 @@ podman restart janusgraph-server
 ---
 
 **Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
+
+## Codex Fresh-Machine Enforcement Update (2026-02-17)
+
+This section is mandatory for first deployment on a new Podman machine.
+
+### Required Podman machine baseline
+
+- Machine profile: `--cpus 4 --memory 8192 --disk-size 50`
+- Machine state: `Running`
+- Runtime: `podman` + `podman-compose` only
+- Project isolation: `COMPOSE_PROJECT_NAME=janusgraph-demo`
+
+### Canonical pre-deploy checks
+
+```bash
+podman machine list
+podman system connection list
+
+# Use the active connection name from the list.
+# In the validated recovery run, this was podman-wxd-root.
+export PODMAN_CONNECTION=<active-connection>
+
+podman --remote ps
+```
+
+### Fresh-machine mandatory local image build
+
+On a brand new machine, build HCD image before full compose up:
+
+```bash
+podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
+```
+
+### Port and endpoint baseline
+
+- JanusGraph host endpoint: `ws://localhost:18182/gremlin` (container internal `8182`)
+- Vault: `http://localhost:8200`
+- OpenSearch: `http://localhost:9200`
+- Jupyter: `http://localhost:8888`
+
+Reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`

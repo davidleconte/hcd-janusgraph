@@ -360,3 +360,16 @@ This index is maintained by the project team and updated with each major release
 ---
 
 **Questions?** Check [Operations Runbook](operations/operations-runbook.md) or open an issue.
+
+## Codex Fresh-Machine Enforcement Update (2026-02-17)
+
+New canonical deterministic deployment enforcement reference:
+
+- [Codex Podman-WXD Fresh Machine Enforcement Matrix (2026-02-17)](implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md)
+
+Use this matrix with these operational docs:
+
+- [Setup Guide](guides/setup-guide.md)
+- [Deployment Guide](guides/deployment-guide.md)
+- [Deployment Verification](development/deployment-verification.md)
+- [Operations Runbook](operations/operations-runbook.md)

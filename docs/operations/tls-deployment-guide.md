@@ -25,7 +25,7 @@ This guide provides step-by-step instructions for deploying the HCD + JanusGraph
 
 ### Required Tools
 
-- Docker or Podman
+- Podman + podman-compose
 - OpenSSL 1.1.1+
 - Java keytool (JDK 11+)
 - Bash 4.0+
@@ -186,10 +186,13 @@ Deploy the full stack with TLS encryption:
 ./scripts/security/generate_certificates.sh
 
 # Deploy with TLS overlay
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
-
-# Or with Podman
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
+COMPOSE_DIR=config/compose
+COMPOSE_PREFIX=<compose-file-prefix>
+COMPOSE_BASE=$COMPOSE_DIR/$COMPOSE_PREFIX.yml
+COMPOSE_TLS=$COMPOSE_DIR/$COMPOSE_PREFIX.tls.yml
+COMPOSE_LOGGING=$COMPOSE_DIR/$COMPOSE_PREFIX.logging.yml
+COMPOSE_FULL=$COMPOSE_DIR/$COMPOSE_PREFIX.full.yml
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_TLS" up -d
 ```
 
 ### Option 2: Deploy Without TLS (Development Only)
@@ -208,10 +211,10 @@ Deploy with monitoring and logging:
 
 ```bash
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo \
-  -f docker-compose.yml \
-  -f docker-compose.tls.yml \
-  -f docker-compose.logging.yml \
-  -f docker-compose.full.yml \
+  -f "$COMPOSE_BASE" \
+  -f "$COMPOSE_TLS" \
+  -f "$COMPOSE_LOGGING" \
+  -f "$COMPOSE_FULL" \
   up -d
 ```
 
@@ -344,7 +347,7 @@ rm -rf config/certs/*
 ./scripts/security/generate_certificates.sh
 
 # Restart services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_TLS" restart
 ```
 
 #### 2. Connection Refused
@@ -393,7 +396,7 @@ openssl x509 -in config/certs/hcd-server.crt -noout -dates
 ./scripts/security/generate_certificates.sh
 
 # Restart services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_TLS" restart
 ```
 
 ### Debug Mode
@@ -403,7 +406,7 @@ Enable debug logging for TLS troubleshooting:
 **HCD**:
 
 ```bash
-# Add to docker-compose.tls.yml
+# Add to TLS overlay file
 environment:
   - JVM_OPTS=-Djavax.net.debug=ssl:handshake:verbose
 ```
@@ -411,7 +414,7 @@ environment:
 **JanusGraph**:
 
 ```bash
-# Add to docker-compose.tls.yml
+# Add to TLS overlay file
 environment:
   - JAVA_OPTIONS=-Djavax.net.debug=ssl:handshake:verbose
 ```
@@ -501,7 +504,7 @@ cp -r config/certs config/certs.backup.$(date +%Y%m%d)
 ./scripts/security/generate_certificates.sh
 
 # 3. Restart services with zero downtime
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$COMPOSE_BASE" -f "$COMPOSE_TLS" \
   up -d --force-recreate --no-deps hcd janusgraph
 
 # 4. Verify new certificates
@@ -582,7 +585,7 @@ config/certs/
 |---------|--------------|----------|----------|
 | HCD CQL | 9042 | 9142 | CQL |
 | HCD Inter-node | 7000 | 7001 | Gossip |
-| JanusGraph | 8182 | 8182 | WebSocket |
+| JanusGraph (host) | 18182 | 18182 | WebSocket |
 | Grafana | 3000 | 3443 | HTTPS |
 | Prometheus | 9090 | 9443 | HTTPS |
 
@@ -606,7 +609,7 @@ TLS_VALIDITY_DAYS=365
 
 # TLS ports
 HCD_CQL_TLS_PORT=9142
-JANUSGRAPH_GREMLIN_TLS_PORT=8182
+JANUSGRAPH_GREMLIN_TLS_PORT=18182
 GRAFANA_HTTPS_PORT=3443
 PROMETHEUS_HTTPS_PORT=9443
 ```

@@ -76,3 +76,7 @@ Historical and superseded audit documents have been archived to:
 - [Current Remediation Baseline](../remediation-plan-workingB-plus.md)
 - [Superseded Implementation Assessments Archive](../../archive/2026-02/implementation-superseded/README.md)
 - [Historical Archive](../../archive/2026-02/)
+
+## Fresh-Machine Enforcement (Codex)
+
+- **[codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md](codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md)** - Canonical mapping of R-01..R-18 remediations into active setup/deploy/verification/runbook docs.

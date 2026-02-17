@@ -218,7 +218,7 @@ SENSITIVE_PATTERNS = [
 - **Priority:** P2 (Low)
 
 ```yaml
-# config/compose/docker-compose.full.yml
+# config/compose/<full-stack-compose-file>
 environment:
   - plugins.security.disabled=true  # Dev mode - enable in production
 ```

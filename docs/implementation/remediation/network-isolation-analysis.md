@@ -19,7 +19,7 @@ The current configuration provides **partial isolation** through a dedicated bri
 
 ### Network Configuration
 
-**Docker Compose (docker-compose.full.yml):**
+**Compose full-stack file:**
 
 ```yaml
 networks:
@@ -194,7 +194,7 @@ Error: port 8182 is already allocated
 **Add project prefix to all resources:**
 
 ```yaml
-# docker-compose.full.yml
+# full-stack compose file
 networks:
   janusgraph-demo-network:  # Add prefix
     driver: bridge
@@ -254,7 +254,7 @@ podman run --pod janusgraph-demo-pod ...
 **Cons:**
 
 - Requires rewriting deployment scripts
-- Not compatible with docker-compose
+- Not compatible with legacy Docker compose CLI
 - More complex management
 
 ---
@@ -298,7 +298,7 @@ podman-compose -p janusgraph-demo up -d
 COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 
 # Deploy with project name
-podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
+cd config/compose && COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
 **Benefits:**

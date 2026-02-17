@@ -33,7 +33,7 @@ Phase 1 focuses on setting up OpenSearch 3.4+ with JVector plugin and preparing 
 
 ## Implementation Steps
 
-1. Add OpenSearch to docker-compose.full.yml
+1. Add OpenSearch to full-stack compose file
 2. Create initialization script for JVector plugin
 3. Define banking schema in Groovy
 4. Create Python utilities for vector operations

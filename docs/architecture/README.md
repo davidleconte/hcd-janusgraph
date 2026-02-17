@@ -22,7 +22,7 @@ Each ADR follows this structure:
 |----|-------|--------|------|
 | [ADR-001](ADR-001-janusgraph-as-graph-database.md) | Use JanusGraph as Graph Database | Accepted | 2026-01-15 |
 | [ADR-002](ADR-002-hcd-as-storage-backend.md) | Use HCD (Cassandra) as Storage Backend | Accepted | 2026-01-15 |
-| [ADR-003](ADR-003-docker-compose-deployment.md) | Docker Compose for Development Deployment | Accepted | 2026-01-16 |
+| ADR-003 | Compose for Development Deployment | Accepted | 2026-01-16 |
 | [ADR-004](ADR-004-python-client-library.md) | Python as Primary Client Language | Accepted | 2026-01-16 |
 | [ADR-005](adr-005-jwt-authentication.md) | JWT-Based Authentication | Accepted | 2026-01-20 |
 | [ADR-006](ADR-006-rbac-authorization.md) | Role-Based Access Control (RBAC) | Accepted | 2026-01-20 |

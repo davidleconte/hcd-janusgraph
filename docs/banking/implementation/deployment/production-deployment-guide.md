@@ -391,7 +391,8 @@ FRAUD DETECTION MODULE - TEST
 
 ```bash
 # Start Prometheus
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d prometheus
+FULL_STACK_FILE=config/compose/<full-stack-compose-file>
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d prometheus
 
 # Verify Prometheus
 curl http://localhost:9090/-/healthy
@@ -401,7 +402,8 @@ curl http://localhost:9090/-/healthy
 
 ```bash
 # Start Grafana
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d grafana
+FULL_STACK_FILE=config/compose/<full-stack-compose-file>
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d grafana
 
 # Access Grafana
 open http://localhost:3000
@@ -521,7 +523,7 @@ lsof -i :9200
 kill -9 <PID>
 
 # 2. Insufficient memory
-# Edit docker-compose.yml:
+# Edit base compose file:
 # environment:
 #   - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
 

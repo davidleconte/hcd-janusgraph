@@ -607,7 +607,7 @@ Thank you for your patience.
 
    ```bash
    # Enable rate limiting
-   PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.nginx.yml up -d
+   PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f <nginx-compose-file> up -d
 
    # Block attacking IPs
    ./scripts/security/block_ips.sh --file attacking-ips.txt

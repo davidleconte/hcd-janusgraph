@@ -265,7 +265,7 @@ done
 ```bash
 # Deploy full stack
 cd config/compose
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f <full-stack-compose-file> up -d
 
 # Wait for services
 sleep 90

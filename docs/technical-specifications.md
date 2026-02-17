@@ -1006,7 +1006,8 @@ deploy:
 if ! check_health; then
     echo "Health check failed, rolling back..."
     podman-compose -p janusgraph-demo down
-    podman-compose -p janusgraph-demo -f docker-compose.previous.yml up -d
+    PREVIOUS_COMPOSE_FILE=config/compose/<previous-compose-file>
+    podman-compose -p janusgraph-demo -f "$PREVIOUS_COMPOSE_FILE" up -d
 fi
 ```
 
@@ -1020,7 +1021,8 @@ podman-compose -p janusgraph-demo down
 bash scripts/backup/restore_volumes.sh --date 2026-01-29
 
 # Start previous version
-podman-compose -p janusgraph-demo -f docker-compose.v1.0.0.yml up -d
+VERSIONED_COMPOSE_FILE=config/compose/<versioned-compose-file>
+podman-compose -p janusgraph-demo -f "$VERSIONED_COMPOSE_FILE" up -d
 ```
 
 ## 9.4 Disaster Recovery
@@ -1195,9 +1197,9 @@ def test_write_throughput():
 
 ## Appendix A: Configuration Files
 
-### A.1 Docker Compose
+### A.1 Compose Configuration
 
-- **Location**: `config/compose/docker-compose.yml`
+- **Location**: `config/compose/`
 - **Purpose**: Container orchestration
 - **Key settings**: Network, volumes, resource limits
 

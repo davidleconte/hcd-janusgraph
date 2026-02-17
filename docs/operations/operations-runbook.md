@@ -593,7 +593,7 @@ See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 **Add JanusGraph Node:**
 
 ```bash
-# Update docker-compose.yml
+# Update compose scaling configuration
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
 
 # Verify new nodes
@@ -615,7 +615,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server n
 **Increase Resources:**
 
 ```yaml
-# docker-compose.yml
+# compose configuration
 services:
   janusgraph-server:
     deploy:
@@ -762,3 +762,41 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale jan
 **Document Classification:** Internal - Operational
 **Next Review Date:** 2026-04-28
 **Document Owner:** Operations Team
+
+## Codex Fresh-Machine Recovery Chain (2026-02-17)
+
+Use this chain for incident recovery on new/reset Podman machine state.
+
+### Ordered recovery flow
+
+1. Confirm machine is running and connection is active.
+2. Build local `localhost/hcd:1.2.3` from repo root.
+3. Deploy stack in `janusgraph-demo` namespace.
+4. Initialize/unseal Vault if required.
+5. Confirm `analytics-api` and `jupyter` are healthy.
+6. Run deterministic live notebook proof.
+7. Archive notebook evidence artifact.
+
+### Canonical operational commands
+
+```bash
+podman machine list
+podman system connection list
+export PODMAN_CONNECTION=<active-connection>
+
+podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
+
+cd config/compose
+COMPOSE_PROJECT_NAME=janusgraph-demo bash ../../scripts/deployment/deploy_full_stack.sh
+
+podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
+PODMAN_CONNECTION=$PODMAN_CONNECTION bash scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+### Incident code mapping
+
+- R-01..R-04: machine/Vault/bootstrap blockers
+- R-05..R-13: analytics-api dependency/env startup blockers
+- R-14..R-18: notebook execution/path/data-handling blockers
+
+Primary reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`

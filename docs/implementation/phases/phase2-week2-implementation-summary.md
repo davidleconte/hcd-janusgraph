@@ -61,7 +61,7 @@ chmod +x scripts/security/generate_certificates.sh
 
 **Remaining Work** (12 hours):
 
-- [ ] Update docker-compose.yml to mount certificates
+- [ ] Update base compose file to mount certificates
 - [ ] Configure JanusGraph for TLS
 - [ ] Configure HCD for TLS
 - [ ] Configure OpenSearch for TLS
@@ -320,11 +320,11 @@ QUERY_TIMEOUT_SECONDS=30
 3. ⏳ `scripts/utils/validation.sh` - Shell script validation functions
 4. ⏳ `src/python/utils/validation.py` - Python validation functions
 5. ⏳ `config/nginx/nginx.conf` - Nginx rate limiting configuration
-6. ⏳ `docker-compose.nginx.yml` - Nginx service configuration
+6. ⏳ Nginx compose overlay - Nginx service configuration
 
 ### Files to Modify (3)
 
-7. ⏳ `docker-compose.yml` - Add TLS certificate mounts
+7. ⏳ Base compose file - Add TLS certificate mounts
 8. ⏳ `config/janusgraph/janusgraph-hcd.properties` - Enable TLS
 9. ⏳ `hcd-1.2.3/resources/cassandra/conf/cassandra.yaml` - Enable TLS
 

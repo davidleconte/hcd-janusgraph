@@ -425,3 +425,50 @@ For issues or questions:
 - Review script comments and documentation
 - Check logs in `logs/` directory
 - Consult [Documentation Index](../docs/INDEX.md)
+
+## Codex Runtime Enforcement Update (2026-02-17)
+
+The following is the canonical runtime policy for this repository and supersedes legacy wording.
+
+### Mandatory runtime rules
+
+- Use `podman` and `podman-compose` only.
+- Use active remote connection exported in `PODMAN_CONNECTION`.
+- Use project namespace `janusgraph-demo` for all compose operations.
+- On fresh machines, build `localhost/hcd:1.2.3` before full deployment.
+
+### Canonical fresh-machine deployment commands
+
+```bash
+podman machine list
+podman system connection list
+export PODMAN_CONNECTION=<active-connection>
+
+podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
+
+cd config/compose
+cd config/compose && COMPOSE_PROJECT_NAME=janusgraph-demo bash ../../scripts/deployment/deploy_full_stack.sh
+
+podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
+```
+
+### Deterministic notebook proof command
+
+```bash
+export DEMO_SEED=42
+PODMAN_CONNECTION=$PODMAN_CONNECTION bash scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+### Port baseline for operator checks
+
+- JanusGraph host endpoint: `18182` (`8182` container-internal)
+- Vault: `8200`
+- OpenSearch: `9200`
+- Jupyter: `8888`
+
+### Remediation traceability
+
+See enforcement matrix and remediation log:
+
+- `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
+- `docs/implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md`

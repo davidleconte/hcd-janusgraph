@@ -17,7 +17,8 @@ You're currently in `config/compose/` directory, so the verification commands ne
 
 ```bash
 # You're already in config/compose/, so just run:
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+FULL_STACK_FILE=config/compose/<full-stack-compose-file>
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 
 # Wait for services to start
 sleep 90
@@ -26,7 +27,7 @@ sleep 90
 curl http://localhost:18182?gremlin=g.V().count()
 
 # Stop services
-podman-compose -p janusgraph-demo -f docker-compose.full.yml down
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" down
 
 # Return to project root
 cd ../..
@@ -39,7 +40,7 @@ cd ../..
 cd config/compose
 
 # Deploy
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 
 # Wait for services
 sleep 90
@@ -48,7 +49,7 @@ sleep 90
 curl http://localhost:18182?gremlin=g.V().count()
 
 # Stop
-podman-compose -p janusgraph-demo -f docker-compose.full.yml down
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" down
 
 # Return to root
 cd ../..
@@ -60,10 +61,10 @@ cd ../..
 
 ```bash
 # Deploy full stack
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d && sleep 90 && curl http://localhost:18182?gremlin=g.V().count()
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d && sleep 90 && curl http://localhost:18182?gremlin=g.V().count()
 
 # If successful, stop services
-podman-compose -p janusgraph-demo -f docker-compose.full.yml down
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" down
 
 # Return to project root
 cd ../..
@@ -129,9 +130,9 @@ netstat -an | grep 8182
 netstat -an | grep 9042
 
 # Force cleanup and retry
-podman-compose -p janusgraph-demo -f docker-compose.full.yml down -v
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" down -v
 podman pod rm -f janusgraph-demo_hcd-janusgraph-network
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 ```
 
 ### If Curl Fails
@@ -180,3 +181,59 @@ The audit remediation is complete and committed. The project structure is now:
 - **Production-ready**: Grade B+ with clear path to A
 
 All that remains is verifying the deployment still works correctly.
+
+## Codex Deployment Verification Enforcement (2026-02-17)
+
+This verification block is mandatory for fresh-machine acceptance.
+
+### A) Container and service health
+
+```bash
+podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
+```
+
+Expected healthy components include:
+
+- `janusgraph-demo_hcd-server_1`
+- `janusgraph-demo_vault_1`
+- `janusgraph-demo_analytics-api_1`
+- `janusgraph-demo_jupyter_1`
+
+### B) Runtime dependency acceptance gates (analytics-api)
+
+The deployed API image must satisfy R-05 through R-13:
+
+- `slowapi`
+- `pydantic-settings`
+- `python-json-logger`
+- `pyjwt`
+- `banking` package path copied in image
+- writable `/var/log/janusgraph`
+- `pyotp`
+- `qrcode[pil]`
+- OpenTelemetry packages (`opentelemetry-api`, `opentelemetry-sdk`, OTLP gRPC exporter, Jaeger exporter, requests instrumentation)
+- `requests`
+- required env: `OPENSEARCH_INITIAL_ADMIN_PASSWORD`
+
+### C) Notebook runner acceptance gates
+
+R-14 through R-18 acceptance:
+
+- Runner uses active Podman connection (validated run used `podman-wxd-root`).
+- Exploratory notebooks resolve under `/workspace/notebooks-exploratory`.
+- Jupyter runtime contains `pydantic`, `pydantic-settings`, `email-validator`.
+- TBML notebook handles empty transaction stats maps.
+- Insider notebook handles empty/missing DataFrame columns.
+
+### D) Required evidence artifact
+
+Successful full proof requires:
+
+- `notebook_run_report.tsv`
+- all notebooks `PASS`
+
+Reference proof artifact from validated run:
+
+- `exports/live-notebooks-final-20260217T170000Z/notebook_run_report.tsv`
+
+Reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`

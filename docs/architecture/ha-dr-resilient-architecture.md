@@ -645,7 +645,9 @@ curl -X POST "localhost:9200/_snapshot/backup/snapshot_1/_restore"
 
 # 4. Start services (1h)
 cd config/compose
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+FULL_STACK_FILE=config/compose/<full-stack-compose-file>
+PROD_STACK_FILE=config/compose/<prod-compose-file>
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 
 # 5. Verify (30 min)
 ./scripts/validation/preflight_check.sh
@@ -913,7 +915,7 @@ healthcheck:
 
 **Pulsar Topics:**
 ```bash
-# Created automatically by docker-compose
+# Created automatically by compose tooling
 persistent://public/banking/persons-events
 persistent://public/banking/accounts-events
 persistent://public/banking/transactions-events
@@ -1026,8 +1028,8 @@ cd config/compose
 # Deploy with production overrides
 podman-compose \
   -p $COMPOSE_PROJECT_NAME \
-  -f docker-compose.full.yml \
-  -f docker-compose.prod.yml \
+  -f "$FULL_STACK_FILE" \
+  -f "$PROD_STACK_FILE" \
   up -d
 
 # Wait for services (90-270 seconds)
@@ -1133,8 +1135,8 @@ ls -lh /backup/janusgraph/$(date +%Y-%m-%d)*
 ```
 config/
 ├── compose/
-│   ├── docker-compose.full.yml       # Full stack definition
-│   └── docker-compose.prod.yml       # Production overrides
+│   ├── full-stack compose file       # Full stack definition
+│   └── production compose override   # Production overrides
 ├── monitoring/
 │   ├── prometheus.yml                # Metrics collection
 │   ├── alert-rules.yml               # 31 alert rules
@@ -1347,7 +1349,7 @@ echo ""
 # 1. Stop all services
 echo "Step 1: Stopping all services..."
 cd config/compose
-podman-compose -p $PROJECT_NAME -f docker-compose.full.yml down
+podman-compose -p $PROJECT_NAME -f "$FULL_STACK_FILE" down
 echo "✓ Services stopped"
 echo ""
 
@@ -1372,7 +1374,7 @@ echo ""
 
 # 3. Start services
 echo "Step 3: Starting services..."
-podman-compose -p $PROJECT_NAME -f docker-compose.full.yml up -d
+podman-compose -p $PROJECT_NAME -f "$FULL_STACK_FILE" up -d
 echo "✓ Services starting..."
 echo ""
 

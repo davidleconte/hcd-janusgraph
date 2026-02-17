@@ -190,7 +190,7 @@ echo "======================================================"
 
 archive_file "docs/implementation/remediation/audit-remediation-complete.md" "docs/archive/2026-02/remediation/audit-remediation-complete.md"
 archive_file "docs/implementation/remediation/deployment-documentation-update.md" "docs/archive/2026-02/remediation/deployment-documentation-update.md"
-archive_file "docs/implementation/remediation/docker-compose-build-context-fix.md" "docs/archive/2026-02/remediation/docker-compose-build-context-fix.md"
+archive_file "docs/implementation/remediation/compose-build-context-fix.md" "docs/archive/2026-02/remediation/compose-build-context-fix.md"
 archive_file "docs/implementation/remediation/final-remediation-status-2026-02-04.md" "docs/archive/2026-02/remediation/final-remediation-status-2026-02-04.md"
 archive_file "docs/implementation/remediation/orchestration-improvements-complete.md" "docs/archive/2026-02/remediation/orchestration-improvements-complete.md"
 archive_file "docs/implementation/remediation/p2-recommendations.md" "docs/archive/2026-02/remediation/p2-recommendations.md"

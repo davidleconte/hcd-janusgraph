@@ -139,26 +139,28 @@ JanusGraph nodes are **stateless query processors** — they share the same HCD 
 
 ### Configuration
 
+Set `COMPOSE_FULL_STACK_FILE` to the full-stack compose file path before using this overlay.
+
 ```yaml
-# docker-compose.scale.yml (overlay)
+# compose-scale overlay
 services:
   janusgraph-1:
     extends:
-      file: docker-compose.full.yml
+      file: ${COMPOSE_FULL_STACK_FILE}
       service: janusgraph
     environment:
       JANUSGRAPH_INSTANCE_ID: "jg-1"
 
   janusgraph-2:
     extends:
-      file: docker-compose.full.yml
+      file: ${COMPOSE_FULL_STACK_FILE}
       service: janusgraph
     environment:
       JANUSGRAPH_INSTANCE_ID: "jg-2"
 
   janusgraph-3:
     extends:
-      file: docker-compose.full.yml
+      file: ${COMPOSE_FULL_STACK_FILE}
       service: janusgraph
     environment:
       JANUSGRAPH_INSTANCE_ID: "jg-3"

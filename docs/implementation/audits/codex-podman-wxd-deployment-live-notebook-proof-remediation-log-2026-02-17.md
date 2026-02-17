@@ -19,7 +19,7 @@
 | R-08 | `analytics-api`: permission denied `/var/log/janusgraph` | Non-root runtime user lacked write permission | Added directory creation/chown for `/var/log/janusgraph` | Permission error cleared |
 | R-09 | `analytics-api`: `No module named pyotp` | Missing MFA dependency | Added `pyotp` | Next startup blocker surfaced |
 | R-10 | `analytics-api`: `No module named qrcode` | Missing MFA QR dependency | Added `qrcode[pil]` | Next startup blocker surfaced |
-| R-11 | `analytics-api` startup validation failure | `OPENSEARCH_INITIAL_ADMIN_PASSWORD` not passed to container env | Added env injection in `config/compose/docker-compose.full.yml` for `analytics-api` | Validation error cleared |
+| R-11 | `analytics-api` startup validation failure | `OPENSEARCH_INITIAL_ADMIN_PASSWORD` not passed to container env | Added env injection in full-stack compose config for `analytics-api` | Validation error cleared |
 | R-12 | `analytics-api`: `No module named opentelemetry` | Tracing dependencies absent | Added OpenTelemetry packages (`api`, `sdk`, Jaeger, OTLP gRPC, requests instrumentation) | Next startup blocker surfaced |
 | R-13 | `analytics-api`: `No module named requests` | Missing transitive dependency for OTEL requests instrumentation | Added `requests` to API image | `analytics-api` became healthy |
 | R-14 | Notebook runner reported Jupyter container not running | Wrong Podman connection used (`podman-wxd` vs active `podman-wxd-root`) | Ran notebook proof against `PODMAN_CONNECTION=podman-wxd-root` | Notebook runner could reach live container |
@@ -31,7 +31,7 @@
 ## 2) Files Updated
 
 - `docker/api/Dockerfile`
-- `config/compose/docker-compose.full.yml`
+- full-stack compose file under `config/compose`
 - `scripts/testing/run_notebooks_live_repeatable.sh`
 - `docker/jupyter/environment.yml`
 - `banking/notebooks/06_TBML_Detection_Demo.ipynb`

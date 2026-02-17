@@ -37,10 +37,13 @@ The environment includes all dependencies and pre-configured environment variabl
 
 ```bash
 # CORRECT
-cd config/compose && podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+cd config/compose
+FULL_STACK_FILE=<full-stack-compose-file>
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 
 # WRONG - will fail with "Dockerfile not found"
-podman-compose -f config/compose/docker-compose.full.yml up -d
+FULL_STACK_FILE=config/compose/<full-stack-compose-file>
+podman-compose -p janusgraph-demo -f "$FULL_STACK_FILE" up -d
 ```
 
 ### Q: How do I check if all services are running?
@@ -299,3 +302,29 @@ done
 ---
 
 *Last Updated: 2026-02-06*
+
+### Q: What is the required specification for a new `podman-wxd` machine for this project?
+
+**A:** Use this minimum profile:
+
+- `--cpus 4`
+- `--memory 8192`
+- `--disk-size 50`
+- Active connection exported through `PODMAN_CONNECTION`
+- Deployment namespace `janusgraph-demo`
+
+Fresh-machine bootstrap is mandatory:
+
+```bash
+podman machine list
+podman system connection list
+export PODMAN_CONNECTION=<active-connection>
+podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
+cd config/compose && COMPOSE_PROJECT_NAME=janusgraph-demo bash ../../scripts/deployment/deploy_full_stack.sh
+```
+
+Reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
+
+### Q: Is the full deployment + notebook proof run now fully enforceable from docs?
+
+**A:** Yes. The complete R-01..R-18 remediation chain is now mapped and enforced through setup, deployment, verification, operations, and scripts documentation.

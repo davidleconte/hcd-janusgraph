@@ -95,7 +95,7 @@ userService.py         # camelCase
 
 ```bash
 ✅ CORRECT
-docker-compose.yml
+base compose file
 api-config.yaml
 deployment-config.yml
 

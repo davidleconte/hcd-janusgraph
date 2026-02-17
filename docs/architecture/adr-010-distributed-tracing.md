@@ -173,7 +173,7 @@ OpenTelemetry + Jaeger provides the best combination of:
 
 ### Required Changes
 
-1. **Infrastructure** (`docker-compose.tracing.yml`):
+1. **Infrastructure** (tracing compose overlay):
    - Jaeger all-in-one container
    - OpenTelemetry Collector
    - Cassandra backend for production

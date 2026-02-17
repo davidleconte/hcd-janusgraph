@@ -235,7 +235,7 @@ security/query_sanitizer     (verify)
 ```bash
 # 1. Ensure all services running
 cd config/compose
-podman-compose -p janusgraph-demo -f docker-compose.full.yml ps
+podman-compose -p janusgraph-demo -f <full-stack-compose-file> ps
 
 # 2. Verify health
 curl http://localhost:8000/healthz

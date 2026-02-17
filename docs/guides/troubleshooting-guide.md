@@ -338,7 +338,7 @@ podman stats
 HCD_HEAP_SIZE=8G
 JANUSGRAPH_HEAP_SIZE=4G
 
-# Add resource limits in docker-compose
+# Add resource limits in compose configuration
 deploy:
   resources:
     limits:

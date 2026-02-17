@@ -161,7 +161,7 @@ Active:   NO conda environment activated
 
 ```bash
 COMPOSE_PROJECT_NAME="janusgraph-demo"
-podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
+podman-compose -p $COMPOSE_PROJECT_NAME -f <full-stack-compose-file> up -d
 ```
 
 **Issues Found:**

@@ -53,7 +53,7 @@ cp config/environments/prod/.env.example .env
 
 # 3. Deploy with health checks
 cd config/compose
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml -f docker-compose.prod.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f <full-stack-compose-file> -f <prod-compose-file> up -d
 
 # 4. Verify deployment
 bash scripts/testing/run_tests.sh
@@ -89,3 +89,58 @@ bash scripts/deployment/deploy_full_stack.sh
 ---
 
 **Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
+
+## Codex Fresh-Machine Deployment Sequence (2026-02-17)
+
+Use this sequence when deploying from a new Podman machine state.
+
+### 1) Validate machine and connection
+
+```bash
+podman machine list
+podman system connection list
+export PODMAN_CONNECTION=<active-connection>
+podman --remote ps
+```
+
+### 2) Build mandatory local HCD image
+
+```bash
+podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
+```
+
+### 3) Deploy with project isolation
+
+```bash
+cd config/compose
+COMPOSE_PROJECT_NAME=janusgraph-demo podman-compose -p janusgraph-demo -f <full-stack-compose-file> up -d
+```
+
+### 4) Vault initialization/unseal (fresh environment)
+
+If Vault reports `security barrier not initialized`, perform init/unseal against compose container name:
+
+```bash
+podman --remote exec -it janusgraph-demo_vault_1 vault operator init
+podman --remote exec -it janusgraph-demo_vault_1 vault operator unseal <unseal-key-1>
+podman --remote exec -it janusgraph-demo_vault_1 vault operator unseal <unseal-key-2>
+podman --remote exec -it janusgraph-demo_vault_1 vault operator unseal <unseal-key-3>
+```
+
+### 5) Analytics API env contract
+
+`analytics-api` must receive `OPENSEARCH_INITIAL_ADMIN_PASSWORD` and include runtime dependencies validated in remediation R-05 through R-13.
+
+### 6) Deterministic live notebook proof
+
+```bash
+export DEMO_SEED=42
+export DEMO_NOTEBOOK_TOTAL_TIMEOUT=1800
+export DEMO_NOTEBOOK_CELL_TIMEOUT=300
+
+PODMAN_CONNECTION=$PODMAN_CONNECTION bash scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+Proof target: `15/15 PASS` with a generated `notebook_run_report.tsv` in `exports/<run-id>/`.
+
+Reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`

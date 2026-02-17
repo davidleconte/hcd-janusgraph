@@ -410,7 +410,7 @@ def process_update(event):
 
 | ID | Task | Est. | Deps | Owner |
 |----|------|------|------|-------|
-| 1.1 | Add Pulsar to docker-compose.full.yml | 2h | - | DevOps |
+| 1.1 | Add Pulsar to full-stack compose file | 2h | - | DevOps |
 | 1.2 | Configure Pulsar standalone mode | 1h | 1.1 | DevOps |
 | 1.3 | Create namespace: `banking` | 0.5h | 1.2 | DevOps |
 | 1.4 | Create topics: persons, accounts, transactions, companies | 1h | 1.3 | DevOps |
@@ -421,7 +421,7 @@ def process_update(event):
 
 **Week 1 Deliverables:**
 
-- [ ] Pulsar running in docker-compose
+- [ ] Pulsar running in compose deployment
 - [ ] Topics created and accessible
 - [ ] Admin console at <http://localhost:8080>
 - [ ] Deduplication enabled
@@ -598,7 +598,7 @@ banking/
 
 config/
 └── compose/
-    └── docker-compose.full.yml  # Updated with Pulsar
+    └── full-stack compose file  # Updated with Pulsar
 
 tests/
 └── integration/
