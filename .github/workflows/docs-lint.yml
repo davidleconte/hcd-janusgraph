@@ -12,6 +12,47 @@ on:
       - '.markdownlint.json'
 
 jobs:
+  root-doc-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce root documentation guardrails
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROOT_DOCS=(README.md QUICKSTART.md AGENTS.md SECURITY.md CODE_OF_CONDUCT.md)
+          STATUS_DOCS=(README.md QUICKSTART.md AGENTS.md)
+          RUNTIME_DOCS=(README.md QUICKSTART.md)
+
+          if rg -n --no-heading 'team@example\.com' "${ROOT_DOCS[@]}"; then
+            echo "ERROR: placeholder contact team@example.com found in root docs."
+            exit 1
+          fi
+
+          if rg -n --no-heading '(Grade:\s*(A\+|B\+)|A\+\s*\(99/100\)|B\+\s*\(90/100\)|\b99/100\b|\b90/100\b|\b64%\b|\b83%\b|\b202/202\b|\b144/202\b)' "${STATUS_DOCS[@]}"; then
+            echo "ERROR: hardcoded readiness/test metrics found in root docs. Use docs/project-status.md."
+            exit 1
+          fi
+
+          if rg -n --no-heading 'podman-wxd' "${STATUS_DOCS[@]}"; then
+            echo "ERROR: hardcoded podman machine name found in root docs."
+            exit 1
+          fi
+
+          if rg -n --no-heading '(^|\s)docker-compose\s+up(\s|$)|(^|\s)docker\s+ps(\s|$)' "${RUNTIME_DOCS[@]}"; then
+            echo "ERROR: legacy Docker runtime commands found in root runbooks. Use podman/podman-compose."
+            exit 1
+          fi
+
+          for file in "${STATUS_DOCS[@]}"; do
+            if ! rg -q 'docs/project-status\.md' "$file"; then
+              echo "ERROR: $file must reference docs/project-status.md"
+              exit 1
+            fi
+          done
+
   lint:
     runs-on: ubuntu-latest
     steps:
