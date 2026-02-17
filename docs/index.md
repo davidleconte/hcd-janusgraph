@@ -62,7 +62,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Operations Runbook](operations/operations-runbook.md)** - Day-to-day operations
 - **[Monitoring Guide](operations/monitoring-guide.md)** - System monitoring and alerting
 - **[Backup Procedures](operations/backup-procedures.md)** - Backup and restore procedures
-- **[Disaster Recovery](operations/disaster-recovery-plan.md)** - DR planning and execution
+- **[Disaster Recovery](operations/disaster-recovery.md)** - DR planning and execution
 
 #### Security
 
@@ -96,7 +96,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Planning & Strategy
 
 - **[Synthetic Data Generator Plan](banking/planning/synthetic-data-generator-plan.md)** - Data generation strategy
-- **Phase 8 Implementation Guide** - Implementation roadmap (see [Phase 8 Complete](banking/implementation/phases/PHASE8_COMPLETE_ROADMAP.md))
+- **[Banking Implementation Phases](banking/implementation/phases/README.md)** - Active phase docs and archived phase iterations
 
 ### 📊 For Project Managers
 
@@ -104,21 +104,22 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 - **Changelog** - Version history and changes (see root `CHANGELOG.md`)
 - **[Implementation Phases](implementation/phases/)** - Phase completion summaries
-- **[Project Backlog](implementation/BACKLOG.md)** - Remaining tasks and technical debt
+- **[Remediation Baseline](implementation/remediation-plan-workingB-plus.md)** - Current prioritized backlog and delivery plan
 
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Codex Documentation Obsolescence Audit (2026-02-17)](implementation/audits/codex-documentation-obsolescence-audit-2026-02-17.md)** - Full docs audit and archival ledger
 - **[Codex Executive Summary (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - Deployment recovery and notebook proof closure
 - **[Codex Remediation Log (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Issue-by-issue solutions and evidence
-- **Executive Summary** - High-level findings (see [Production Readiness Audit](implementation/PRODUCTION_READINESS_AUDIT_2026.md))
+- **[Comprehensive Project Audit (2026-02-16)](implementation/audits/comprehensive-project-audit-2026-02-16.md)** - Current consolidated technical baseline
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
 - **[Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)** - Detailed implementation plan for end-to-end deterministic runs
 
 #### Gap Analysis
 
 - **[Banking Gap Analysis](banking/planning/gap-analysis.md)** - Requirements analysis
-- **[Technical Specifications](banking/planning/technical-spec.md)** - Detailed specifications
+- **[Technical Specifications](technical-specifications.md)** - Detailed specifications
 
 ### 🔒 For Compliance Teams
 
@@ -143,7 +144,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [Deployment Guide](guides/deployment-guide.md)
 - [TLS Deployment](operations/tls-deployment-guide.md)
 - [Backup Procedures](operations/backup-procedures.md)
-- [Disaster Recovery](operations/disaster-recovery-plan.md)
+- [Disaster Recovery](operations/disaster-recovery.md)
 
 ### Monitoring & Operations
 

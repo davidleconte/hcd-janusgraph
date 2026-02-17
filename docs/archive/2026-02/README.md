@@ -1,7 +1,7 @@
 # Documentation Archive - February 2026
 
-**Archive Date:** 2026-02-11  
-**Total Files Archived:** 100 files  
+**Archive Date:** 2026-02-11 (initial), 2026-02-17 (supplemental)  
+**Total Files Archived:** 122 files  
 **Reason:** Obsolete, duplicate, or superseded documentation
 
 ---
@@ -112,6 +112,32 @@ Various obsolete task lists, plans, and guides.
 
 **Why Archived:** Tasks completed, plans executed, or superseded by current documentation.
 
+### 7. Implementation Superseded Set (21 files)
+**Location:** `implementation-superseded/`
+
+Consolidated set of superseded implementation assessments, sprint plans, and one-time execution docs.
+
+**Contents include:**
+- Production-readiness assessment cluster (`audit`, `status-final`, `final-assessment`, `synthesis`, `reconciliation`)
+- Duplicate same-window review artifacts (`codebase-review`, `final-project-review`, `review-confrontation-analysis`)
+- Completed tactical execution plans and interim summaries (`test-coverage-sprint-*`, `week2-day1-*`, `p0-fixes-summary`)
+- Completed one-time documentation execution plans (`documentation-archival-*`, `kebab-case-remediation-plan`, `kebab-case-validation-scripts`, `documentation-link-validation`)
+
+**Why Archived:** Superseded by newer audits, active remediation baseline, and current deterministic setup/remediation documentation.
+
+### 8. Operations Legacy (1 file)
+**Location:** `operations-legacy/`
+
+Legacy disaster recovery plan that relies on older container tooling and has been replaced by current DR docs.
+
+**Contents:**
+- `disaster-recovery-plan.md`
+
+**Why Archived:** Superseded by:
+- `docs/operations/disaster-recovery.md`
+- `docs/operations/dr-drill-procedures.md`
+- `docs/operations/dr-testing-log.md`
+
 ---
 
 ## Accessing Archived Files
@@ -139,22 +165,26 @@ docs/archive/2026-02/
 ├── duplicates/          # 15 files
 ├── audits/              # 4 files
 ├── remediation/         # 9 files
-└── misc/                # 7 files
+├── misc/                # 7 files
+├── implementation-superseded/  # 21 files
+└── operations-legacy/   # 1 file
 ```
 
 ---
 
 ## Statistics
 
-| Category | Files | Percentage |
-|----------|-------|------------|
-| Weekly Summaries | 40 | 40% |
-| Phase Iterations | 25 | 25% |
-| Duplicates | 15 | 15% |
-| Remediation | 9 | 9% |
-| Miscellaneous | 7 | 7% |
-| Audits | 4 | 4% |
-| **Total** | **100** | **100%** |
+| Category | Files |
+|----------|-------|
+| Weekly Summaries | 40 |
+| Phase Iterations | 25 |
+| Duplicates | 15 |
+| Remediation | 9 |
+| Miscellaneous | 7 |
+| Audits | 4 |
+| Implementation Superseded | 21 |
+| Operations Legacy | 1 |
+| **Total** | **122** |
 
 ---
 
@@ -163,7 +193,8 @@ docs/archive/2026-02/
 For current, actively maintained documentation, see:
 
 - **Main Index:** [`docs/index.md`](../../index.md)
-- **Implementation Status:** [`docs/implementation/production-readiness-status-final.md`](../../implementation/production-readiness-status-final.md)
+- **Current Remediation Baseline:** [`docs/implementation/remediation-plan-workingB-plus.md`](../../implementation/remediation-plan-workingB-plus.md)
+- **Current Audits:** [`docs/implementation/audits/readme.md`](../../implementation/audits/readme.md)
 - **Phase Summaries:** [`docs/implementation/phase2-completion-summary.md`](../../implementation/phase2-completion-summary.md), [`phase3-completion-summary.md`](../../implementation/phase3-completion-summary.md)
 - **User Guides:** [`docs/banking/guides/`](../../banking/guides/)
 - **API Documentation:** [`docs/api/`](../../api/)
@@ -173,8 +204,8 @@ For current, actively maintained documentation, see:
 
 ## Related Documentation
 
-- **Archival Analysis:** [`docs/implementation/documentation-archival-analysis.md`](../../implementation/documentation-archival-analysis.md)
-- **Execution Plan:** [`docs/implementation/documentation-archival-execution-plan.md`](../../implementation/documentation-archival-execution-plan.md)
+- **Archival Analysis (Archived):** [`implementation-superseded/documentation-archival-analysis.md`](implementation-superseded/documentation-archival-analysis.md)
+- **Execution Plan (Archived):** [`implementation-superseded/documentation-archival-execution-plan.md`](implementation-superseded/documentation-archival-execution-plan.md)
 - **Documentation Standards:** [`docs/documentation-standards.md`](../../documentation-standards.md)
 
 ---

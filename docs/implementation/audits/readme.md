@@ -9,6 +9,7 @@ This directory contains current audit reports and analysis documents for the HCD
 
 ## Active Audits
 
+- **[codex-documentation-obsolescence-audit-2026-02-17.md](codex-documentation-obsolescence-audit-2026-02-17.md)** - Full documentation obsolescence audit and archival decision log
 - **[codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md](codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - 1-page executive status for deployment recovery and notebook proof
 - **[codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md](codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Full issue-by-issue remediation log with evidence
 - **[comprehensive-project-audit-2026-02-16.md](comprehensive-project-audit-2026-02-16.md)** - Full project audit and detailed remediation plan
@@ -72,5 +73,6 @@ Historical and superseded audit documents have been archived to:
 
 - [Remediation Tracking](../remediation/)
 - [Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](../remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)
-- [Production Readiness](../production-readiness-audit-2026.md)
+- [Current Remediation Baseline](../remediation-plan-workingB-plus.md)
+- [Superseded Implementation Assessments Archive](../../archive/2026-02/implementation-superseded/README.md)
 - [Historical Archive](../../archive/2026-02/)

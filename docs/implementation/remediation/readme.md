@@ -1,7 +1,7 @@
 # Remediation Documentation
 
 **Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Last Updated:** 2026-02-11
+**Last Updated:** 2026-02-17
 
 ## Overview
 
@@ -9,11 +9,10 @@ This directory contains active remediation tracking and issue resolution documen
 
 ## Active Remediation
 
-- **[final-remediation-status-2026-02-04.md](final-remediation-status-2026-02-04.md)** - Final remediation status
-- **[audit-remediation-complete.md](audit-remediation-complete.md)** - Completed remediation items
+- **[codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md](codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)** - Full deterministic implementation and run motion plan
 - **[e2e-deployment-test-plan.md](e2e-deployment-test-plan.md)** - E2E test planning
 - **[e2e-test-results.md](e2e-test-results.md)** - E2E test results
-- **[p2-recommendations.md](p2-recommendations.md)** - Future improvements
+- **[network-isolation-analysis.md](network-isolation-analysis.md)** - Podman/network isolation assessment
 
 ## Archive
 
@@ -24,5 +23,5 @@ Historical and completed remediation documents have been archived to:
 ## Related Documentation
 
 - [Audit Reports](../audits/)
-- [Production Readiness](../production-readiness-audit-2026.md)
+- [Current Remediation Baseline](../remediation-plan-workingB-plus.md)
 - [Historical Archive](../../archive/2026-02/)

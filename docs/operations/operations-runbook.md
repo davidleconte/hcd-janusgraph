@@ -55,7 +55,7 @@ echo "Date: $(date)"
 
 # 1. Check system status
 echo "\n1. System Status:"
-docker-compose ps
+podman-compose -p janusgraph-demo ps
 
 # 2. Check disk space
 echo "\n2. Disk Space:"
@@ -67,7 +67,7 @@ free -h
 
 # 4. Check recent errors
 echo "\n4. Recent Errors (last hour):"
-docker-compose logs --since 1h | grep -i error | tail -20
+podman-compose -p janusgraph-demo logs --since 1h | grep -i error | tail -20
 
 # 5. Check backup status
 echo "\n5. Last Backup:"
@@ -90,13 +90,13 @@ echo "\n=== Health Check Complete ==="
 
 ```bash
 # Check for errors in last 24 hours
-docker-compose logs --since 24h janusgraph | grep -i "error\|exception\|fatal"
+podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep -i "error\|exception\|fatal"
 
 # Check slow queries
-docker-compose logs --since 24h janusgraph | grep "slow query" | wc -l
+podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "slow query" | wc -l
 
 # Check authentication failures
-docker-compose logs --since 24h janusgraph | grep "auth.*fail" | wc -l
+podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "auth.*fail" | wc -l
 
 # Generate daily report
 python scripts/operations/generate_daily_report.py
@@ -171,7 +171,7 @@ def check_cassandra():
     import subprocess
     try:
         result = subprocess.run(
-            ['docker-compose', 'exec', '-T', 'hcd', 'nodetool', 'status'],
+            ['podman-compose -p janusgraph-demo', 'exec', '-T', 'hcd', 'nodetool', 'status'],
             capture_output=True,
             timeout=10
         )
@@ -220,10 +220,10 @@ curl -X POST http://localhost:8182 \
 
 ```bash
 # Check node status
-docker-compose exec hcd nodetool status
+podman-compose -p janusgraph-demo exec hcd nodetool status
 
 # Check if accepting connections
-docker-compose exec hcd cqlsh -e "SELECT now() FROM system.local;"
+podman-compose -p janusgraph-demo exec hcd cqlsh -e "SELECT now() FROM system.local;"
 ```
 
 **Monitoring Stack:**
@@ -249,8 +249,8 @@ curl -f http://localhost:3100/ready
 
 1. **System Down**
    - Acknowledge alert immediately
-   - Check system status: `docker-compose ps`
-   - Review recent logs: `docker-compose logs --tail=100`
+   - Check system status: `podman-compose -p janusgraph-demo ps`
+   - Review recent logs: `podman-compose -p janusgraph-demo logs --tail=100`
    - Attempt restart if safe
    - Escalate if not resolved in 15 minutes
 
@@ -309,13 +309,13 @@ curl -X POST http://localhost:9093/api/v1/alerts \
 
 ```bash
 # Check CPU usage by container
-docker stats --no-stream
+podman stats --no-stream
 
 # Check Java threads
-docker-compose exec janusgraph jstack 1 | grep -A 5 "runnable"
+podman-compose -p janusgraph-demo exec janusgraph jstack 1 | grep -A 5 "runnable"
 
 # Check for CPU-intensive queries
-docker-compose logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
+podman-compose -p janusgraph-demo logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
 ```
 
 **Resolution:**
@@ -338,13 +338,13 @@ docker-compose logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
 
 ```bash
 # Check memory usage
-docker stats --no-stream
+podman stats --no-stream
 
 # Check JVM heap usage
-docker-compose exec janusgraph jstat -gc 1 1000 5
+podman-compose -p janusgraph-demo exec janusgraph jstat -gc 1 1000 5
 
 # Generate heap dump
-docker-compose exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
+podman-compose -p janusgraph-demo exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
 ```
 
 **Resolution:**
@@ -367,14 +367,14 @@ docker-compose exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
 
 ```bash
 # Enable query profiling
-docker-compose exec janusgraph \
+podman-compose -p janusgraph-demo exec janusgraph \
   gremlin-console.sh -e "g.V().profile()"
 
 # Check slow query log
-docker-compose logs janusgraph | grep "slow query"
+podman-compose -p janusgraph-demo logs janusgraph | grep "slow query"
 
 # Check for missing indexes
-docker-compose exec janusgraph \
+podman-compose -p janusgraph-demo exec janusgraph \
   cqlsh -e "SELECT * FROM system_schema.indexes;"
 ```
 
@@ -398,7 +398,7 @@ docker-compose exec janusgraph \
 
 ```bash
 # Check active connections
-docker-compose exec janusgraph netstat -an | grep :8182 | wc -l
+podman-compose -p janusgraph-demo exec janusgraph netstat -an | grep :8182 | wc -l
 
 # Check connection pool metrics
 curl http://localhost:8182/metrics | grep connection_pool
@@ -427,7 +427,7 @@ curl http://localhost:8182/metrics | grep connection_pool
 df -h
 
 # Find large files
-du -sh /var/lib/docker/volumes/* | sort -h | tail -20
+du -sh /var/lib/podman/volumes/* | sort -h | tail -20
 
 # Check log sizes
 du -sh /var/log/* | sort -h | tail -10
@@ -473,13 +473,13 @@ du -sh /var/log/* | sort -h | tail -10
 curl -X POST http://localhost:8182/admin/maintenance/enable
 
 # 2. Drain connections
-docker-compose exec janusgraph nodetool drain
+podman-compose -p janusgraph-demo exec janusgraph nodetool drain
 
 # 3. Perform maintenance tasks
 # (updates, configuration changes, etc.)
 
 # 4. Restart services
-docker-compose restart
+podman-compose -p janusgraph-demo restart
 
 # 5. Verify health
 ./scripts/operations/health_check.py
@@ -509,7 +509,7 @@ certbot renew --dry-run
 certbot renew
 
 # Update certificate in containers
-docker-compose restart nginx janusgraph
+podman-compose -p janusgraph-demo restart nginx janusgraph
 
 # Verify new certificate
 openssl s_client -connect localhost:8182 -showcerts
@@ -534,14 +534,14 @@ BACKUP_DIR="/backups/daily"
 mkdir -p $BACKUP_DIR
 
 # Backup JanusGraph data
-docker-compose exec janusgraph nodetool snapshot
+podman-compose -p janusgraph-demo exec janusgraph nodetool snapshot
 
 # Backup Cassandra
-docker-compose exec hcd nodetool snapshot
+podman-compose -p janusgraph-demo exec hcd nodetool snapshot
 
 # Copy snapshots
-docker cp janusgraph:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
-docker cp hcd:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
+podman cp janusgraph:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
+podman cp hcd:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
 
 # Compress backups
 tar -czf $BACKUP_DIR/backup_$DATE.tar.gz $BACKUP_DIR/*_$DATE
@@ -569,13 +569,13 @@ echo "Backup completed: backup_$DATE.tar.gz.gpg"
 BACKUP_FILE=$1
 
 # Stop services
-docker-compose down
+podman-compose -p janusgraph-demo down
 
 # Restore from backup
 gpg --decrypt $BACKUP_FILE | tar -xzf - -C /
 
 # Start services
-docker-compose up -d
+podman-compose -p janusgraph-demo up -d
 
 # Verify recovery
 ./scripts/operations/health_check.py
@@ -593,21 +593,21 @@ See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 **Add JanusGraph Node:**
 
 ```bash
-# Update docker-compose.yml
-docker-compose up -d --scale janusgraph=3
+# Update podman-compose -p janusgraph-demo.yml
+podman-compose -p janusgraph-demo up -d --scale janusgraph=3
 
 # Verify new nodes
-docker-compose ps janusgraph
+podman-compose -p janusgraph-demo ps janusgraph
 ```
 
 **Add Cassandra Node:**
 
 ```bash
 # Add node to cluster
-docker-compose up -d --scale hcd=3
+podman-compose -p janusgraph-demo up -d --scale hcd=3
 
 # Check cluster status
-docker-compose exec hcd nodetool status
+podman-compose -p janusgraph-demo exec hcd nodetool status
 ```
 
 ### 7.2 Vertical Scaling
@@ -615,7 +615,7 @@ docker-compose exec hcd nodetool status
 **Increase Resources:**
 
 ```yaml
-# docker-compose.yml
+# podman-compose -p janusgraph-demo.yml
 services:
   janusgraph:
     deploy:
@@ -627,7 +627,7 @@ services:
 
 ```bash
 # Apply changes
-docker-compose up -d
+podman-compose -p janusgraph-demo up -d
 ```
 
 ---
@@ -640,10 +640,10 @@ docker-compose up -d
 
 ```bash
 # Check for failed authentication attempts
-docker-compose logs | grep "authentication failed" | wc -l
+podman-compose -p janusgraph-demo logs | grep "authentication failed" | wc -l
 
 # Check for suspicious activity
-docker-compose logs | grep -E "DROP|DELETE|TRUNCATE" | tail -20
+podman-compose -p janusgraph-demo logs | grep -E "DROP|DELETE|TRUNCATE" | tail -20
 
 # Review access logs
 tail -100 /var/log/janusgraph/access.log
@@ -727,19 +727,19 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 
 ```bash
 # Restart all services
-docker-compose restart
+podman-compose -p janusgraph-demo restart
 
 # View logs
-docker-compose logs -f janusgraph
+podman-compose -p janusgraph-demo logs -f janusgraph
 
 # Check status
-docker-compose ps
+podman-compose -p janusgraph-demo ps
 
 # Execute command in container
-docker-compose exec janusgraph bash
+podman-compose -p janusgraph-demo exec janusgraph bash
 
 # Scale service
-docker-compose up -d --scale janusgraph=3
+podman-compose -p janusgraph-demo up -d --scale janusgraph=3
 ```
 
 ### Appendix B: Contact Information
