@@ -446,7 +446,7 @@ services:
     ports:
       - "8200:8200"    # Vault API
     volumes:
-      - ./../data/vault:/vault/file:Z  # Use local directory instead of volume
+      - vault-data:/vault/file:Z  # Persist vault data in project-scoped volume
       - ./../vault/config.hcl:/vault/config/config.hcl:ro,Z
     environment:
       - VAULT_ADDR=http://0.0.0.0:8200
