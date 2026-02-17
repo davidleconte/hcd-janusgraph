@@ -2,9 +2,11 @@
 
 **File**: QUICKSTART.md
 **Created**: 2026-01-28T10:35:00.123
-**Last Updated**: 2026-02-14
+**Last Updated**: 2026-02-17
+**Last Verified**: 2026-02-17
+**Applies To**: Podman-based local deployment with `COMPOSE_PROJECT_NAME=janusgraph-demo`
+**Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-**Production Readiness**: Grade A+ (99/100) - All phases complete
 
 ---
 
@@ -75,7 +77,7 @@ cp .env.example .env
 
 ```bash
 make help     # Show all commands
-make build    # Build Docker images
+make build    # Build container images
 make deploy   # Deploy full stack
 make test     # Run tests
 make clean    # Cleanup
@@ -557,7 +559,7 @@ hcd-tarball-janusgraph/
 - `requirements.txt` - Python dependencies (pip)
 - `environment.yml` - Conda environment definition
 - `pyproject.toml` - Project metadata and all dependencies
-- `docker-compose.yml` - Stack definition (symlink)
+- `config/compose/docker-compose.full.yml` - Full stack definition
 - `SECURITY.md` - Security policy
 
 ### Environment Variables
@@ -629,72 +631,7 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ---
 
-## Production Readiness Status
+## Status and Verification
 
-**Current Grade: A+ (99/100)** 🎯
+Current verified readiness, deployment evidence, and test baseline are maintained in [docs/project-status.md](docs/project-status.md).
 
-### Completed Enhancements
-
-#### ✅ Week 1: Security Hardening (95/100)
-
-- SSL/TLS encryption enabled by default
-- HashiCorp Vault integration for secrets management
-- Automated certificate generation
-- Secure credential storage
-- Startup validation to reject default passwords
-- **Documentation:** [WEEK1_FINAL_REPORT.md](docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)
-
-#### ✅ Week 2: Monitoring & Observability (95/100)
-
-- AlertManager with intelligent routing
-- JanusGraph custom metrics exporter
-- Grafana auto-provisioning
-- Multi-channel notifications (email/Slack)
-- Production-grade alerting rules
-- **Documentation:** [WEEK2_COMPLETE.md](docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md)
-
-#### ✅ Week 3-4: Test Coverage (92/100)
-
-- **Achieved:** 82% coverage, 670+ tests
-- Unit tests, integration tests, E2E pipeline tests
-- Fraud/AML detection with real JanusGraph integration
-- Pattern injection tests with known fraud patterns
-- **Documentation:** [WEEK3-4_QUICKSTART.md](docs/implementation/WEEK3_COMPLETE_SUMMARY.md)
-
-#### ✅ Week 5: Streaming & E2E Pipeline (95/100)
-
-- Pulsar event streaming infrastructure
-- Data Generator → Pulsar → JanusGraph → Detection flow
-- GraphConsumer and VectorConsumer for dual-path ingestion
-- Dead Letter Queue handling
-
-#### ✅ Week 6: Compliance & Documentation (98/100)
-
-- 30+ audit event types (GDPR, SOC 2, BSA/AML, PCI DSS)
-- Comprehensive documentation with mermaid diagrams
-- FAQ and troubleshooting guides
-- Code quality CI workflows
-
-### Key Metrics
-
-| Category | Score | Status |
-|----------|-------|--------|
-| Security | 95/100 | ✅ Excellent |
-| Monitoring | 95/100 | ✅ Excellent |
-| Testing | 92/100 | ✅ Excellent |
-| Documentation | 95/100 | ✅ Excellent |
-| Compliance | 98/100 | ✅ Excellent |
-| **Overall** | **99/100** | **✅ Grade A+** |
-
-### Quick Access to Production Docs
-
-- **[Production Readiness Audit](docs/implementation/production-readiness-audit-2026.md)** - Latest assessment (A+ grade)
-- **[6-Week Roadmap](docs/implementation/production-readiness-audit-2026.md)** - Complete plan
-- **[Operations Runbook](docs/operations/operations-runbook.md)** - Day-to-day operations
-- **[Monitoring Guide](docs/operations/monitoring-guide.md)** - Monitoring setup
-
----
-
-**Last Updated**: 2026-02-07
-**Status**: All phases complete
-**Contact**: <team@example.com>

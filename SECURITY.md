@@ -10,8 +10,10 @@
 
 **DO NOT** create public GitHub issues for security vulnerabilities.
 
-Instead, please report security vulnerabilities by emailing:
-[team@example.com]
+Instead, use one of the private channels below:
+
+- GitHub private vulnerability reporting (preferred): <https://github.com/davidleconte/hcd-janusgraph/security/advisories/new>
+- Repository owner contact (fallback): <https://github.com/davidleconte>
 
 Include:
 
@@ -28,7 +30,7 @@ This project implements:
 
 - ✅ No secrets in repository
 - ✅ Environment-specific configurations
-- ✅ Docker image scanning
+- ✅ Container image scanning
 - ✅ Dependency vulnerability scanning
 - ✅ Code security analysis (CodeQL)
 - ✅ Secret scanning

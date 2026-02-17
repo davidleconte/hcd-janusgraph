@@ -8,6 +8,10 @@
 # Default owner for everything
 * @davidleconte
 
+# Core domain code
+/banking/ @davidleconte
+/src/python/ @davidleconte
+
 # Docker files
 /docker/ @davidleconte
 
@@ -25,3 +29,6 @@
 
 # Security-sensitive files
 SECURITY.md @davidleconte
+/config/security/ @davidleconte
+/config/vault/ @davidleconte
+/scripts/security/ @davidleconte

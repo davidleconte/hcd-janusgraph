@@ -1,5 +1,9 @@
 # AGENTS.md
 
+**Last Verified**: 2026-02-17
+**Applies To**: This repository runtime and contributor workflows
+**Authoritative Status**: [docs/project-status.md](docs/project-status.md)
+
 This file provides guidance to agents when working with code in this repository.
 
 ---
@@ -435,8 +439,8 @@ cd banking/data_generators/tests && ./run_tests.sh [smoke|unit|integration|perfo
 
 ### Project Status
 
-- **Production Readiness:** B+ (90/100) — See `docs/implementation/remediation-plan-workingB-plus.md`
-- **Test Coverage:** 64% line coverage, 1597 unit tests pass in CI, 144/202 integration tests pass (2 Cassandra tombstone failures, 56 skipped)
+- **Project Status:** See `docs/project-status.md` for current verified readiness, test counts, and evidence links.
+- **Verification Metrics:** Maintained in `docs/project-status.md` (do not duplicate numeric metrics in this file).
 - **Security:** Enterprise-grade (SSL/TLS, Vault, Audit Logging, Startup Validation)
 - **Compliance:** GDPR, SOC 2, BSA/AML, PCI DSS ready
 - **CI Quality Gates:** 8 workflows (coverage, docstrings, security, types, lint)
@@ -837,7 +841,7 @@ pytest -v -m "slow"
 
 ### Test Coverage
 
-**1597 unit tests pass in CI** | **144 integration tests pass** (2 Cassandra tombstone failures, 56 skipped) | **64% line coverage**:
+Current test/pass/coverage counts are intentionally centralized in [`docs/project-status.md`](docs/project-status.md):
 
 ```
 Module                          Coverage    Notes
@@ -854,7 +858,7 @@ fraud                           23%         Integration-tested
 data_generators.patterns        13%         Pattern injection tested
 analytics                        0%         Planned
 ──────────────────────────────────────────────────────
-Integration Tests: 202/202 passed (0 skipped, 0 failed)
+Integration test status is tracked in [`docs/project-status.md`](docs/project-status.md) and referenced evidence logs.
 ```
 
 > **Note**: Line coverage (~18%) is lower than test count suggests because
@@ -1073,7 +1077,7 @@ Brief overview...
 
 ### Current Status
 
-**Overall Grade:** B+ (90/100) — Post-P0 remediation
+**Overall Status:** See [`docs/project-status.md`](docs/project-status.md) for the current verified baseline.
 
 **Category Scores:**
 

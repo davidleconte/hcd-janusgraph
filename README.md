@@ -2,6 +2,10 @@
 
 **File**: README.md
 **Created**: 2026-01-28T10:36:00.123
+**Last Updated**: 2026-02-17
+**Last Verified**: 2026-02-17
+**Applies To**: Podman-based local deployment (`podman-compose`) with `COMPOSE_PROJECT_NAME=janusgraph-demo`
+**Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -16,7 +20,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 ✅ **Security Hardened**: SSL/TLS encryption, HashiCorp Vault integration, secrets management
 ✅ **Advanced Monitoring**: Prometheus + Grafana + AlertManager + JanusGraph metrics exporter
 ✅ **Automated CI/CD**: GitHub Actions workflows for testing and deployment
-✅ **Comprehensive Testing**: 2948 tests collected, 202 integration tests (100% pass), unit/integration/E2E/performance suites
+✅ **Comprehensive Testing**: Current verified test counts and readiness evidence are maintained in [docs/project-status.md](docs/project-status.md)
 ✅ **Resilience**: Circuit breaker, retry with exponential backoff, startup validation
 ✅ **Observability**: OpenTelemetry tracing, structured JSON logging, PII-sanitized logs
 ✅ **Backup & Restore**: Automated backup scripts with encryption support
@@ -183,7 +187,7 @@ Use this command to run a full, repeatable pipeline for MBP Pro demos:
 
 ```bash
 export COMPOSE_PROJECT_NAME=janusgraph-demo   # optional
-export PODMAN_CONNECTION=podman-wxd            # optional
+export PODMAN_CONNECTION=<your-podman-connection>  # optional
 ./scripts/testing/run_demo_pipeline_repeatable.sh
 ```
 
@@ -277,7 +281,7 @@ Use this command on a running stack when you need one complete, auditable end-to
 
 ```bash
 export DEMO_PIPELINE_RUN_ID=demo-live-$(date -u +%Y%m%dT%H%M%SZ)
-export PODMAN_CONNECTION=podman-wxd
+export PODMAN_CONNECTION=<your-podman-connection>
 export COMPOSE_PROJECT_NAME=janusgraph-demo
 
 ./scripts/testing/run_demo_pipeline_repeatable.sh \
@@ -452,7 +456,7 @@ Pre-loaded graph includes:
 
 | Document | Description |
 |----------|-------------|
-| **[Production Readiness Audit](docs/implementation/production-readiness-audit-2026.md)** | Comprehensive system audit (A+ grade, 99/100) |
+| **[Production Readiness Audit](docs/implementation/production-readiness-audit-2026.md)** | Comprehensive system audit (historical baseline) |
 | **[6-Week Roadmap](docs/implementation/production-readiness-audit-2026.md)** | Production roadmap (Complete) |
 | **[Week 1: Security](docs/implementation/WEEK1_COMPLETE_SUMMARY_2026-02-11.md)** | SSL/TLS + Vault implementation ✅ |
 | **[Week 2: Monitoring](docs/implementation/WEEK2_DAY12_COMPLETE_SUMMARY.md)** | AlertManager + metrics exporter ✅ |
@@ -536,7 +540,7 @@ DEMO_SEED=42 \
 DEMO_FORCE_MOCK_PULSAR=1 \
 DEMO_NOTEBOOK_TOTAL_TIMEOUT=600 \
 DEMO_NOTEBOOK_CELL_TIMEOUT=200 \
-PODMAN_CONNECTION=podman-wxd \
+PODMAN_CONNECTION=<your-podman-connection> \
 ./scripts/testing/run_notebooks_live_repeatable.sh
 ```
 
@@ -608,9 +612,9 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 ---
 
 **Version**: 2.0.0
-**Status**: ✅ Production-ready (Grade: A+, 99/100)
+**Status**: See [docs/project-status.md](docs/project-status.md) for current verified readiness.
 **Last Updated**: 2026-02-07
-**Production Readiness**: All phases complete - 670+ tests, 82% coverage
+**Production Readiness**: Current verified metrics are centralized in [docs/project-status.md](docs/project-status.md).
 
 ---
 
