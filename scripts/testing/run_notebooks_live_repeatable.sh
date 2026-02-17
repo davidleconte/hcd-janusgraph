@@ -81,6 +81,8 @@ EXPLORATORY_NOTEBOOKS=(
   notebooks-exploratory/*.ipynb
 )
 
+TARGET_NOTEBOOKS=("$@")
+
 check_container() {
   if ! podman --remote --connection "${PODMAN_CONNECTION_VALUE}" ps --filter "name=${CONTAINER_NAME}" --format '{{.Names}}' | \
     grep -q "^${CONTAINER_NAME}$"; then
@@ -134,7 +136,7 @@ run_notebook() {
   base=$(basename "$src")
   stem="${base%.ipynb}"
   if [[ "${src}" == notebooks-exploratory/* ]]; then
-    container_src="/workspace/notebooks/${base}"
+    container_src="/workspace/notebooks-exploratory/${base}"
   else
     container_src="/workspace/${src}"
   fi
@@ -214,17 +216,27 @@ run_notebook() {
 main() {
   check_container
 
-  for nb in "${BANKING_NOTEBOOKS[@]}"; do
-    if [[ -f "${nb}" ]]; then
-      run_notebook "${nb}"
-    fi
-  done
+  if [[ "${#TARGET_NOTEBOOKS[@]}" -gt 0 ]]; then
+    for nb in "${TARGET_NOTEBOOKS[@]}"; do
+      if [[ -f "${nb}" ]]; then
+        run_notebook "${nb}"
+      else
+        echo "SKIP: ${nb} (not found on host)"
+      fi
+    done
+  else
+    for nb in "${BANKING_NOTEBOOKS[@]}"; do
+      if [[ -f "${nb}" ]]; then
+        run_notebook "${nb}"
+      fi
+    done
 
-  for nb in "${EXPLORATORY_NOTEBOOKS[@]}"; do
-    if [[ -f "${nb}" ]]; then
-      run_notebook "${nb}"
-    fi
-  done
+    for nb in "${EXPLORATORY_NOTEBOOKS[@]}"; do
+      if [[ -f "${nb}" ]]; then
+        run_notebook "${nb}"
+      fi
+    done
+  fi
 
   echo ""
   echo "📄 Report: ${REPORT_TSV}"

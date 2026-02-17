@@ -55,6 +55,9 @@ dependencies:
       - gremlinpython>=3.7.0  # JanusGraph/Gremlin client
       - cassandra-driver>=3.28  # CQL client for HCD
       - opensearch-py>=2.7.1  # OpenSearch client (for banking demos)
+      - pydantic>=2.0.0  # Required by streaming and API modules used in notebooks
+      - pydantic-settings>=2.1.0  # Runtime settings helpers used by API modules
+      - email-validator>=2.2.0  # Required by pydantic EmailStr models
       - uv>=0.1.0  # Fast Python package installer
       - pyvis>=0.3.2  # Network visualization
       - py2neo  # Alternative graph client (Neo4j-compatible API)

@@ -317,6 +317,7 @@ services:
       - "8888:8888"    # Jupyter Lab
     volumes:
       - jupyter-notebooks:/workspace/notebooks
+      - ../../notebooks-exploratory:/workspace/notebooks-exploratory:ro
       - ../../banking:/workspace/banking
       - ../../src/python:/workspace/src/python
       - ../../exports:/workspace/exports
@@ -623,6 +624,7 @@ services:
       - JANUSGRAPH_PORT=8182
       - API_PORT=8001
       - API_HOST=0.0.0.0
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD:?OPENSEARCH_INITIAL_ADMIN_PASSWORD must be set in .env file}
     depends_on:
       janusgraph-server:
         condition: service_healthy

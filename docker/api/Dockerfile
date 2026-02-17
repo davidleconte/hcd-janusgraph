@@ -17,10 +17,23 @@ RUN pip install --no-cache-dir \
     uvicorn[standard] \
     gremlinpython>=3.7.0 \
     pydantic>=2.0.0 \
+    pydantic-settings>=2.1.0 \
+    slowapi \
+    python-json-logger>=2.0.7 \
+    pyjwt>=2.8.0 \
+    pyotp>=2.9.0 \
+    qrcode[pil]>=7.4.2 \
+    opentelemetry-api>=1.26.0 \
+    opentelemetry-sdk>=1.26.0 \
+    opentelemetry-exporter-jaeger-thrift>=1.21.0 \
+    opentelemetry-exporter-otlp-proto-grpc>=1.26.0 \
+    opentelemetry-instrumentation-requests>=0.47b0 \
+    requests>=2.31.0 \
     python-multipart
 
 # Copy application code
 COPY src/python /app/src/python
+COPY banking /app/banking
 
 # Set Python path
 ENV PYTHONPATH=/app/src/python:/app
@@ -31,7 +44,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+    mkdir -p /var/log/janusgraph && \
+    chown -R appuser:appuser /app /var/log/janusgraph
 
 USER appuser
 
