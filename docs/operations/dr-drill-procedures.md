@@ -90,10 +90,10 @@ echo "=== Pre-Drill Snapshot ==="
 echo "Timestamp: $TIMESTAMP"
 
 # Capture service status
-podman ps --all --format json > "$SNAPSHOT_DIR/services-before.json"
+PODMAN_CONNECTION=podman-wxd podman --remote ps --all --format json > "$SNAPSHOT_DIR/services-before.json"
 
 # Capture volumes
-podman volume ls --format json > "$SNAPSHOT_DIR/volumes-before.json"
+PODMAN_CONNECTION=podman-wxd podman --remote volume ls --format json > "$SNAPSHOT_DIR/volumes-before.json"
 
 # Test database connectivity
 curl -s -X POST http://localhost:18182 \
@@ -121,11 +121,11 @@ echo "=== Scenario 1: Single Service Failure ==="
 START_TIME=$(date +%s)
 
 # 1. Simulate failure
-podman kill janusgraph-demo_janusgraph-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote kill janusgraph-demo_janusgraph-server_1
 
 # 2. Monitor automatic recovery
 while true; do
-  STATUS=$(podman ps --filter "name=janusgraph-demo_janusgraph-server_1" --format "{{.Status}}")
+  STATUS=$(PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "name=janusgraph-demo_janusgraph-server_1" --format "{{.Status}}")
   echo "Status: $STATUS"
   
   if echo "$STATUS" | grep -q "healthy"; then
@@ -173,35 +173,35 @@ echo "=== Scenario 2: Data Corruption Recovery ==="
 START_TIME=$(date +%s)
 
 # 1. Stop services
-podman stop janusgraph-demo_janusgraph-server_1
-podman stop janusgraph-demo_hcd-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote stop janusgraph-demo_janusgraph-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote stop janusgraph-demo_hcd-server_1
 
 # 2. Identify last good backup
 BACKUP_FILE=$(ls -t /backup/hcd/hcd-*.tar.gz | head -1)
 echo "Using backup: $BACKUP_FILE"
 
 # 3. Restore from backup
-podman volume rm janusgraph-demo_hcd-data
-podman volume create janusgraph-demo_hcd-data
+PODMAN_CONNECTION=podman-wxd podman --remote volume rm janusgraph-demo_hcd-data
+PODMAN_CONNECTION=podman-wxd podman --remote volume create janusgraph-demo_hcd-data
 
-podman run --rm \
+PODMAN_CONNECTION=podman-wxd podman --remote run --rm \
   -v janusgraph-demo_hcd-data:/data \
   -v /backup/hcd:/backup \
   alpine sh -c "cd /data && tar xzf $BACKUP_FILE"
 
 # 4. Restart services
-podman start janusgraph-demo_hcd-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote start janusgraph-demo_hcd-server_1
 
 # Wait for HCD
-while ! podman ps --filter "name=janusgraph-demo_hcd-server_1" --filter "health=healthy" | grep -q healthy; do
+while ! PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "name=janusgraph-demo_hcd-server_1" --filter "health=healthy" | grep -q healthy; do
   echo "Waiting for HCD..."
   sleep 10
 done
 
-podman start janusgraph-demo_janusgraph-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote start janusgraph-demo_janusgraph-server_1
 
 # Wait for JanusGraph
-while ! podman ps --filter "name=janusgraph-demo_janusgraph-server_1" --filter "health=healthy" | grep -q healthy; do
+while ! PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "name=janusgraph-demo_janusgraph-server_1" --filter "health=healthy" | grep -q healthy; do
   echo "Waiting for JanusGraph..."
   sleep 10
 done
@@ -241,8 +241,8 @@ echo "Status: $([ $RECOVERY_TIME -lt 1800 ] && echo 'PASS ✓' || echo 'FAIL ✗
 **Phase 1: Infrastructure (30 min)**
 ```bash
 # Verify Podman machine
-podman machine list
-podman machine start
+PODMAN_CONNECTION=podman-wxd podman --remote machine list
+PODMAN_CONNECTION=podman-wxd podman --remote machine start
 
 # Verify backups
 ls -lh /backup/hcd/hcd-latest.tar.gz
@@ -253,8 +253,8 @@ ls -lh /backup/janusgraph/janusgraph-latest.tar.gz
 ```bash
 # Create and restore volumes
 for volume in hcd-data janusgraph-db opensearch-data; do
-  podman volume create janusgraph-demo_${volume}
-  podman run --rm \
+  PODMAN_CONNECTION=podman-wxd podman --remote volume create janusgraph-demo_${volume}
+  PODMAN_CONNECTION=podman-wxd podman --remote run --rm \
     -v janusgraph-demo_${volume}:/data \
     -v /backup/${volume%-*}:/backup \
     alpine sh -c "cd /data && tar xzf /backup/${volume%-*}-latest.tar.gz"
@@ -265,7 +265,7 @@ done
 ```bash
 # Deploy full stack
 cd config/compose
-podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.full.yml up -d
 
 # Wait for services
 sleep 90

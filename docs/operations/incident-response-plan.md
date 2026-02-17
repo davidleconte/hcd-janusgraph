@@ -270,7 +270,7 @@ Incident Commander
 
 ```bash
 # Isolate affected systems
-docker-compose stop <affected-service>
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop <affected-service>
 
 # Block malicious IPs
 iptables -A INPUT -s <malicious-ip> -j DROP
@@ -288,15 +288,15 @@ iptables -A INPUT -s <malicious-ip> -j DROP
 
 ```bash
 # Capture system state
-docker ps -a > incident-containers.txt
-docker logs <container> > incident-logs.txt
+PODMAN_CONNECTION=podman-wxd podman --remote ps -a > incident-containers.txt
+PODMAN_CONNECTION=podman-wxd podman --remote logs <container> > incident-logs.txt
 
 # Capture network state
 netstat -an > incident-network.txt
 iptables -L -n > incident-firewall.txt
 
 # Capture memory dump (if needed)
-docker exec <container> gcore <pid>
+PODMAN_CONNECTION=podman-wxd podman --remote exec <container> gcore <pid>
 
 # Create forensic backup
 ./scripts/backup/backup_volumes_encrypted.sh --tag forensic-$(date +%Y%m%d-%H%M%S)
@@ -328,7 +328,7 @@ docker exec <container> gcore <pid>
 
 ```bash
 # Log analysis
-docker logs <container> | grep -i error
+PODMAN_CONNECTION=podman-wxd podman --remote logs <container> | grep -i error
 loki-cli query '{job="janusgraph"}' --since 1h
 
 # Security scanning
@@ -389,7 +389,7 @@ loki-cli query '{job="janusgraph"}' --since 1h
   --verify
 
 # Restart services
-docker-compose up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
 
 # Verify services
 ./scripts/testing/run_integration_tests.sh
@@ -560,7 +560,7 @@ Thank you for your patience.
 
    ```bash
    # Isolate infected systems
-   docker-compose down
+   PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo down
    iptables -A INPUT -j DROP
    iptables -A OUTPUT -j DROP
 
@@ -607,7 +607,7 @@ Thank you for your patience.
 
    ```bash
    # Enable rate limiting
-   docker-compose -f docker-compose.nginx.yml up -d
+   PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.nginx.yml up -d
 
    # Block attacking IPs
    ./scripts/security/block_ips.sh --file attacking-ips.txt
@@ -721,7 +721,7 @@ Thank you for your patience.
 
 ```bash
 # Log analysis
-docker logs <container>
+PODMAN_CONNECTION=podman-wxd podman --remote logs <container>
 loki-cli query '{job="<service>"}'
 
 # Security scanning

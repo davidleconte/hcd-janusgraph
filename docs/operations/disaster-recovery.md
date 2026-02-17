@@ -75,10 +75,10 @@ storage.cql.write-consistency-level=LOCAL_QUORUM
 
 ```bash
 # Check replication lag via nodetool
-podman exec cassandra-node nodetool netstats | grep -A5 "Pool"
+PODMAN_CONNECTION=podman-wxd podman --remote exec cassandra-node nodetool netstats | grep -A5 "Pool"
 
 # Verify all nodes are UN (Up/Normal)
-podman exec cassandra-node nodetool status
+PODMAN_CONNECTION=podman-wxd podman --remote exec cassandra-node nodetool status
 ```
 
 ## 2. Pulsar Geo-Replication
@@ -207,13 +207,13 @@ echo "=== FAILOVER COMPLETE ==="
 DATE=$(date +%Y%m%d-%H%M%S)
 
 # Cassandra snapshot
-podman exec cassandra-node nodetool snapshot -t "backup-${DATE}" janusgraph
+PODMAN_CONNECTION=podman-wxd podman --remote exec cassandra-node nodetool snapshot -t "backup-${DATE}" janusgraph
 
 # OpenSearch snapshot
 curl -X PUT "localhost:9200/_snapshot/s3_backup/snapshot-${DATE}?wait_for_completion=true"
 
 # Vault snapshot
-podman exec vault-server vault operator raft snapshot save "/vault/snapshots/vault-${DATE}.snap"
+PODMAN_CONNECTION=podman-wxd podman --remote exec vault-server vault operator raft snapshot save "/vault/snapshots/vault-${DATE}.snap"
 
 echo "Backup ${DATE} complete"
 ```

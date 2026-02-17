@@ -63,13 +63,13 @@ Each drill entry follows this structure:
 ./scripts/testing/pre-drill-snapshot.sh
 
 # 2. Simulate JanusGraph failure
-podman kill janusgraph-demo_janusgraph-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote kill janusgraph-demo_janusgraph-server_1
 
 # 3. Record start time
 START_TIME=$(date +%s)
 
 # 4. Monitor recovery (auto-restart or manual)
-watch -n 5 'podman ps --filter "name=janusgraph" --format "{{.Names}} {{.Status}}"'
+watch -n 5 'PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "name=janusgraph" --format "{{.Names}} {{.Status}}"'
 
 # 5. When healthy, record end time
 END_TIME=$(date +%s)
@@ -195,7 +195,7 @@ echo "RTO: ${RTO_SECONDS}s"
 # Verify all services healthy
 echo "Service Health:"
 for svc in hcd-server janusgraph-server opensearch pulsar; do
-  STATUS=$(podman ps --filter "name=janusgraph-demo_${svc}" --format "{{.Status}}" 2>/dev/null)
+  STATUS=$(PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "name=janusgraph-demo_${svc}" --format "{{.Status}}" 2>/dev/null)
   echo "  $svc: $STATUS"
 done
 

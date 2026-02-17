@@ -135,12 +135,12 @@ Configure in Alertmanager:
 
 View logs:
 
-podman logs -f janusgraph-server
-podman logs -f hcd-server
+PODMAN_CONNECTION=podman-wxd podman --remote logs -f janusgraph-server
+PODMAN_CONNECTION=podman-wxd podman --remote logs -f hcd-server
 
 ### Log Rotation
 
-Automatic rotation configured in docker-compose:
+Automatic rotation configured in PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo:
 
 logging:
   driver: json-file

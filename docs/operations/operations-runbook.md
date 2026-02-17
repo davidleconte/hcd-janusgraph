@@ -55,7 +55,7 @@ echo "Date: $(date)"
 
 # 1. Check system status
 echo "\n1. System Status:"
-podman-compose -p janusgraph-demo ps
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
 
 # 2. Check disk space
 echo "\n2. Disk Space:"
@@ -67,7 +67,7 @@ free -h
 
 # 4. Check recent errors
 echo "\n4. Recent Errors (last hour):"
-podman-compose -p janusgraph-demo logs --since 1h | grep -i error | tail -20
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 1h | grep -i error | tail -20
 
 # 5. Check backup status
 echo "\n5. Last Backup:"
@@ -79,7 +79,7 @@ openssl x509 -in /etc/ssl/certs/janusgraph.crt -noout -enddate
 
 # 7. Query performance
 echo "\n7. Query Performance:"
-curl -s http://localhost:8182/health | jq '.metrics.avg_query_time_ms'
+curl -s http://localhost:18182/health | jq '.metrics.avg_query_time_ms'
 
 echo "\n=== Health Check Complete ==="
 ```
@@ -90,13 +90,13 @@ echo "\n=== Health Check Complete ==="
 
 ```bash
 # Check for errors in last 24 hours
-podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep -i "error\|exception\|fatal"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep -i "error\|exception\|fatal"
 
 # Check slow queries
-podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "slow query" | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "slow query" | wc -l
 
 # Check authentication failures
-podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "auth.*fail" | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "auth.*fail" | wc -l
 
 # Generate daily report
 python scripts/operations/generate_daily_report.py
@@ -160,7 +160,7 @@ def check_health():
 def check_janusgraph():
     """Check JanusGraph health."""
     try:
-        response = requests.get('http://localhost:8182/health', timeout=5)
+        response = requests.get('http://localhost:18182/health', timeout=5)
         return response.status_code == 200
     except Exception as e:
         print(f"JanusGraph check failed: {e}")
@@ -171,7 +171,7 @@ def check_cassandra():
     import subprocess
     try:
         result = subprocess.run(
-            ['podman-compose -p janusgraph-demo', 'exec', '-T', 'hcd', 'nodetool', 'status'],
+            ['PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo', 'exec', '-T', 'hcd', 'nodetool', 'status'],
             capture_output=True,
             timeout=10
         )
@@ -208,10 +208,10 @@ if __name__ == '__main__':
 
 ```bash
 # Check if JanusGraph is responding
-curl -f http://localhost:8182/health || echo "JanusGraph unhealthy"
+curl -f http://localhost:18182/health || echo "JanusGraph unhealthy"
 
 # Check Gremlin server
-curl -X POST http://localhost:8182 \
+curl -X POST http://localhost:18182 \
   -H "Content-Type: application/json" \
   -d '{"gremlin":"g.V().count()"}' || echo "Gremlin server unhealthy"
 ```
@@ -220,10 +220,10 @@ curl -X POST http://localhost:8182 \
 
 ```bash
 # Check node status
-podman-compose -p janusgraph-demo exec hcd nodetool status
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool status
 
 # Check if accepting connections
-podman-compose -p janusgraph-demo exec hcd cqlsh -e "SELECT now() FROM system.local;"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server cqlsh -e "SELECT now() FROM system.local;"
 ```
 
 **Monitoring Stack:**
@@ -249,8 +249,8 @@ curl -f http://localhost:3100/ready
 
 1. **System Down**
    - Acknowledge alert immediately
-   - Check system status: `podman-compose -p janusgraph-demo ps`
-   - Review recent logs: `podman-compose -p janusgraph-demo logs --tail=100`
+   - Check system status: `PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps`
+   - Review recent logs: `PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --tail=100`
    - Attempt restart if safe
    - Escalate if not resolved in 15 minutes
 
@@ -309,13 +309,13 @@ curl -X POST http://localhost:9093/api/v1/alerts \
 
 ```bash
 # Check CPU usage by container
-podman stats --no-stream
+PODMAN_CONNECTION=podman-wxd podman --remote stats --no-stream
 
 # Check Java threads
-podman-compose -p janusgraph-demo exec janusgraph jstack 1 | grep -A 5 "runnable"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jstack 1 | grep -A 5 "runnable"
 
 # Check for CPU-intensive queries
-podman-compose -p janusgraph-demo logs janusgraph | grep "execution time" | sort -k5 -n | tail -20
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server | grep "execution time" | sort -k5 -n | tail -20
 ```
 
 **Resolution:**
@@ -338,13 +338,13 @@ podman-compose -p janusgraph-demo logs janusgraph | grep "execution time" | sort
 
 ```bash
 # Check memory usage
-podman stats --no-stream
+PODMAN_CONNECTION=podman-wxd podman --remote stats --no-stream
 
 # Check JVM heap usage
-podman-compose -p janusgraph-demo exec janusgraph jstat -gc 1 1000 5
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jstat -gc 1 1000 5
 
 # Generate heap dump
-podman-compose -p janusgraph-demo exec janusgraph jmap -dump:live,format=b,file=/tmp/heap.hprof 1
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jmap -dump:live,format=b,file=/tmp/heap.hprof 1
 ```
 
 **Resolution:**
@@ -367,14 +367,14 @@ podman-compose -p janusgraph-demo exec janusgraph jmap -dump:live,format=b,file=
 
 ```bash
 # Enable query profiling
-podman-compose -p janusgraph-demo exec janusgraph \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server \
   gremlin-console.sh -e "g.V().profile()"
 
 # Check slow query log
-podman-compose -p janusgraph-demo logs janusgraph | grep "slow query"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server | grep "slow query"
 
 # Check for missing indexes
-podman-compose -p janusgraph-demo exec janusgraph \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server \
   cqlsh -e "SELECT * FROM system_schema.indexes;"
 ```
 
@@ -398,10 +398,10 @@ podman-compose -p janusgraph-demo exec janusgraph \
 
 ```bash
 # Check active connections
-podman-compose -p janusgraph-demo exec janusgraph netstat -an | grep :8182 | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server netstat -an | grep :8182 | wc -l
 
 # Check connection pool metrics
-curl http://localhost:8182/metrics | grep connection_pool
+curl http://localhost:18182/metrics | grep connection_pool
 ```
 
 **Resolution:**
@@ -470,22 +470,22 @@ du -sh /var/log/* | sort -h | tail -10
 
 ```bash
 # 1. Enable maintenance mode
-curl -X POST http://localhost:8182/admin/maintenance/enable
+curl -X POST http://localhost:18182/admin/maintenance/enable
 
 # 2. Drain connections
-podman-compose -p janusgraph-demo exec janusgraph nodetool drain
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server nodetool drain
 
 # 3. Perform maintenance tasks
 # (updates, configuration changes, etc.)
 
 # 4. Restart services
-podman-compose -p janusgraph-demo restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart
 
 # 5. Verify health
 ./scripts/operations/health_check.py
 
 # 6. Disable maintenance mode
-curl -X POST http://localhost:8182/admin/maintenance/disable
+curl -X POST http://localhost:18182/admin/maintenance/disable
 ```
 
 **Post-Maintenance:**
@@ -509,10 +509,10 @@ certbot renew --dry-run
 certbot renew
 
 # Update certificate in containers
-podman-compose -p janusgraph-demo restart nginx janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart nginx janusgraph
 
 # Verify new certificate
-openssl s_client -connect localhost:8182 -showcerts
+openssl s_client -connect localhost:18182 -showcerts
 ```
 
 ---
@@ -534,14 +534,14 @@ BACKUP_DIR="/backups/daily"
 mkdir -p $BACKUP_DIR
 
 # Backup JanusGraph data
-podman-compose -p janusgraph-demo exec janusgraph nodetool snapshot
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server nodetool snapshot
 
 # Backup Cassandra
-podman-compose -p janusgraph-demo exec hcd nodetool snapshot
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool snapshot
 
 # Copy snapshots
-podman cp janusgraph:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
-podman cp hcd:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
+PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
+PODMAN_CONNECTION=podman-wxd podman --remote cp hcd:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
 
 # Compress backups
 tar -czf $BACKUP_DIR/backup_$DATE.tar.gz $BACKUP_DIR/*_$DATE
@@ -569,13 +569,13 @@ echo "Backup completed: backup_$DATE.tar.gz.gpg"
 BACKUP_FILE=$1
 
 # Stop services
-podman-compose -p janusgraph-demo down
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo down
 
 # Restore from backup
 gpg --decrypt $BACKUP_FILE | tar -xzf - -C /
 
 # Start services
-podman-compose -p janusgraph-demo up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
 
 # Verify recovery
 ./scripts/operations/health_check.py
@@ -593,21 +593,21 @@ See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 **Add JanusGraph Node:**
 
 ```bash
-# Update podman-compose -p janusgraph-demo.yml
-podman-compose -p janusgraph-demo up -d --scale janusgraph=3
+# Update PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
 
 # Verify new nodes
-podman-compose -p janusgraph-demo ps janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps janusgraph-server
 ```
 
 **Add Cassandra Node:**
 
 ```bash
 # Add node to cluster
-podman-compose -p janusgraph-demo up -d --scale hcd=3
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale hcd=3
 
 # Check cluster status
-podman-compose -p janusgraph-demo exec hcd nodetool status
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool status
 ```
 
 ### 7.2 Vertical Scaling
@@ -615,7 +615,7 @@ podman-compose -p janusgraph-demo exec hcd nodetool status
 **Increase Resources:**
 
 ```yaml
-# podman-compose -p janusgraph-demo.yml
+# PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml
 services:
   janusgraph:
     deploy:
@@ -627,7 +627,7 @@ services:
 
 ```bash
 # Apply changes
-podman-compose -p janusgraph-demo up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
 ```
 
 ---
@@ -640,10 +640,10 @@ podman-compose -p janusgraph-demo up -d
 
 ```bash
 # Check for failed authentication attempts
-podman-compose -p janusgraph-demo logs | grep "authentication failed" | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs | grep "authentication failed" | wc -l
 
 # Check for suspicious activity
-podman-compose -p janusgraph-demo logs | grep -E "DROP|DELETE|TRUNCATE" | tail -20
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs | grep -E "DROP|DELETE|TRUNCATE" | tail -20
 
 # Review access logs
 tail -100 /var/log/janusgraph/access.log
@@ -727,19 +727,19 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 
 ```bash
 # Restart all services
-podman-compose -p janusgraph-demo restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart
 
 # View logs
-podman-compose -p janusgraph-demo logs -f janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs -f janusgraph
 
 # Check status
-podman-compose -p janusgraph-demo ps
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
 
 # Execute command in container
-podman-compose -p janusgraph-demo exec janusgraph bash
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server bash
 
 # Scale service
-podman-compose -p janusgraph-demo up -d --scale janusgraph=3
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
 ```
 
 ### Appendix B: Contact Information

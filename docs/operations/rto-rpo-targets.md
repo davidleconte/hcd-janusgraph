@@ -237,7 +237,7 @@ This document defines Recovery Time Objectives (RTO) and Recovery Point Objectiv
 
 ```bash
 # 1. Stop failed instance (5 min)
-podman-compose -p janusgraph-demo stop janusgraph-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop janusgraph-server
 
 # 2. Restore latest backup (30 min)
 ./scripts/restore/restore_janusgraph.sh --backup-id latest
@@ -246,7 +246,7 @@ podman-compose -p janusgraph-demo stop janusgraph-server
 ./scripts/validation/verify_janusgraph_data.sh
 
 # 4. Start service (5 min)
-podman-compose -p janusgraph-demo start janusgraph-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start janusgraph-server
 
 # 5. Validate functionality (15 min)
 ./scripts/validation/test_janusgraph_queries.sh
@@ -258,7 +258,7 @@ podman-compose -p janusgraph-demo start janusgraph-server
 
 ```bash
 # 1. Stop failed node (5 min)
-podman-compose -p janusgraph-demo stop hcd-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop hcd-server-server
 
 # 2. Restore snapshot (45 min)
 ./scripts/restore/restore_hcd.sh --snapshot latest
@@ -267,7 +267,7 @@ podman-compose -p janusgraph-demo stop hcd-server
 nodetool repair janusgraph
 
 # 4. Start node (5 min)
-podman-compose -p janusgraph-demo start hcd-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start hcd-server-server
 
 # 5. Validate (15 min)
 ./scripts/validation/test_hcd_connectivity.sh
@@ -279,7 +279,7 @@ podman-compose -p janusgraph-demo start hcd-server
 
 ```bash
 # 1. Stop failed instance (5 min)
-podman-compose -p janusgraph-demo stop opensearch
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop opensearch
 
 # 2. Restore snapshot (30 min)
 ./scripts/restore/restore_opensearch.sh --snapshot latest
@@ -288,7 +288,7 @@ podman-compose -p janusgraph-demo stop opensearch
 ./scripts/opensearch/reindex_all.sh
 
 # 4. Start service (5 min)
-podman-compose -p janusgraph-demo start opensearch
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start opensearch
 
 # 5. Validate (15 min)
 ./scripts/validation/test_opensearch_queries.sh
@@ -302,7 +302,7 @@ podman-compose -p janusgraph-demo start opensearch
 
 ```bash
 # 1. Stop failed instance (5 min)
-podman-compose -p janusgraph-demo stop pulsar
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop pulsar
 
 # 2. Restore configuration (10 min)
 ./scripts/restore/restore_pulsar_config.sh
@@ -311,7 +311,7 @@ podman-compose -p janusgraph-demo stop pulsar
 ./scripts/pulsar/recreate_topics.sh
 
 # 4. Start service (5 min)
-podman-compose -p janusgraph-demo start pulsar
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start pulsar
 
 # 5. Replay events from backup (120 min)
 ./scripts/pulsar/replay_events.sh --from-backup
