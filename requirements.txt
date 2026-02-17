@@ -200,7 +200,7 @@ packaging==26.0
     #   transformers
 pandas==2.0.0
     # via hcd-janusgraph-banking
-parso==0.8.5
+parso==0.8.6
     # via jedi
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
