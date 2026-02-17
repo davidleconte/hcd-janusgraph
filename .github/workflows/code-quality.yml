@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-formatting-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-formatting-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-formatting-
 
@@ -73,14 +73,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-typecheck-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-typecheck-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-typecheck-
 
       - name: Install dependencies
         run: |
           uv pip install --system mypy types-all
-          uv pip install --system -r requirements-dev.txt || uv pip install --system .
+          uv pip install --system -r requirements-dev.txt
 
       - name: Run mypy
         run: mypy src/ --ignore-missing-imports --python-version=3.11
@@ -106,7 +106,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-security-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-security-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-security-
 
@@ -151,7 +151,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-complexity-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-complexity-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-complexity-
 
@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.11']
     steps:
       - uses: actions/checkout@v4
 
@@ -197,14 +197,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-unittest-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-unittest-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-unittest-${{ matrix.python-version }}-
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements-dev.txt || true
-          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system -r requirements-dev.txt
           uv pip install --system pytest pytest-cov pytest-xdist pytest-timeout
 
       - name: Run unit tests
@@ -265,14 +264,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-integration-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-integration-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-integration-
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements-dev.txt || true
-          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system -r requirements-dev.txt
           uv pip install --system pytest pytest-cov
 
       - name: Wait for JanusGraph
@@ -318,14 +316,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-performance-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-performance-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-performance-
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements-dev.txt || true
-          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py
+          uv pip install --system -r requirements-dev.txt
           uv pip install --system pytest pytest-benchmark
 
       - name: Run performance tests
@@ -385,7 +382,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-docs-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-docs-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-docs-
 
@@ -415,15 +412,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install audit tools
-        run: pip install pip-audit
-
-      - name: Prepare requirements for audit
+      - name: Install uv
         run: |
-          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-audit.txt
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install audit tools
+        run: uv pip install --system pip-audit
 
       - name: Run pip-audit
-        run: pip-audit -r requirements-audit.txt --desc -o audit-report.json -f json || true
+        run: pip-audit -r requirements-security.txt --desc -o audit-report.json -f json || true
 
       - name: Upload audit report
         uses: actions/upload-artifact@v3

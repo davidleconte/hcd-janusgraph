@@ -98,13 +98,14 @@ setup_venv() {
     # shellcheck disable=SC1091
     source "${VENV_DIR}/bin/activate"
 
-    # Upgrade pip
-    print_message "${YELLOW}" "Upgrading pip..."
-    pip install --quiet --upgrade pip
+    if ! command -v uv >/dev/null 2>&1; then
+        print_message "${RED}" "uv is required for deterministic dependency installation"
+        exit 1
+    fi
 
-    # Install requirements
-    print_message "${YELLOW}" "Installing test requirements..."
-    pip install --quiet -r "${TESTS_DIR}/requirements.txt"
+    # Install deterministic locked test requirements
+    print_message "${YELLOW}" "Installing deterministic test requirements..."
+    uv pip install --python "${VENV_DIR}/bin/python" -r "${PROJECT_ROOT}/requirements-dev.txt"
 
     print_message "${GREEN}" "Python environment ready"
 }

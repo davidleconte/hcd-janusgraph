@@ -381,11 +381,15 @@ check_build_prerequisites() {
 check_dependencies() {
     log_section "5. Dependencies"
 
-    # Check requirements files exist
-    log_subsection "Checking requirements files"
+    # Check deterministic dependency files exist
+    log_subsection "Checking dependency lock files"
     local req_files=(
+        "pyproject.toml"
+        "uv.lock"
         "requirements.txt"
         "requirements-dev.txt"
+        "requirements-security.txt"
+        "requirements-tracing.txt"
     )
 
     for req in "${req_files[@]}"; do

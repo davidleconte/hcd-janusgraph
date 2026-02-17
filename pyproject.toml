@@ -46,6 +46,18 @@ dev = [
     "memory-profiler>=0.61.0",
 ]
 
+# CI profile (deterministic)
+ci = [
+    "hcd-janusgraph-banking[dev,security]",
+    "pip-audit>=2.8.0",
+]
+
+# Dependency audit profile
+audit = [
+    "pip-audit>=2.8.0",
+    "safety>=3.0.0",
+]
+
 # Distributed tracing (OpenTelemetry)
 tracing = [
     "opentelemetry-api>=1.21.0",

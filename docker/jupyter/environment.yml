@@ -1,6 +1,5 @@
-# Conda environment for JanusGraph + HCD visualization and analysis
-# Platform: macOS M3 Pro (ARM64)
-# Python version: 3.11.x from conda-forge
+# Deterministic Jupyter bootstrap environment.
+# Python application dependencies are installed from root lock-derived requirements files.
 
 name: janusgraph-analysis
 channels:
@@ -8,60 +7,23 @@ channels:
   - defaults
 
 dependencies:
-  # Python runtime
   - python=3.11
+  - pip=24.3
+  - setuptools=75.8.0
+  - wheel=0.45.1
+  - uv=0.9.27
 
-  # Jupyter ecosystem
-  - jupyterlab>=4.0
-  - notebook>=7.0
-  - ipywidgets>=8.0
-  - ipykernel
+  # Jupyter stack
+  - jupyterlab=4.2.*
+  - notebook=7.2.*
+  - ipywidgets=8.1.*
+  - ipykernel=6.29.*
+  - widgetsnbextension=4.0.*
 
-  # Graph analysis
-  - networkx>=3.0
-  - python-igraph
-  - graph-tool  # Advanced graph analysis (if available on ARM)
-
-  # Visualization
-  - matplotlib>=3.7
-  - seaborn>=0.12
-  - plotly>=5.14
-  - bokeh>=3.0
-  - holoviews
-  - hvplot
-
-  # Data manipulation
-  - pandas>=2.0
-  - numpy>=1.24
-  - scipy>=1.10
-
-  # Interactive widgets
-  - ipywidgets
-  - widgetsnbextension
-
-  # Utilities
-  - python-dotenv
-  - pyyaml
-  - requests
-  - aiohttp
-
-  # Package managers (for pip/uv integration)
-  - pip>=23.0
-  - setuptools
-  - wheel
-
-  # pip packages (JanusGraph client, etc.)
-  - pip:
-      - gremlinpython>=3.7.0  # JanusGraph/Gremlin client
-      - cassandra-driver>=3.28  # CQL client for HCD
-      - opensearch-py>=2.7.1  # OpenSearch client (for banking demos)
-      - pydantic>=2.0.0  # Required by streaming and API modules used in notebooks
-      - pydantic-settings>=2.1.0  # Runtime settings helpers used by API modules
-      - email-validator>=2.2.0  # Required by pydantic EmailStr models
-      - uv>=0.1.0  # Fast Python package installer
-      - pyvis>=0.3.2  # Network visualization
-      - py2neo  # Alternative graph client (Neo4j-compatible API)
-      - graphviz  # Graph rendering
-      - python-louvain  # Community detection
-      - sentence-transformers>=2.2.0  # Text embeddings (for sanctions screening)
-      - faker>=20.0.0  # Fake data generation (for demos)
+  # Notebook visualization utilities
+  - bokeh=3.6.*
+  - holoviews=1.19.*
+  - hvplot=0.11.*
+  - graphviz=12.2.*
+  - python-igraph=0.11.*
+  - python-louvain=0.16

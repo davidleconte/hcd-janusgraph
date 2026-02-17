@@ -20,17 +20,17 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
       - name: Install audit tools
         run: |
-          pip install pip-audit
-
-      - name: Prepare requirements for audit
-        run: |
-          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-audit.txt
-          echo "Auditing $(wc -l < requirements-audit.txt) packages (filtered platform-specific)"
+          uv pip install --system pip-audit
 
       - name: Run pip-audit
-        run: pip-audit -r requirements-audit.txt --desc -o audit-results.json -f json || true
+        run: pip-audit -r requirements-security.txt --desc -o audit-results.json -f json || true
 
       - name: Upload audit results
         uses: actions/upload-artifact@v4

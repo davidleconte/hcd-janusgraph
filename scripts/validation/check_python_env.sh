@@ -169,7 +169,7 @@ check_critical_packages() {
 
     if [[ ${#missing[@]} -gt 0 ]]; then
         log_warning "Missing packages: ${missing[*]}"
-        log_info "Install with: uv pip install -r requirements.txt"
+        log_info "Install with: uv pip install -r requirements-dev.txt"
         return 0  # Warning, not error - packages can be installed
     fi
 
@@ -225,7 +225,7 @@ main() {
         echo "Quick fix:"
         echo "  1. rm -rf .venv  # If exists"
         echo "  2. conda activate $REQUIRED_CONDA_ENV"
-        echo "  3. uv pip install -r requirements.txt"
+        echo "  3. uv pip install -r requirements-dev.txt"
         echo ""
         exit 1
     else

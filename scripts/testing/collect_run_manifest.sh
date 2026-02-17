@@ -58,6 +58,8 @@ collect_dependency_fingerprint() {
     : > "${DEPENDENCY_FINGERPRINT_FILE}"
     local candidate
     for candidate in \
+        "${PROJECT_ROOT}/pyproject.toml" \
+        "${PROJECT_ROOT}/uv.lock" \
         "${PROJECT_ROOT}/requirements.txt" \
         "${PROJECT_ROOT}/docker/api/Dockerfile" \
         "${PROJECT_ROOT}/docker/jupyter/environment.yml"; do

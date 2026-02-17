@@ -366,7 +366,8 @@ ensure_conda_env() {
         conda install -n "${CONDA_ENV_NAME}" -c conda-forge -y uv
     fi
 
-    conda run -n "${CONDA_ENV_NAME}" uv pip install -r "${PROJECT_ROOT}/requirements.txt"
+    conda run -n "${CONDA_ENV_NAME}" uv lock --check
+    conda run -n "${CONDA_ENV_NAME}" uv pip install -r "${PROJECT_ROOT}/requirements-dev.txt"
 }
 
 build_required_images() {

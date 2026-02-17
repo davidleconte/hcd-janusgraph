@@ -27,11 +27,16 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+      - name: Verify lock-derived requirements are in sync
+        run: |
+          scripts/deps/export_locked_requirements.sh
+          git diff --exit-code uv.lock requirements.txt requirements-dev.txt requirements-security.txt requirements-tracing.txt
+
       - name: Cache uv
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-lint-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-lint-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-lint-
 
@@ -75,14 +80,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-test-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-test-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-test-${{ matrix.python-version }}-
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements-dev.txt || true
-          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py pydantic
+          uv pip install --system -r requirements-dev.txt
 
       - name: Run unit tests
         run: |
@@ -158,14 +162,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-integration-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-integration-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-integration-
 
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements-dev.txt || true
-          uv pip install --system -e . || uv pip install --system gremlinpython cassandra-driver opensearch-py pydantic pytest
+          uv pip install --system -r requirements-dev.txt
 
       - name: Wait for JanusGraph
         run: |

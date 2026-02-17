@@ -26,19 +26,22 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+      - name: Verify lock-derived requirements are in sync
+        run: |
+          scripts/deps/export_locked_requirements.sh
+          git diff --exit-code uv.lock requirements.txt requirements-dev.txt requirements-security.txt requirements-tracing.txt
+
       - name: Cache uv
         uses: actions/cache@v4
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-
 
       - name: Install dependencies
         run: |
-          uv pip install --system pytest pytest-cov pytest-asyncio pytest-mock pytest-timeout
-          grep -ivE "appnope|pyobjc|pycairo|pygobject|accelerate|bitsandbytes|triton|torch|sentence.transformers|spacy|thinc|cymem|preshed|murmurhash|srsly|weasel|wasabi|confection|blis|typer" requirements.txt > requirements-ci.txt
-          uv pip install --system -r requirements-ci.txt
+          uv pip install --system -r requirements-dev.txt
           echo "Installed $(uv pip list --system 2>/dev/null | wc -l) packages"
           python -c "import pydantic, starlette, numpy; print('Critical imports OK')"
 
@@ -87,16 +90,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install audit tools
-        run: pip install pip-audit
-
-      - name: Prepare requirements for audit
+      - name: Install uv
         run: |
-          grep -ivE "appnope|pyobjc|pycairo|pygobject" requirements.txt > requirements-audit.txt
-          echo "Auditing $(wc -l < requirements-audit.txt) packages"
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install audit tools
+        run: uv pip install --system pip-audit
 
       - name: Run dependency audit
-        run: pip-audit -r requirements-audit.txt --desc -o security-audit.json -f json || true
+        run: pip-audit -r requirements-security.txt --desc -o security-audit.json -f json || true
 
       - name: Check for hardcoded secrets
         run: |

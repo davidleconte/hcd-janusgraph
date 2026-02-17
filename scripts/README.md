@@ -374,17 +374,17 @@ python scripts/init/init_and_load.py
 chmod +x scripts/path/to/script.sh
 ```
 
-**Docker Not Running**
+**Podman Not Running**
 
 ```bash
-docker ps  # Check if Docker is running
-sudo systemctl start docker  # Start Docker (Linux)
+podman ps  # Check if Podman is running
+podman machine start  # Start Podman machine (macOS)
 ```
 
 **Python Dependencies Missing**
 
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements-dev.txt
 ```
 
 **Port Already in Use**

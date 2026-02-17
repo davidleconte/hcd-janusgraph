@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-docs-${{ hashFiles('**/requirements*.txt') }}
+          key: ${{ runner.os }}-uv-docs-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-uv-docs-
 

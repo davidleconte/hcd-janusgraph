@@ -398,9 +398,8 @@ class SecurityAuditFramework:
         logger.info("Auditing dependencies...")
         
         requirements_files = [
-            self.project_root / "requirements.txt",
+            self.project_root / "requirements-security.txt",
             self.project_root / "requirements-dev.txt",
-            self.project_root / "requirements-security.txt"
         ]
         
         for req_file in requirements_files:

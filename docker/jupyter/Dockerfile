@@ -31,10 +31,16 @@ COPY docker/jupyter/environment.yml /tmp/environment.yml
 RUN conda env create -f /tmp/environment.yml && \
     conda clean -afy
 
+# Copy deterministic dependency inputs
+COPY pyproject.toml uv.lock requirements.txt /workspace/
+
+# Install Python dependencies from lock-derived requirements
+RUN conda run -n janusgraph-analysis uv pip install --system -r /workspace/requirements.txt
+
 # Create workspace directories
 RUN mkdir -p /workspace/notebooks /workspace/data /workspace/exports
 
-# Copy sample notebooks (will be created separately)
+# Copy sample notebooks
 COPY notebooks/ /workspace/notebooks/
 
 # Set up JupyterLab configuration (DEV_MODE controls security)

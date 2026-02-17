@@ -22,18 +22,15 @@ echo "🔧 Activating conda environment: janusgraph-analysis"
 eval "$(conda shell.bash hook)"
 conda activate janusgraph-analysis
 
-# Navigate to banking directory
-cd "$(dirname "$0")/../../banking"
+# Navigate to project root
+cd "$(dirname "$0")/../.."
 
-# Install banking requirements using uv (faster than pip)
-echo "📦 Installing banking dependencies with uv..."
-uv pip install -r requirements.txt
+# Install deterministic locked dependencies
+echo "📦 Installing deterministic dependencies with uv..."
+uv lock --check
+uv pip install -r requirements-dev.txt
 
-# Reinstall gremlinpython (may have been uninstalled by uv)
-echo "📦 Ensuring gremlinpython is installed..."
-uv pip install gremlinpython==3.7.2
-
-echo "� Downloading NLP models..."
+echo "📥 Downloading NLP models..."
 python -m spacy download en_core_web_sm --quiet || echo "⚠️  Skipping spaCy model (can download later)"
 
 echo "📥 Downloading NLTK data..."
