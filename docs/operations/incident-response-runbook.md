@@ -35,7 +35,7 @@
 PODMAN_CONNECTION=podman-wxd podman --remote ps --filter "label=project=janusgraph-demo"
 
 # View logs
-PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1 --tail 100
+PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1 --tail 100
 
 # Restart service
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart janusgraph-server
@@ -174,13 +174,13 @@ PODMAN_CONNECTION=podman-wxd podman --remote inspect janusgraph-demo_janusgraph-
 2. **Review Logs**
 ```bash
 # Recent logs
-PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1 --tail 500
+PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1 --tail 500
 
 # Follow logs
-PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1 --follow
+PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1 --follow
 
 # Search for errors
-PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1 | grep -i error
+PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1 | grep -i error
 ```
 
 3. **Check Metrics**
@@ -223,7 +223,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart <service-
 2. **Clear Cache**
 ```bash
 # JanusGraph cache
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_janusgraph-server_1 \
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_janusgraph-server_1 \
   bin/gremlin.sh -e "graph.tx().rollback(); graph.close()"
 ```
 
@@ -254,7 +254,7 @@ cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
 3. **Data Repair**
 ```bash
 # HCD repair
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_hcd-server_1 nodetool repair janusgraph
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_hcd-server_1 nodetool repair janusgraph
 ```
 
 ### Phase 3: Recovery & Validation (60-120 minutes)
@@ -410,10 +410,10 @@ Key takeaways for future incidents.
 PODMAN_CONNECTION=podman-wxd podman --remote ps | grep janusgraph
 
 # Check logs
-PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1 --tail 100
+PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1 --tail 100
 
 # Check HCD connectivity
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_janusgraph-server_1 \
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_janusgraph-server_1 \
   cqlsh hcd-server -e "DESCRIBE KEYSPACES"
 ```
 
@@ -448,7 +448,7 @@ curl http://localhost:18182/healthz
 curl 'http://localhost:9090/api/v1/query?query=janusgraph_query_duration_seconds'
 
 # Check active queries
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_janusgraph-server_1 \
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_janusgraph-server_1 \
   bin/gremlin.sh -e "graph.tx().getOpenTransactions()"
 
 # Check resource usage
@@ -464,11 +464,11 @@ PODMAN_CONNECTION=podman-wxd podman --remote stats janusgraph-demo_janusgraph-se
 **Resolution:**
 ```bash
 # Kill long-running queries
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_janusgraph-server_1 \
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_janusgraph-server_1 \
   bin/gremlin.sh -e "graph.tx().rollback()"
 
 # Add indices if needed
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_janusgraph-server_1 \
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_janusgraph-server_1 \
   bin/gremlin.sh -e "mgmt = graph.openManagement(); ..."
 
 # Scale resources
@@ -488,10 +488,10 @@ PODMAN_CONNECTION=podman-wxd podman --remote update --cpus 4 --memory 8G janusgr
 ./scripts/validation/verify_janusgraph_data.sh
 
 # Check HCD consistency
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_hcd-server_1 nodetool status
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_hcd-server_1 nodetool status
 
 # Check for split-brain
-PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-server-demo_hcd-server_1 nodetool describecluster
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_hcd-server_1 nodetool describecluster
 ```
 
 **Common Causes:**
@@ -659,10 +659,10 @@ Level 4: CTO/Executive Team
 
 ### Log Locations
 
-- **JanusGraph:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_janusgraph-server_1`
-- **HCD:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_hcd-server_1`
-- **OpenSearch:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_opensearch_1`
-- **API:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-server-demo_analytics-api_1`
+- **JanusGraph:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_janusgraph-server_1`
+- **HCD:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_hcd-server_1`
+- **OpenSearch:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_opensearch_1`
+- **API:** `PODMAN_CONNECTION=podman-wxd podman --remote logs janusgraph-demo_analytics-api_1`
 - **Audit:** `/var/log/janusgraph/audit.log`
 
 ### Documentation

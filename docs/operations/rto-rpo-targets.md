@@ -258,7 +258,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start janusgraph-
 
 ```bash
 # 1. Stop failed node (5 min)
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop hcd-server-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop hcd-server
 
 # 2. Restore snapshot (45 min)
 ./scripts/restore/restore_hcd.sh --snapshot latest
@@ -267,7 +267,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo stop hcd-server-s
 nodetool repair janusgraph
 
 # 4. Start node (5 min)
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start hcd-server-server
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo start hcd-server
 
 # 5. Validate (15 min)
 ./scripts/validation/test_hcd_connectivity.sh

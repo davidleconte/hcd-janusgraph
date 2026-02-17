@@ -135,18 +135,22 @@ Configure in Alertmanager:
 
 View logs:
 
-PODMAN_CONNECTION=podman-wxd podman --remote logs -f janusgraph-server
-PODMAN_CONNECTION=podman-wxd podman --remote logs -f hcd-server
+```bash
+PODMAN_CONNECTION=podman-wxd podman --remote logs -f janusgraph-demo_janusgraph-server_1
+PODMAN_CONNECTION=podman-wxd podman --remote logs -f janusgraph-demo_hcd-server_1
+```
 
 ### Log Rotation
 
-Automatic rotation configured in PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo:
+Automatic rotation configured in the compose stack:
 
+```yaml
 logging:
   driver: json-file
   options:
     max-size: 10m
     max-file: 3
+```
 
 ### Centralized Logging (Optional)
 

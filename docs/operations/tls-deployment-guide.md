@@ -186,10 +186,10 @@ Deploy the full stack with TLS encryption:
 ./scripts/security/generate_certificates.sh
 
 # Deploy with TLS overlay
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
 
 # Or with Podman
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml up -d
 ```
 
 ### Option 2: Deploy Without TLS (Development Only)
@@ -208,10 +208,10 @@ Deploy with monitoring and logging:
 
 ```bash
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo \
-  -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml \
-  -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml \
-  -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.logging.yml \
-  -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.full.yml \
+  -f docker-compose.yml \
+  -f docker-compose.tls.yml \
+  -f docker-compose.logging.yml \
+  -f docker-compose.full.yml \
   up -d
 ```
 
@@ -234,7 +234,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
 
 ```bash
 # Test TLS connection with cqlsh
-PODMAN_CONNECTION=podman-wxd podman --remote exec -it hcd-server cqlsh \
+PODMAN_CONNECTION=podman-wxd podman --remote exec -it janusgraph-demo_hcd-server_1 cqlsh \
   --ssl \
   -u cassandra \
   -p "${HCD_PASSWORD}" \
@@ -344,7 +344,7 @@ rm -rf config/certs/*
 ./scripts/security/generate_certificates.sh
 
 # Restart services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml restart
 ```
 
 #### 2. Connection Refused
@@ -393,7 +393,7 @@ openssl x509 -in config/certs/hcd-server.crt -noout -dates
 ./scripts/security/generate_certificates.sh
 
 # Restart services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml restart
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml restart
 ```
 
 ### Debug Mode
@@ -403,7 +403,7 @@ Enable debug logging for TLS troubleshooting:
 **HCD**:
 
 ```bash
-# Add to PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml
+# Add to docker-compose.tls.yml
 environment:
   - JVM_OPTS=-Djavax.net.debug=ssl:handshake:verbose
 ```
@@ -411,7 +411,7 @@ environment:
 **JanusGraph**:
 
 ```bash
-# Add to PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml
+# Add to docker-compose.tls.yml
 environment:
   - JAVA_OPTIONS=-Djavax.net.debug=ssl:handshake:verbose
 ```
@@ -501,7 +501,7 @@ cp -r config/certs config/certs.backup.$(date +%Y%m%d)
 ./scripts/security/generate_certificates.sh
 
 # 3. Restart services with zero downtime
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.tls.yml \
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.yml -f docker-compose.tls.yml \
   up -d --force-recreate --no-deps hcd-server janusgraph-server
 
 # 4. Verify new certificates

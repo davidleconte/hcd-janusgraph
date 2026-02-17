@@ -172,13 +172,17 @@ wc -l /backups/janusgraph/graph_*.graphml
 
 HCD supports incremental snapshots:
 
-PODMAN_CONNECTION=podman-wxd podman --remote exec hcd-server-server nodetool snapshot
+```bash
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_hcd-server_1 nodetool snapshot
+```
 
 Snapshots stored in HCD data directory.
 
 ### Restore from Snapshot
 
-PODMAN_CONNECTION=podman-wxd podman --remote exec hcd-server-server nodetool refresh janusgraph edgestore
+```bash
+PODMAN_CONNECTION=podman-wxd podman --remote exec janusgraph-demo_hcd-server_1 nodetool refresh janusgraph edgestore
+```
 
 ---
 

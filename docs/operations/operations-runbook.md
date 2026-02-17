@@ -90,13 +90,13 @@ echo "\n=== Health Check Complete ==="
 
 ```bash
 # Check for errors in last 24 hours
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep -i "error\|exception\|fatal"
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep -i "error\|exception\|fatal"
 
 # Check slow queries
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "slow query" | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep "slow query" | wc -l
 
 # Check authentication failures
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph | grep "auth.*fail" | wc -l
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep "auth.*fail" | wc -l
 
 # Generate daily report
 python scripts/operations/generate_daily_report.py
@@ -171,7 +171,7 @@ def check_cassandra():
     import subprocess
     try:
         result = subprocess.run(
-            ['PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo', 'exec', '-T', 'hcd', 'nodetool', 'status'],
+            ['podman-compose', '-p', 'janusgraph-demo', 'exec', '-T', 'hcd-server', 'nodetool', 'status'],
             capture_output=True,
             timeout=10
         )
@@ -509,7 +509,7 @@ certbot renew --dry-run
 certbot renew
 
 # Update certificate in containers
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart nginx janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart nginx janusgraph-server
 
 # Verify new certificate
 openssl s_client -connect localhost:18182 -showcerts
@@ -540,8 +540,8 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-s
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool snapshot
 
 # Copy snapshots
-PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
-PODMAN_CONNECTION=podman-wxd podman --remote cp hcd:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
+PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph-demo_janusgraph-server_1:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
+PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph-demo_hcd-server_1:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
 
 # Compress backups
 tar -czf $BACKUP_DIR/backup_$DATE.tar.gz $BACKUP_DIR/*_$DATE
@@ -593,7 +593,7 @@ See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 **Add JanusGraph Node:**
 
 ```bash
-# Update PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml
+# Update docker-compose.yml
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
 
 # Verify new nodes
@@ -604,7 +604,7 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps janusgraph-ser
 
 ```bash
 # Add node to cluster
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale hcd=3
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale hcd-server=3
 
 # Check cluster status
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool status
@@ -615,9 +615,9 @@ PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server n
 **Increase Resources:**
 
 ```yaml
-# PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.yml
+# docker-compose.yml
 services:
-  janusgraph:
+  janusgraph-server:
     deploy:
       resources:
         limits:
@@ -730,7 +730,7 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart
 
 # View logs
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs -f janusgraph
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs -f janusgraph-server
 
 # Check status
 PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps

@@ -241,8 +241,8 @@ echo "Status: $([ $RECOVERY_TIME -lt 1800 ] && echo 'PASS ✓' || echo 'FAIL ✗
 **Phase 1: Infrastructure (30 min)**
 ```bash
 # Verify Podman machine
-PODMAN_CONNECTION=podman-wxd podman --remote machine list
-PODMAN_CONNECTION=podman-wxd podman --remote machine start
+podman machine list
+podman machine start podman-wxd
 
 # Verify backups
 ls -lh /backup/hcd/hcd-latest.tar.gz
@@ -265,7 +265,7 @@ done
 ```bash
 # Deploy full stack
 cd config/compose
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo.full.yml up -d
+PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
 
 # Wait for services
 sleep 90
