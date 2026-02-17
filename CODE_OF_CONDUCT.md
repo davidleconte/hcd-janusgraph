@@ -15,7 +15,7 @@ Examples of behavior that contributes to a positive environment:
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported to [team@example.com].
+Instances of unacceptable behavior may be reported via [GitHub Issues](https://github.com/davidleconte/hcd-janusgraph/issues/new) or directly to [@davidleconte](https://github.com/davidleconte).
 
 ## Attribution
 

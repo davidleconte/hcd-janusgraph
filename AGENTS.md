@@ -1083,11 +1083,11 @@ Brief overview...
 
 - Security: 95/100
 - Code Quality: 98/100
-- Testing: 90/100
+- Testing: See `docs/project-status.md`
 - Documentation: 95/100
 - Performance: 85/100
 - Maintainability: 95/100
-- Deployment: 90/100
+- Deployment: See `docs/project-status.md`
 - Compliance: 98/100
 
 ### Before Production Deployment
@@ -1283,10 +1283,10 @@ pytest --cov=src --cov=banking --cov-report=html
 
 ### Implementation Reports
 
-- Week 1: Security Hardening (A-, 90/100)
+- Week 1: Security Hardening (historical milestone)
 - Week 2: Monitoring & Observability (A, 95/100)
-- Week 3-4: Test Coverage Expansion (A+, 98/100)
-- Week 6: Compliance Documentation (A+, 98/100)
+- Week 3-4: Test Coverage Expansion (historical milestone)
+- Week 6: Compliance Documentation (historical milestone)
 
 ---
 

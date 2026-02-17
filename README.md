@@ -156,7 +156,7 @@ conda env create -f environment.yml
 conda activate janusgraph-analysis
 ```
 
-**Option B: pip**
+**Option B: pip (Emergency fallback only)**
 
 ```bash
 # Create virtual environment
@@ -583,7 +583,7 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ## Security
 
-Report security vulnerabilities to: [team@example.com](mailto:team@example.com)
+Report security vulnerabilities via: [GitHub private security advisory](https://github.com/davidleconte/hcd-janusgraph/security/advisories/new)
 
 See [SECURITY.md](SECURITY.md) for our security policy.
 
@@ -607,7 +607,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 - **Issues**: [GitHub Issues](https://github.com/davidleconte/hcd-janusgraph/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/davidleconte/hcd-janusgraph/discussions)
-- **Email**: <team@example.com>
+- **Owner**: <https://github.com/davidleconte>
 
 ---
 

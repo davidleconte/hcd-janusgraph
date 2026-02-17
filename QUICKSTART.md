@@ -598,7 +598,7 @@ NETWORK_NAME=hcd-janusgraph-network
 
 - **Issues**: <https://github.com/davidleconte/hcd-janusgraph/issues>
 - **Discussions**: <https://github.com/davidleconte/hcd-janusgraph/discussions>
-- **Email**: <team@example.com>
+- **Owner**: <https://github.com/davidleconte>
 
 ### External Resources
 
@@ -634,4 +634,3 @@ NETWORK_NAME=hcd-janusgraph-network
 ## Status and Verification
 
 Current verified readiness, deployment evidence, and test baseline are maintained in [docs/project-status.md](docs/project-status.md).
-
