@@ -22,6 +22,8 @@ init_common
 # ==============================================================================
 
 main() {
+    CORE_SERVICES_WAIT_SEC="${CORE_SERVICES_WAIT_SEC:-90}"
+
     log_header "HCD + JanusGraph Full Stack Deployment"
     
     # Display configuration
@@ -47,10 +49,10 @@ main() {
     
     # Wait for core services
     log_info "Total Expected: 90-270 seconds (1.5-4.5 minutes)"
-    log_info "Current wait: 90 seconds for core services..."
+    log_info "Current wait: ${CORE_SERVICES_WAIT_SEC} seconds for core services..."
     log_info "(Services continue initializing in background)"
     echo ""
-    sleep 90
+    sleep "${CORE_SERVICES_WAIT_SEC}"
     log_success "Core services should be ready (check health with: podman --remote --connection $PODMAN_CONNECTION ps)"
     echo ""
     

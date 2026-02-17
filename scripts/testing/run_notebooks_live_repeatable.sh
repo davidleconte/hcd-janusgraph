@@ -28,12 +28,16 @@ CONTAINER_NAME="${CONTAINER_NAME:-janusgraph-demo_jupyter_1}"
 CONTAINER_OUT_ROOT="/workspace/exports"
 
 PODMAN_CONNECTION_VALUE="${PODMAN_CONNECTION:-}"
-PODMAN_CONNECTION_VALUE="$(resolve_podman_connection "${PODMAN_CONNECTION_VALUE}")"
+if ! PODMAN_CONNECTION_VALUE="$(resolve_podman_connection "${PODMAN_CONNECTION_VALUE}")"; then
+  echo "Unable to resolve a reachable podman connection for notebook execution."
+  exit 1
+fi
 RUN_ID="${DEMO_RUN_ID:-${DEMO_FIXED_RUN_ID:-live-notebooks-stable-$(date -u +%Y%m%dT%H%M%SZ)}}"
 DEMO_SEED="${DEMO_SEED:-42}"
 DEMO_FORCE_MOCK_PULSAR="${DEMO_FORCE_MOCK_PULSAR:-}"
-PYTHON_HASH_SEED="${PYTHON_HASH_SEED:-0}"
+PYTHON_HASH_SEED="${PYTHON_HASH_SEED:-${PYTHONHASHSEED:-0}}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+TIMEZONE="${TZ:-UTC}"
 
 TOTAL_TIMEOUT_SEC="${DEMO_NOTEBOOK_TOTAL_TIMEOUT:-420}"
 CELL_TIMEOUT_SEC="${DEMO_NOTEBOOK_CELL_TIMEOUT:-180}"
@@ -47,6 +51,7 @@ REPORT_TSV="${LOCAL_OUTDIR}/notebook_run_report.tsv"
 
 export DEMO_FIXED_RUN_ID="${RUN_ID}"
 export DEMO_FIXED_OUTPUT_ROOT="${LOCAL_OUTDIR}"
+export TZ="${TIMEZONE}"
 
 mkdir -p "${LOCAL_OUTDIR}"
 
@@ -147,6 +152,9 @@ run_notebook() {
 
   local -a env_args=(
     -e "PYTHONHASHSEED=${PYTHON_HASH_SEED}"
+    -e "TZ=${TIMEZONE}"
+    -e "LANG=C.UTF-8"
+    -e "LC_ALL=C.UTF-8"
     -e "PYTHONPATH=/workspace:/workspace/banking:/workspace/src/python"
     -e "MPLBACKEND=Agg"
     -e "OPENSEARCH_USE_SSL=false"
@@ -225,17 +233,17 @@ main() {
       fi
     done
   else
-    for nb in "${BANKING_NOTEBOOKS[@]}"; do
+    while IFS= read -r nb; do
       if [[ -f "${nb}" ]]; then
         run_notebook "${nb}"
       fi
-    done
+    done < <(printf '%s\n' "${BANKING_NOTEBOOKS[@]}" | LC_ALL=C sort)
 
-    for nb in "${EXPLORATORY_NOTEBOOKS[@]}"; do
+    while IFS= read -r nb; do
       if [[ -f "${nb}" ]]; then
         run_notebook "${nb}"
       fi
-    done
+    done < <(printf '%s\n' "${EXPLORATORY_NOTEBOOKS[@]}" | LC_ALL=C sort)
   fi
 
   echo ""
