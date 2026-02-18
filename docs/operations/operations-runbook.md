@@ -800,3 +800,39 @@ PODMAN_CONNECTION=$PODMAN_CONNECTION bash scripts/testing/run_notebooks_live_rep
 - R-14..R-18: notebook execution/path/data-handling blockers
 
 Primary reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
+
+---
+
+## 11. Codex Deterministic Proof Status Check (Canonical)
+
+### 11.1 Execute canonical deterministic wrapper
+
+```bash
+export COMPOSE_PROJECT_NAME=janusgraph-demo
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+### 11.2 Validate live services status
+
+```bash
+podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
+```
+
+Expected running set includes:
+- `janusgraph-demo_hcd-server_1`
+- `janusgraph-demo_vault_1`
+- `janusgraph-demo_analytics-api_1`
+- `janusgraph-demo_jupyter_1`
+
+### 11.3 Validate notebook run status evidence
+
+```bash
+test -f exports/deterministic-status.json && cat exports/deterministic-status.json
+find exports -name notebook_run_report.tsv | sort | tail -n 1
+```
+
+Acceptance:
+- wrapper status report exists
+- notebook report exists
+- notebook report shows all notebooks `PASS`

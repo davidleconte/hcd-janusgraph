@@ -65,6 +65,24 @@ PYBIN="python3"
 if ! command -v "${PYBIN}" >/dev/null 2>&1; then
   PYBIN="python"
 fi
+if command -v conda >/dev/null 2>&1; then
+  CONDA_PY="conda run -n janusgraph-analysis python"
+else
+  CONDA_PY=""
+fi
+if [[ -n "${CONDA_PY}" ]]; then
+  ${CONDA_PY} - <<'"'"'PY'"'"'
+import importlib.util
+import os
+import sys
+
+mods = [m.strip() for m in os.environ.get("MODULE_CSV", "").split(",") if m.strip()]
+missing = [m for m in mods if importlib.util.find_spec(m) is None]
+if missing:
+    print("Missing modules: " + ", ".join(missing))
+    raise SystemExit(1)
+PY
+else
 "${PYBIN}" - <<'"'"'PY'"'"'
 import importlib.util
 import os
@@ -76,6 +94,7 @@ if missing:
     print("Missing modules: " + ", ".join(missing))
     raise SystemExit(1)
 PY
+fi
 '
 }
 

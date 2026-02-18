@@ -1,18 +1,14 @@
-# File: .github/workflows/deploy-prod.yml
-# Created: 2026-01-28T10:30:15.890
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-
-name: Deploy to Production
+name: Deploy to Production (Gate Only)
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch:
     inputs:
       version:
-        description: 'Version to deploy (e.g., v1.2.3)'
+        description: "Version to validate (e.g., v1.2.3)"
         required: true
         type: string
       confirm:
-        description: 'Type "CONFIRM" to proceed with production deployment'
+        description: 'Type "CONFIRM" to pass the production gate'
         required: true
         type: string
 
@@ -24,46 +20,26 @@ jobs:
       - name: Validate confirmation
         if: inputs.confirm != 'CONFIRM'
         run: |
-          echo "❌ Deployment cancelled - CONFIRM required"
+          echo "CONFIRM token required"
           exit 1
 
       - name: Validate version format
         run: |
           if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid version: ${{ inputs.version }}"
-            echo "Use semantic version format: vX.Y.Z"
+            echo "Invalid version format: ${{ inputs.version }}"
             exit 1
           fi
 
-  deploy:
-    name: Deploy to Production
+  production-gate:
+    name: Production Gate (No Deployment)
     runs-on: ubuntu-latest
     needs: [validate]
-    environment: production  # Requires manual approval
+    environment: production
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.version }}
 
-      - name: Pre-deployment backup
+      - name: Report status
         run: |
-          echo "📦 Creating backup before deployment"
-          # bash scripts/backup/backup_volumes.sh
-
-      - name: Deploy to production
-        env:
-          PROD_HOST: ${{ secrets.PROD_HOST }}
-          DEPLOY_KEY: ${{ secrets.PROD_DEPLOY_KEY }}
-        run: |
-          echo "🚀 Deploying ${{ inputs.version }} to production"
-          # bash scripts/deployment/deploy_prod.sh
-
-      - name: Run smoke tests
-        run: |
-          echo "🧪 Running production smoke tests"
-          # bash scripts/testing/run_smoke_tests.sh
-
-      - name: Notify deployment
-        if: always()
-        run: |
-          echo "📣 Production deployment ${{ inputs.version }}: ${{ job.status }}"
+          echo "Production gate passed for ${{ inputs.version }}."
+          echo "No deployment action is executed by this workflow."
+          echo "Use approved production runbook and change-management process."

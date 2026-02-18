@@ -1,0 +1,57 @@
+{
+  "results": {
+    "infrastructure": {
+      "ssl_tls_script_exists": true,
+      "ssl_tls_configured": false,
+      "vault_script_exists": true,
+      "vault_configured": true,
+      "monitoring_script_exists": true,
+      "monitoring_configured": true,
+      "backup_script_exists": true,
+      "backup_tested": true,
+      "dr_plan_exists": false
+    },
+    "security": {
+      "startup_validation_exists": true,
+      "rejects_default_passwords": true,
+      "mfa_module_exists": true,
+      "mfa_auth_router_exists": true,
+      "mfa_test_coverage_exists": true,
+      "mfa_login_challenge_flow": true,
+      "mfa_implemented": true,
+      "mfa_planned": false,
+      "audit_logging_exists": true,
+      "audit_event_types": 1,
+      "bandit_available": true,
+      "safety_available": true,
+      "pentest_script_exists": true
+    },
+    "performance": {
+      "load_testing_exists": true,
+      "benchmarks_exist": true,
+      "benchmark_count": 3,
+      "compose_file_exists": true,
+      "resource_limits_configured": true,
+      "auto_scaling_configured": false,
+      "auto_scaling_planned": true
+    },
+    "compliance": {
+      "gdpr_audit_logging": true,
+      "gdpr_data_retention": true,
+      "soc2_access_controls": true,
+      "soc2_audit_trail": true,
+      "bsa_aml_detection": true,
+      "bsa_aml_reporting": true,
+      "audit_trail_complete": true,
+      "audit_retention_365_days": true
+    }
+  },
+  "scores": {
+    "infrastructure": 15,
+    "security": 30,
+    "performance": 20,
+    "compliance": 25,
+    "overall": 90
+  },
+  "timestamp": "2026-02-18T01:00:39.093565"
+}

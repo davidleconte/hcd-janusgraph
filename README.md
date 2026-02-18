@@ -619,3 +619,22 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 ---
 
 **Signature**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
+
+## Codex Canonical Deterministic Command (P0 Governance)
+
+For deterministic full setup + proof runs, use this canonical command path:
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+Optional passthrough examples:
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --dry-run
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --skip-notebooks
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --skip-preflight --skip-deploy
+```
+
+This wrapper is governance-only and delegates execution to `scripts/testing/run_demo_pipeline_repeatable.sh`.

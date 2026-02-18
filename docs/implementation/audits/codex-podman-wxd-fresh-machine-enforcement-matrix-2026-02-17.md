@@ -50,3 +50,12 @@ Use this canonical sequence for fresh-machine proof runs:
 - Final full sweep result: **15/15 PASS, 0 FAIL**
 - Evidence artifact: `exports/live-notebooks-final-20260217T170000Z/notebook_run_report.tsv`
 
+
+## P0 Governance Enforcement Addendum (2026-02-18)
+
+| Remediation ID | Enforced requirement | Canonical documentation location | Enforcement state |
+|---|---|---|---|
+| R-19 | CI deterministic-sensitive path protection is required on PRs | `.github/workflows/determinism-guard.yml`, `scripts/validation/check_determinism_sensitive_paths.sh` | Enforced |
+| R-20 | One canonical deterministic command wrapper is required for proof runs | `README.md`, `QUICKSTART.md`, `AGENTS.md` | Enforced |
+| R-21 | CI quality and security checks are hard-fail in reusable gates | `.github/workflows/quality-gates.yml`, `.github/workflows/security-scan.yml` | Enforced |
+| R-22 | Placeholder deployment workflows are replaced with explicit validation/gate semantics | `.github/workflows/deploy-dev.yml`, `.github/workflows/deploy-prod.yml` | Enforced |

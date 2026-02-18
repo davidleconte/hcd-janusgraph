@@ -165,3 +165,21 @@ The setup is considered fully deterministic when all conditions are true:
 5. Sweep notebooks for explicit ordering and stable dataframe output ordering.
 6. Add CI deterministic workflow and hard gate.
 
+
+## 8. P0 Governance Controls Implemented (2026-02-18)
+
+Implemented without changing deterministic runtime behavior:
+
+1. Canonical CI orchestration (`.github/workflows/ci.yml`) calling reusable quality/security/container gates.
+2. Reusable hard-fail quality/security workflows (`quality-gates.yml`, `security-scan.yml`).
+3. Determinism-sensitive path guard (`determinism-guard.yml`, `check_determinism_sensitive_paths.sh`).
+4. Canonical deterministic wrapper command (`scripts/deployment/deterministic_setup_and_proof_wrapper.sh`).
+5. Documentation enforcement updates across root docs and operational verification docs.
+
+Explicitly deferred in this P0 pass:
+
+- Any changes to dependency pins/lock files.
+- Any changes to compose service definitions/order/ports.
+- Any changes to seed/hash/notebook execution logic.
+
+This preserves current deterministic behavior while hardening governance and enforcement.

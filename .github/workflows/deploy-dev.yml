@@ -1,38 +1,23 @@
-# File: .github/workflows/deploy-dev.yml
-# Created: 2026-01-28T10:30:15.678
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-
-name: Deploy to Development
+name: Deploy to Development (Validation Only)
 
 on:
-  push:
-    branches: [ develop ]
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to Dev Environment
+  validation-only:
+    name: Development Deployment Workflow Guard
     runs-on: ubuntu-latest
     environment: development
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up environment
+      - name: Validate deployment scripts exist
         run: |
-          echo "DEV_HOST=${{ secrets.DEV_HOST }}" >> $GITHUB_ENV
+          test -f scripts/deployment/deploy_full_stack.sh
+          test -f scripts/deployment/stop_full_stack.sh
 
-      - name: Deploy to development
+      - name: Report status
         run: |
-          echo "🚀 Deploying to development environment"
-          # Add actual deployment commands here
-          # bash scripts/deployment/deploy_dev.sh
-
-      - name: Run smoke tests
-        run: |
-          echo "🧪 Running smoke tests"
-          # bash scripts/testing/run_smoke_tests.sh
-
-      - name: Notify deployment
-        if: always()
-        run: |
-          echo "📣 Deployment ${{ job.status }}"
+          echo "This workflow is validation-only."
+          echo "No deployment action is executed from GitHub Actions in this workflow."
+          echo "Use documented operator runbooks for live deployment."

@@ -1,17 +1,9 @@
-# File: .github/workflows/security.yml
-# Created: 2026-01-28T10:30:15.456
-# Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
-
-name: Security
+name: Security (Scheduled)
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'  # Weekly on Sunday
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:  # Manual trigger
+    - cron: "0 0 * * 0"
 
 jobs:
   codeql:
@@ -20,10 +12,11 @@ jobs:
     permissions:
       security-events: write
       contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
+        language: [python]
     steps:
       - uses: actions/checkout@v4
 
@@ -38,10 +31,10 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: /language:${{ matrix.language }}
 
-  dependency-check:
-    name: Dependency Vulnerability Scan
+  dependency-trend:
+    name: Dependency Trend Report
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,59 +42,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - name: Cache uv
-        uses: actions/cache@v3
+      - name: Install security tools
+        run: uv pip install --system pip-audit
+
+      - name: Generate dependency audit report
+        run: pip-audit -r requirements-security.txt --desc -o scheduled-audit-results.json -f json || true
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-security-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-security-
-
-      - name: Install deterministic security dependencies
-        run: uv pip install --system -r requirements-security.txt
-
-      - name: Run safety check
-        run: |
-          safety check --full-report 2>/dev/null || echo "::warning::Some dependencies may have vulnerabilities - review above"
-
-  secret-scan:
-    name: Secret Scanning
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for scanning
-
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  docker-scan:
-    name: Docker Image Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build HCD image
-        run: docker build -f docker/hcd/Dockerfile -t hcd:scan .
-
-      - name: Scan HCD image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'hcd:scan'
-          format: 'sarif'
-          output: 'trivy-docker.sarif'
-
-      - name: Upload Docker scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-docker.sarif'
+          name: scheduled-security-audit
+          path: scheduled-audit-results.json

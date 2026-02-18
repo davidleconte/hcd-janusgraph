@@ -32,3 +32,15 @@ SECURITY.md @davidleconte
 /config/security/ @davidleconte
 /config/vault/ @davidleconte
 /scripts/security/ @davidleconte
+
+# Determinism-sensitive runtime/setup paths (explicit)
+/requirements.lock.txt @davidleconte
+/environment.yml @davidleconte
+/config/compose/docker-compose.full.yml @davidleconte
+/banking/streaming/events.py @davidleconte
+/scripts/testing/run_demo_pipeline_repeatable.sh @davidleconte
+/scripts/testing/run_notebooks_live_repeatable.sh @davidleconte
+/notebooks/ @davidleconte
+/notebooks-exploratory/ @davidleconte
+/scripts/deployment/deterministic_setup_and_proof_wrapper.sh @davidleconte
+/scripts/validation/check_determinism_sensitive_paths.sh @davidleconte

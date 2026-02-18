@@ -1,0 +1,17 @@
+name: Determinism Guard
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  guard:
+    name: Protect determinism-sensitive paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run determinism-sensitive path guard
+        run: bash scripts/validation/check_determinism_sensitive_paths.sh

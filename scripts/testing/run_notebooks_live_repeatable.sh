@@ -191,7 +191,7 @@ run_notebook() {
     "${CONTAINER_NAME}"
     bash
     -lc
-    "cd /workspace && python -m jupyter nbconvert --to notebook --execute ${container_src} --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=${CELL_TIMEOUT_SEC} --log-level INFO --output ${out}"
+    "cd /workspace && conda run -n janusgraph-analysis python -m jupyter nbconvert --to notebook --execute ${container_src} --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=${CELL_TIMEOUT_SEC} --log-level INFO --output ${out}"
   )
 
   if "${cmd[@]}" > "${log}" 2>&1; then

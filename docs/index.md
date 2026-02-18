@@ -373,3 +373,10 @@ Use this matrix with these operational docs:
 - [Deployment Guide](guides/deployment-guide.md)
 - [Deployment Verification](development/deployment-verification.md)
 - [Operations Runbook](operations/operations-runbook.md)
+
+## Deterministic Setup and Proof (Canonical)
+
+- Canonical command: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
+- Deterministic plan: [implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)
+- Enforcement matrix: [implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md](implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md)
+- Deployment verification: [development/deployment-verification.md](development/deployment-verification.md)

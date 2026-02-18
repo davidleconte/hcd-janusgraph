@@ -1,105 +1,43 @@
 name: Container Image Scanning
 
 on:
-  push:
-    branches: [master, main]
-    paths:
-      - 'docker/**'
-      - 'config/compose/**'
-      - 'requirements.txt'
-      - 'pyproject.toml'
-  pull_request:
-    branches: [master, main]
-    paths:
-      - 'docker/**'
-      - 'config/compose/**'
-  schedule:
-    - cron: '0 6 * * 1'
+  workflow_call:
   workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
 
 jobs:
-  trivy-scan:
-    name: Trivy Vulnerability Scan
+  image-scan:
+    name: Trivy Image Scan
     runs-on: ubuntu-latest
     permissions:
       security-events: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         image:
           - dockerfile: docker/api/Dockerfile
-            name: janusgraph-api
-          - dockerfile: docker/consumers/Dockerfile
-            name: janusgraph-consumers
+            name: graph-analytics-api
+          - dockerfile: docker/hcd/Dockerfile
+            name: hcd
     steps:
       - uses: actions/checkout@v4
 
       - name: Build image
-        id: build
-        run: |
-          docker build -t ${{ matrix.image.name }}:scan -f ${{ matrix.image.dockerfile }} . 2>&1
-        continue-on-error: true
+        run: docker build -t ${{ matrix.image.name }}:scan -f ${{ matrix.image.dockerfile }} .
 
-      - name: Run Trivy vulnerability scanner
-        if: steps.build.outcome == 'success'
-        uses: aquasecurity/trivy-action@master
+      - name: Run Trivy vulnerability scanner (blocking)
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          image-ref: '${{ matrix.image.name }}:scan'
-          format: 'sarif'
-          output: 'trivy-${{ matrix.image.name }}.sarif'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '0'
-        continue-on-error: true
+          image-ref: ${{ matrix.image.name }}:scan
+          format: sarif
+          output: trivy-${{ matrix.image.name }}.sarif
+          severity: CRITICAL,HIGH
+          exit-code: "1"
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
-        if: always() && steps.build.outcome == 'success'
+        if: always()
         with:
-          sarif_file: 'trivy-${{ matrix.image.name }}.sarif'
-
-  sbom-generation:
-    name: SBOM Generation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Generate Python SBOM
-        uses: anchore/sbom-action@v0
-        with:
-          path: .
-          format: spdx-json
-          output-file: sbom-python.spdx.json
-
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom
-          path: sbom-python.spdx.json
-
-  dependency-audit:
-    name: Dependency Audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install audit tools
-        run: uv pip install --system pip-audit
-
-      - name: Run pip-audit
-        run: pip-audit -r requirements-security.txt --desc -o audit-results.json -f json || true
-
-      - name: Upload audit results
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-audit-results
-          path: audit-results.json
+          sarif_file: trivy-${{ matrix.image.name }}.sarif

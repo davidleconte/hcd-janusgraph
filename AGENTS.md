@@ -1293,3 +1293,23 @@ pytest --cov=src --cov=banking --cov-report=html
 **Last Updated:** 2026-02-14
 **Version:** 2.1
 **Status:** Active
+
+## Deterministic Setup Governance (P0, Codex)
+
+Use this canonical command for deterministic setup/proof orchestration:
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+Determinism-sensitive paths are protected by CI guard (`.github/workflows/determinism-guard.yml`) and script (`scripts/validation/check_determinism_sensitive_paths.sh`).
+
+Protected scope includes:
+- `requirements.lock.txt`
+- `environment.yml`
+- `config/compose/docker-compose.full.yml`
+- `banking/streaming/events.py`
+- notebook execution scripts and notebook directories
+
+Override requires explicit token: `[determinism-override]` plus reviewer approval.

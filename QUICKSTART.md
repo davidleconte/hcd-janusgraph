@@ -634,3 +634,21 @@ NETWORK_NAME=hcd-janusgraph-network
 ## Status and Verification
 
 Current verified readiness, deployment evidence, and test baseline are maintained in [docs/project-status.md](docs/project-status.md).
+
+## Codex Deterministic Full Setup and Proof (Canonical)
+
+Use this command for the deterministic setup/proof path:
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+Fast checks:
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --dry-run
+make deterministic-proof
+```
+
+For deterministic proof, this canonical path supersedes ad hoc command combinations.

@@ -237,3 +237,28 @@ Reference proof artifact from validated run:
 - `exports/live-notebooks-final-20260217T170000Z/notebook_run_report.tsv`
 
 Reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
+
+## Codex Canonical Deterministic Verification Path (P0)
+
+This canonical path supersedes ad hoc compose command combinations for deterministic proof runs.
+
+### Command
+
+```bash
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+### Required status checks
+
+```bash
+podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
+test -f exports/deterministic-status.json && cat exports/deterministic-status.json
+find exports -name notebook_run_report.tsv | sort | tail -n 1
+```
+
+### Acceptance criteria
+
+- All required services are running/healthy.
+- `exports/deterministic-status.json` exists with `exit_code: 0`.
+- Latest notebook report exists and all notebooks are `PASS`.

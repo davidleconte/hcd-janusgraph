@@ -21,6 +21,7 @@ help:
 	@echo "  Deployment:"
 	@echo "    make build       - Build all Docker images"
 	@echo "    make deploy      - Deploy full stack"
+	@echo "    make deterministic-proof - Run canonical deterministic setup/proof wrapper"
 	@echo "    make stop        - Stop full stack"
 	@echo ""
 	@echo "  Maintenance:"
@@ -86,3 +87,8 @@ clean:
 	@find . -type f -name "*.pyc" -delete
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
+
+.PHONY: deterministic-proof
+
+deterministic-proof:
+	@bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh

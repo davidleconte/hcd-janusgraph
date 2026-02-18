@@ -1,18 +1,16 @@
 name: Quality Gates
 
 on:
-  push:
-    branches: [master, main, develop]
-  pull_request:
-    branches: [master, main, develop]
+  workflow_call:
+  workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: "3.11"
 
 jobs:
   test-coverage:
+    name: Test Coverage (>=60%)
     runs-on: ubuntu-latest
-    name: Test Coverage (≥60%)
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +22,7 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Verify lock-derived requirements are in sync
         run: |
@@ -40,10 +38,7 @@ jobs:
             ${{ runner.os }}-uv-
 
       - name: Install dependencies
-        run: |
-          uv pip install --system -r requirements-dev.txt
-          echo "Installed $(uv pip list --system 2>/dev/null | wc -l) packages"
-          python -c "import pydantic, starlette, numpy; print('Critical imports OK')"
+        run: uv pip install --system -r requirements-dev.txt
 
       - name: Run tests with coverage
         run: |
@@ -62,11 +57,11 @@ jobs:
         if: always()
         with:
           file: ./coverage.xml
-          fail_ci_if_error: false
+          fail_ci_if_error: true
 
   docstring-coverage:
+    name: Docstring Coverage
     runs-on: ubuntu-latest
-    name: Docstring Coverage (≥80%)
     steps:
       - uses: actions/checkout@v4
 
@@ -77,43 +72,10 @@ jobs:
 
       - name: Check docstring coverage
         run: python scripts/docs/doc_coverage.py --report
-        continue-on-error: true
-
-  security-scan:
-    runs-on: ubuntu-latest
-    name: Security Scan
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install audit tools
-        run: uv pip install --system pip-audit
-
-      - name: Run dependency audit
-        run: pip-audit -r requirements-security.txt --desc -o security-audit.json -f json || true
-
-      - name: Check for hardcoded secrets
-        run: |
-          if grep -rE "(password|secret|api_key)\s*=\s*['\"][^'\"]+['\"]" \
-            --include="*.py" --exclude-dir=.git --exclude-dir=tests \
-            src/ banking/ 2>/dev/null | grep -v "example\|placeholder\|changeit\|PLACEHOLDER\|YOUR_"; then
-            echo "::warning::Potential hardcoded secrets found (review manually)"
-          else
-            echo "No obvious hardcoded secrets found"
-          fi
 
   type-check:
-    runs-on: ubuntu-latest
     name: Type Checking
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -125,18 +87,19 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - name: Install mypy
-        run: uv pip install --system mypy types-requests
+      - name: Install dependencies
+        run: |
+          uv pip install --system mypy types-requests
+          uv pip install --system -r requirements-dev.txt
 
       - name: Run mypy
         run: mypy src/ banking/ --ignore-missing-imports
-        continue-on-error: true
 
   code-quality:
+    name: Code Quality (Ruff/Black/Isort)
     runs-on: ubuntu-latest
-    name: Code Quality (Ruff)
     steps:
       - uses: actions/checkout@v4
 
@@ -148,11 +111,16 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
-      - name: Install ruff
-        run: uv pip install --system ruff
+      - name: Install quality tools
+        run: uv pip install --system ruff black isort
 
-      - name: Run ruff linter
+      - name: Run ruff
         run: ruff check src/ banking/ --ignore E501
-        continue-on-error: true
+
+      - name: Run black
+        run: black --check src/ tests/ banking/
+
+      - name: Run isort
+        run: isort --check-only src/ tests/ banking/
