@@ -1313,3 +1313,31 @@ Protected scope includes:
 - notebook execution scripts and notebook directories
 
 Override requires explicit token: `[determinism-override]` plus reviewer approval.
+
+---
+
+## Project Skills (Repository-Local)
+
+To improve delivery speed and consistency for this banking graph platform, use the repository-local skills below.
+
+### Skill catalog
+
+| Skill | Path | Use when |
+|---|---|---|
+| `deterministic-proof-orchestrator` | `skills/deterministic-proof-orchestrator/SKILL.md` | Running or repairing canonical deterministic setup/proof pipeline |
+| `podman-wxd-runtime-doctor` | `skills/podman-wxd-runtime-doctor/SKILL.md` | Podman machine/connection/services are unstable or unclear |
+| `notebook-determinism-enforcer` | `skills/notebook-determinism-enforcer/SKILL.md` | Notebook determinism sweep finds hard/warn patterns |
+| `auth-secrets-hardening` | `skills/auth-secrets-hardening/SKILL.md` | Auth/session tests fail due secret requirements |
+| `dependency-abi-compat-guard` | `skills/dependency-abi-compat-guard/SKILL.md` | Python ABI/import breakage appears (numpy/pandas/sklearn/torch stack) |
+| `quality-gate-repair-assistant` | `skills/quality-gate-repair-assistant/SKILL.md` | Local/CI quality gates fail and need prioritized repair |
+| `banking-compliance-evidence-packager` | `skills/banking-compliance-evidence-packager/SKILL.md` | Need AML/KYC/UBO evidence bundle for audit/stakeholders |
+| `business-scenario-regression` | `skills/business-scenario-regression/SKILL.md` | Validate business-critical banking analytics behavior/regressions |
+| `docs-authority-enforcer` | `skills/docs-authority-enforcer/SKILL.md` | Commands/services/ports docs drift from implemented runtime |
+
+### Usage rules
+
+1. Treat these skills as preferred runbooks before ad-hoc troubleshooting.
+2. For deterministic work, always start with `deterministic-proof-orchestrator`.
+3. For platform failures, chain: `podman-wxd-runtime-doctor` -> `dependency-abi-compat-guard` -> `quality-gate-repair-assistant`.
+4. For banking validation, chain: `business-scenario-regression` -> `banking-compliance-evidence-packager`.
+5. When docs change, run `docs-authority-enforcer` before merge.
