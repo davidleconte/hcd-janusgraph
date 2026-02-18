@@ -4,11 +4,18 @@
 
 **Version:** 1.0.0
 **Date:** 2026-01-30
-**Status:** Complete Outline/Template
+**Status:** Historical Reference (Non-Authoritative Runtime)
 **Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Project:** Hierarchical Content Delivery + JanusGraph Banking Compliance System
 
 ---
+
+> [!WARNING]
+> This document is a historical architecture/template narrative and is not the authoritative runtime/deployment source.
+> For deterministic deployment and proof execution, use:
+> `scripts/deployment/deterministic_setup_and_proof_wrapper.sh` and `scripts/testing/run_demo_pipeline_repeatable.sh`.
+> For latest enforced status, use `docs/project-status.md` and
+> `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`.
 
 ## Document Control
 

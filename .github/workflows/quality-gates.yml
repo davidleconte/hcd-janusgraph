@@ -9,7 +9,7 @@ env:
 
 jobs:
   test-coverage:
-    name: Test Coverage (>=60%)
+    name: Test Coverage (>=70%)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
           PYTHONPATH=. pytest tests/ -v \
             --cov=src --cov=banking \
             --cov-report=xml \
-            --cov-fail-under=60 \
+            --cov-fail-under=70 \
             --timeout=120 \
             --ignore=tests/integration \
             --ignore=tests/benchmarks \

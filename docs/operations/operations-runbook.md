@@ -7,8 +7,16 @@
 - **Owner:** Operations Team
 - **Review Cycle:** Quarterly
 - **On-Call Contact:** <ops-oncall@example.com>
+- **Status:** Legacy narrative reference (not canonical deterministic runtime runbook)
+- **Canonical Runtime Path:** `scripts/deployment/deterministic_setup_and_proof_wrapper.sh`
+- **Canonical Pipeline:** `scripts/testing/run_demo_pipeline_repeatable.sh`
+- **Authoritative Current State:** `docs/project-status.md`
 
 ---
+
+> [!WARNING]
+> Procedures and snippets below include historical examples and may not reflect the current enforced deterministic setup.
+> Use the canonical scripts above for execution and validation.
 
 ## Executive Summary
 

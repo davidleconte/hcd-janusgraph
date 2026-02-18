@@ -3,7 +3,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-NOTEBOOK_DETERMINISM_STRICT="${NOTEBOOK_DETERMINISM_STRICT:-0}"
+NOTEBOOK_DETERMINISM_STRICT="${NOTEBOOK_DETERMINISM_STRICT:-1}"
 
 python3 - "${PROJECT_ROOT}" "${NOTEBOOK_DETERMINISM_STRICT}" <<'PY'
 from __future__ import annotations

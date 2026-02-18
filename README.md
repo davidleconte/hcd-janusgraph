@@ -146,7 +146,7 @@ open http://localhost:8888
 
 Choose ONE of these installation methods:
 
-**Option A: Conda (Recommended)**
+**Option A: Conda + uv (Recommended)**
 
 ```bash
 # Create environment from file
@@ -154,44 +154,45 @@ conda env create -f environment.yml
 
 # Activate
 conda activate janusgraph-analysis
+
+# Install dependencies (mandatory package manager: uv)
+uv pip install -r requirements.txt
 ```
 
-**Option B: pip (Emergency fallback only)**
-
-```bash
-# Create virtual environment
-python3.11 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# For development (includes testing tools)
-pip install -e ".[dev]"
-```
-
-**Option C: uv (Fast)**
+**Option B: uv virtual environment (no conda)**
 
 ```bash
 # Create virtual environment and install
 uv venv --python 3.11
 source .venv/bin/activate
+
+# Install dependencies
 uv pip install -r requirements.txt
+```
+
+**Emergency fallback only (when uv is unavailable): pip**
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ## Deterministic Full Demo Pipeline (MBP Pro)
 
-### One-click command for reproducible demos
+### Canonical deterministic command (CI-equivalent)
 
-Use this command to run a full, repeatable pipeline for MBP Pro demos:
+Use this command to run the full deterministic setup + notebook proof with status JSON:
 
 ```bash
-export COMPOSE_PROJECT_NAME=janusgraph-demo   # optional
-export PODMAN_CONNECTION=<your-podman-connection>  # optional
-./scripts/testing/run_demo_pipeline_repeatable.sh
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate janusgraph-analysis
+export PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd-root}"
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
 ```
 
-Optional flags:
+Direct pipeline invocation remains available:
 
 ```bash
 ./scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
