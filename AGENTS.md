@@ -1401,8 +1401,8 @@ pytest --cov=src --cov=banking --cov-report=html
 
 ---
 
-**Last Updated:** 2026-02-14
-**Version:** 2.1
+**Last Updated:** 2026-02-18
+**Version:** 2.2
 **Status:** Active
 
 ## Deterministic Setup Governance (P0, Codex)
@@ -1424,6 +1424,50 @@ Protected scope includes:
 - notebook execution scripts and notebook directories
 
 Override requires explicit token: `[determinism-override]` plus reviewer approval.
+
+---
+
+## MCP Servers Policy
+
+**Status:** Active  
+**Default Mode:** Read-only  
+**Determinism Priority:** Mandatory (no MCP action may weaken deterministic setup/proof behavior)
+
+### Approved MCP servers
+
+| Server | Purpose | Allowed operations | Forbidden operations | Owner |
+|---|---|---|---|---|
+| GitHub MCP | CI/PR/workflow visibility | Read workflow status, job logs, artifacts metadata, PR/commit status | Force-push, branch protection changes, repo settings changes | Platform |
+| Docs/File MCP | Canonical docs/status retrieval | Read `README.md`, `QUICKSTART.md`, `docs/project-status.md`, implementation/audit docs | Direct file mutation through MCP | Platform |
+| Podman MCP | Runtime health visibility | Read machine/container status, inspect, logs, health checks | Container/image delete, compose up/down, restart/kill (unless explicitly approved by user) | DevOps |
+| Observability MCP | Metrics/log evidence | Read Prometheus/Grafana/Loki queries and dashboards | Alert/rule edits, datasource changes, retention/config changes | SRE |
+| Security MCP | Audit/security evidence | Read dependency scan/secret scan/vuln outputs | Secret writes/rotations, policy mutations, credential export | Security |
+
+### Mandatory rules
+
+1. Read-only by default for all MCP servers.
+2. Any state-changing MCP action requires explicit user request in the current conversation.
+3. Never expose secrets/tokens/keys in outputs; redact by default.
+4. Never run MCP actions that alter seed/state/runtime ordering unless explicitly requested.
+5. Every MCP-derived claim must include source and timestamp.
+6. If MCP data conflicts with canonical scripts, canonical scripts are authoritative.
+7. If MCP is unavailable, fallback to local deterministic scripts and command-line checks.
+
+### Evidence format (required)
+
+For every MCP-based status statement, include:
+
+- `Source`: server + endpoint/resource
+- `Timestamp`: ISO-8601 UTC
+- `Scope`: environment/project (for example `podman-wxd`, `janusgraph-demo`)
+- `Verdict`: pass/fail/unknown
+- `Notes`: concise interpretation
+
+### Change control
+
+1. Adding a new MCP server requires update to this section and security owner approval.
+2. Expanding permissions from read-only requires explicit documented approval in PR.
+3. Determinism-sensitive permissions must be reviewed by Platform + Security.
 
 ---
 
