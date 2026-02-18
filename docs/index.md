@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated:** 2026-02-17
+**Last Updated:** 2026-02-18
 **Project:** HCD + JanusGraph Banking Compliance Platform
 
 Welcome to the comprehensive documentation index for the HCD + JanusGraph project. This index provides quick navigation to all project documentation organized by role and topic.
@@ -12,7 +12,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 **New to the project?** Start here:
 
 1. **README** (see repo root) - Project overview and introduction
-2. **[Quick Start](getting-started/quickstart.md)** - Get started in 5 minutes
+2. **[Quick Start](../QUICKSTART.md)** - Canonical deterministic quick start
 3. **[Setup Guide](guides/setup-guide.md)** - Detailed installation and configuration guide
 4. **AGENTS.md** (see repo root) - AI assistant guidance and project patterns
 5. **[FAQ](FAQ.md)** - Frequently Asked Questions
