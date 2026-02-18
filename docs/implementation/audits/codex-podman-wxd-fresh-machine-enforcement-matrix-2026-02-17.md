@@ -62,3 +62,6 @@ Use this canonical sequence for fresh-machine proof runs:
 
 | R-23 | Deterministic proof CI gate must execute canonical wrapper and publish proof artifacts | `.github/workflows/deterministic-proof.yml` | Enforced |
 | R-24 | Branch protection must require `Deterministic Proof / deterministic-proof` check on `master`/`main` | GitHub branch protection settings (repository admin) | Pending (manual admin action) |
+| R-25 | Mutable local deterministic-path image tags are disallowed (`:latest` removed from compose services) | `config/compose/docker-compose.full.yml` | Enforced |
+| R-26 | Runtime package ABI/package fingerprint (`numpy`/`pandas`/`email-validator`) is captured and included in deterministic manifest checks | `scripts/testing/capture_runtime_package_fingerprint.sh`, `scripts/testing/run_demo_pipeline_repeatable.sh`, `scripts/testing/collect_run_manifest.sh`, `scripts/testing/verify_deterministic_artifacts.sh` | Enforced |
+| R-27 | Notebook determinism static sweep is required in deterministic pipeline before notebook execution (advisory by default, strict via `NOTEBOOK_DETERMINISM_STRICT=1`) | `scripts/testing/check_notebook_determinism_contracts.sh`, `scripts/testing/run_demo_pipeline_repeatable.sh` | Enforced |

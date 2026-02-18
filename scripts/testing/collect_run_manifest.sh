@@ -26,6 +26,7 @@ MANIFEST_FILE="${OUT_DIR}/run_manifest.json"
 DETERMINISTIC_MANIFEST_FILE="${OUT_DIR}/deterministic_manifest.json"
 IMAGE_DIGESTS_FILE="${OUT_DIR}/image_digests.txt"
 DEPENDENCY_FINGERPRINT_FILE="${OUT_DIR}/dependency_fingerprint.txt"
+RUNTIME_PACKAGE_FINGERPRINT_FILE="${OUT_DIR}/runtime_package_fingerprint.txt"
 
 hash_file() {
     local path="$1"
@@ -58,16 +59,34 @@ hash_notebook_report_canonical() {
 
 collect_images() {
     : > "${IMAGE_DIGESTS_FILE}"
+    local config_image image_id state
     while IFS= read -r name; do
         if [[ -z "${name}" ]]; then
             continue
         fi
-        podman --remote --connection "${PODMAN_CONNECTION}" inspect "${name}" \
-            --format '{{.Name}}|{{.Config.Image}}|{{.Image}}|{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' \
-            >> "${IMAGE_DIGESTS_FILE}" 2>/dev/null || true
+
+        config_image="$(
+            podman --remote --connection "${PODMAN_CONNECTION}" inspect "${name}" \
+                --format '{{.Config.Image}}' 2>/dev/null || true
+        )"
+        image_id="$(
+            podman --remote --connection "${PODMAN_CONNECTION}" inspect "${name}" \
+                --format '{{.Image}}' 2>/dev/null || true
+        )"
+        state="$(
+            podman --remote --connection "${PODMAN_CONNECTION}" inspect "${name}" \
+                --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' 2>/dev/null || true
+        )"
+
+        if [[ "${config_image}" == localhost/* ]]; then
+            image_id="local-build"
+        fi
+
+        printf "%s|%s|%s|%s\n" "${name}" "${config_image}" "${image_id}" "${state}" \
+            >> "${IMAGE_DIGESTS_FILE}"
     done < <(podman --remote --connection "${PODMAN_CONNECTION}" ps \
         --filter "label=io.podman.compose.project=${PROJECT_NAME}" \
-        --format '{{.Names}}')
+        --format '{{.Names}}' | LC_ALL=C sort)
 }
 
 collect_dependency_fingerprint() {
@@ -86,6 +105,13 @@ collect_dependency_fingerprint() {
     done
 }
 
+collect_runtime_package_fingerprint() {
+    PODMAN_CONNECTION="${PODMAN_CONNECTION}" \
+        COMPOSE_PROJECT_NAME="${PROJECT_NAME}" \
+        bash "${PROJECT_ROOT}/scripts/testing/capture_runtime_package_fingerprint.sh" \
+        "${RUNTIME_PACKAGE_FINGERPRINT_FILE}"
+}
+
 file_hash_or_missing() {
     local target="$1"
     if [[ -f "${target}" ]]; then
@@ -97,16 +123,18 @@ file_hash_or_missing() {
 
 main() {
     local commit_sha generated_at
-    local notebook_report_hash image_digests_hash dependency_hash
+    local notebook_report_hash image_digests_hash dependency_hash runtime_package_hash
     commit_sha="$(git -C "${PROJECT_ROOT}" rev-parse HEAD 2>/dev/null || echo unknown)"
     generated_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
     collect_images
     collect_dependency_fingerprint
+    collect_runtime_package_fingerprint
 
     notebook_report_hash="$(hash_notebook_report_canonical "${OUT_DIR}/notebook_run_report.tsv")"
     image_digests_hash="$(file_hash_or_missing "${IMAGE_DIGESTS_FILE}")"
     dependency_hash="$(file_hash_or_missing "${DEPENDENCY_FINGERPRINT_FILE}")"
+    runtime_package_hash="$(file_hash_or_missing "${RUNTIME_PACKAGE_FINGERPRINT_FILE}")"
 
     cat > "${MANIFEST_FILE}" <<EOF
 {
@@ -118,6 +146,7 @@ main() {
   "podman_connection":"${PODMAN_CONNECTION}",
   "image_digests_file":"$(basename "${IMAGE_DIGESTS_FILE}")",
   "dependency_fingerprint_file":"$(basename "${DEPENDENCY_FINGERPRINT_FILE}")",
+  "runtime_package_fingerprint_file":"$(basename "${RUNTIME_PACKAGE_FINGERPRINT_FILE}")",
   "deterministic_manifest_file":"$(basename "${DETERMINISTIC_MANIFEST_FILE}")",
   "notebook_report_file":"notebook_run_report.tsv",
   "summary_file":"pipeline_summary.txt"
@@ -131,6 +160,7 @@ EOF
   "compose_project_name":"${PROJECT_NAME}",
   "image_digests_sha256":"${image_digests_hash}",
   "dependency_fingerprint_sha256":"${dependency_hash}",
+  "runtime_package_fingerprint_sha256":"${runtime_package_hash}",
   "notebook_report_sha256":"${notebook_report_hash}"
 }
 EOF

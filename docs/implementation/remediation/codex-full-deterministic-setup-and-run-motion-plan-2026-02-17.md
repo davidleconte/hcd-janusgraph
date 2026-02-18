@@ -158,12 +158,12 @@ The setup is considered fully deterministic when all conditions are true:
 
 ## 7. Initial Implementation Backlog (Concrete)
 
-1. Add deterministic reset flags + implementation in `run_demo_pipeline_repeatable.sh`.
-2. Add deterministic manifest/checksum generation and comparison script.
-3. Pin image references used by deterministic path and record digests.
-4. Add runtime package fingerprint check in notebook pipeline.
-5. Sweep notebooks for explicit ordering and stable dataframe output ordering.
-6. Add CI deterministic workflow and hard gate.
+1. Add deterministic reset flags + implementation in `run_demo_pipeline_repeatable.sh`. **(Implemented)**
+2. Add deterministic manifest/checksum generation and comparison script. **(Implemented)**
+3. Pin image references used by deterministic path and record digests. **(Implemented 2026-02-18)**
+4. Add runtime package fingerprint check in notebook pipeline. **(Implemented 2026-02-18)**
+5. Sweep notebooks for explicit ordering and stable dataframe output ordering. **(Implemented 2026-02-18 via static determinism sweep gate)**
+6. Add CI deterministic workflow and hard gate. **(Implemented; branch protection enablement remains manual admin action)**
 
 
 ## 8. P0 Governance Controls Implemented (2026-02-18)
@@ -183,3 +183,20 @@ Explicitly deferred in this P0 pass:
 - Any changes to seed/hash/notebook execution logic.
 
 This preserves current deterministic behavior while hardening governance and enforcement.
+
+## 9. Deterministic Hardening Addendum (2026-02-18)
+
+Implemented in this pass:
+
+1. Replaced mutable local `:latest` service image tags with pinned local version tags in `config/compose/docker-compose.full.yml`.
+2. Added strict runtime package/ABI fingerprint capture (`numpy`, `pandas`, `email-validator`, full site-packages hash):
+   - `scripts/testing/capture_runtime_package_fingerprint.sh`
+   - integrated into `run_demo_pipeline_repeatable.sh`
+   - integrated into `collect_run_manifest.sh` + `verify_deterministic_artifacts.sh`
+3. Added notebook determinism static sweep gate (advisory by default; strict opt-in):
+   - `scripts/testing/check_notebook_determinism_contracts.sh`
+   - integrated into `run_demo_pipeline_repeatable.sh`
+
+Remaining manual governance action:
+
+- Enable required branch protection check `Deterministic Proof / deterministic-proof` on `master`/`main`.

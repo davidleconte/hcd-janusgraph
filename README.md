@@ -214,11 +214,15 @@ notebooks.log
 notebook_run_report.tsv
 data_generators_smoke.log
 services_snapshot.log
+runtime_package_fingerprint.log
+runtime_package_fingerprint.txt
+notebook_determinism_contracts.log
 pipeline_summary.txt
 ```
 
 `notebook_run_report.tsv` includes notebook-level timeout/exit-code/error-cell metrics.
 `services_snapshot.log` captures container status/ports and startup timestamps for audit evidence.
+`runtime_package_fingerprint.txt` captures deterministic Jupyter runtime package/ABI fingerprint evidence.
 
 Force a specific run id with:
 

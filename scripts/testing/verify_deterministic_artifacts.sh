@@ -61,10 +61,17 @@ manifest_value() {
 main() {
     local file file_hash base_name
     local commit_sha seed baseline_file gate_status
+
+    if [[ ! -f "${OUT_DIR}/runtime_package_fingerprint.txt" ]]; then
+        echo "❌ Missing required runtime package fingerprint: ${OUT_DIR}/runtime_package_fingerprint.txt"
+        exit 1
+    fi
+
     local -a files=(
         "${OUT_DIR}/notebook_run_report.tsv"
         "${OUT_DIR}/image_digests.txt"
         "${OUT_DIR}/dependency_fingerprint.txt"
+        "${OUT_DIR}/runtime_package_fingerprint.txt"
         "${OUT_DIR}/deterministic_manifest.json"
     )
 

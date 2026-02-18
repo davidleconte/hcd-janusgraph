@@ -28,7 +28,7 @@ fi
 # Step 1: Build the exporter image
 echo -e "${BLUE}1️⃣  Building JanusGraph exporter image...${NC}"
 cd "$PROJECT_ROOT"
-podman build -f docker/Dockerfile.exporter -t localhost/janusgraph-exporter:latest .
+podman build -f docker/Dockerfile.exporter -t localhost/janusgraph-exporter:1.0.0 .
 echo -e "${GREEN}✅ Exporter image built${NC}"
 echo ""
 

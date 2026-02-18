@@ -155,7 +155,7 @@ run_cmd() {
             "Deploy Full Stack")
                 echo "G5_DEPLOY_VAULT" > "${FAILED_GATE_FILE}"
                 ;;
-            "Runtime Contracts Validation")
+            "Runtime Contracts Validation"|"Runtime Package Fingerprint Capture"|"Notebook Determinism Static Sweep")
                 echo "G6_RUNTIME_CONTRACT" > "${FAILED_GATE_FILE}"
                 ;;
             "Seed/Validate Demo Graph Data")
@@ -276,6 +276,16 @@ run_cmd "Runtime Contracts Validation" \
     "${REPORT_DIR}/runtime_contracts.log" \
     bash scripts/testing/check_runtime_contracts.sh
 
+run_cmd "Runtime Package Fingerprint Capture" \
+    "scripts/testing/capture_runtime_package_fingerprint.sh ${REPORT_DIR}/runtime_package_fingerprint.txt" \
+    "${REPORT_DIR}/runtime_package_fingerprint.log" \
+    bash scripts/testing/capture_runtime_package_fingerprint.sh "${REPORT_DIR}/runtime_package_fingerprint.txt"
+
+run_cmd "Notebook Determinism Static Sweep" \
+    "scripts/testing/check_notebook_determinism_contracts.sh" \
+    "${REPORT_DIR}/notebook_determinism_contracts.log" \
+    bash scripts/testing/check_notebook_determinism_contracts.sh
+
 if [[ "$SKIP_GRAPH_SEED" == "false" ]]; then
     run_cmd "Seed/Validate Demo Graph Data" \
         "scripts/testing/seed_demo_graph.sh" \
@@ -335,7 +345,7 @@ SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"
     echo "Project: ${PROJECT_NAME}"
     echo "Podman connection: ${PODMAN_CONNECTION}"
     echo "Report directory: ${REPORT_DIR}"
-    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, service-snapshot, notebooks, data-generators, manifest, determinism"
+    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, notebooks, data-generators, manifest, determinism"
     echo "SKIP_PREFLIGHT=${SKIP_PREFLIGHT}"
     echo "SKIP_DEPLOY=${SKIP_DEPLOY}"
     echo "SKIP_NOTEBOOKS=${SKIP_NOTEBOOKS}"

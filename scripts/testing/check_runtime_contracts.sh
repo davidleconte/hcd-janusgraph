@@ -98,6 +98,36 @@ fi
 '
 }
 
+check_numpy_pandas_email_validator_abi() {
+    local container_name="$1"
+
+    podman --remote --connection "${PODMAN_CONNECTION}" exec "${container_name}" bash -lc '
+set -euo pipefail
+if command -v conda >/dev/null 2>&1; then
+  PY_CMD=(conda run -n janusgraph-analysis python)
+elif command -v python3 >/dev/null 2>&1; then
+  PY_CMD=(python3)
+else
+  PY_CMD=(python)
+fi
+"${PY_CMD[@]}" - <<'"'"'PY'"'"'
+import importlib.metadata as md
+import numpy as np
+import pandas as pd
+import email_validator  # noqa: F401
+
+arr = np.array([1, 2, 3], dtype=np.int64)
+df = pd.DataFrame({"v": arr})
+if int(df["v"].sum()) != 6:
+    raise SystemExit("ABI compatibility check failed (numpy/pandas)")
+
+print("numpy=" + np.__version__)
+print("pandas=" + pd.__version__)
+print("email-validator=" + md.version("email-validator"))
+PY
+'
+}
+
 main() {
     local container_list
     local analytics_container
@@ -141,11 +171,17 @@ main() {
     fi
 
     local jupyter_modules
-    jupyter_modules="pydantic,pydantic_settings,email_validator"
+    jupyter_modules="pydantic,pydantic_settings,email_validator,numpy,pandas"
     if check_python_modules "${jupyter_container}" "${jupyter_modules}" >/dev/null 2>&1; then
         pass "Jupyter runtime python modules validated"
     else
         fail "Jupyter runtime python modules check failed"
+    fi
+
+    if check_numpy_pandas_email_validator_abi "${jupyter_container}" >/dev/null 2>&1; then
+        pass "Jupyter numpy/pandas/email-validator ABI compatibility validated"
+    else
+        fail "Jupyter numpy/pandas/email-validator ABI compatibility check failed"
     fi
 
     if podman --remote --connection "${PODMAN_CONNECTION}" exec "${jupyter_container}" bash -lc 'test -d /workspace/notebooks-exploratory && ls /workspace/notebooks-exploratory/*.ipynb >/dev/null 2>&1'; then

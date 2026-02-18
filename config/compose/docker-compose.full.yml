@@ -76,7 +76,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/opensearch/Dockerfile
-    image: localhost/opensearch-jvector:latest
+    image: localhost/opensearch-jvector:1.0.0
     hostname: opensearch
     deploy:
       resources:
@@ -301,7 +301,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/jupyter/Dockerfile
-    image: localhost/jupyter-janusgraph:latest
+    image: localhost/jupyter-janusgraph:1.0.0
     hostname: jupyter-lab
     deploy:
       resources:
@@ -341,7 +341,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/visualizer/Dockerfile
-    image: localhost/janusgraph-visualizer:latest
+    image: localhost/janusgraph-visualizer:1.0.0
     hostname: janusgraph-visualizer
     deploy:
       resources:
@@ -372,7 +372,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/graphexp/Dockerfile
-    image: localhost/graphexp:latest
+    image: localhost/graphexp:1.0.0
     hostname: graphexp
     deploy:
       resources:
@@ -405,7 +405,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/cqlsh/Dockerfile
-    image: localhost/cqlsh-client:latest
+    image: localhost/cqlsh-client:1.0.0
     hostname: cqlsh-client
     deploy:
       resources:
@@ -539,7 +539,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/Dockerfile.exporter
-    image: localhost/janusgraph-exporter:latest
+    image: localhost/janusgraph-exporter:1.0.0
     hostname: janusgraph-exporter
     deploy:
       resources:
@@ -605,7 +605,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/api/Dockerfile
-    image: localhost/analytics-api:latest
+    image: localhost/analytics-api:1.0.0
     hostname: analytics-api
     deploy:
       resources:
@@ -644,7 +644,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/consumers/Dockerfile
-    image: localhost/graph-consumer:latest
+    image: localhost/graph-consumer:1.0.0
     hostname: graph-consumer
     deploy:
       resources:
@@ -672,7 +672,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/consumers/Dockerfile
-    image: localhost/vector-consumer:latest
+    image: localhost/vector-consumer:1.0.0
     hostname: vector-consumer
     deploy:
       resources:
