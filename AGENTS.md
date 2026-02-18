@@ -8,6 +8,117 @@ This file provides guidance to agents when working with code in this repository.
 
 ---
 
+## Operational Control Summary (Authoritative)
+
+### 1) Authoritative commands
+
+Use the commands below as the primary operational source of truth.
+
+| Task | Authoritative Command |
+|---|---|
+| Deterministic full setup + proof | `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` |
+| Repeatable pipeline (direct) | `bash scripts/testing/run_demo_pipeline_repeatable.sh` |
+| Deploy full stack | `cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh` |
+| Stop full stack | `cd config/compose && bash ../../scripts/deployment/stop_full_stack.sh` |
+| Local CI-equivalent quality gates | See `.github/workflows/quality-gates.yml` and run equivalent commands in order |
+| Podman preflight/isolation checks | `bash scripts/validation/preflight_check.sh --strict` and `bash scripts/validation/validate_podman_isolation.sh --strict` |
+
+### 2) Execution profiles
+
+| Profile | Purpose | Command/Entry Point |
+|---|---|---|
+| `dev-fast` | Quick local work without full proof | `bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks` |
+| `deterministic-proof` | Canonical deterministic verdict | `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` |
+| `ci-quality` | Lint/type/coverage/doc quality gates | `.github/workflows/quality-gates.yml` equivalent local commands |
+| `integration-full` | Full integration test pass with live services | `pytest tests/integration/ -v` after deploy and Vault setup |
+
+### 3) Determinism contract
+
+Deterministic pass criteria:
+- Wrapper status file exists at `exports/deterministic-status.json`.
+- `exit_code` is `0`.
+- Notebook report exists and all notebooks are `PASS`.
+- Determinism artifact verification passes (checksums/baseline behavior).
+
+Gate code semantics (from pipeline behavior):
+- `G0_PRECHECK`: preflight/isolation failure
+- `G2_CONNECTION`: no reachable Podman connection
+- `G3_RESET`: deterministic reset failure
+- `G5_DEPLOY_VAULT`: deploy/readiness/Vault-related failure
+- `G6_RUNTIME_CONTRACT`: runtime contract/fingerprint failure
+- `G7_SEED`: graph seed/validation failure
+- `G8_NOTEBOOKS`: notebook run/report failure
+- `G9_DETERMINISM`: deterministic artifact mismatch/failure
+
+### 4) Secrets and test runtime contract
+
+Mandatory for auth/session-sensitive tests and runtime:
+- `api_jwt_secret` must be configured (runtime enforces fail-fast).
+
+Recommended test runtime exports:
+```bash
+export API_JWT_SECRET="test-jwt-secret-not-for-production"
+export api_jwt_secret="$API_JWT_SECRET"
+export VAULT_ADDR="http://localhost:8200"
+export VAULT_TOKEN="${VAULT_ROOT_TOKEN:-}"
+```
+
+If running full integration:
+```bash
+export PULSAR_INTEGRATION=1
+```
+
+### 5) Environment repair playbook (known breakages)
+
+If ABI mismatch appears (`numpy.dtype size changed`):
+```bash
+conda activate janusgraph-analysis
+uv pip install --force-reinstall "numpy==2.2.6" "pandas==2.2.3"
+python -c "import numpy,pandas,sklearn; print(numpy.__version__, pandas.__version__, sklearn.__version__)"
+```
+
+If missing runtime deps for tests:
+```bash
+conda activate janusgraph-analysis
+uv pip install email-validator slowapi opentelemetry-exporter-jaeger
+```
+
+### 6) Docs authority policy
+
+Authoritative runtime docs:
+- `AGENTS.md`
+- `README.md`
+- `QUICKSTART.md`
+- `docs/project-status.md`
+- canonical scripts under `scripts/deployment/` and `scripts/testing/`
+
+Legacy/historical docs must be explicitly marked non-authoritative and/or archived.
+
+### 7) Skill invocation examples
+
+Recommended chains:
+1. Deterministic incident: `deterministic-proof-orchestrator` -> `podman-wxd-runtime-doctor` -> `dependency-abi-compat-guard`
+2. Quality incident: `quality-gate-repair-assistant` -> `auth-secrets-hardening` -> `notebook-determinism-enforcer`
+3. Business validation: `business-scenario-regression` -> `banking-compliance-evidence-packager` -> `docs-authority-enforcer`
+
+### 8) Change safety rules
+
+- Prefer minimal, deterministic-safe patches first.
+- Separate operational fixes from broad formatting sweeps where possible.
+- For notebook edits, preserve business semantics and only remove nondeterminism.
+- Do not weaken security/startup validation to make tests pass; fix test runtime contract instead.
+
+### 9) Owner and review cadence
+
+| Section | Owner | Review Cadence |
+|---|---|---|
+| Authoritative Commands | Platform Engineering | Monthly |
+| Determinism Contract | Platform + QA | Weekly |
+| Secrets/Test Contract | Security + API Owners | Weekly |
+| Repair Playbook | Platform Engineering | Monthly |
+| Docs Authority Policy | Docs + Platform | Monthly |
+| Skills Catalog | Platform Engineering | Monthly |
+
 ## Environment Setup
 
 ### Conda Environment (REQUIRED)
