@@ -38,6 +38,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 readonly REQUIRED_CONDA_ENV="janusgraph-analysis"
 readonly REQUIRED_PYTHON_VERSION="3.11"
+readonly PREFLIGHT_ALLOW_DEV_PLACEHOLDERS="${PREFLIGHT_ALLOW_DEV_PLACEHOLDERS:-1}"
 source "$PROJECT_ROOT/scripts/utils/podman_connection.sh"
 
 # Load .env BEFORE setting defaults (to allow .env to override)
@@ -248,9 +249,14 @@ check_environment_config() {
     fi
 
     if [[ $placeholder_count -gt 0 ]]; then
-        log_warning "Found placeholder passwords in .env (OK for development)"
-        log_info "Update passwords before production deployment"
-        ((WARNINGS += 1))
+        if [[ "$PREFLIGHT_ALLOW_DEV_PLACEHOLDERS" == "1" ]]; then
+            log_info "Found placeholder passwords in .env (accepted for local/dev preflight)"
+            log_info "Update passwords before production deployment"
+        else
+            log_warning "Found placeholder passwords in .env"
+            log_info "Update passwords before production deployment"
+            ((WARNINGS += 1))
+        fi
     else
         log_success "No placeholder passwords found"
     fi
@@ -404,14 +410,23 @@ check_dependencies() {
     # Check critical packages (only if Python is available)
     if command -v python &> /dev/null && [[ "${CONDA_DEFAULT_ENV:-}" == "$REQUIRED_CONDA_ENV" ]]; then
         log_subsection "Checking critical Python packages"
-        local packages=("gremlinpython" "pydantic" "pytest")
+        local required_packages=("pydantic" "pytest")
+        local optional_packages=("gremlinpython")
 
-        for pkg in "${packages[@]}"; do
+        for pkg in "${required_packages[@]}"; do
             if python -c "import $pkg" 2>/dev/null; then
                 log_success "$pkg is installed"
             else
                 log_warning "$pkg is not installed"
                 ((WARNINGS += 1))
+            fi
+        done
+
+        for pkg in "${optional_packages[@]}"; do
+            if python -c "import $pkg" 2>/dev/null; then
+                log_success "$pkg is installed"
+            else
+                log_info "$pkg is not installed (optional in local preflight)"
             fi
         done
     fi

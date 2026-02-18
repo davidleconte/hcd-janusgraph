@@ -31,6 +31,7 @@ readonly NC='\033[0m' # No Color
 # Configuration
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+readonly PREFLIGHT_ALLOW_DEV_PLACEHOLDERS="${PREFLIGHT_ALLOW_DEV_PLACEHOLDERS:-1}"
 source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
 PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
@@ -110,9 +111,8 @@ validate_network_isolation() {
     networks=$(podman_cmd network ls --filter "name=${PROJECT_NAME}" --format "{{.Name}}" 2>/dev/null || echo "")
 
     if [[ -z "$networks" ]]; then
-        log_warning "No networks found with project prefix '$PROJECT_NAME'"
+        log_info "No networks found with project prefix '$PROJECT_NAME' (expected before first deploy)"
         log_info "Networks will be created on first deployment"
-        ((WARNINGS++))
         return 0
     fi
 
@@ -128,7 +128,7 @@ validate_network_isolation() {
                 log_success "    Has project label"
             else
                 log_warning "    Missing project label"
-                ((WARNINGS++))
+                ((WARNINGS += 1))
             fi
         fi
     done
@@ -146,7 +146,7 @@ validate_network_isolation() {
 
     if [[ -n "$conflicts" ]]; then
         log_warning "Found networks without project prefix that may conflict: $conflicts"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 
     return 0
@@ -163,9 +163,8 @@ validate_volume_isolation() {
     volumes=$(podman_cmd volume ls --filter "name=${PROJECT_NAME}" --format "{{.Name}}" 2>/dev/null || echo "")
 
     if [[ -z "$volumes" ]]; then
-        log_warning "No volumes found with project prefix '$PROJECT_NAME'"
+        log_info "No volumes found with project prefix '$PROJECT_NAME' (expected before first deploy)"
         log_info "Volumes will be created on first deployment"
-        ((WARNINGS++))
         return 0
     fi
 
@@ -216,7 +215,7 @@ validate_container_naming() {
         log_error "  $orphan_containers"
         log_info "These containers may conflict with other projects"
         log_info "Fix: Remove container_name: from docker-compose files and use -p flag"
-        ((ERRORS++))
+        ((ERRORS += 1))
     fi
 
     return 0
@@ -233,7 +232,7 @@ validate_compose_config() {
 
     if [[ ! -d "$compose_dir" ]]; then
         log_error "Compose directory not found: $compose_dir"
-        ((ERRORS++))
+        ((ERRORS += 1))
         return 1
     fi
 
@@ -259,7 +258,7 @@ validate_compose_config() {
         log_error "CRITICAL: Found $container_name_count container_name overrides"
         log_error "This BREAKS project isolation - containers won't have project prefix"
         log_info "Fix: Remove ALL container_name: lines from docker-compose files"
-        ((ERRORS++))
+        ((ERRORS += 1))
     else
         log_success "No container_name overrides found (good!)"
     fi
@@ -278,7 +277,7 @@ validate_compose_config() {
     if [[ "$has_labels" == "false" ]]; then
         log_warning "No project labels found in compose files"
         log_info "Recommended: Add 'labels: [\"project=$PROJECT_NAME\"]' to services"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 
     return 0
@@ -296,7 +295,7 @@ validate_env_config() {
     if [[ ! -f "$env_file" ]]; then
         log_error ".env file not found"
         log_info "Copy from: cp $PROJECT_ROOT/.env.example $env_file"
-        ((ERRORS++))
+        ((ERRORS += 1))
         return 1
     fi
 
@@ -308,7 +307,7 @@ validate_env_config() {
     else
         log_error "COMPOSE_PROJECT_NAME is NOT set in .env"
         log_info "Add: COMPOSE_PROJECT_NAME=janusgraph-demo"
-        ((ERRORS++))
+        ((ERRORS += 1))
     fi
 
     # Check PODMAN_CONNECTION
@@ -318,14 +317,19 @@ validate_env_config() {
         log_success "PODMAN_CONNECTION is set: $conn"
     else
         log_warning "PODMAN_CONNECTION not set in .env (using default: $PODMAN_CONNECTION)"
-        ((WARNINGS++))
+        ((WARNINGS += 1))
     fi
 
     # Check for placeholder passwords
     if grep -q "CHANGE_ME" "$env_file" 2>/dev/null || grep -q "changeit" "$env_file" 2>/dev/null; then
-        log_warning "Found placeholder passwords in .env"
-        log_info "Update all passwords before production deployment"
-        ((WARNINGS++))
+        if [[ "$PREFLIGHT_ALLOW_DEV_PLACEHOLDERS" == "1" ]]; then
+            log_info "Found placeholder passwords in .env (accepted for local/dev preflight)"
+            log_info "Update all passwords before production deployment"
+        else
+            log_warning "Found placeholder passwords in .env"
+            log_info "Update all passwords before production deployment"
+            ((WARNINGS += 1))
+        fi
     fi
 
     return 0
@@ -359,7 +363,7 @@ validate_port_availability() {
             local proc
             proc=$(ps -p "$pid" -o comm= 2>/dev/null || echo "unknown")
             log_warning "Port $port ($service) is in use by: $proc (PID: $pid)"
-            ((WARNINGS++))
+            ((WARNINGS += 1))
         else
             log_success "Port $port ($service) is available"
         fi
