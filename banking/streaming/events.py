@@ -10,9 +10,9 @@ Created: 2026-02-04
 Week 2: Event Schema & Producers
 """
 
+import hashlib
 import json
 import uuid
-import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional

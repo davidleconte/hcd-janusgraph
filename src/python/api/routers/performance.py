@@ -165,7 +165,9 @@ def invalidate_cache(request: Request, body: CacheInvalidateRequest):
     """Invalidate cache entries by resource dependency."""
     cache = get_cache()
     cache.invalidate_by_dependency(body.resource)
-    return CacheInvalidateResponse(success=True, message=f"Invalidated entries for resource: {body.resource}")
+    return CacheInvalidateResponse(
+        success=True, message=f"Invalidated entries for resource: {body.resource}"
+    )
 
 
 @router.post("/cache/clear", response_model=CacheInvalidateResponse)

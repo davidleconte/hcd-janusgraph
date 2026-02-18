@@ -1,33 +1,34 @@
 """Tests for banking.data_generators.utils.helpers module - coverage gaps."""
 
-import pytest
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
+import pytest
+
 from banking.data_generators.utils.helpers import (
+    anonymize_account_number,
+    calculate_entity_risk_score,
+    calculate_pattern_confidence,
+    calculate_transaction_risk_score,
+    contains_suspicious_keywords,
+    detect_structuring_pattern,
+    generate_account_number,
+    generate_iban,
+    generate_lei_code,
+    generate_stock_ticker,
+    generate_swift_code,
+    generate_tax_id,
+    hash_pii,
+    is_high_risk_country,
+    is_just_below_threshold,
+    is_round_amount,
+    is_tax_haven,
+    random_amount,
+    random_business_hours_datetime,
     random_choice_weighted,
     random_date_between,
     random_datetime_between,
-    random_business_hours_datetime,
-    random_amount,
     random_just_below_threshold,
-    generate_account_number,
-    generate_iban,
-    generate_swift_code,
-    generate_tax_id,
-    generate_lei_code,
-    generate_stock_ticker,
-    is_round_amount,
-    is_just_below_threshold,
-    is_high_risk_country,
-    is_tax_haven,
-    contains_suspicious_keywords,
-    calculate_transaction_risk_score,
-    calculate_entity_risk_score,
-    detect_structuring_pattern,
-    calculate_pattern_confidence,
-    hash_pii,
-    anonymize_account_number,
 )
 
 
@@ -147,20 +148,31 @@ class TestValidation:
 class TestRiskScoring:
     def test_transaction_risk_high(self):
         score = calculate_transaction_risk_score(
-            Decimal("150000"), "USD", "IR", "KY",
-            is_round=True, is_below_threshold=True, involves_tax_haven=True,
+            Decimal("150000"),
+            "USD",
+            "IR",
+            "KY",
+            is_round=True,
+            is_below_threshold=True,
+            involves_tax_haven=True,
         )
         assert score == 1.0
 
     def test_transaction_risk_low(self):
         score = calculate_transaction_risk_score(
-            Decimal("100"), "USD", "US", "US",
+            Decimal("100"),
+            "USD",
+            "US",
+            "US",
         )
         assert score == 0.0
 
     def test_transaction_risk_medium(self):
         score = calculate_transaction_risk_score(
-            Decimal("60000"), "USD", "US", "GB",
+            Decimal("60000"),
+            "USD",
+            "US",
+            "GB",
         )
         assert 0 < score < 1.0
 
@@ -173,7 +185,8 @@ class TestRiskScoring:
 
     def test_entity_risk_activity(self):
         score = calculate_entity_risk_score(
-            transaction_count=2000, suspicious_activity_count=5,
+            transaction_count=2000,
+            suspicious_activity_count=5,
         )
         assert score > 0
 
@@ -206,14 +219,19 @@ class TestPatternDetection:
 
     def test_calculate_pattern_confidence_high(self):
         score = calculate_pattern_confidence(
-            indicators=["a"] * 10, red_flags=["b"] * 5,
-            total_value=Decimal("2000000"), duration_days=120,
+            indicators=["a"] * 10,
+            red_flags=["b"] * 5,
+            total_value=Decimal("2000000"),
+            duration_days=120,
         )
         assert score == pytest.approx(1.0)
 
     def test_calculate_pattern_confidence_low(self):
         score = calculate_pattern_confidence(
-            indicators=[], red_flags=[], total_value=Decimal("100"), duration_days=1,
+            indicators=[],
+            red_flags=[],
+            total_value=Decimal("100"),
+            duration_days=1,
         )
         assert score == 0.0
 

@@ -229,7 +229,9 @@ class TestVectorConsumerConnection:
     @patch("banking.streaming.vector_consumer.OpenSearch")
     @patch("banking.streaming.vector_consumer.SentenceTransformer")
     @patch.dict("os.environ", {"OPENSEARCH_USE_SSL": "false"})
-    def test_ensure_indices_creates_missing(self, mock_transformer, mock_opensearch_class, mock_pulsar):
+    def test_ensure_indices_creates_missing(
+        self, mock_transformer, mock_opensearch_class, mock_pulsar
+    ):
         """Test index creation for missing indices."""
         # Setup mocks
         mock_client = Mock()
@@ -663,5 +665,6 @@ class TestVectorConsumerContextManager:
         mock_consumer_obj.close.assert_called_once()
         mock_producer.close.assert_called_once()
         mock_client.close.assert_called_once()
+
 
 # Made with Bob

@@ -195,7 +195,9 @@ class TestLifespan:
     @patch("src.python.utils.startup_validation.validate_startup")
     @patch("src.python.utils.tracing.initialize_tracing")
     @patch("src.python.api.main.close_graph_connection")
-    def test_lifespan_happy_path(self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir):
+    def test_lifespan_happy_path(
+        self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir
+    ):
         from fastapi.testclient import TestClient
 
         from src.python.api.main import create_app
@@ -251,7 +253,9 @@ class TestLifespan:
     @patch("src.python.utils.startup_validation.validate_startup")
     @patch("src.python.utils.tracing.initialize_tracing")
     @patch("src.python.api.main.close_graph_connection")
-    def test_lifespan_with_warnings(self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir):
+    def test_lifespan_with_warnings(
+        self, mock_close, mock_tracing, mock_validate, mock_settings, _mock_mkdir
+    ):
         from fastapi.testclient import TestClient
 
         from src.python.api.main import create_app

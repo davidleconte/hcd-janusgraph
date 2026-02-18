@@ -5,7 +5,7 @@ Covers: __init__, _connect, _get_topic, _get_producer, send, send_async,
 send_batch, flush, close, context manager, is_connected, get_stats.
 """
 
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -19,6 +19,7 @@ class TestEntityProducerInit:
     @patch("banking.streaming.producer.pulsar")
     def test_init_defaults(self, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.return_value = Mock()
         producer = EntityProducer()
         assert producer.pulsar_url == EntityProducer.DEFAULT_PULSAR_URL
@@ -33,6 +34,7 @@ class TestEntityProducerInit:
     @patch("banking.streaming.producer.pulsar")
     def test_init_custom(self, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.return_value = Mock()
         producer = EntityProducer(
             pulsar_url="pulsar://custom:6650",
@@ -50,6 +52,7 @@ class TestEntityProducerInit:
     @patch("banking.streaming.producer.PULSAR_AVAILABLE", False)
     def test_init_no_pulsar(self):
         from banking.streaming.producer import EntityProducer
+
         with pytest.raises(ImportError, match="pulsar-client is not installed"):
             EntityProducer()
 
@@ -57,6 +60,7 @@ class TestEntityProducerInit:
     @patch("banking.streaming.producer.pulsar")
     def test_init_connection_failure(self, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.side_effect = Exception("Connection refused")
         with pytest.raises(RuntimeError, match="Failed to connect"):
             EntityProducer()
@@ -69,6 +73,7 @@ class TestEntityProducerTopicRouting:
     @patch("banking.streaming.producer.pulsar")
     def test_get_topic(self, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.return_value = Mock()
         producer = EntityProducer()
         assert producer._get_topic("person") == "persistent://public/banking/persons-events"
@@ -79,6 +84,7 @@ class TestEntityProducerTopicRouting:
     @patch("banking.streaming.producer.CompressionType")
     def test_get_producer_creates_and_caches(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_producer_obj = Mock()
         mock_pulsar.Client.return_value = mock_client
@@ -96,6 +102,7 @@ class TestEntityProducerTopicRouting:
     @patch("banking.streaming.producer.CompressionType")
     def test_get_producer_no_compression(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_pulsar.Client.return_value = mock_client
         mock_client.create_producer.return_value = Mock()
@@ -114,13 +121,16 @@ class TestEntityProducerSend:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_sync(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_pulsar.Client.return_value = mock_client
         mock_client.create_producer.return_value = mock_prod
 
         producer = EntityProducer()
-        event = EntityEvent(entity_id="p-1", event_type="create", entity_type="person", payload={"name": "John"})
+        event = EntityEvent(
+            entity_id="p-1", event_type="create", entity_type="person", payload={"name": "John"}
+        )
         producer.send(event)
         mock_prod.send.assert_called_once()
 
@@ -129,6 +139,7 @@ class TestEntityProducerSend:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_async_with_callback(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_pulsar.Client.return_value = mock_client
@@ -145,6 +156,7 @@ class TestEntityProducerSend:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_not_connected(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.return_value = Mock()
         producer = EntityProducer()
         producer._connected = False
@@ -157,6 +169,7 @@ class TestEntityProducerSend:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_producer_error(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_prod.send.side_effect = Exception("Send failed")
@@ -177,6 +190,7 @@ class TestEntityProducerSendBatch:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_batch_success(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_pulsar.Client.return_value = mock_client
@@ -197,6 +211,7 @@ class TestEntityProducerSendBatch:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_batch_partial_failure(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_prod.send.side_effect = [None, Exception("fail"), None]
@@ -217,6 +232,7 @@ class TestEntityProducerSendBatch:
     @patch("banking.streaming.producer.CompressionType")
     def test_send_batch_multi_topic(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_pulsar.Client.return_value = mock_client
         mock_client.create_producer.return_value = Mock()
@@ -238,6 +254,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_flush(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_pulsar.Client.return_value = mock_client
@@ -253,6 +270,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_close(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_pulsar.Client.return_value = mock_client
@@ -272,6 +290,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_close_producer_error(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_prod = Mock()
         mock_prod.flush.side_effect = Exception("flush error")
@@ -288,6 +307,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_close_client_error(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_client.close.side_effect = Exception("client close error")
         mock_pulsar.Client.return_value = mock_client
@@ -301,6 +321,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_context_manager(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_pulsar.Client.return_value = mock_client
 
@@ -313,6 +334,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.CompressionType")
     def test_get_stats(self, mock_comp, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_client = Mock()
         mock_pulsar.Client.return_value = mock_client
         mock_client.create_producer.return_value = Mock()
@@ -330,6 +352,7 @@ class TestEntityProducerFlushClose:
     @patch("banking.streaming.producer.pulsar")
     def test_is_connected(self, mock_pulsar):
         from banking.streaming.producer import EntityProducer
+
         mock_pulsar.Client.return_value = Mock()
         producer = EntityProducer()
         assert producer.is_connected is True

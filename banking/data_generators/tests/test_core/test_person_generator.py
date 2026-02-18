@@ -129,13 +129,27 @@ class TestPersonGeneratorReproducibility:
         """Test that MasterOrchestrator produces deterministic person output with same seed."""
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
-        config = GenerationConfig(seed=42, person_count=5, company_count=0, account_count=0, transaction_count=0, communication_count=0)
+        config = GenerationConfig(
+            seed=42,
+            person_count=5,
+            company_count=0,
+            account_count=0,
+            transaction_count=0,
+            communication_count=0,
+        )
 
         orch1 = MasterOrchestrator(config)
         orch1.generate_all()
         persons1 = [(p.first_name, p.last_name, p.date_of_birth) for p in orch1.persons]
 
-        config2 = GenerationConfig(seed=42, person_count=5, company_count=0, account_count=0, transaction_count=0, communication_count=0)
+        config2 = GenerationConfig(
+            seed=42,
+            person_count=5,
+            company_count=0,
+            account_count=0,
+            transaction_count=0,
+            communication_count=0,
+        )
         orch2 = MasterOrchestrator(config2)
         orch2.generate_all()
         persons2 = [(p.first_name, p.last_name, p.date_of_birth) for p in orch2.persons]

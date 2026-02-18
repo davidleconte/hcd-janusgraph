@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Embedding Generator for Banking Use Cases
 Generates vector embeddings for text data using sentence-transformers
@@ -8,6 +6,8 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 Created: 2026-01-28
 Phase: 5 (Vector/AI Foundation)
 """
+
+from __future__ import annotations
 
 import logging
 from typing import List, Optional, Union

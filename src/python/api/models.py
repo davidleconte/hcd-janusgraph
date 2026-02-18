@@ -8,9 +8,9 @@ Enhanced with comprehensive validation for security.
 
 from typing import Annotated, Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator, StringConstraints
+from pydantic import BaseModel, Field, StringConstraints, field_validator
 
-from src.python.utils.validation import Validator, ValidationError
+from src.python.utils.validation import ValidationError, Validator
 
 
 class ErrorResponse(BaseModel):
@@ -47,16 +47,15 @@ class UBORequest(BaseModel):
     """Request for UBO discovery with validation."""
 
     company_id: Annotated[
-        str,
-        StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
+        str, StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
     ] = Field(..., description="Company ID to analyze (alphanumeric, hyphens, underscores only)")
     include_indirect: bool = Field(True, description="Include indirect ownership")
     max_depth: int = Field(10, description="Maximum ownership chain depth", ge=1, le=20)
     ownership_threshold: float = Field(
         25.0, description="Minimum ownership percentage", ge=0, le=100
     )
-    
-    @field_validator('company_id')
+
+    @field_validator("company_id")
     @classmethod
     def validate_company_id(cls, v: str) -> str:
         """Validate company ID format and sanitize."""
@@ -93,28 +92,19 @@ class StructuringAlertRequest(BaseModel):
     """Request for structuring detection with validation."""
 
     account_id: Optional[
-        Annotated[
-            str,
-            StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
-        ]
-    ] = Field(None, description="Specific account to analyze (alphanumeric, hyphens, underscores only)")
+        Annotated[str, StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")]
+    ] = Field(
+        None, description="Specific account to analyze (alphanumeric, hyphens, underscores only)"
+    )
     time_window_days: int = Field(7, description="Days to analyze", ge=1, le=90)
     threshold_amount: float = Field(
-        10000.0,
-        description="CTR threshold amount",
-        ge=0.01,
-        le=1_000_000_000.00
+        10000.0, description="CTR threshold amount", ge=0.01, le=1_000_000_000.00
     )
-    min_transaction_count: int = Field(
-        3,
-        description="Minimum transactions to flag",
-        ge=1,
-        le=1000
-    )
+    min_transaction_count: int = Field(3, description="Minimum transactions to flag", ge=1, le=1000)
     offset: int = Field(0, ge=0, description="Number of items to skip")
     limit: int = Field(50, ge=1, le=500, description="Maximum items to return")
-    
-    @field_validator('account_id')
+
+    @field_validator("account_id")
     @classmethod
     def validate_account_id(cls, v: Optional[str]) -> Optional[str]:
         """Validate account ID if provided."""
@@ -124,8 +114,8 @@ class StructuringAlertRequest(BaseModel):
             return Validator.validate_account_id(v)
         except ValidationError as e:
             raise ValueError(f"Invalid account_id: {e}")
-    
-    @field_validator('threshold_amount')
+
+    @field_validator("threshold_amount")
     @classmethod
     def validate_amount(cls, v: float) -> float:
         """Validate amount using Decimal for precision."""

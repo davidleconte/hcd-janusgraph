@@ -24,7 +24,6 @@ from banking.streaming.producer import (
     get_producer,
 )
 
-
 # ============================================================================
 # Batching Tests
 # ============================================================================
@@ -680,9 +679,7 @@ class TestProducerPerformance:
 
         # Send events to 5 different topics
         for i in range(200):
-            entity_type = ["person", "account", "transaction", "company", "communication"][
-                i % 5
-            ]
+            entity_type = ["person", "account", "transaction", "company", "communication"][i % 5]
             event = EntityEvent(
                 entity_id=f"{entity_type}-{i}",
                 event_type="create",
@@ -789,5 +786,6 @@ class TestProducerIntegration:
         assert len(producer.events) == 10
 
         producer.close()
+
 
 # Made with Bob

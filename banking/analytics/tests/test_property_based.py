@@ -12,8 +12,8 @@ Date: 2026-02-11
 from decimal import Decimal
 from typing import List
 
-from hypothesis import given, settings, strategies as st
-
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 # ============================================================================
 # Helper Functions for Test Data
@@ -69,7 +69,7 @@ class TestStructuringDetectionProperties:
         """Property: Repeated similar amounts should be flagged."""
         # Create transactions with same amount
         transactions = [amount] * count
-        
+
         # If we have multiple transactions with same amount, it's suspicious
         if count >= 3:
             # This pattern should be detectable
@@ -80,17 +80,15 @@ class TestStructuringDetectionProperties:
         count=st.integers(min_value=3, max_value=10),
     )
     @settings(max_examples=20)
-    def test_just_below_threshold_pattern(
-        self, base_amount: Decimal, count: int
-    ) -> None:
+    def test_just_below_threshold_pattern(self, base_amount: Decimal, count: int) -> None:
         """Property: Amounts just below reporting threshold are suspicious."""
         # Amounts just below $10,000 threshold
         threshold = Decimal("10000")
-        
+
         # Verify amounts are just below threshold (within 10%)
         assert base_amount < threshold
         assert base_amount >= Decimal("9100")  # At least 91% of threshold
-        
+
         # Multiple such transactions should be flagged
         if count >= 3:
             assert count >= 3  # Pattern exists
@@ -113,7 +111,7 @@ class TestStructuringDetectionProperties:
                 risk = float(amount / threshold)
             else:
                 risk = 1.0
-            
+
             assert 0.0 <= risk <= 1.0
 
 
@@ -140,9 +138,7 @@ class TestInsiderTradingDetectionProperties:
         price_after=st.decimals(min_value=Decimal("10"), max_value=Decimal("100")),
     )
     @settings(max_examples=30)
-    def test_price_movement_calculation(
-        self, price_before: Decimal, price_after: Decimal
-    ) -> None:
+    def test_price_movement_calculation(self, price_before: Decimal, price_after: Decimal) -> None:
         """Property: Price movement calculation is consistent."""
         if price_before > 0:
             movement = abs((price_after - price_before) / price_before)
@@ -156,9 +152,7 @@ class TestInsiderTradingDetectionProperties:
         avg_volume=st.decimals(min_value=Decimal("1000"), max_value=Decimal("1000000")),
     )
     @settings(max_examples=30)
-    def test_volume_anomaly_detection(
-        self, trade_volume: Decimal, avg_volume: Decimal
-    ) -> None:
+    def test_volume_anomaly_detection(self, trade_volume: Decimal, avg_volume: Decimal) -> None:
         """Property: Unusual volume is detected."""
         if avg_volume > 0:
             volume_ratio = trade_volume / avg_volume
@@ -217,9 +211,7 @@ class TestTBMLDetectionProperties:
         unit_price=st.decimals(min_value=Decimal("1"), max_value=Decimal("1000")),
     )
     @settings(max_examples=30)
-    def test_total_value_calculation(
-        self, quantity: Decimal, unit_price: Decimal
-    ) -> None:
+    def test_total_value_calculation(self, quantity: Decimal, unit_price: Decimal) -> None:
         """Property: Total trade value is calculated correctly."""
         total_value = quantity * unit_price
         assert total_value >= 0
@@ -268,7 +260,7 @@ class TestTBMLDetectionProperties:
         """Property: Jurisdiction risk is assessed correctly."""
         origin_risk = origin_country in high_risk_countries
         dest_risk = destination_country in high_risk_countries
-        
+
         # If either jurisdiction is high-risk, trade should be flagged
         is_high_risk_trade = origin_risk or dest_risk
         assert isinstance(is_high_risk_trade, bool)
@@ -287,33 +279,24 @@ class TestCrossModuleProperties:
         data_count=st.integers(min_value=0, max_value=100),
     )
     @settings(max_examples=20)
-    def test_all_detectors_handle_empty_data(
-        self, threshold: float, data_count: int
-    ) -> None:
+    def test_all_detectors_handle_empty_data(self, threshold: float, data_count: int) -> None:
         """Property: All detectors handle empty/minimal data gracefully."""
         assert 0.0 <= threshold <= 1.0
         assert data_count >= 0
 
-    @given(
-        risk_scores=st.lists(
-            st.floats(min_value=0.0, max_value=1.0), min_size=1, max_size=50
-        )
-    )
+    @given(risk_scores=st.lists(st.floats(min_value=0.0, max_value=1.0), min_size=1, max_size=50))
     @settings(max_examples=20)
     def test_risk_scores_always_normalized(self, risk_scores: List[float]) -> None:
         """Property: All risk scores are normalized to [0, 1]."""
         for score in risk_scores:
             assert 0.0 <= score <= 1.0
 
-    @given(
-        detection_results=st.lists(st.booleans(), min_size=1, max_size=100)
-    )
+    @given(detection_results=st.lists(st.booleans(), min_size=1, max_size=100))
     @settings(max_examples=20)
-    def test_detection_results_are_boolean(
-        self, detection_results: List[bool]
-    ) -> None:
+    def test_detection_results_are_boolean(self, detection_results: List[bool]) -> None:
         """Property: All detection results are boolean."""
         for result in detection_results:
             assert isinstance(result, bool)
+
 
 # Made with Bob

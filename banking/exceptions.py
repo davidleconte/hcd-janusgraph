@@ -508,4 +508,5 @@ def is_critical_banking_error(error: Exception) -> bool:
     )
     return isinstance(error, critical_types)
 
+
 # Made with Bob

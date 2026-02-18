@@ -83,8 +83,12 @@ class TestHealthAndStats:
         mock_g.next.return_value = 10
         stats = repo.graph_stats()
         assert set(stats.keys()) == {
-            "vertex_count", "edge_count", "person_count",
-            "company_count", "account_count", "transaction_count",
+            "vertex_count",
+            "edge_count",
+            "person_count",
+            "company_count",
+            "account_count",
+            "transaction_count",
         }
 
     def test_health_check_success(self, repo):
@@ -134,8 +138,17 @@ class TestAMLStructuring:
         mock_anon = MagicMock()
         mock_anon.return_value = mock_anon
         for attr in (
-            "outE", "inV", "in_", "outV", "values", "coalesce", "constant",
-            "count", "sum", "fold", "is_",
+            "outE",
+            "inV",
+            "in_",
+            "outV",
+            "values",
+            "coalesce",
+            "constant",
+            "count",
+            "sum",
+            "fold",
+            "is_",
         ):
             setattr(mock_anon, attr, MagicMock(return_value=mock_anon))
         monkeypatch.setattr("src.python.repository.graph_repository.__", mock_anon)

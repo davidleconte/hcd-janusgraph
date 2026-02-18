@@ -3,15 +3,13 @@ Comprehensive coverage tests for pattern generators.
 Covers fraud_ring, tbml, and insider_trading pattern generators.
 """
 
-import random
 from decimal import Decimal
-from unittest.mock import patch
-
-import pytest
 
 from banking.data_generators.patterns.fraud_ring_pattern_generator import FraudRingPatternGenerator
+from banking.data_generators.patterns.insider_trading_pattern_generator import (
+    InsiderTradingPatternGenerator,
+)
 from banking.data_generators.patterns.tbml_pattern_generator import TBMLPatternGenerator
-from banking.data_generators.patterns.insider_trading_pattern_generator import InsiderTradingPatternGenerator
 
 
 class TestFraudRingPatternGeneratorCoverage:
@@ -29,17 +27,26 @@ class TestFraudRingPatternGeneratorCoverage:
             pattern_type="money_mule_network", ring_size=5, transaction_count=15, duration_days=30
         )
         assert pattern.metadata["pattern_subtype"] == "money_mule_network"
-        assert "money_mule_activity" in pattern.indicators or "hub_and_spoke_pattern" in pattern.indicators
+        assert (
+            "money_mule_activity" in pattern.indicators
+            or "hub_and_spoke_pattern" in pattern.indicators
+        )
 
     def test_generate_account_takeover_ring(self):
         pattern = self.gen.generate(
-            pattern_type="account_takeover_ring", ring_size=4, transaction_count=10, duration_days=14
+            pattern_type="account_takeover_ring",
+            ring_size=4,
+            transaction_count=10,
+            duration_days=14,
         )
         assert pattern.metadata["pattern_subtype"] == "account_takeover_ring"
 
     def test_generate_synthetic_identity_fraud(self):
         pattern = self.gen.generate(
-            pattern_type="synthetic_identity_fraud", ring_size=3, transaction_count=10, duration_days=60
+            pattern_type="synthetic_identity_fraud",
+            ring_size=3,
+            transaction_count=10,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "synthetic_identity_fraud"
 
@@ -128,47 +135,73 @@ class TestTBMLPatternGeneratorCoverage:
 
     def test_generate_over_invoicing(self):
         pattern, txns, docs = self.gen.generate(
-            pattern_type="over_invoicing", entity_count=3, document_count=5, transaction_count=5, duration_days=60
+            pattern_type="over_invoicing",
+            entity_count=3,
+            document_count=5,
+            transaction_count=5,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "over_invoicing"
 
     def test_generate_under_invoicing(self):
         pattern, txns, docs = self.gen.generate(
-            pattern_type="under_invoicing", entity_count=2, document_count=4, transaction_count=4, duration_days=60
+            pattern_type="under_invoicing",
+            entity_count=2,
+            document_count=4,
+            transaction_count=4,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "under_invoicing"
 
     def test_generate_phantom_shipping(self):
         pattern, txns, docs = self.gen.generate(
-            pattern_type="phantom_shipping", entity_count=2, document_count=4, transaction_count=4, duration_days=60
+            pattern_type="phantom_shipping",
+            entity_count=2,
+            document_count=4,
+            transaction_count=4,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "phantom_shipping"
 
     def test_generate_multiple_invoicing(self):
         pattern, txns, docs = self.gen.generate(
-            pattern_type="multiple_invoicing", entity_count=2, document_count=5, transaction_count=5, duration_days=60
+            pattern_type="multiple_invoicing",
+            entity_count=2,
+            document_count=5,
+            transaction_count=5,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "multiple_invoicing"
 
     def test_generate_carousel_fraud(self):
         pattern, txns, docs = self.gen.generate(
-            pattern_type="carousel_fraud", entity_count=3, document_count=5, transaction_count=5, duration_days=60
+            pattern_type="carousel_fraud",
+            entity_count=3,
+            document_count=5,
+            transaction_count=5,
+            duration_days=60,
         )
         assert pattern.metadata["pattern_subtype"] == "carousel_fraud"
 
     def test_generate_with_existing_entities(self):
         existing = ["COM-001", "COM-002", "COM-003"]
         pattern, txns, docs = self.gen.generate(
-            entity_count=2, document_count=3, transaction_count=3, duration_days=60,
-            existing_entity_ids=existing
+            entity_count=2,
+            document_count=3,
+            transaction_count=3,
+            duration_days=60,
+            existing_entity_ids=existing,
         )
         assert pattern.pattern_type == "tbml"
 
     def test_generate_with_fewer_existing_entities(self):
         existing = ["COM-001"]
         pattern, txns, docs = self.gen.generate(
-            entity_count=3, document_count=3, transaction_count=3, duration_days=60,
-            existing_entity_ids=existing
+            entity_count=3,
+            document_count=3,
+            transaction_count=3,
+            duration_days=60,
+            existing_entity_ids=existing,
         )
         assert pattern.pattern_type == "tbml"
 
@@ -182,7 +215,10 @@ class TestTBMLPatternGeneratorCoverage:
         pattern, txns, docs = self.gen.generate(
             entity_count=5, document_count=15, transaction_count=15, duration_days=60
         )
-        assert "multiple_entities_involved" in pattern.indicators or "high_volume_trade_activity" in pattern.indicators
+        assert (
+            "multiple_entities_involved" in pattern.indicators
+            or "high_volume_trade_activity" in pattern.indicators
+        )
 
     def test_risk_level_critical(self):
         risk = self.gen._determine_risk_level(0.9, Decimal("20000000"))
@@ -242,47 +278,60 @@ class TestInsiderTradingPatternGeneratorCoverage:
 
     def test_generate_pre_announcement(self):
         pattern, trades, comms = self.gen.generate(
-            pattern_type="pre_announcement_trading", entity_count=3, trade_count=10, days_before_announcement=5
+            pattern_type="pre_announcement_trading",
+            entity_count=3,
+            trade_count=10,
+            days_before_announcement=5,
         )
         assert pattern.metadata["pattern_subtype"] == "pre_announcement_trading"
 
     def test_generate_coordinated(self):
         pattern, trades, comms = self.gen.generate(
-            pattern_type="coordinated_insider_trading", entity_count=4, trade_count=10, days_before_announcement=20
+            pattern_type="coordinated_insider_trading",
+            entity_count=4,
+            trade_count=10,
+            days_before_announcement=20,
         )
         assert "coordinated_trading_pattern" in pattern.indicators
 
     def test_generate_executive(self):
         pattern, trades, comms = self.gen.generate(
-            pattern_type="executive_trading_pattern", entity_count=2, trade_count=8, days_before_announcement=15
+            pattern_type="executive_trading_pattern",
+            entity_count=2,
+            trade_count=8,
+            days_before_announcement=15,
         )
         assert pattern.metadata["pattern_subtype"] == "executive_trading_pattern"
 
     def test_generate_beneficial_owner(self):
         pattern, trades, comms = self.gen.generate(
-            pattern_type="beneficial_owner_pattern", entity_count=3, trade_count=10, days_before_announcement=30
+            pattern_type="beneficial_owner_pattern",
+            entity_count=3,
+            trade_count=10,
+            days_before_announcement=30,
         )
         assert pattern.metadata["pattern_subtype"] == "beneficial_owner_pattern"
 
     def test_generate_tipping(self):
         pattern, trades, comms = self.gen.generate(
-            pattern_type="tipping_pattern", entity_count=3, trade_count=10, days_before_announcement=20
+            pattern_type="tipping_pattern",
+            entity_count=3,
+            trade_count=10,
+            days_before_announcement=20,
         )
         assert "information_sharing_detected" in pattern.indicators
 
     def test_generate_with_existing_entities(self):
         existing = ["PER-001", "PER-002", "PER-003"]
         pattern, trades, comms = self.gen.generate(
-            entity_count=2, trade_count=5, days_before_announcement=10,
-            existing_entity_ids=existing
+            entity_count=2, trade_count=5, days_before_announcement=10, existing_entity_ids=existing
         )
         assert pattern.pattern_type == "insider_trading"
 
     def test_generate_with_fewer_existing(self):
         existing = ["PER-001"]
         pattern, trades, comms = self.gen.generate(
-            entity_count=3, trade_count=5, days_before_announcement=10,
-            existing_entity_ids=existing
+            entity_count=3, trade_count=5, days_before_announcement=10, existing_entity_ids=existing
         )
         assert len(pattern.entity_ids) >= 1
 
@@ -328,6 +377,7 @@ class TestInsiderTradingPatternGeneratorCoverage:
 
     def test_red_flags_large_trades(self):
         from unittest.mock import MagicMock
+
         trade = MagicMock()
         trade.total_value = 200000
         flags = self.gen._generate_red_flags("coordinated_insider_trading", [trade], [], 5)
@@ -336,6 +386,7 @@ class TestInsiderTradingPatternGeneratorCoverage:
 
     def test_red_flags_very_large_trades(self):
         from unittest.mock import MagicMock
+
         trade = MagicMock()
         trade.total_value = 2000000
         flags = self.gen._generate_red_flags("executive_trading_pattern", [trade], [], 5)

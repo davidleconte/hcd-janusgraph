@@ -1,11 +1,14 @@
 """Tests for banking.streaming consumer modules using mocks."""
-import pytest
+
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
+
+import pytest
 
 from banking.streaming.events import EntityEvent
-from banking.streaming.graph_consumer import GraphConsumer, PULSAR_AVAILABLE, GREMLIN_AVAILABLE
-from banking.streaming.vector_consumer import VectorConsumer, PULSAR_AVAILABLE as VP_AVAILABLE
+from banking.streaming.graph_consumer import GREMLIN_AVAILABLE, PULSAR_AVAILABLE, GraphConsumer
+from banking.streaming.vector_consumer import PULSAR_AVAILABLE as VP_AVAILABLE
+from banking.streaming.vector_consumer import VectorConsumer
 
 
 class TestGraphConsumerConstants:
@@ -23,14 +26,18 @@ class TestGraphConsumerConstants:
         assert any("accounts" in t for t in topics)
         assert any("transactions" in t for t in topics)
 
-    @pytest.mark.skipif(not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available")
+    @pytest.mark.skipif(
+        not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available"
+    )
     def test_init_default(self):
         consumer = GraphConsumer()
         assert consumer.pulsar_url == "pulsar://localhost:6650"
         assert consumer.batch_size == 100
         assert consumer.metrics["events_processed"] == 0
 
-    @pytest.mark.skipif(not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available")
+    @pytest.mark.skipif(
+        not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available"
+    )
     def test_init_custom(self):
         consumer = GraphConsumer(
             pulsar_url="pulsar://custom:6650",
@@ -41,12 +48,16 @@ class TestGraphConsumerConstants:
         assert consumer.janusgraph_url == "ws://custom:8182/gremlin"
         assert consumer.batch_size == 50
 
-    @pytest.mark.skipif(not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available")
+    @pytest.mark.skipif(
+        not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available"
+    )
     def test_disconnect_no_connections(self):
         consumer = GraphConsumer()
         consumer.disconnect()
 
-    @pytest.mark.skipif(not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available")
+    @pytest.mark.skipif(
+        not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available"
+    )
     def test_disconnect_with_connections(self):
         consumer = GraphConsumer()
         consumer.consumer = MagicMock()
@@ -59,7 +70,9 @@ class TestGraphConsumerConstants:
         consumer.pulsar_client.close.assert_called_once()
         consumer.connection.close.assert_called_once()
 
-    @pytest.mark.skipif(not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available")
+    @pytest.mark.skipif(
+        not PULSAR_AVAILABLE or not GREMLIN_AVAILABLE, reason="Dependencies not available"
+    )
     def test_process_event_create(self):
         consumer = GraphConsumer()
         mock_g = MagicMock()
@@ -73,8 +86,11 @@ class TestGraphConsumerConstants:
         consumer.g = mock_g
 
         event = EntityEvent(
-            entity_id="p-1", event_type="create", entity_type="person",
-            payload={"first_name": "John", "last_name": "Smith"}, source="test",
+            entity_id="p-1",
+            event_type="create",
+            entity_type="person",
+            payload={"first_name": "John", "last_name": "Smith"},
+            source="test",
         )
         result = consumer.process_event(event)
         assert isinstance(result, bool)

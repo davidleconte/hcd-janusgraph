@@ -1,9 +1,15 @@
 """Tests for src.python.utils.resilience module."""
+
 import time
+
 import pytest
+
 from src.python.utils.resilience import (
-    CircuitBreaker, CircuitBreakerConfig, CircuitState,
-    CircuitOpenError, retry_with_backoff,
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
+    CircuitState,
+    retry_with_backoff,
 )
 
 
@@ -56,7 +62,9 @@ class TestCircuitBreaker:
         assert cb.allow_request() is True
 
     def test_half_open_limits_calls(self):
-        config = CircuitBreakerConfig(failure_threshold=1, recovery_timeout=0.1, half_open_max_calls=1)
+        config = CircuitBreakerConfig(
+            failure_threshold=1, recovery_timeout=0.1, half_open_max_calls=1
+        )
         cb = CircuitBreaker(config=config, name="test")
         cb.record_failure()
         time.sleep(0.15)
@@ -86,16 +94,19 @@ class TestRetryWithBackoff:
         @retry_with_backoff(max_retries=2, base_delay=0.01)
         def ok():
             return 42
+
         assert ok() == 42
 
     def test_retries_on_failure(self):
         attempts = [0]
+
         @retry_with_backoff(max_retries=2, base_delay=0.01)
         def flaky():
             attempts[0] += 1
             if attempts[0] < 3:
                 raise ValueError("fail")
             return "ok"
+
         assert flaky() == "ok"
         assert attempts[0] == 3
 
@@ -103,6 +114,7 @@ class TestRetryWithBackoff:
         @retry_with_backoff(max_retries=1, base_delay=0.01)
         def always_fail():
             raise RuntimeError("permanent")
+
         with pytest.raises(RuntimeError):
             always_fail()
 
@@ -125,6 +137,7 @@ class TestRetryWithBackoff:
         @retry_with_backoff(max_retries=2, base_delay=0.01, retryable_exceptions=(ValueError,))
         def wrong_type():
             raise TypeError("not retryable")
+
         with pytest.raises(TypeError):
             wrong_type()
 

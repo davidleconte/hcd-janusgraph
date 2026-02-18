@@ -15,19 +15,19 @@ Created: 2026-02-11
 Week 2 Day 11: Metrics Tests
 """
 
-from unittest.mock import Mock, patch
 import time
+from unittest.mock import Mock, patch
 
 import pytest
 
 from banking.streaming.metrics import (
     StreamingMetrics,
-    streaming_metrics,
-    timed_publish,
-    timed_consume,
-    get_metrics_output,
     get_content_type,
     get_metric,
+    get_metrics_output,
+    streaming_metrics,
+    timed_consume,
+    timed_publish,
 )
 
 
@@ -459,5 +459,6 @@ class TestMetricsWithoutPrometheus:
         metrics.set_producer_connected("p1", True)
         metrics.set_consumer_connected("graph", "sub", True)
         metrics.record_batch_size("publish", 100)
+
 
 # Made with Bob

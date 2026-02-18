@@ -14,7 +14,7 @@ Tests cover:
 import threading
 import time
 from queue import Empty
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 

@@ -669,4 +669,5 @@ class TestGraphConsumerContextManager:
         mock_client.close.assert_called_once()
         mock_connection.close.assert_called_once()
 
+
 # Made with Bob

@@ -18,6 +18,7 @@ from typing import Dict, Optional
 
 import pytest
 import requests
+
 try:
     from cassandra.auth import PlainTextAuthProvider
     from cassandra.cluster import Cluster

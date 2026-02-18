@@ -1,9 +1,10 @@
 """Tests for banking.streaming.dlq_handler module."""
 
 import json
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
 
 from banking.streaming.dlq_handler import (
     DLQMessage,
@@ -135,50 +136,75 @@ class TestDLQHandler:
 
     def test_init(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         assert h.max_retries == 3
 
     def test_connect(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         h.connect()
         mock_pulsar.Client.assert_called_once()
 
     def test_should_retry(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(max_retries=3, archive_dir=str(tmp_path / "archive"))
-        msg = DLQMessage("t", None, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1")
+        msg = DLQMessage(
+            "t", None, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1"
+        )
         assert h._should_retry(msg)
-        msg2 = DLQMessage("t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m2")
+        msg2 = DLQMessage(
+            "t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m2"
+        )
         assert not h._should_retry(msg2)
 
     def test_retry_message_no_handler(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
-        msg = DLQMessage("t", None, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1")
+        msg = DLQMessage(
+            "t", None, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1"
+        )
         assert not h._retry_message(msg)
 
     def test_retry_message_with_handler(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         handler_fn = MagicMock(return_value=True)
         h = DLQHandler(retry_handler=handler_fn, archive_dir=str(tmp_path / "archive"))
         event = MagicMock(spec=EntityEvent)
-        msg = DLQMessage("t", event, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1")
+        msg = DLQMessage(
+            "t", event, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1"
+        )
         assert h._retry_message(msg)
         assert h.stats.messages_retried == 1
 
     def test_retry_message_handler_fails(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         handler_fn = MagicMock(side_effect=Exception("fail"))
         h = DLQHandler(retry_handler=handler_fn, archive_dir=str(tmp_path / "archive"))
         event = MagicMock(spec=EntityEvent)
-        msg = DLQMessage("t", event, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1")
+        msg = DLQMessage(
+            "t", event, "err", 1, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1"
+        )
         assert not h._retry_message(msg)
 
     def test_archive_message(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
-        msg = DLQMessage("t", None, "err", 3, datetime.now(timezone.utc), datetime.now(timezone.utc), "msg12345678")
+        msg = DLQMessage(
+            "t",
+            None,
+            "err",
+            3,
+            datetime.now(timezone.utc),
+            datetime.now(timezone.utc),
+            "msg12345678",
+        )
         h._archive_message(msg)
         assert h.stats.messages_archived == 1
         files = list((tmp_path / "archive").glob("*.json"))
@@ -186,32 +212,44 @@ class TestDLQHandler:
 
     def test_handle_permanent_failure(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         failure_fn = MagicMock()
         h = DLQHandler(failure_handler=failure_fn, archive_dir=str(tmp_path / "archive"))
-        msg = DLQMessage("t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1234567")
+        msg = DLQMessage(
+            "t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1234567"
+        )
         h._handle_permanent_failure(msg)
         assert h.stats.messages_failed_permanently == 1
         failure_fn.assert_called_once()
 
     def test_handle_permanent_failure_handler_error(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         failure_fn = MagicMock(side_effect=Exception("fail"))
         h = DLQHandler(failure_handler=failure_fn, archive_dir=str(tmp_path / "archive"))
-        msg = DLQMessage("t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1234567")
+        msg = DLQMessage(
+            "t", None, "err", 5, datetime.now(timezone.utc), datetime.now(timezone.utc), "m1234567"
+        )
         h._handle_permanent_failure(msg)
 
     def test_process_message(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         mock_msg = MagicMock()
         mock_msg.data.return_value = b'{"entity_type": "person"}'
-        mock_msg.properties.return_value = {"original_topic": "test", "failure_reason": "err", "failure_count": "5"}
+        mock_msg.properties.return_value = {
+            "original_topic": "test",
+            "failure_reason": "err",
+            "failure_count": "5",
+        }
         mock_msg.message_id.return_value = "mid-12345678"
         result = h.process_message(mock_msg)
         assert result is True
 
     def test_process_message_error(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         mock_msg = MagicMock()
         mock_msg.data.side_effect = Exception("decode error")
@@ -220,6 +258,7 @@ class TestDLQHandler:
 
     def test_process_batch(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         mock_consumer = MagicMock()
         mock_consumer.receive.side_effect = Exception("timeout")
@@ -229,6 +268,7 @@ class TestDLQHandler:
 
     def test_stop(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         h._running = True
         h.stop()
@@ -236,6 +276,7 @@ class TestDLQHandler:
 
     def test_close(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         mock_consumer = MagicMock()
         mock_client = MagicMock()
@@ -247,12 +288,14 @@ class TestDLQHandler:
 
     def test_get_stats(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         stats = h.get_stats()
         assert stats["messages_processed"] == 0
 
     def test_context_manager(self, mock_pulsar, tmp_path):
         from banking.streaming.dlq_handler import DLQHandler
+
         h = DLQHandler(archive_dir=str(tmp_path / "archive"))
         with h:
             pass
@@ -260,5 +303,6 @@ class TestDLQHandler:
     def test_no_pulsar_raises(self):
         with patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", False):
             from banking.streaming.dlq_handler import DLQHandler
+
             with pytest.raises(ImportError):
                 DLQHandler()

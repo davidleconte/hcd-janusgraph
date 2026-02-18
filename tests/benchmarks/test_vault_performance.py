@@ -424,9 +424,7 @@ class TestEndToEndScenarios:
 
     def test_request_handling_scenario(self, benchmark, vault_client, test_secret_path):
         """Benchmark typical request handling with cached credentials."""
-        vault_client.set_secret(
-            test_secret_path, {"username": "api_user", "password": "api_pass"}
-        )
+        vault_client.set_secret(test_secret_path, {"username": "api_user", "password": "api_pass"})
 
         # Prime cache (simulating previous requests)
         vault_client.get_credentials(test_secret_path)

@@ -287,7 +287,9 @@ class QueryCache:
         try:
             return len(pickle.dumps(value))
         except Exception:
-            logger.debug("Could not pickle value for size estimation, using fallback", exc_info=True)
+            logger.debug(
+                "Could not pickle value for size estimation, using fallback", exc_info=True
+            )
             return 1024
 
     def get_stats(self) -> Dict[str, Any]:

@@ -326,7 +326,7 @@ class TestRetryLogic:
     @pytest.mark.slow
     def test_retry_on_transient_error(self, vault_available):
         """Test that operations retry on transient errors using mock."""
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
 
         config = VaultConfig.from_env()
         client = VaultClient(config)
@@ -427,9 +427,7 @@ class TestConvenienceFunctions:
         from src.python.utils.vault_client import get_opensearch_credentials
 
         # Setup test credentials
-        vault_client.set_secret(
-            "opensearch", {"username": "admin", "password": "testpass"}
-        )
+        vault_client.set_secret("opensearch", {"username": "admin", "password": "testpass"})
 
         get_vault_client.cache_clear()
 

@@ -37,6 +37,7 @@ GRAPH_URL = f"ws://{JANUSGRAPH_HOST}:{JANUSGRAPH_PORT}/gremlin"
 
 def is_janusgraph_available() -> bool:
     """Check if JanusGraph is available using client approach."""
+
     def _check() -> bool:
         c = client.Client(GRAPH_URL, "g", message_serializer=serializer.GraphSONSerializersV3d0())
         c.submit("g.V().count()").all().result()
@@ -48,7 +49,9 @@ def is_janusgraph_available() -> bool:
 
 # Skip all tests if JanusGraph is not available
 pytestmark = [
-    pytest.mark.skipif(not is_janusgraph_available(), reason="JanusGraph not available at localhost:18182"),
+    pytest.mark.skipif(
+        not is_janusgraph_available(), reason="JanusGraph not available at localhost:18182"
+    ),
     pytest.mark.timeout(180),
 ]
 

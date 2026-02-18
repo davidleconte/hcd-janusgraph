@@ -27,6 +27,7 @@ if src_path not in sys.path:
 with patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
     with patch("banking.compliance.audit_logger.AuditLogger.log_event", MagicMock()):
         import banking.compliance.audit_logger as _al
+
         _al._audit_logger = MagicMock()
 
 with patch.dict(
@@ -108,8 +109,8 @@ class TestHealthEndpoint:
         from src.python.api.routers.health import readiness
 
         mock_g = MagicMock()
-        mock_g.V.return_value.limit.return_value.count.return_value.next.side_effect = (
-            Exception("Connection failed")
+        mock_g.V.return_value.limit.return_value.count.return_value.next.side_effect = Exception(
+            "Connection failed"
         )
         original_fn = readiness.__globals__["get_graph_connection"]
         readiness.__globals__["get_graph_connection"] = lambda *a, **kw: mock_g
@@ -454,9 +455,7 @@ class TestRequestValidation:
 
     def test_structuring_rejects_invalid_time_window(self, client):
         """Test structuring detection rejects invalid time window."""
-        response = client.post(
-            "/api/v1/aml/structuring", json={"time_window_days": 0}
-        )
+        response = client.post("/api/v1/aml/structuring", json={"time_window_days": 0})
 
         assert response.status_code == 422
 

@@ -4,27 +4,27 @@ import json
 import os
 import tempfile
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.python.performance.query_profiler import QueryProfiler, QueryMetrics, QueryStatistics
-from src.python.performance.query_cache import (
-    QueryCache,
-    CacheStrategy,
-    CacheEntry,
-    CacheStats,
-    CachedQueryExecutor,
-    CacheWarmer,
-)
 from src.python.performance.benchmark import (
-    PerformanceBenchmark,
     BenchmarkResult,
     LoadTester,
     LoadTestResult,
+    PerformanceBenchmark,
     QueryBenchmarkSuite,
 )
+from src.python.performance.query_cache import (
+    CachedQueryExecutor,
+    CacheEntry,
+    CacheStats,
+    CacheStrategy,
+    CacheWarmer,
+    QueryCache,
+)
+from src.python.performance.query_profiler import QueryMetrics, QueryProfiler, QueryStatistics
 
 
 class TestQueryMetrics:
@@ -116,9 +116,14 @@ class TestQueryProfiler:
     def test_index_miss_hint(self):
         p = QueryProfiler()
         m = QueryMetrics(
-            query_id="q1", query_hash="h1", query_text="g.V()",
-            execution_time_ms=1.0, result_count=0, traversal_steps=1,
-            index_hits=0, index_misses=5,
+            query_id="q1",
+            query_hash="h1",
+            query_text="g.V()",
+            execution_time_ms=1.0,
+            result_count=0,
+            traversal_steps=1,
+            index_hits=0,
+            index_misses=5,
         )
         p._analyze_performance(m)
         assert any("index" in h.lower() for h in m.optimization_hints)
@@ -126,8 +131,12 @@ class TestQueryProfiler:
     def test_large_result_hint(self):
         p = QueryProfiler()
         m = QueryMetrics(
-            query_id="q1", query_hash="h1", query_text="g.V()",
-            execution_time_ms=1.0, result_count=2000, traversal_steps=1,
+            query_id="q1",
+            query_hash="h1",
+            query_text="g.V()",
+            execution_time_ms=1.0,
+            result_count=2000,
+            traversal_steps=1,
         )
         p._analyze_performance(m)
         assert any("Large result" in h for h in m.optimization_hints)
@@ -135,8 +144,12 @@ class TestQueryProfiler:
     def test_complex_traversal_hint(self):
         p = QueryProfiler()
         m = QueryMetrics(
-            query_id="q1", query_hash="h1", query_text="g.V()",
-            execution_time_ms=1.0, result_count=0, traversal_steps=15,
+            query_id="q1",
+            query_hash="h1",
+            query_text="g.V()",
+            execution_time_ms=1.0,
+            result_count=0,
+            traversal_steps=15,
         )
         p._analyze_performance(m)
         assert any("Complex traversal" in h for h in m.optimization_hints)
@@ -446,11 +459,19 @@ class TestCacheWarmer:
 class TestBenchmarkResult:
     def test_to_dict(self):
         r = BenchmarkResult(
-            name="test", iterations=100, total_time_seconds=1.0,
-            min_time_ms=5.0, max_time_ms=50.0, avg_time_ms=10.0,
-            median_time_ms=9.0, p95_time_ms=20.0, p99_time_ms=40.0,
-            std_dev_ms=3.0, throughput_qps=100.0,
-            success_count=100, error_count=0,
+            name="test",
+            iterations=100,
+            total_time_seconds=1.0,
+            min_time_ms=5.0,
+            max_time_ms=50.0,
+            avg_time_ms=10.0,
+            median_time_ms=9.0,
+            p95_time_ms=20.0,
+            p99_time_ms=40.0,
+            std_dev_ms=3.0,
+            throughput_qps=100.0,
+            success_count=100,
+            error_count=0,
         )
         d = r.to_dict()
         assert d["name"] == "test"
@@ -492,18 +513,34 @@ class TestPerformanceBenchmark:
     def test_compare_no_regression(self):
         b = PerformanceBenchmark()
         baseline = BenchmarkResult(
-            name="t", iterations=100, total_time_seconds=1.0,
-            min_time_ms=5, max_time_ms=15, avg_time_ms=10.0,
-            median_time_ms=10.0, p95_time_ms=14.0, p99_time_ms=15.0,
-            std_dev_ms=2.0, throughput_qps=100.0,
-            success_count=100, error_count=0,
+            name="t",
+            iterations=100,
+            total_time_seconds=1.0,
+            min_time_ms=5,
+            max_time_ms=15,
+            avg_time_ms=10.0,
+            median_time_ms=10.0,
+            p95_time_ms=14.0,
+            p99_time_ms=15.0,
+            std_dev_ms=2.0,
+            throughput_qps=100.0,
+            success_count=100,
+            error_count=0,
         )
         current = BenchmarkResult(
-            name="t", iterations=100, total_time_seconds=1.0,
-            min_time_ms=5, max_time_ms=15, avg_time_ms=10.5,
-            median_time_ms=10.0, p95_time_ms=14.5, p99_time_ms=15.0,
-            std_dev_ms=2.0, throughput_qps=98.0,
-            success_count=100, error_count=0,
+            name="t",
+            iterations=100,
+            total_time_seconds=1.0,
+            min_time_ms=5,
+            max_time_ms=15,
+            avg_time_ms=10.5,
+            median_time_ms=10.0,
+            p95_time_ms=14.5,
+            p99_time_ms=15.0,
+            std_dev_ms=2.0,
+            throughput_qps=98.0,
+            success_count=100,
+            error_count=0,
         )
         comp = b.compare_benchmarks(baseline, current)
         assert comp["is_regression"] is False
@@ -511,18 +548,34 @@ class TestPerformanceBenchmark:
     def test_compare_regression_detected(self):
         b = PerformanceBenchmark()
         baseline = BenchmarkResult(
-            name="t", iterations=100, total_time_seconds=1.0,
-            min_time_ms=5, max_time_ms=15, avg_time_ms=10.0,
-            median_time_ms=10.0, p95_time_ms=14.0, p99_time_ms=15.0,
-            std_dev_ms=2.0, throughput_qps=100.0,
-            success_count=100, error_count=0,
+            name="t",
+            iterations=100,
+            total_time_seconds=1.0,
+            min_time_ms=5,
+            max_time_ms=15,
+            avg_time_ms=10.0,
+            median_time_ms=10.0,
+            p95_time_ms=14.0,
+            p99_time_ms=15.0,
+            std_dev_ms=2.0,
+            throughput_qps=100.0,
+            success_count=100,
+            error_count=0,
         )
         current = BenchmarkResult(
-            name="t", iterations=100, total_time_seconds=1.0,
-            min_time_ms=5, max_time_ms=50, avg_time_ms=25.0,
-            median_time_ms=20.0, p95_time_ms=40.0, p99_time_ms=50.0,
-            std_dev_ms=10.0, throughput_qps=40.0,
-            success_count=100, error_count=0,
+            name="t",
+            iterations=100,
+            total_time_seconds=1.0,
+            min_time_ms=5,
+            max_time_ms=50,
+            avg_time_ms=25.0,
+            median_time_ms=20.0,
+            p95_time_ms=40.0,
+            p99_time_ms=50.0,
+            std_dev_ms=10.0,
+            throughput_qps=40.0,
+            success_count=100,
+            error_count=0,
         )
         comp = b.compare_benchmarks(baseline, current)
         assert comp["is_regression"] is True

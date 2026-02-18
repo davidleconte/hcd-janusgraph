@@ -1,9 +1,11 @@
 """Tests for banking.streaming.streaming_orchestrator module."""
-import pytest
-from unittest.mock import MagicMock, patch
-from pathlib import Path
 
-from banking.streaming.streaming_orchestrator import StreamingOrchestrator, StreamingConfig
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
 
 
 class TestStreamingConfig:
@@ -14,7 +16,9 @@ class TestStreamingConfig:
 
     def test_custom_config(self):
         config = StreamingConfig(
-            seed=42, person_count=100, output_dir=Path("/tmp/test"),
+            seed=42,
+            person_count=100,
+            output_dir=Path("/tmp/test"),
         )
         assert config.seed == 42
         assert config.person_count == 100

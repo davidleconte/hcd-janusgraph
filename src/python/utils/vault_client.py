@@ -158,9 +158,7 @@ class VaultClient:
         try:
             import hvac
         except ImportError:
-            raise VaultError(
-                "hvac library not installed. Install with: uv pip install hvac"
-            )
+            raise VaultError("hvac library not installed. Install with: uv pip install hvac")
 
         try:
             # Initialize client
@@ -259,7 +257,9 @@ class VaultClient:
                         e,
                     )
 
-        raise VaultError(f"Operation failed after {self.config.max_retries + 1} attempts: {last_error}")
+        raise VaultError(
+            f"Operation failed after {self.config.max_retries + 1} attempts: {last_error}"
+        )
 
     def get_secret(
         self,
@@ -311,9 +311,7 @@ class VaultClient:
 
                 if key:
                     if key not in data:
-                        raise VaultSecretNotFoundError(
-                            f"Key '{key}' not found in secret '{path}'"
-                        )
+                        raise VaultSecretNotFoundError(f"Key '{key}' not found in secret '{path}'")
                     return data[key]
                 return data
 
@@ -361,9 +359,7 @@ class VaultClient:
             raise VaultError(f"Expected dict for credentials, got {type(secret)}")
 
         if "username" not in secret or "password" not in secret:
-            raise VaultError(
-                f"Credentials for '{service}' missing username or password"
-            )
+            raise VaultError(f"Credentials for '{service}' missing username or password")
 
         return {
             "username": secret["username"],
@@ -536,5 +532,6 @@ def get_grafana_credentials() -> Dict[str, str]:
     """Get Grafana credentials from Vault."""
     client = get_vault_client()
     return client.get_credentials("grafana")
+
 
 # Made with Bob

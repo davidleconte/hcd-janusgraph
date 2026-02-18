@@ -1,22 +1,26 @@
 """Comprehensive tests for src.python.api.main and routers — targets main 44% → 80%+, ubo 41% → 80%+."""
+
 import os
 import sys
-from unittest.mock import MagicMock, patch, AsyncMock
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
-from unittest.mock import patch as _patch, MagicMock as _MagicMock
+from unittest.mock import MagicMock as _MagicMock
+from unittest.mock import patch as _patch
+
 with _patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
     with _patch("banking.compliance.audit_logger.AuditLogger.log_event", _MagicMock()):
         import banking.compliance.audit_logger as _al
+
         _al._audit_logger = _MagicMock()
 
-from src.python.api.main import create_app, _error_response, _configure_logging
-from src.python.api.dependencies import close_graph_connection, flatten_value_map, PUBLIC_PATHS
+from src.python.api.dependencies import PUBLIC_PATHS, close_graph_connection, flatten_value_map
+from src.python.api.main import _configure_logging, _error_response, create_app
 
 
 class TestErrorResponse:
@@ -24,6 +28,7 @@ class TestErrorResponse:
         resp = _error_response(404, "not_found", "Not found")
         assert resp.status_code == 404
         import json
+
         body = json.loads(resp.body)
         assert body["error"] == "not_found"
         assert body["detail"] == "Not found"
@@ -37,12 +42,14 @@ class TestErrorResponse:
 class TestConfigureLogging:
     def test_standard_format(self):
         from src.python.config.settings import Settings
+
         settings = Settings()
         settings.log_json = False
         _configure_logging(settings)
 
     def test_json_format(self):
         from src.python.config.settings import Settings
+
         settings = Settings()
         settings.log_json = True
         try:
@@ -66,6 +73,7 @@ class TestAPIEndpoints:
     @pytest.fixture(autouse=True)
     def setup_client(self):
         from src.python.api.main import app
+
         self.client = TestClient(app)
 
     def test_healthz(self):
@@ -91,7 +99,15 @@ class TestAPIEndpoints:
             mock_repo = MagicMock()
             mock_repo.get_company.return_value = {"legal_name": "Acme"}
             mock_repo.find_ubo_owners.return_value = (
-                [{"person_id": "p-1", "name": "Alice", "ownership_percentage": 30.0, "ownership_type": "direct", "chain_length": 1}],
+                [
+                    {
+                        "person_id": "p-1",
+                        "name": "Alice",
+                        "ownership_percentage": 30.0,
+                        "ownership_type": "direct",
+                        "chain_length": 1,
+                    }
+                ],
                 1,
             )
             mock_repo_cls.return_value = mock_repo
@@ -118,9 +134,7 @@ class TestAPIEndpoints:
             mock_repo_cls = MagicMock()
             mock_repo = MagicMock()
             mock_repo.get_company.return_value = {"legal_name": "Acme"}
-            mock_repo.get_owner_vertices.return_value = [
-                {"person_id": "p-1", "full_name": "Alice"}
-            ]
+            mock_repo.get_owner_vertices.return_value = [{"person_id": "p-1", "full_name": "Alice"}]
             mock_repo_cls.return_value = mock_repo
             mock_conn.return_value = MagicMock()
 
@@ -143,6 +157,7 @@ class TestAMLRouter:
     @pytest.fixture(autouse=True)
     def setup_client(self):
         from src.python.api.main import app
+
         self.client = TestClient(app)
 
     def test_structuring_success(self):
@@ -173,10 +188,13 @@ class TestAMLRouter:
             mock_conn.return_value = MagicMock()
 
             with patch("src.python.api.routers.aml.GraphRepository", mock_repo_cls):
-                resp = self.client.post("/api/v1/aml/structuring", json={
-                    "threshold_amount": 10000.0,
-                    "min_transaction_count": 3,
-                })
+                resp = self.client.post(
+                    "/api/v1/aml/structuring",
+                    json={
+                        "threshold_amount": 10000.0,
+                        "min_transaction_count": 3,
+                    },
+                )
                 assert resp.status_code == 200
                 data = resp.json()
                 assert data["total_alerts"] >= 1
@@ -199,6 +217,7 @@ class TestHealthRouter:
     @pytest.fixture(autouse=True)
     def setup_client(self):
         from src.python.api.main import app
+
         self.client = TestClient(app)
 
     def test_readyz_healthy(self):
@@ -222,7 +241,9 @@ class TestHealthRouter:
                 assert resp.json()["status"] == "degraded"
 
     def test_readyz_exception(self):
-        with patch("src.python.api.routers.health.get_graph_connection", side_effect=Exception("down")):
+        with patch(
+            "src.python.api.routers.health.get_graph_connection", side_effect=Exception("down")
+        ):
             resp = self.client.get("/readyz")
             assert resp.status_code == 200
             data = resp.json()
@@ -232,9 +253,12 @@ class TestHealthRouter:
         with patch("src.python.api.routers.health.get_graph_connection") as mock_conn:
             mock_repo_cls = MagicMock()
             mock_repo_cls.return_value.graph_stats.return_value = {
-                "vertex_count": 100, "edge_count": 200,
-                "person_count": 50, "company_count": 20,
-                "account_count": 30, "transaction_count": 80,
+                "vertex_count": 100,
+                "edge_count": 200,
+                "person_count": 50,
+                "company_count": 20,
+                "account_count": 30,
+                "transaction_count": 80,
             }
             mock_conn.return_value = MagicMock()
             with patch("src.python.api.routers.health.GraphRepository", mock_repo_cls):
@@ -245,6 +269,7 @@ class TestHealthRouter:
 class TestGetGraphConnection:
     def test_creates_connection(self):
         import src.python.api.dependencies as deps
+
         old_conn = deps._connection
         old_trav = deps._traversal
         deps._connection = None
@@ -262,6 +287,7 @@ class TestGetGraphConnection:
 
     def test_reuses_connection(self):
         import src.python.api.dependencies as deps
+
         old_conn = deps._connection
         old_trav = deps._traversal
         mock_t = MagicMock()
@@ -275,14 +301,18 @@ class TestGetGraphConnection:
         deps._traversal = old_trav
 
     def test_connection_failure(self):
-        import src.python.api.dependencies as deps
         from fastapi import HTTPException
+
+        import src.python.api.dependencies as deps
+
         old_conn = deps._connection
         old_trav = deps._traversal
         deps._connection = None
         deps._traversal = None
 
-        with patch("src.python.api.dependencies.DriverRemoteConnection", side_effect=Exception("fail")):
+        with patch(
+            "src.python.api.dependencies.DriverRemoteConnection", side_effect=Exception("fail")
+        ):
             with pytest.raises(HTTPException) as exc_info:
                 deps.get_graph_connection()
             assert exc_info.value.status_code == 503
@@ -294,6 +324,7 @@ class TestGetGraphConnection:
 class TestVerifyAuth:
     def test_auth_enabled_no_token(self):
         from src.python.api.main import app
+
         with patch("src.python.api.dependencies.get_settings") as mock_settings:
             s = MagicMock()
             s.auth_enabled = True
@@ -318,6 +349,7 @@ class TestDependencies:
 
     def test_close_graph_connection(self):
         import src.python.api.dependencies as deps
+
         old = deps._connection
         deps._connection = MagicMock()
         close_graph_connection()
@@ -326,6 +358,7 @@ class TestDependencies:
 
     def test_verify_auth_disabled(self):
         from src.python.api.main import app
+
         client = TestClient(app)
         resp = client.get("/healthz")
         assert resp.status_code == 200

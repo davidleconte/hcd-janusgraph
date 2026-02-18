@@ -17,46 +17,39 @@ try:
 
     # Load people
     print("Creating people...")
-    gc.submit(
-        """
+    gc.submit("""
         g.addV('person').property('name', 'Alice Johnson').property('age', 30).property('email', 'alice@example.com').property('location', 'San Francisco').as('alice')
          .addV('person').property('name', 'Bob Smith').property('age', 25).property('email', 'bob@example.com').property('location', 'New York').as('bob')
          .addV('person').property('name', 'Carol Williams').property('age', 35).property('email', 'carol@example.com').property('location', 'Seattle').as('carol')
          .addV('person').property('name', 'David Brown').property('age', 28).property('email', 'david@example.com').property('location', 'San Francisco').as('david')
          .addV('person').property('name', 'Eve Davis').property('age', 32).property('email', 'eve@example.com').property('location', 'Austin').as('eve')
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
     # Load companies
     print("Creating companies...")
-    gc.submit(
-        """
+    gc.submit("""
         g.addV('company').property('name', 'DataStax').property('location', 'Santa Clara').property('founded', 2010).as('datastax')
          .addV('company').property('name', 'Acme Corp').property('location', 'New York').property('founded', 2015).as('acme')
          .addV('company').property('name', 'TechStart').property('location', 'Austin').property('founded', 2018).as('techstart')
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
     # Load products
     print("Creating products...")
-    gc.submit(
-        """
+    gc.submit("""
         g.addV('product').property('name', 'JanusGraph').property('category', 'Database').property('price', 0.0)
          .addV('product').property('name', 'Cloud Service Platform').property('category', 'SaaS').property('price', 99.99)
          .addV('product').property('name', 'Analytics Engine').property('category', 'Analytics').property('price', 199.99)
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
     # Load relationships
     print("Creating relationships...")
-    gc.submit(
-        """
+    gc.submit("""
         alice = g.V().has('person','name','Alice Johnson').next()
         bob = g.V().has('person','name','Bob Smith').next()
         carol = g.V().has('person','name','Carol Williams').next()
@@ -70,12 +63,10 @@ try:
          .V(carol).addE('knows').to(eve).property('since', 2017)
          .V(david).addE('knows').to(eve).property('since', 2021)
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
-    gc.submit(
-        """
+    gc.submit("""
         alice = g.V().has('person','name','Alice Johnson').next()
         bob = g.V().has('person','name','Bob Smith').next()
         carol = g.V().has('person','name','Carol Williams').next()
@@ -91,12 +82,10 @@ try:
          .V(david).addE('worksFor').to(datastax).property('role', 'Engineer').property('since', 2021)
          .V(eve).addE('worksFor').to(techstart).property('role', 'CTO').property('since', 2018)
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
-    gc.submit(
-        """
+    gc.submit("""
         datastax = g.V().has('company','name','DataStax').next()
         acme = g.V().has('company','name','Acme Corp').next()
         techstart = g.V().has('company','name','TechStart').next()
@@ -108,12 +97,10 @@ try:
          .V(acme).addE('created').to(cloudService).property('since', 2019)
          .V(techstart).addE('created').to(analyticsEngine).property('since', 2020)
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
     time.sleep(1)
 
-    gc.submit(
-        """
+    gc.submit("""
         alice = g.V().has('person','name','Alice Johnson').next()
         bob = g.V().has('person','name','Bob Smith').next()
         carol = g.V().has('person','name','Carol Williams').next()
@@ -129,8 +116,7 @@ try:
          .V(david).addE('uses').to(janusgraph).property('since', 2021)
          .V(eve).addE('uses').to(analyticsEngine).property('since', 2020)
          .iterate()
-    """
-    ).all().result()
+    """).all().result()
 
     print("\n✅ Data loading complete!")
 

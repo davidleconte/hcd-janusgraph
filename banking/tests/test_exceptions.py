@@ -42,7 +42,6 @@ from banking.exceptions import (
     is_retryable_banking_error,
 )
 
-
 # ============================================================================
 # Base Exception Tests
 # ============================================================================
@@ -64,9 +63,7 @@ class TestBankingBaseException:
 
     def test_create_exception_with_entity_info(self):
         """Test creating exception with entity information."""
-        exc = BankingBaseException(
-            "Test error", entity_id="p-123", entity_type="person"
-        )
+        exc = BankingBaseException("Test error", entity_id="p-123", entity_type="person")
 
         assert exc.entity_id == "p-123"
         assert exc.entity_type == "person"
@@ -352,9 +349,7 @@ class TestUtilityFunctions:
         ]
 
         for error in retryable_errors:
-            assert is_retryable_banking_error(
-                error
-            ), f"{type(error).__name__} should be retryable"
+            assert is_retryable_banking_error(error), f"{type(error).__name__} should be retryable"
 
     def test_is_retryable_banking_error_for_non_retryable(self):
         """Test is_retryable_banking_error for non-retryable errors."""
@@ -432,9 +427,7 @@ class TestUtilityFunctions:
         ]
 
         for error in critical_errors:
-            assert is_critical_banking_error(
-                error
-            ), f"{type(error).__name__} should be critical"
+            assert is_critical_banking_error(error), f"{type(error).__name__} should be critical"
 
     def test_is_critical_banking_error_for_non_critical(self):
         """Test is_critical_banking_error for non-critical errors."""
@@ -542,5 +535,6 @@ class TestBankingExceptionIntegration:
 
         assert categories == ["streaming", "analytics", "compliance", "data_generation"]
         assert critical_flags == [False, False, True, False]
+
 
 # Made with Bob

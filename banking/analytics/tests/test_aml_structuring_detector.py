@@ -20,12 +20,11 @@ from unittest.mock import Mock, patch
 import pytest
 
 from banking.analytics.aml_structuring_detector import (
-    AMLStructuringDetector,
     CTR_THRESHOLD,
     STRUCTURING_THRESHOLD,
     SUSPICIOUS_TX_COUNT,
+    AMLStructuringDetector,
 )
-
 
 # ============================================================================
 # Initialization Tests
@@ -73,13 +72,13 @@ class TestAMLStructuringDetectorConnection:
     def test_connect_success(self, mock_janusgraph_client):
         """Test successful connection."""
         detector = AMLStructuringDetector()
-        
-        with patch('banking.analytics.aml_structuring_detector.client.Client') as mock_client_class:
+
+        with patch("banking.analytics.aml_structuring_detector.client.Client") as mock_client_class:
             mock_client_class.return_value = mock_janusgraph_client
             mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = [1000]
-            
+
             detector.connect()
-            
+
             assert detector.client is not None
             mock_client_class.assert_called_once()
 
@@ -87,9 +86,9 @@ class TestAMLStructuringDetectorConnection:
         """Test closing connection."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         detector.close()
-        
+
         mock_janusgraph_client.close.assert_called_once()
 
     def test_close_without_connection(self):
@@ -110,25 +109,25 @@ class TestTransactionAmountAnalysis:
         """Test analysis with no transactions."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock empty result
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = []
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result == {}
 
     def test_analyze_normal_transactions(self, mock_janusgraph_client):
         """Test analysis with normal transactions."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock normal transactions
         amounts = [5000, 3000, 2000, 1500, 1000]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result["total_transactions"] == 5
         assert result["total_amount"] == 12500
         assert result["average_amount"] == 2500
@@ -140,13 +139,13 @@ class TestTransactionAmountAnalysis:
         """Test analysis with suspicious transactions near threshold."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock suspicious transactions (just under $10K)
         amounts = [9500, 9800, 9700, 9600, 5000]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result["total_transactions"] == 5
         assert result["near_threshold_count"] == 4  # 4 transactions between $9.5K-$10K
         assert result["distribution"]["9k_to_10k (SUSPICIOUS)"] == 4
@@ -155,13 +154,13 @@ class TestTransactionAmountAnalysis:
         """Test analysis with boundary values."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Boundary cases: exactly at thresholds
         amounts = [9999.99, 10000.00, 9500.00, 9000.00]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         # 9999.99 and 9500.00 are in suspicious range
         assert result["near_threshold_count"] == 2
         # 9999.99, 9500.00, 9000.00 are in 9k-10k range
@@ -173,18 +172,18 @@ class TestTransactionAmountAnalysis:
         """Test distribution calculation across all ranges."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         amounts = [
-            500,    # under_1k
-            2000,   # 1k_to_5k
-            6000,   # 5k_to_9k
-            9500,   # 9k_to_10k (suspicious)
-            15000   # above_10k
+            500,  # under_1k
+            2000,  # 1k_to_5k
+            6000,  # 5k_to_9k
+            9500,  # 9k_to_10k (suspicious)
+            15000,  # above_10k
         ]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         dist = result["distribution"]
         assert dist["under_1k"] == 1
         assert dist["1k_to_5k"] == 1
@@ -196,12 +195,12 @@ class TestTransactionAmountAnalysis:
         """Test that analysis results are stored in findings."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         amounts = [5000, 3000]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         detector.analyze_transaction_amounts()
-        
+
         assert "summary_stats" in detector.findings
         assert detector.findings["summary_stats"]["total_transactions"] == 2
 
@@ -218,17 +217,19 @@ class TestHighVolumeAccountIdentification:
         """Test identifying high-volume accounts."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock high-volume account data
         mock_results = [
             {"account_id": "acc-1", "sent": 15, "received": 10},
             {"account_id": "acc-2", "sent": 8, "received": 7},
             {"account_id": "acc-3", "sent": 3, "received": 2},
         ]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         result = detector.identify_high_volume_accounts()
-        
+
         assert len(result) == 2  # Only accounts with total > 5
         assert result[0]["account_id"] == "acc-1"
         assert result[0]["total_transactions"] == 25
@@ -238,14 +239,16 @@ class TestHighVolumeAccountIdentification:
         """Test identifying medium-risk accounts."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_results = [
             {"account_id": "acc-1", "sent": 8, "received": 7},
         ]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         result = detector.identify_high_volume_accounts()
-        
+
         assert len(result) == 1
         assert result[0]["risk_level"] == "MEDIUM"  # 15 transactions (< 20)
 
@@ -253,31 +256,39 @@ class TestHighVolumeAccountIdentification:
         """Test that low-volume accounts are filtered out."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_results = [
             {"account_id": "acc-1", "sent": 2, "received": 2},  # Total = 4, should be filtered
         ]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         result = detector.identify_high_volume_accounts()
-        
+
         assert len(result) == 0  # Filtered out (total <= 5)
 
     def test_identify_handles_exception_fallback(self, mock_janusgraph_client):
         """Test fallback query when primary query fails."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # First call raises exception, second call succeeds
         mock_janusgraph_client.submit.side_effect = [
             Exception("Query failed"),
-            Mock(all=Mock(return_value=Mock(result=Mock(return_value=[
-                {"account_id": "acc-1", "sent": 10, "received": 8}
-            ]))))
+            Mock(
+                all=Mock(
+                    return_value=Mock(
+                        result=Mock(
+                            return_value=[{"account_id": "acc-1", "sent": 10, "received": 8}]
+                        )
+                    )
+                )
+            ),
         ]
-        
+
         result = detector.identify_high_volume_accounts()
-        
+
         assert len(result) == 1
         assert result[0]["account_id"] == "acc-1"
 
@@ -285,12 +296,14 @@ class TestHighVolumeAccountIdentification:
         """Test that results are stored in findings."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_results = [{"account_id": "acc-1", "sent": 10, "received": 8}]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         detector.identify_high_volume_accounts()
-        
+
         assert len(detector.findings["high_risk_accounts"]) == 1
 
 
@@ -306,13 +319,15 @@ class TestStructuringPatternDetection:
         """Test detecting structuring patterns."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock structuring pattern: account with multiple near-threshold transactions
         mock_results = [{"acc-1": 3}]  # 3 transactions in suspicious range
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         result = detector.detect_structuring_patterns()
-        
+
         assert len(result) == 1
         assert result[0]["account_id"] == "acc-1"
         assert result[0]["suspicious_tx_count"] == 3
@@ -324,27 +339,27 @@ class TestStructuringPatternDetection:
         """Test when no structuring patterns are found."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = []
-        
+
         result = detector.detect_structuring_patterns()
-        
+
         assert len(result) == 0
 
     def test_detect_uses_fallback_on_exception(self, mock_janusgraph_client):
         """Test fallback logic when complex query fails."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # First call (complex query) raises exception
         # Second call (get accounts) returns account list
         # Third call (count query) returns count
         call_count = [0]
-        
+
         def side_effect_func(query):
             call_count[0] += 1
             mock_result = Mock()
-            
+
             if call_count[0] == 1:
                 # First call: complex query fails
                 raise Exception("Complex query failed")
@@ -354,25 +369,27 @@ class TestStructuringPatternDetection:
             else:
                 # Subsequent calls: count queries
                 mock_result.all.return_value.result.return_value = [2]  # 2 suspicious transactions
-            
+
             return mock_result
-        
+
         mock_janusgraph_client.submit.side_effect = side_effect_func
-        
+
         result = detector.detect_structuring_patterns()
-        
+
         assert len(result) >= 1  # Should find patterns using fallback
 
     def test_detect_stores_in_findings(self, mock_janusgraph_client):
         """Test that patterns are stored in findings."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_results = [{"acc-1": 3}]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         detector.detect_structuring_patterns()
-        
+
         assert len(detector.findings["structuring_patterns"]) == 1
 
 
@@ -388,16 +405,18 @@ class TestTransactionChainAnalysis:
         """Test analyzing transaction chains."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         # Mock 2-hop transaction chains
         mock_results = [
             {"start": "acc-1", "middle": "acc-2", "end": "acc-3"},
             {"start": "acc-4", "middle": "acc-5", "end": "acc-6"},
         ]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         result = detector.analyze_transaction_chains()
-        
+
         assert len(result) == 2
         assert result[0]["source"] == "acc-1"
         assert result[0]["intermediate"] == "acc-2"
@@ -408,34 +427,36 @@ class TestTransactionChainAnalysis:
         """Test when no chains are found."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = []
-        
+
         result = detector.analyze_transaction_chains()
-        
+
         assert len(result) == 0
 
     def test_analyze_chains_handles_exception(self, mock_janusgraph_client):
         """Test exception handling in chain analysis."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_janusgraph_client.submit.side_effect = Exception("Query failed")
-        
+
         result = detector.analyze_transaction_chains()
-        
+
         assert len(result) == 0  # Should return empty list on error
 
     def test_analyze_chains_stores_in_findings(self, mock_janusgraph_client):
         """Test that chains are stored in findings."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_results = [{"start": "acc-1", "middle": "acc-2", "end": "acc-3"}]
-        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = mock_results
-        
+        mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = (
+            mock_results
+        )
+
         detector.analyze_transaction_chains()
-        
+
         assert "transaction_chains" in detector.findings
         assert len(detector.findings["transaction_chains"]) == 1
 
@@ -451,9 +472,9 @@ class TestReportGeneration:
     def test_generate_report_empty_findings(self):
         """Test report generation with no findings."""
         detector = AMLStructuringDetector()
-        
+
         report = detector.generate_report()
-        
+
         # Report text doesn't include the printed header, just the content
         assert "EXECUTIVE SUMMARY" in report
         assert "RECOMMENDATIONS" in report
@@ -462,7 +483,7 @@ class TestReportGeneration:
     def test_generate_report_with_findings(self):
         """Test report generation with findings."""
         detector = AMLStructuringDetector()
-        
+
         # Populate findings
         detector.findings = {
             "summary_stats": {
@@ -478,13 +499,11 @@ class TestReportGeneration:
                     "recommendation": "File SAR",
                 }
             ],
-            "high_risk_accounts": [
-                {"account_id": "acc-2", "total_transactions": 25}
-            ],
+            "high_risk_accounts": [{"account_id": "acc-2", "total_transactions": 25}],
         }
-        
+
         report = detector.generate_report()
-        
+
         assert "Total Transactions Analyzed: 100" in report
         assert "Structuring Patterns Found: 1" in report
         assert "High-Risk Accounts: 1" in report
@@ -494,15 +513,15 @@ class TestReportGeneration:
     def test_generate_report_no_sar_needed(self):
         """Test report when no SAR filing is needed."""
         detector = AMLStructuringDetector()
-        
+
         detector.findings = {
             "summary_stats": {"total_transactions": 50, "total_amount": 100000},
             "structuring_patterns": [],
             "high_risk_accounts": [],
         }
-        
+
         report = detector.generate_report()
-        
+
         assert "No immediate SAR filings required" in report
         assert "Continue routine monitoring" in report
 
@@ -518,15 +537,15 @@ class TestFullAnalysis:
     def test_run_full_analysis_success(self, mock_janusgraph_client):
         """Test running full analysis."""
         detector = AMLStructuringDetector()
-        
-        with patch('banking.analytics.aml_structuring_detector.client.Client') as mock_client_class:
+
+        with patch("banking.analytics.aml_structuring_detector.client.Client") as mock_client_class:
             mock_client_class.return_value = mock_janusgraph_client
-            
+
             # Mock all query responses
             mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = [1000]
-            
+
             result = detector.run_full_analysis()
-            
+
             assert "summary_stats" in result
             assert "high_risk_accounts" in result
             assert "structuring_patterns" in result
@@ -535,14 +554,14 @@ class TestFullAnalysis:
     def test_run_full_analysis_closes_on_exception(self, mock_janusgraph_client):
         """Test that connection is closed even on exception."""
         detector = AMLStructuringDetector()
-        
-        with patch('banking.analytics.aml_structuring_detector.client.Client') as mock_client_class:
+
+        with patch("banking.analytics.aml_structuring_detector.client.Client") as mock_client_class:
             mock_client_class.return_value = mock_janusgraph_client
             mock_janusgraph_client.submit.side_effect = Exception("Query failed")
-            
+
             with pytest.raises(Exception):
                 detector.run_full_analysis()
-            
+
             mock_janusgraph_client.close.assert_called_once()
 
 
@@ -552,45 +571,52 @@ class TestFullAnalysis:
 
 
 try:
-    from hypothesis import given, strategies as st
-    
+    from hypothesis import given
+    from hypothesis import strategies as st
+
     class TestAMLPropertyBased:
         """Property-based tests for AML detection."""
-        
-        @given(st.lists(st.floats(min_value=0, max_value=20000, allow_nan=False), min_size=1, max_size=100))
+
+        @given(
+            st.lists(
+                st.floats(min_value=0, max_value=20000, allow_nan=False), min_size=1, max_size=100
+            )
+        )
         def test_transaction_analysis_always_returns_valid_stats(self, amounts):
             """Test that transaction analysis always returns valid statistics."""
             from unittest.mock import Mock
+
             mock_client = Mock()
             detector = AMLStructuringDetector()
             detector.client = mock_client
-            
+
             mock_client.submit.return_value.all.return_value.result.return_value = amounts
-            
+
             result = detector.analyze_transaction_amounts()
-            
+
             assert "total_transactions" in result
             assert "total_amount" in result
             assert "average_amount" in result
             assert "distribution" in result
-            
+
             assert result["total_transactions"] == len(amounts)
             assert result["total_amount"] >= 0
             assert result["average_amount"] >= 0
-        
+
         @given(st.integers(min_value=1, max_value=100))
         def test_suspicious_count_never_exceeds_total(self, total_count):
             """Test that suspicious transaction count never exceeds total."""
             from unittest.mock import Mock
+
             mock_client = Mock()
             detector = AMLStructuringDetector()
             detector.client = mock_client
-            
+
             amounts = [9500] * (total_count // 2) + [5000] * (total_count - total_count // 2)
             mock_client.submit.return_value.all.return_value.result.return_value = amounts
-            
+
             result = detector.analyze_transaction_amounts()
-            
+
             suspicious = result["distribution"]["9k_to_10k (SUSPICIOUS)"]
             assert suspicious <= result["total_transactions"]
 
@@ -611,11 +637,11 @@ class TestEdgeCases:
         """Test analysis with single transaction."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = [5000]
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result["total_transactions"] == 1
         assert result["min_amount"] == result["max_amount"] == 5000
 
@@ -623,12 +649,12 @@ class TestEdgeCases:
         """Test when all transactions are above CTR threshold."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         amounts = [15000, 20000, 25000]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result["near_threshold_count"] == 0
         assert result["distribution"]["above_10k"] == 3
 
@@ -636,12 +662,12 @@ class TestEdgeCases:
         """Test when all transactions are well below threshold."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         amounts = [1000, 2000, 3000]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         assert result["near_threshold_count"] == 0
         assert result["distribution"]["9k_to_10k (SUSPICIOUS)"] == 0
 
@@ -649,15 +675,15 @@ class TestEdgeCases:
         """Test transactions at exact threshold values."""
         detector = AMLStructuringDetector()
         detector.client = mock_janusgraph_client
-        
+
         amounts = [
             STRUCTURING_THRESHOLD,  # Exactly at structuring threshold
-            CTR_THRESHOLD,          # Exactly at CTR threshold
+            CTR_THRESHOLD,  # Exactly at CTR threshold
         ]
         mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = amounts
-        
+
         result = detector.analyze_transaction_amounts()
-        
+
         # STRUCTURING_THRESHOLD (9500) should be in near_threshold
         # CTR_THRESHOLD (10000) should be above threshold
         assert result["near_threshold_count"] == 1
@@ -687,5 +713,6 @@ class TestConstants:
     def test_thresholds_relationship(self):
         """Test that structuring threshold is below CTR threshold."""
         assert STRUCTURING_THRESHOLD < CTR_THRESHOLD
+
 
 # Made with Bob

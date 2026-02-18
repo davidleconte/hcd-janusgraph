@@ -1,4 +1,5 @@
 """Comprehensive tests for src.python.utils.startup_validation — targets 67% → 90%+."""
+
 import os
 import sys
 from unittest.mock import patch
@@ -74,17 +75,33 @@ class TestStartupValidationError:
 
 
 class TestIsDefaultPassword:
-    @pytest.mark.parametrize("pwd", [
-        "changeit", "password", "admin", "secret", "123456", "1234567890",
-        "YOUR_PASSWORD_HERE", "CHANGEME", "CHANGE_ME", "PLACEHOLDER",
-        "DefaultDev0nly!2026",
-    ])
+    @pytest.mark.parametrize(
+        "pwd",
+        [
+            "changeit",
+            "password",
+            "admin",
+            "secret",
+            "123456",
+            "1234567890",
+            "YOUR_PASSWORD_HERE",
+            "CHANGEME",
+            "CHANGE_ME",
+            "PLACEHOLDER",
+            "DefaultDev0nly!2026",
+        ],
+    )
     def test_detects_defaults(self, pwd):
         assert _is_default_password(pwd)
 
-    @pytest.mark.parametrize("pwd", [
-        "MyStr0ng!Pass#2026", "xK9$mNpQ2wLz", "not-a-default",
-    ])
+    @pytest.mark.parametrize(
+        "pwd",
+        [
+            "MyStr0ng!Pass#2026",
+            "xK9$mNpQ2wLz",
+            "not-a-default",
+        ],
+    )
     def test_allows_strong(self, pwd):
         assert not _is_default_password(pwd)
 
@@ -127,8 +144,11 @@ class TestValidatePasswords:
             r = ValidationResult()
             validate_passwords(r)
             assert r.has_errors
-            assert any("OPENSEARCH_INITIAL_ADMIN_PASSWORD" in i.message or
-                       (i.variable and "OPENSEARCH" in i.variable) for i in r.issues)
+            assert any(
+                "OPENSEARCH_INITIAL_ADMIN_PASSWORD" in i.message
+                or (i.variable and "OPENSEARCH" in i.variable)
+                for i in r.issues
+            )
 
     def test_default_password_detected(self):
         env = {

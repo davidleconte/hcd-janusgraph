@@ -574,7 +574,9 @@ class UBODiscovery:
                             edges.append(edge)
                         break
                     except Exception:
-                        logger.debug("Failed to fetch edges for relationship, skipping", exc_info=True)
+                        logger.debug(
+                            "Failed to fetch edges for relationship, skipping", exc_info=True
+                        )
                         continue
 
         except Exception as e:

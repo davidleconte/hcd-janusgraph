@@ -1,13 +1,16 @@
 """Tests for banking.data_generators.events modules."""
-import pytest
+
 from datetime import date, datetime, timedelta
 
-from banking.data_generators.events.transaction_generator import TransactionGenerator
+import pytest
+
 from banking.data_generators.events.communication_generator import CommunicationGenerator
 from banking.data_generators.events.trade_generator import TradeGenerator
-
+from banking.data_generators.events.transaction_generator import TransactionGenerator
 from banking.data_generators.utils.data_models import (
-    Transaction, Communication, Trade,
+    Communication,
+    Trade,
+    Transaction,
 )
 
 
@@ -54,6 +57,3 @@ class TestTradeGenerator:
         gen = TradeGenerator(seed=42)
         trades = gen.generate_batch(5)
         assert len(trades) == 5
-
-
-

@@ -126,7 +126,7 @@ def validate_passwords(result: ValidationResult, strict: bool = True) -> None:
             variable="OPENSEARCH_INITIAL_ADMIN_PASSWORD",
             recommendation="Set in .env file: OPENSEARCH_INITIAL_ADMIN_PASSWORD='your-secure-password'",
         )
-    
+
     for var in PASSWORD_VARIABLES:
         value = os.getenv(var)
         if not value:

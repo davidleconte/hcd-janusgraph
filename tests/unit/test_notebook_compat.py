@@ -155,9 +155,7 @@ class TestAnalyzeBehavioralPattern:
     def test_with_trained_model(self):
         detector = MockFraudDetector()
         detector.train_anomaly_model([{"amount": 100}, {"amount": 200}])
-        result = detector.analyze_behavioral_pattern(
-            "acc-1", transaction={"amount": 500}
-        )
+        result = detector.analyze_behavioral_pattern("acc-1", transaction={"amount": 500})
         assert result["typical_amount"] == 150.0
 
 

@@ -1,30 +1,32 @@
 """Tests for banking.exceptions module."""
-import pytest
+
 from datetime import datetime, timezone
 
+import pytest
+
 from banking.exceptions import (
+    AnalyticsError,
+    AuditLoggingError,
     BankingBaseException,
+    ComplianceError,
+    ComplianceViolationError,
+    ConsumerError,
     DataGenerationError,
+    DeadLetterQueueError,
+    DetectionError,
     GeneratorConfigurationError,
     GeneratorExecutionError,
-    PatternInjectionError,
-    StreamingError,
-    ProducerError,
-    ConsumerError,
-    MessageSerializationError,
-    DeadLetterQueueError,
-    StreamingConnectionError,
-    AnalyticsError,
-    DetectionError,
     InsufficientDataError,
-    ThresholdViolationError,
-    ComplianceError,
-    AuditLoggingError,
-    ComplianceViolationError,
+    MessageSerializationError,
+    PatternInjectionError,
+    ProducerError,
     ReportGenerationError,
-    is_retryable_banking_error,
+    StreamingConnectionError,
+    StreamingError,
+    ThresholdViolationError,
     get_banking_error_category,
     is_critical_banking_error,
+    is_retryable_banking_error,
 )
 
 
@@ -53,7 +55,9 @@ class TestBankingBaseException:
         assert e.details == {"op": "create"}
 
     def test_to_dict(self):
-        e = BankingBaseException("err", error_code="E1", entity_id="a-1", entity_type="account", details={"k": "v"})
+        e = BankingBaseException(
+            "err", error_code="E1", entity_id="a-1", entity_type="account", details={"k": "v"}
+        )
         d = e.to_dict()
         assert d["error_code"] == "E1"
         assert d["message"] == "err"

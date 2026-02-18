@@ -106,7 +106,8 @@ class TestMain:
         mock_client.execute.side_effect = [
             ["Schema created"],
             ["Data loaded"],
-            [11], [19],
+            [11],
+            [19],
             ["Alice", "Bob", "Carol"],
             ["TechCorp", "DataLabs"],
             ["GraphDB Pro", "Analytics Suite"],
@@ -117,9 +118,7 @@ class TestMain:
     def test_connection_error(self, mock_client_cls):
         from src.python.client.exceptions import ConnectionError
 
-        mock_client_cls.return_value.__enter__ = MagicMock(
-            side_effect=ConnectionError("refused")
-        )
+        mock_client_cls.return_value.__enter__ = MagicMock(side_effect=ConnectionError("refused"))
         mock_client_cls.return_value.__exit__ = MagicMock(return_value=False)
         assert main() == 1
 

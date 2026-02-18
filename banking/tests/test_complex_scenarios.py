@@ -165,7 +165,9 @@ class TestCheckBehaviorComplexScenarios:
                 description="Online purchase",
             )
 
-            assert 0.2 <= risk_score <= 0.5, f"First transaction should have moderate risk, got {risk_score}"
+            assert (
+                0.2 <= risk_score <= 0.5
+            ), f"First transaction should have moderate risk, got {risk_score}"
 
     @patch("banking.fraud.fraud_detection.EmbeddingGenerator")
     @patch("banking.fraud.fraud_detection.VectorSearchClient")

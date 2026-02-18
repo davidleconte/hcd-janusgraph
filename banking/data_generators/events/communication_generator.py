@@ -10,12 +10,12 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta, timezone
-
-from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 from faker import Faker
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 
 from ..core.base_generator import BaseGenerator
 from ..utils.constants import COUNTRIES, LANGUAGES, SUSPICIOUS_KEYWORDS

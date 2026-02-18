@@ -11,7 +11,7 @@ End-to-end testing of:
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -52,7 +52,6 @@ class TestAMLDetectionPipeline:
             assert pattern.transaction_count == 3
             assert pattern.total_amount > Decimal("28000")
             assert pattern.confidence_score > 0.0
-
 
     def test_alert_generation_workflow(self):
         """Test alert generation from detected patterns"""

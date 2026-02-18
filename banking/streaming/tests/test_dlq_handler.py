@@ -23,7 +23,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from banking.streaming.events import EntityEvent
 from banking.streaming.dlq_handler import (
     DLQHandler,
     DLQMessage,
@@ -31,6 +30,7 @@ from banking.streaming.dlq_handler import (
     MockDLQHandler,
     get_dlq_handler,
 )
+from banking.streaming.events import EntityEvent
 
 
 class TestDLQMessage:
@@ -663,5 +663,6 @@ class TestGetDLQHandler:
         handler = get_dlq_handler(mock=False)
 
         assert isinstance(handler, DLQHandler)
+
 
 # Made with Bob

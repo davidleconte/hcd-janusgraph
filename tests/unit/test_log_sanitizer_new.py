@@ -1,9 +1,15 @@
 """Tests for src.python.utils.log_sanitizer module."""
+
 import logging
+
 import pytest
+
 from src.python.utils.log_sanitizer import (
-    PIISanitizer, setup_secure_logging, get_secure_logger,
-    sanitize_for_logging, AllowPIILogging,
+    AllowPIILogging,
+    PIISanitizer,
+    get_secure_logger,
+    sanitize_for_logging,
+    setup_secure_logging,
 )
 
 
@@ -74,7 +80,9 @@ class TestPIISanitizer:
 
     def test_filter_record_tuple_args(self):
         s = PIISanitizer()
-        record = logging.LogRecord("test", logging.INFO, "", 0, "msg %s", ("user@example.com",), None)
+        record = logging.LogRecord(
+            "test", logging.INFO, "", 0, "msg %s", ("user@example.com",), None
+        )
         s.filter(record)
         assert "user@example.com" not in str(record.args)
 
@@ -98,6 +106,7 @@ class TestAllowPIILogging:
 class TestSetupSecureLogging:
     def test_setup(self):
         import logging
+
         original_handlers = logging.root.handlers[:]
         original_level = logging.root.level
         try:

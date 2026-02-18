@@ -66,6 +66,7 @@ def check_pulsar_available():
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
+
     def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
@@ -83,6 +84,7 @@ def check_janusgraph_available():
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
+
     def _check() -> bool:
         from opensearchpy import OpenSearch
 
@@ -359,15 +361,13 @@ class TestE2EAMLStructuringDetection:
     def test_query_suspicious_transactions(self, gremlin_client):
         """Query for transactions that might indicate structuring."""
         # Look for transactions between $9,000-$10,000 (suspicious range)
-        result = gremlin_client.execute(
-            """
+        result = gremlin_client.execute("""
             g.E().hasLabel('MADE_TRANSACTION')
              .has('amount')
              .has('amount', gte(9000.0))
              .has('amount', lt(10000.0))
              .limit(20)
-        """
-        )
+        """)
         logger.info("Suspicious range transactions: %s", len(result))
         assert isinstance(result, list)
 

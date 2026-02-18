@@ -36,6 +36,7 @@ def check_janusgraph() -> bool:
         c.submit("g.V().count()").all().result()
         c.close()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
@@ -55,6 +56,7 @@ def check_opensearch() -> bool:
         )
         client.info()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 

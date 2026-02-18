@@ -1,13 +1,15 @@
 """Comprehensive tests for src.python.analytics.ubo_discovery — targets 60% → 85%+."""
-import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+
 from dataclasses import dataclass
+from unittest.mock import MagicMock, PropertyMock, patch
+
+import pytest
 
 from src.python.analytics.ubo_discovery import (
-    OwnershipType,
     OwnershipLink,
-    UBOResult,
+    OwnershipType,
     UBODiscovery,
+    UBOResult,
 )
 
 
@@ -23,9 +25,14 @@ class TestOwnershipType:
 class TestOwnershipLink:
     def test_fields(self):
         link = OwnershipLink(
-            entity_id="p-1", entity_type="person", entity_name="Alice",
-            ownership_percentage=30.0, ownership_type=OwnershipType.DIRECT,
-            jurisdiction="US", is_pep=True, is_sanctioned=False,
+            entity_id="p-1",
+            entity_type="person",
+            entity_name="Alice",
+            ownership_percentage=30.0,
+            ownership_type=OwnershipType.DIRECT,
+            jurisdiction="US",
+            is_pep=True,
+            is_sanctioned=False,
         )
         assert link.entity_id == "p-1"
         assert link.is_pep is True
@@ -33,8 +40,11 @@ class TestOwnershipLink:
 
     def test_defaults(self):
         link = OwnershipLink(
-            entity_id="c-1", entity_type="company", entity_name="Corp",
-            ownership_percentage=100.0, ownership_type=OwnershipType.INDIRECT,
+            entity_id="c-1",
+            entity_type="company",
+            entity_name="Corp",
+            ownership_percentage=100.0,
+            ownership_type=OwnershipType.INDIRECT,
         )
         assert link.jurisdiction is None
         assert link.is_pep is False
@@ -59,7 +69,10 @@ class TestUBODiscovery:
                 assert self.engine.g is not None
 
     def test_connect_failure(self):
-        with patch("src.python.analytics.ubo_discovery.DriverRemoteConnection", side_effect=Exception("fail")):
+        with patch(
+            "src.python.analytics.ubo_discovery.DriverRemoteConnection",
+            side_effect=Exception("fail"),
+        ):
             assert self.engine.connect() is False
 
     def test_close(self):
@@ -77,7 +90,9 @@ class TestUBODiscovery:
 
     def test_find_ubos_company_not_found(self):
         self.engine.g = MagicMock()
-        self.engine.g.V.return_value.has.return_value.value_map.return_value.toList.return_value = []
+        self.engine.g.V.return_value.has.return_value.value_map.return_value.toList.return_value = (
+            []
+        )
         with pytest.raises(ValueError, match="Company not found"):
             self.engine.find_ubos_for_company("COMP-MISSING")
 
@@ -93,9 +108,7 @@ class TestUBODiscovery:
         ]
 
         chain = mock_g.V.return_value.has.return_value.in_e.return_value
-        chain.project.return_value.by.return_value.by.return_value.by.return_value \
-            .by.return_value.by.return_value.by.return_value.by.return_value \
-            .toList.return_value = [
+        chain.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = [
             {
                 "person_id": "p-1",
                 "first_name": "Alice",
@@ -107,9 +120,9 @@ class TestUBODiscovery:
             }
         ]
 
-        mock_g.V.return_value.has.return_value.repeat.return_value \
-            .until.return_value.has_label.return_value.path.return_value \
-            .by.return_value.toList.return_value = []
+        mock_g.V.return_value.has.return_value.repeat.return_value.until.return_value.has_label.return_value.path.return_value.by.return_value.toList.return_value = (
+            []
+        )
 
         result = self.engine.find_ubos_for_company("COMP-1", include_indirect=False)
         assert isinstance(result, UBOResult)
@@ -133,17 +146,20 @@ class TestUBODiscovery:
 
     def test_calculate_risk_score_with_indicators(self):
         ubos = [{"is_pep": True, "is_sanctioned": True}]
-        chains = [[
-            OwnershipLink("p-1", "person", "A", 100.0, OwnershipType.DIRECT),
-            OwnershipLink("c-1", "company", "B", 100.0, OwnershipType.INDIRECT),
-            OwnershipLink("c-2", "company", "C", 100.0, OwnershipType.INDIRECT),
-        ]]
+        chains = [
+            [
+                OwnershipLink("p-1", "person", "A", 100.0, OwnershipType.DIRECT),
+                OwnershipLink("c-1", "company", "B", 100.0, OwnershipType.INDIRECT),
+                OwnershipLink("c-2", "company", "C", 100.0, OwnershipType.INDIRECT),
+            ]
+        ]
         indicators = ["risk1", "risk2", "risk3"]
         score = self.engine._calculate_risk_score(ubos, chains, indicators)
         assert score > 0
 
     def test_flatten_value_map(self):
         from gremlin_python.process.traversal import T
+
         vm = {T.id: 123, T.label: "person", "name": ["Alice"], "age": [30]}
         flat = self.engine._flatten_value_map(vm)
         assert flat["id"] == 123
@@ -172,7 +188,9 @@ class TestUBODiscovery:
 
     def test_get_company_info_error(self):
         mock_g = MagicMock()
-        mock_g.V.return_value.has.return_value.value_map.return_value.toList.side_effect = Exception("err")
+        mock_g.V.return_value.has.return_value.value_map.return_value.toList.side_effect = (
+            Exception("err")
+        )
         self.engine.g = mock_g
         assert self.engine._get_company_info("X") is None
 
@@ -190,9 +208,9 @@ class TestUBODiscovery:
 
     def test_find_shared_ubos_empty(self):
         mock_g = MagicMock()
-        mock_g.V.return_value.has.return_value.inE.return_value \
-            .where.return_value.project.return_value \
-            .by.return_value.by.return_value.toList.return_value = []
+        mock_g.V.return_value.has.return_value.inE.return_value.where.return_value.project.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         self.engine.g = mock_g
         result = self.engine.find_shared_ubos(["C1", "C2"])
         assert result == {}

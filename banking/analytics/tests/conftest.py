@@ -18,7 +18,6 @@ from unittest.mock import Mock
 
 import pytest
 
-
 # ============================================================================
 # Mock JanusGraph Client Fixtures
 # ============================================================================
@@ -28,9 +27,9 @@ import pytest
 def mock_janusgraph_client():
     """
     Mock JanusGraph client for testing without real connection.
-    
+
     Provides a mock client with submit() method that returns configurable results.
-    
+
     Example:
         >>> def test_query(mock_janusgraph_client):
         ...     mock_janusgraph_client.submit.return_value.all.return_value.result.return_value = [100]
@@ -40,15 +39,15 @@ def mock_janusgraph_client():
         ...     assert result == [100]
     """
     client = Mock()
-    
+
     # Mock the submit() -> all() -> result() chain
     mock_result = Mock()
     mock_result.all = Mock()
     mock_result.all.return_value.result = Mock()
-    
+
     client.submit = Mock(return_value=mock_result)
     client.close = Mock()
-    
+
     return client
 
 
@@ -56,16 +55,17 @@ def mock_janusgraph_client():
 def mock_janusgraph_with_data(mock_janusgraph_client):
     """
     Mock JanusGraph client pre-configured with sample data responses.
-    
+
     Returns different data based on query patterns:
     - Vertex count queries return 1000
     - Transaction queries return sample transactions
     - Person queries return sample persons
     """
+
     def submit_handler(query: str):
         """Handle different query types."""
         mock_result = Mock()
-        
+
         if "count()" in query:
             # Count queries
             mock_result.all.return_value.result.return_value = [1000]
@@ -85,9 +85,9 @@ def mock_janusgraph_with_data(mock_janusgraph_client):
         else:
             # Default empty result
             mock_result.all.return_value.result.return_value = []
-        
+
         return mock_result
-    
+
     mock_janusgraph_client.submit.side_effect = submit_handler
     return mock_janusgraph_client
 
@@ -101,7 +101,7 @@ def mock_janusgraph_with_data(mock_janusgraph_client):
 def sample_transactions():
     """
     Sample transaction data for AML structuring detection tests.
-    
+
     Includes various transaction patterns:
     - Just under $10K threshold (structuring)
     - Normal transactions
@@ -113,14 +113,11 @@ def sample_transactions():
         {"id": "tx-1", "amount": 9500.00, "account": "acc-1", "timestamp": "2026-01-01T10:00:00Z"},
         {"id": "tx-2", "amount": 9800.00, "account": "acc-1", "timestamp": "2026-01-01T10:05:00Z"},
         {"id": "tx-3", "amount": 9700.00, "account": "acc-1", "timestamp": "2026-01-01T10:10:00Z"},
-        
         # Normal transactions - Account 2
         {"id": "tx-4", "amount": 5000.00, "account": "acc-2", "timestamp": "2026-01-01T11:00:00Z"},
         {"id": "tx-5", "amount": 3000.00, "account": "acc-2", "timestamp": "2026-01-01T12:00:00Z"},
-        
         # Large transaction - Account 3
         {"id": "tx-6", "amount": 15000.00, "account": "acc-3", "timestamp": "2026-01-01T13:00:00Z"},
-        
         # Boundary cases
         {"id": "tx-7", "amount": 9999.99, "account": "acc-4", "timestamp": "2026-01-01T14:00:00Z"},
         {"id": "tx-8", "amount": 10000.00, "account": "acc-5", "timestamp": "2026-01-01T15:00:00Z"},
@@ -131,14 +128,14 @@ def sample_transactions():
 def sample_trades():
     """
     Sample trade data for insider trading detection tests.
-    
+
     Includes:
     - Pre-announcement trades
     - Coordinated trades
     - Normal trades
     """
     base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-    
+
     return [
         # Pre-announcement trades (suspicious)
         {
@@ -159,7 +156,6 @@ def sample_trades():
             "price": 50.50,
             "timestamp": base_time - timedelta(days=7, hours=2),
         },
-        
         # Normal trades
         {
             "id": "trade-3",
@@ -177,14 +173,14 @@ def sample_trades():
 def sample_corporate_events():
     """
     Sample corporate events for insider trading detection.
-    
+
     Includes:
     - Earnings announcements
     - Merger announcements
     - Product launches
     """
     base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-    
+
     return [
         {
             "event_id": "event-1",
@@ -211,7 +207,7 @@ def sample_corporate_events():
 def sample_companies():
     """
     Sample company data for TBML detection tests.
-    
+
     Includes:
     - Normal companies
     - Shell companies (suspicious indicators)
@@ -226,7 +222,6 @@ def sample_companies():
             "incorporation_date": "2010-01-01",
             "annual_revenue": 50000000,
         },
-        
         # Shell company (suspicious)
         {
             "id": "comp-2",
@@ -235,7 +230,6 @@ def sample_companies():
             "incorporation_date": "2025-11-01",
             "annual_revenue": 10000000,
         },
-        
         # Recently incorporated
         {
             "id": "comp-3",
@@ -251,7 +245,7 @@ def sample_companies():
 def sample_trade_transactions():
     """
     Sample trade transactions for TBML detection.
-    
+
     Includes:
     - Normal trades
     - Over-invoiced trades
@@ -269,7 +263,6 @@ def sample_trade_transactions():
             "market_price": 10000,
             "quantity": 100,
         },
-        
         # Over-invoiced (suspicious)
         {
             "id": "ttx-2",
@@ -280,7 +273,6 @@ def sample_trade_transactions():
             "market_price": 10000,
             "quantity": 100,
         },
-        
         # Under-invoiced (suspicious)
         {
             "id": "ttx-3",
@@ -298,14 +290,14 @@ def sample_trade_transactions():
 def sample_communications():
     """
     Sample communication data for insider trading detection.
-    
+
     Includes:
     - Normal communications
     - Suspicious communications (keywords)
     - Flagged communications
     """
     base_time = datetime(2026, 1, 1, 10, 0, 0, tzinfo=timezone.utc)
-    
+
     return [
         # Suspicious communication
         {
@@ -316,7 +308,6 @@ def sample_communications():
             "timestamp": base_time - timedelta(days=8),
             "flagged": True,
         },
-        
         # Normal communication
         {
             "id": "comm-2",
@@ -326,7 +317,6 @@ def sample_communications():
             "timestamp": base_time - timedelta(days=5),
             "flagged": False,
         },
-        
         # Suspicious keywords
         {
             "id": "comm-3",
@@ -348,12 +338,13 @@ def sample_communications():
 def risk_score_validator():
     """
     Validator for risk scores.
-    
+
     Ensures risk scores are:
     - Between 0 and 100
     - Numeric
     - Not NaN
     """
+
     def validate(score: float, min_score: float = 0.0, max_score: float = 100.0) -> bool:
         """Validate risk score is within expected range."""
         if not isinstance(score, (int, float)):
@@ -361,7 +352,7 @@ def risk_score_validator():
         if score != score:  # Check for NaN
             return False
         return min_score <= score <= max_score
-    
+
     return validate
 
 
@@ -369,29 +360,30 @@ def risk_score_validator():
 def alert_validator():
     """
     Validator for detection alerts.
-    
+
     Ensures alerts have required fields and valid values.
     """
+
     def validate(alert: Dict[str, Any]) -> bool:
         """Validate alert structure and content."""
         required_fields = ["alert_id", "alert_type", "severity", "risk_score"]
-        
+
         # Check required fields
         for field in required_fields:
             if field not in alert:
                 return False
-        
+
         # Validate severity
         valid_severities = ["critical", "high", "medium", "low"]
         if alert["severity"] not in valid_severities:
             return False
-        
+
         # Validate risk score
         if not (0 <= alert["risk_score"] <= 100):
             return False
-        
+
         return True
-    
+
     return validate
 
 
@@ -399,42 +391,40 @@ def alert_validator():
 def query_result_builder():
     """
     Builder for mock JanusGraph query results.
-    
+
     Simplifies creating mock query responses.
     """
+
     class QueryResultBuilder:
         """Builder for constructing mock query results."""
-        
+
         def __init__(self):
             self.results = []
-        
+
         def add_vertex(self, label: str, properties: Dict[str, Any]) -> "QueryResultBuilder":
             """Add a vertex to results."""
             vertex = {"label": label, **properties}
             self.results.append(vertex)
             return self
-        
-        def add_edge(self, label: str, from_id: str, to_id: str, properties: Optional[Dict[str, Any]] = None) -> "QueryResultBuilder":
+
+        def add_edge(
+            self, label: str, from_id: str, to_id: str, properties: Optional[Dict[str, Any]] = None
+        ) -> "QueryResultBuilder":
             """Add an edge to results."""
-            edge = {
-                "label": label,
-                "from": from_id,
-                "to": to_id,
-                **(properties or {})
-            }
+            edge = {"label": label, "from": from_id, "to": to_id, **(properties or {})}
             self.results.append(edge)
             return self
-        
+
         def build(self) -> List[Dict[str, Any]]:
             """Build and return results."""
             return self.results
-        
+
         def build_mock(self) -> Mock:
             """Build and return as mock result."""
             mock_result = Mock()
             mock_result.all.return_value.result.return_value = self.results
             return mock_result
-    
+
     return QueryResultBuilder()
 
 
@@ -446,7 +436,7 @@ def query_result_builder():
 def transaction_amounts_parametrize():
     """
     Parametrize decorator for transaction amount test cases.
-    
+
     Returns test cases for various transaction amount scenarios.
     """
     return pytest.mark.parametrize(
@@ -454,19 +444,14 @@ def transaction_amounts_parametrize():
         [
             # All under threshold - high risk
             ([9500, 9800, 9700], "high"),
-            
             # Mixed amounts - medium risk
             ([9500, 5000, 3000], "medium"),
-            
             # All normal - low risk
             ([5000, 3000, 2000], "low"),
-            
             # Single large transaction - low risk
             ([15000], "low"),
-            
             # Boundary case - exactly at threshold
             ([10000, 10000], "low"),
-            
             # Empty list - no risk
             ([], "none"),
         ],
@@ -495,20 +480,11 @@ def insider_trading_scenarios_parametrize():
 
 def pytest_configure(config):
     """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "analytics: Analytics module tests"
-    )
-    config.addinivalue_line(
-        "markers", "aml: AML detection tests"
-    )
-    config.addinivalue_line(
-        "markers", "insider_trading: Insider trading detection tests"
-    )
-    config.addinivalue_line(
-        "markers", "tbml: TBML detection tests"
-    )
-    config.addinivalue_line(
-        "markers", "requires_janusgraph: Tests requiring JanusGraph connection"
-    )
+    config.addinivalue_line("markers", "analytics: Analytics module tests")
+    config.addinivalue_line("markers", "aml: AML detection tests")
+    config.addinivalue_line("markers", "insider_trading: Insider trading detection tests")
+    config.addinivalue_line("markers", "tbml: TBML detection tests")
+    config.addinivalue_line("markers", "requires_janusgraph: Tests requiring JanusGraph connection")
+
 
 # Made with Bob

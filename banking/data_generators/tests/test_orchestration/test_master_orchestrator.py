@@ -118,7 +118,11 @@ class TestMasterOrchestratorEdgeCases:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=1, company_count=1, account_count=2, transaction_count=1,
+            seed=42,
+            person_count=1,
+            company_count=1,
+            account_count=2,
+            transaction_count=1,
             communication_count=1,
         )
 
@@ -134,7 +138,11 @@ class TestMasterOrchestratorEdgeCases:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            seed=42,
+            person_count=100,
+            company_count=50,
+            account_count=200,
+            transaction_count=1000,
             communication_count=50,
         )
 
@@ -155,12 +163,20 @@ class TestMasterOrchestratorReproducibility:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config1 = GenerationConfig(
-            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50,
+            seed=42,
+            person_count=10,
+            company_count=5,
+            account_count=20,
+            transaction_count=50,
             communication_count=10,
         )
 
         config2 = GenerationConfig(
-            seed=42, person_count=10, company_count=5, account_count=20, transaction_count=50,
+            seed=42,
+            person_count=10,
+            company_count=5,
+            account_count=20,
+            transaction_count=50,
             communication_count=10,
         )
 
@@ -187,7 +203,11 @@ class TestMasterOrchestratorPerformance:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            seed=42,
+            person_count=100,
+            company_count=50,
+            account_count=200,
+            transaction_count=1000,
             communication_count=50,
         )
 
@@ -209,7 +229,11 @@ class TestMasterOrchestratorPerformance:
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
         config = GenerationConfig(
-            seed=42, person_count=100, company_count=50, account_count=200, transaction_count=1000,
+            seed=42,
+            person_count=100,
+            company_count=50,
+            account_count=200,
+            transaction_count=1000,
             communication_count=50,
         )
 
@@ -315,9 +339,14 @@ class TestMasterOrchestratorDataQuality:
         stats = small_orchestrator.generate_all()
 
         expected_total = (
-            stats.persons_generated + stats.companies_generated + stats.accounts_generated
-            + stats.transactions_generated + stats.communications_generated
-            + stats.trades_generated + stats.travels_generated + stats.documents_generated
+            stats.persons_generated
+            + stats.companies_generated
+            + stats.accounts_generated
+            + stats.transactions_generated
+            + stats.communications_generated
+            + stats.trades_generated
+            + stats.travels_generated
+            + stats.documents_generated
             + stats.patterns_generated
         )
         assert stats.total_records == expected_total

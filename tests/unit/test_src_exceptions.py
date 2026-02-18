@@ -1,15 +1,21 @@
 """Tests for src.python.exceptions module."""
+
 import pytest
+
 from src.python.exceptions import (
-    JanusGraphBaseException as JanusGraphException,
-    ConnectionError as JGConnectionError,
-    QueryError,
-    ValidationError,
     ConfigurationError,
-    DataError,
-    QueryExecutionError,
+)
+from src.python.exceptions import ConnectionError as JGConnectionError
+from src.python.exceptions import (
     ConnectionFailedError,
+    DataError,
     EntityNotFoundError,
+)
+from src.python.exceptions import JanusGraphBaseException as JanusGraphException
+from src.python.exceptions import (
+    QueryError,
+    QueryExecutionError,
+    ValidationError,
 )
 
 

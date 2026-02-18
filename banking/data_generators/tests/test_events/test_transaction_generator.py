@@ -13,7 +13,7 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 Date: 2026-02-06
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -91,7 +91,11 @@ class TestTransactionGeneratorFunctional:
         one_year_ago = now - timedelta(days=365)
 
         for txn in sample_transactions:
-            txn_date = txn.transaction_date.replace(tzinfo=None) if txn.transaction_date.tzinfo else txn.transaction_date
+            txn_date = (
+                txn.transaction_date.replace(tzinfo=None)
+                if txn.transaction_date.tzinfo
+                else txn.transaction_date
+            )
             assert one_year_ago <= txn_date <= now
 
     def test_different_accounts(self, sample_transaction):
@@ -148,13 +152,27 @@ class TestTransactionGeneratorReproducibility:
         """Test that MasterOrchestrator produces deterministic transaction output with same seed."""
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
-        config = GenerationConfig(seed=42, person_count=5, company_count=2, account_count=10, transaction_count=20, communication_count=0)
+        config = GenerationConfig(
+            seed=42,
+            person_count=5,
+            company_count=2,
+            account_count=10,
+            transaction_count=20,
+            communication_count=0,
+        )
 
         orch1 = MasterOrchestrator(config)
         orch1.generate_all()
         txns1 = [(t.amount, t.currency, t.transaction_type) for t in orch1.transactions]
 
-        config2 = GenerationConfig(seed=42, person_count=5, company_count=2, account_count=10, transaction_count=20, communication_count=0)
+        config2 = GenerationConfig(
+            seed=42,
+            person_count=5,
+            company_count=2,
+            account_count=10,
+            transaction_count=20,
+            communication_count=0,
+        )
         orch2 = MasterOrchestrator(config2)
         orch2.generate_all()
         txns2 = [(t.amount, t.currency, t.transaction_type) for t in orch2.transactions]

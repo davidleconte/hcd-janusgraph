@@ -1,8 +1,9 @@
 """Tests for banking.data_generators.patterns.cato_pattern_generator module."""
 
-import pytest
 from datetime import datetime, timedelta
 from decimal import Decimal
+
+import pytest
 
 from banking.data_generators.patterns.cato_pattern_generator import CATOPatternGenerator
 from banking.data_generators.utils.data_models import RiskLevel
@@ -27,7 +28,9 @@ class TestInit:
 
 class TestGenerate:
     def test_credential_stuffing(self, gen):
-        pattern = gen.generate(pattern_type="credential_stuffing", victim_count=3, attacker_count=1, duration_days=3)
+        pattern = gen.generate(
+            pattern_type="credential_stuffing", victim_count=3, attacker_count=1, duration_days=3
+        )
         assert pattern.pattern_type == "account_takeover"
         assert pattern.detection_method == "coordinated_account_takeover_detection"
         assert len(pattern.indicators) > 0

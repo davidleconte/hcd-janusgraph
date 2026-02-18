@@ -35,7 +35,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from banking.streaming.dlq_handler import DLQHandler, get_dlq_handler
-from banking.streaming.events import EntityEvent, create_person_event, create_account_event
+from banking.streaming.events import EntityEvent, create_account_event, create_person_event
 from banking.streaming.graph_consumer import GraphConsumer
 from banking.streaming.metrics import StreamingMetrics, streaming_metrics
 from banking.streaming.producer import EntityProducer, get_producer
@@ -47,6 +47,7 @@ from tests.integration._integration_test_utils import run_with_timeout_bool
 # Service availability checks
 def check_pulsar_available():
     """Check if Pulsar is available with an actual client metadata probe."""
+
     def _check() -> bool:
         import pulsar
 
@@ -65,6 +66,7 @@ def check_pulsar_available():
 
 def check_janusgraph_available():
     """Check if JanusGraph is available."""
+
     def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
@@ -82,6 +84,7 @@ def check_janusgraph_available():
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
+
     def _check() -> bool:
         from opensearchpy import OpenSearch
 
@@ -105,12 +108,8 @@ JANUSGRAPH_AVAILABLE = check_janusgraph_available()
 OPENSEARCH_AVAILABLE = check_opensearch_available()
 
 skip_no_pulsar = pytest.mark.skipif(not PULSAR_AVAILABLE, reason="Pulsar not available")
-skip_no_janusgraph = pytest.mark.skipif(
-    not JANUSGRAPH_AVAILABLE, reason="JanusGraph not available"
-)
-skip_no_opensearch = pytest.mark.skipif(
-    not OPENSEARCH_AVAILABLE, reason="OpenSearch not available"
-)
+skip_no_janusgraph = pytest.mark.skipif(not JANUSGRAPH_AVAILABLE, reason="JanusGraph not available")
+skip_no_opensearch = pytest.mark.skipif(not OPENSEARCH_AVAILABLE, reason="OpenSearch not available")
 skip_no_services = pytest.mark.skipif(
     not (PULSAR_AVAILABLE and JANUSGRAPH_AVAILABLE and OPENSEARCH_AVAILABLE),
     reason="Full stack not available",
@@ -394,12 +393,14 @@ class TestErrorHandlingIntegration:
                 pulsar_url="pulsar://192.0.2.1:6650",
                 operation_timeout_seconds=1,
             )
-            producer.send(EntityEvent(
-                entity_id="test",
-                event_type="create",
-                entity_type="person",
-                payload={"name": "test"},
-            ))
+            producer.send(
+                EntityEvent(
+                    entity_id="test",
+                    event_type="create",
+                    entity_type="person",
+                    payload={"name": "test"},
+                )
+            )
 
     def test_consumer_handles_invalid_event(self):
         """Test consumer rejects invalid event data."""
@@ -479,9 +480,7 @@ class TestPerformanceIntegration:
                 producer.close()
 
         # Create 3 concurrent producers
-        threads = [
-            threading.Thread(target=publish_batch, args=(i, 100)) for i in range(3)
-        ]
+        threads = [threading.Thread(target=publish_batch, args=(i, 100)) for i in range(3)]
 
         # Start all threads
         for thread in threads:

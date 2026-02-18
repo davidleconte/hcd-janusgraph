@@ -1,17 +1,27 @@
 """Tests for banking.analytics modules using mocks."""
-import pytest
+
 from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch, PropertyMock
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, PropertyMock, patch
+
+import pytest
 
 from banking.analytics.aml_structuring_detector import (
-    AMLStructuringDetector, CTR_THRESHOLD, STRUCTURING_THRESHOLD, SUSPICIOUS_TX_COUNT,
+    CTR_THRESHOLD,
+    STRUCTURING_THRESHOLD,
+    SUSPICIOUS_TX_COUNT,
+    AMLStructuringDetector,
 )
 from banking.analytics.detect_insider_trading import (
-    InsiderTradingDetector, InsiderTradingAlert, TradeCluster, CorporateEvent,
+    CorporateEvent,
+    InsiderTradingAlert,
+    InsiderTradingDetector,
+    TradeCluster,
 )
 from banking.analytics.detect_tbml import (
-    TBMLDetector, TBMLAlert, PriceAnomaly,
+    PriceAnomaly,
+    TBMLAlert,
+    TBMLDetector,
 )
 
 
@@ -43,7 +53,9 @@ class TestAMLStructuringDetectorInit:
         mock_result = MagicMock()
         mock_result.all.return_value.result.return_value = [100]
         mock_client.submit.return_value = mock_result
-        with patch("banking.analytics.aml_structuring_detector.client.Client", return_value=mock_client):
+        with patch(
+            "banking.analytics.aml_structuring_detector.client.Client", return_value=mock_client
+        ):
             detector.connect()
         assert detector.client is not None
 
@@ -157,7 +169,9 @@ class TestInsiderTradingDetectorInit:
         mock_result = MagicMock()
         mock_result.all.return_value.result.return_value = [50]
         mock_client.submit.return_value = mock_result
-        with patch("banking.analytics.detect_insider_trading.client.Client", return_value=mock_client):
+        with patch(
+            "banking.analytics.detect_insider_trading.client.Client", return_value=mock_client
+        ):
             detector.connect()
         assert detector.client is not None
 
@@ -176,26 +190,51 @@ class TestInsiderTradingDetectorInit:
         mock_client = MagicMock()
         mock_result = MagicMock()
         mock_result.all.return_value.result.return_value = [
-            {"trade_id": "T-1", "trader_id": "P-1", "symbol": "ACME",
-             "side": "buy", "quantity": 1000, "price": 50.0,
-             "total_value": 50000.0, "trade_date": "2026-01-10",
-             "trader_info": {}},
-            {"trade_id": "T-2", "trader_id": "P-2", "symbol": "ACME",
-             "side": "buy", "quantity": 500, "price": 51.0,
-             "total_value": 25500.0, "trade_date": "2026-01-11",
-             "trader_info": {}},
-            {"trade_id": "T-3", "trader_id": "P-1", "symbol": "ACME",
-             "side": "buy", "quantity": 800, "price": 49.0,
-             "total_value": 39200.0, "trade_date": "2026-01-12",
-             "trader_info": {}},
+            {
+                "trade_id": "T-1",
+                "trader_id": "P-1",
+                "symbol": "ACME",
+                "side": "buy",
+                "quantity": 1000,
+                "price": 50.0,
+                "total_value": 50000.0,
+                "trade_date": "2026-01-10",
+                "trader_info": {},
+            },
+            {
+                "trade_id": "T-2",
+                "trader_id": "P-2",
+                "symbol": "ACME",
+                "side": "buy",
+                "quantity": 500,
+                "price": 51.0,
+                "total_value": 25500.0,
+                "trade_date": "2026-01-11",
+                "trader_info": {},
+            },
+            {
+                "trade_id": "T-3",
+                "trader_id": "P-1",
+                "symbol": "ACME",
+                "side": "buy",
+                "quantity": 800,
+                "price": 49.0,
+                "total_value": 39200.0,
+                "trade_date": "2026-01-12",
+                "trader_info": {},
+            },
         ]
         mock_client.submit.return_value = mock_result
         detector.client = mock_client
         events = [
             CorporateEvent(
-                event_id="E-1", company_id="C-1", symbol="ACME",
-                event_type="earnings", announcement_date=datetime(2026, 1, 20, tzinfo=timezone.utc),
-                impact="positive", price_change_percent=15.0,
+                event_id="E-1",
+                company_id="C-1",
+                symbol="ACME",
+                event_type="earnings",
+                announcement_date=datetime(2026, 1, 20, tzinfo=timezone.utc),
+                impact="positive",
+                price_change_percent=15.0,
             )
         ]
         alerts = detector.detect_timing_patterns(corporate_events=events)
@@ -205,10 +244,17 @@ class TestInsiderTradingDetectorInit:
 class TestInsiderTradingAlert:
     def test_creation(self):
         alert = InsiderTradingAlert(
-            alert_id="IT-001", alert_type="timing", severity="high",
-            traders=["P-1", "P-2"], trades=["T-1", "T-2"], symbol="ACME",
-            total_value=75000.0, risk_score=0.85, indicators=["pre-announcement trading"],
-            timestamp=datetime.now(timezone.utc), details={},
+            alert_id="IT-001",
+            alert_type="timing",
+            severity="high",
+            traders=["P-1", "P-2"],
+            trades=["T-1", "T-2"],
+            symbol="ACME",
+            total_value=75000.0,
+            risk_score=0.85,
+            indicators=["pre-announcement trading"],
+            timestamp=datetime.now(timezone.utc),
+            details={},
         )
         assert alert.alert_id == "IT-001"
         assert alert.risk_score == 0.85
@@ -218,10 +264,12 @@ class TestInsiderTradingAlert:
 class TestTradeCluster:
     def test_creation(self):
         cluster = TradeCluster(
-            trades=[{"id": "T-1"}], symbol="ACME",
+            trades=[{"id": "T-1"}],
+            symbol="ACME",
             start_time=datetime.now(timezone.utc),
             end_time=datetime.now(timezone.utc),
-            total_volume=1000, total_value=50000.0,
+            total_volume=1000,
+            total_value=50000.0,
         )
         assert cluster.symbol == "ACME"
         assert cluster.total_volume == 1000
@@ -230,10 +278,13 @@ class TestTradeCluster:
 class TestCorporateEvent:
     def test_creation(self):
         event = CorporateEvent(
-            event_id="E-1", company_id="C-1", symbol="ACME",
+            event_id="E-1",
+            company_id="C-1",
+            symbol="ACME",
             event_type="earnings",
             announcement_date=datetime.now(timezone.utc),
-            impact="positive", price_change_percent=10.0,
+            impact="positive",
+            price_change_percent=10.0,
         )
         assert event.symbol == "ACME"
         assert event.impact == "positive"
@@ -320,10 +371,15 @@ class TestTBMLDetectorInit:
 class TestTBMLAlert:
     def test_creation(self):
         alert = TBMLAlert(
-            alert_id="TBML-001", alert_type="carousel", severity="high",
-            entities=["C-1", "C-2"], transactions=["T-1"],
-            total_value=100000.0, risk_score=0.9,
-            indicators=["circular trading"], timestamp=datetime.now(timezone.utc),
+            alert_id="TBML-001",
+            alert_type="carousel",
+            severity="high",
+            entities=["C-1", "C-2"],
+            transactions=["T-1"],
+            total_value=100000.0,
+            risk_score=0.9,
+            indicators=["circular trading"],
+            timestamp=datetime.now(timezone.utc),
             details={},
         )
         assert alert.alert_type == "carousel"
@@ -333,9 +389,12 @@ class TestTBMLAlert:
 class TestPriceAnomaly:
     def test_creation(self):
         anomaly = PriceAnomaly(
-            transaction_id="T-1", declared_price=100.0,
-            market_price=50.0, deviation_percent=100.0,
-            direction="over", risk_score=0.95,
+            transaction_id="T-1",
+            declared_price=100.0,
+            market_price=50.0,
+            deviation_percent=100.0,
+            direction="over",
+            risk_score=0.95,
         )
         assert anomaly.direction == "over"
         assert anomaly.deviation_percent == 100.0

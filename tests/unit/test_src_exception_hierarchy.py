@@ -49,7 +49,6 @@ from src.python.exceptions import (
     is_retryable_error,
 )
 
-
 # ============================================================================
 # Base Exception Tests
 # ============================================================================
@@ -90,9 +89,7 @@ class TestJanusGraphBaseException:
 
     def test_exception_to_dict(self):
         """Test converting exception to dictionary."""
-        exc = JanusGraphBaseException(
-            "Test error", error_code="TEST_001", details={"key": "value"}
-        )
+        exc = JanusGraphBaseException("Test error", error_code="TEST_001", details={"key": "value"})
 
         result = exc.to_dict()
 
@@ -120,9 +117,7 @@ class TestJanusGraphBaseException:
 
     def test_exception_str_with_details(self):
         """Test string representation with details."""
-        exc = JanusGraphBaseException(
-            "Test error", error_code="TEST_001", details={"key": "value"}
-        )
+        exc = JanusGraphBaseException("Test error", error_code="TEST_001", details={"key": "value"})
 
         result = str(exc)
 
@@ -208,9 +203,7 @@ class TestQueryErrors:
 
     def test_query_result_error(self):
         """Test QueryResultError."""
-        exc = QueryResultError(
-            "Failed to deserialize", details={"result_type": "vertex"}
-        )
+        exc = QueryResultError("Failed to deserialize", details={"result_type": "vertex"})
 
         assert isinstance(exc, QueryError)
         assert exc.details["result_type"] == "vertex"
@@ -293,9 +286,7 @@ class TestConfigurationErrors:
 
     def test_missing_configuration_error(self):
         """Test MissingConfigurationError."""
-        exc = MissingConfigurationError(
-            "Missing setting", details={"setting": "janusgraph.host"}
-        )
+        exc = MissingConfigurationError("Missing setting", details={"setting": "janusgraph.host"})
 
         assert isinstance(exc, ConfigurationError)
         assert exc.details["setting"] == "janusgraph.host"
@@ -320,9 +311,7 @@ class TestSecurityErrors:
 
     def test_authentication_error(self):
         """Test AuthenticationError."""
-        exc = AuthenticationError(
-            "Invalid credentials", details={"username": "user@example.com"}
-        )
+        exc = AuthenticationError("Invalid credentials", details={"username": "user@example.com"})
 
         assert isinstance(exc, SecurityError)
         assert isinstance(exc, JanusGraphBaseException)
@@ -451,9 +440,7 @@ class TestUtilityFunctions:
         ]
 
         for error in non_retryable_errors:
-            assert not is_retryable_error(
-                error
-            ), f"{type(error).__name__} should not be retryable"
+            assert not is_retryable_error(error), f"{type(error).__name__} should not be retryable"
 
     def test_get_error_category_connection(self):
         """Test get_error_category for connection errors."""
@@ -545,9 +532,7 @@ class TestExceptionIntegration:
             try:
                 risky_operation()
             except ValueError as e:
-                raise QueryExecutionError(
-                    "Query failed", details={"query": "g.V().count()"}
-                ) from e
+                raise QueryExecutionError("Query failed", details={"query": "g.V().count()"}) from e
 
         exc = exc_info.value
         assert exc.message == "Query failed"
@@ -606,5 +591,6 @@ class TestExceptionIntegration:
         categories = [get_error_category(e) for e in errors]
 
         assert categories == ["connection", "query", "data", "security"]
+
 
 # Made with Bob

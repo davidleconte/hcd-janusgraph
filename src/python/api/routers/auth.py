@@ -17,17 +17,17 @@ from src.python.api.dependencies import get_auth_session_manager, get_settings, 
 from src.python.api.models import (
     LoginRequest,
     LoginResponse,
+    LogoutRequest,
+    LogoutResponse,
     MFADisableRequest,
     MFADisableResponse,
     MFAEnrollRequest,
     MFAEnrollResponse,
-    LogoutRequest,
-    LogoutResponse,
-    RefreshTokenRequest,
-    RefreshTokenResponse,
     MFAStatusResponse,
     MFAVerifyRequest,
     MFAVerifyResponse,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
 )
 from src.python.security.mfa import MFAEnrollment, MFAManager, MFAMethod
 from src.python.security.session_manager import SessionError
@@ -75,9 +75,7 @@ def _create_login_challenge(
     challenge_hashed_backup_codes = hashed_backup_codes
     if challenge_hashed_backup_codes is None:
         backup_codes = mgr.generate_backup_codes()
-        challenge_hashed_backup_codes = [
-            mgr.hash_backup_code(code) for code in backup_codes
-        ]
+        challenge_hashed_backup_codes = [mgr.hash_backup_code(code) for code in backup_codes]
     challenge_id = secrets.token_urlsafe(24)
     _login_challenges[challenge_id] = {
         "user_id": user_id,
@@ -101,9 +99,7 @@ def _get_login_challenge(challenge_id: str) -> Optional[Dict[str, Any]]:
     return challenge
 
 
-def _issue_session(
-    request: Request, user_id: str, roles: list[str], mfa_verified: bool
-) -> dict:
+def _issue_session(request: Request, user_id: str, roles: list[str], mfa_verified: bool) -> dict:
     """Create and return a session record."""
     manager = get_auth_session_manager()
     return manager.create_session(
@@ -163,9 +159,13 @@ def login(request: Request, body: LoginRequest):
                 "Invalid or expired MFA challenge",
             )
         if not body.mfa_token:
-            raise HTTPException(HTTP_400_BAD_REQUEST, "MFA token is required for challenge completion")
+            raise HTTPException(
+                HTTP_400_BAD_REQUEST, "MFA token is required for challenge completion"
+            )
 
-        is_valid = mfa_manager.verify_totp(challenge["secret"], body.mfa_token, user_id=body.username)
+        is_valid = mfa_manager.verify_totp(
+            challenge["secret"], body.mfa_token, user_id=body.username
+        )
         used_backup_code = False
         if not is_valid:
             is_valid = mfa_manager.verify_backup_code(
@@ -337,7 +337,12 @@ def verify_mfa(request: Request, body: MFAVerifyRequest):
             get_mfa_enrollment().consume_backup_code(body.user_id, body.token)
         if is_valid:
             _login_challenges.pop(body.mfa_login_challenge, None)
-            session = _issue_session(request, body.user_id, _split_roles(get_settings().api_user_roles), mfa_verified=True)
+            session = _issue_session(
+                request,
+                body.user_id,
+                _split_roles(get_settings().api_user_roles),
+                mfa_verified=True,
+            )
             return MFAVerifyResponse(
                 success=True,
                 message="MFA verification successful",
@@ -398,9 +403,7 @@ def get_mfa_status(request: Request, user_id: str):
         status=enrollment.get("status") if enrollment else None,
         method=enrollment.get("method") if enrollment else None,
         enrolled_at=enrollment.get("enrolled_at") if enrollment else None,
-        backup_codes_remaining=len(enrollment.get("hashed_backup_codes", []))
-        if enrollment
-        else 0,
+        backup_codes_remaining=len(enrollment.get("hashed_backup_codes", [])) if enrollment else 0,
     )
 
 

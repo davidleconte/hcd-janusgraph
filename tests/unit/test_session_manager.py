@@ -1,12 +1,11 @@
 """Tests for session management — JWT tokens, concurrent limits, revocation."""
 
-import time
-
-import pytest
-
 import importlib.util
 import sys
+import time
 from pathlib import Path
+
+import pytest
 
 _STRONG_TEST_SECRET = "unit-test-secret-key-for-session-manager-strong-32chars"
 
@@ -98,18 +97,14 @@ class TestVerifyAccessToken:
 class TestRefreshSession:
     def test_refresh_returns_new_tokens(self, mgr):
         original = mgr.create_session("user1")
-        refreshed = mgr.refresh_session(
-            original["refresh_token"], original["session_id"]
-        )
+        refreshed = mgr.refresh_session(original["refresh_token"], original["session_id"])
         assert refreshed["session_id"] == original["session_id"]
         assert "access_token" in refreshed
         assert refreshed["refresh_token"] != original["refresh_token"]
 
     def test_refresh_rotates_refresh_token(self, mgr):
         original = mgr.create_session("user1")
-        refreshed = mgr.refresh_session(
-            original["refresh_token"], original["session_id"]
-        )
+        refreshed = mgr.refresh_session(original["refresh_token"], original["session_id"])
         assert refreshed["refresh_token"] != original["refresh_token"]
 
         with pytest.raises(SessionError, match="Invalid refresh token"):
@@ -122,9 +117,7 @@ class TestRefreshSession:
         )
         mgr = SessionManager(config)
         original = mgr.create_session("user1")
-        refreshed = mgr.refresh_session(
-            original["refresh_token"], original["session_id"]
-        )
+        refreshed = mgr.refresh_session(original["refresh_token"], original["session_id"])
         assert refreshed["refresh_token"] == original["refresh_token"]
 
     def test_refresh_invalid_session(self, mgr):

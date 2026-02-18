@@ -1,15 +1,15 @@
 """Tests for WAF middleware — OWASP attack vector detection."""
 
 import pytest
-from starlette.testclient import TestClient
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from starlette.testclient import TestClient
 
 from src.python.api.waf_middleware import (
+    ATTACK_CATEGORIES,
     WAFConfig,
     WAFMiddleware,
     _check_patterns,
-    ATTACK_CATEGORIES,
 )
 
 
@@ -216,11 +216,15 @@ class TestHeaderInspection:
 
 class TestCheckPatterns:
     def test_returns_none_for_clean(self):
-        result = _check_patterns("hello world", ATTACK_CATEGORIES, frozenset(ATTACK_CATEGORIES.keys()))
+        result = _check_patterns(
+            "hello world", ATTACK_CATEGORIES, frozenset(ATTACK_CATEGORIES.keys())
+        )
         assert result is None
 
     def test_returns_category_for_match(self):
-        result = _check_patterns("SELECT * FROM users", ATTACK_CATEGORIES, frozenset(ATTACK_CATEGORIES.keys()))
+        result = _check_patterns(
+            "SELECT * FROM users", ATTACK_CATEGORIES, frozenset(ATTACK_CATEGORIES.keys())
+        )
         assert result == "sql_injection"
 
     def test_respects_enabled_categories(self):

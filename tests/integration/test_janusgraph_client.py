@@ -10,6 +10,7 @@ import time
 import pytest
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.protocol import GremlinServerError
+
 from tests.integration._integration_test_utils import run_with_timeout_bool
 
 
@@ -151,9 +152,7 @@ def test_person_queries(jg):
     # Find person by name
     print("\n2️⃣  Find Alice Johnson:")
     result = jg.execute("g.V().has('person', 'name', 'Alice Johnson').valueMap()")
-    assert_result(
-        result, "g.V().has('person', 'name', 'Alice Johnson').valueMap()"
-    )
+    assert_result(result, "g.V().has('person', 'name', 'Alice Johnson').valueMap()")
     print(f"   {result[0]}")
 
     # Get people in San Francisco
@@ -244,29 +243,25 @@ def test_path_queries(jg):
 
     # Path from Alice to products through company
     print("\n1️⃣  Alice's path to products (person → company → product):")
-    result = jg.execute(
-        """
+    result = jg.execute("""
         g.V().has('person', 'name', 'Alice Johnson')
          .out('worksFor')
          .out('created')
          .path()
          .by('name')
-    """
-    )
+    """)
     assert_result(result, "path query from Alice Johnson")
     for path in result:
         print(f"   {' → '.join(path)}")
 
     # Friends of friends
     print("\n2️⃣  Alice's friends of friends (2-hop):")
-    result = jg.execute(
-        """
+    result = jg.execute("""
         g.V().has('person', 'name', 'Alice Johnson')
          .out('knows').out('knows')
          .dedup()
          .values('name')
-    """
-    )
+    """)
     assert_result(result, "friends-of-friends query from Alice Johnson")
     for name in result:
         print(f"   - {name}")

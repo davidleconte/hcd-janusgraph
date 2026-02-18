@@ -609,4 +609,5 @@ def get_error_category(error: Exception) -> str:
     else:
         return "unknown"
 
+
 # Made with Bob

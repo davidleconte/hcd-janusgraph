@@ -10,7 +10,7 @@ os.environ.setdefault("JANUSGRAPH_HOST", "localhost")
 os.environ.setdefault("JANUSGRAPH_PORT", "8182")
 
 with patch("banking.compliance.audit_logger.AuditLogger.__init__", return_value=None):
-    from src.python.security.mfa import MFAManager, MFAEnrollment, MFAMethod
+    from src.python.security.mfa import MFAEnrollment, MFAManager, MFAMethod
 
 
 class TestMFAEndToEnd:

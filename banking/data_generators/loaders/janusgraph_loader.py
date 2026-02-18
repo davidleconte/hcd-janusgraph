@@ -26,7 +26,14 @@ from gremlin_python.driver import client, serializer
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_PERSON_FIELDS = {"person_id", "first_name", "last_name", "full_name", "nationality", "risk_level"}
+REQUIRED_PERSON_FIELDS = {
+    "person_id",
+    "first_name",
+    "last_name",
+    "full_name",
+    "nationality",
+    "risk_level",
+}
 REQUIRED_COMPANY_FIELDS = {"company_id", "legal_name", "registration_country"}
 REQUIRED_ACCOUNT_FIELDS = {"account_id", "account_type", "currency"}
 REQUIRED_TRANSACTION_FIELDS = {"transaction_id", "amount", "currency"}
@@ -48,14 +55,18 @@ def _serialize_value(value: Any) -> Any:
         return int(value.timestamp())
     if isinstance(value, date):
         from calendar import timegm
+
         return timegm(value.timetuple())
     if isinstance(value, (list, dict)):
         import json
+
         return json.dumps(value, default=str)
     return str(value)
 
 
-def _validate_entity(entity_dict: Dict[str, Any], required_fields: set, entity_type: str) -> List[str]:
+def _validate_entity(
+    entity_dict: Dict[str, Any], required_fields: set, entity_type: str
+) -> List[str]:
     """Validate that required fields are present and non-empty."""
     missing = []
     for field in required_fields:
@@ -153,9 +164,7 @@ class JanusGraphLoader:
         Returns:
             Vertex ID if created, None otherwise
         """
-        existing = self._submit(
-            f"g.V().has('{label}', '{id_field}', pid).id()", {"pid": id_value}
-        )
+        existing = self._submit(f"g.V().has('{label}', '{id_field}', pid).id()", {"pid": id_value})
         if existing:
             return existing[0]
 
@@ -167,10 +176,9 @@ class JanusGraphLoader:
             if serialized is not None:
                 all_props.append((key, serialized))
 
-
         chunks = []
         for i in range(0, len(all_props), self._MAX_BINDINGS):
-            chunks.append(all_props[i:i + self._MAX_BINDINGS])
+            chunks.append(all_props[i : i + self._MAX_BINDINGS])
 
         if not chunks:
             chunks = [[]]
@@ -415,7 +423,6 @@ class JanusGraphLoader:
 
         logger.info("✓ Loaded %s transactions with edges", len(transaction_id_map))
         return transaction_id_map
-
 
     def load_trades(
         self, trades: List[Any], account_id_map: Dict[str, int], person_id_map: Dict[str, int]

@@ -1,11 +1,18 @@
 """Tests for src.python.utils.validation module."""
-import pytest
+
 from decimal import Decimal
 
+import pytest
+
 from src.python.utils.validation import (
-    Validator, ValidationError,
-    MAX_STRING_LENGTH, MAX_QUERY_LENGTH, MAX_ACCOUNT_ID_LENGTH,
-    MIN_ACCOUNT_ID_LENGTH, MIN_AMOUNT, MAX_AMOUNT,
+    MAX_ACCOUNT_ID_LENGTH,
+    MAX_AMOUNT,
+    MAX_QUERY_LENGTH,
+    MAX_STRING_LENGTH,
+    MIN_ACCOUNT_ID_LENGTH,
+    MIN_AMOUNT,
+    ValidationError,
+    Validator,
 )
 
 

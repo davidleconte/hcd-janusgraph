@@ -1,21 +1,23 @@
 """Tests for banking.data_generators.utils.helpers module."""
-import pytest
+
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
+import pytest
+
 from banking.data_generators.utils.helpers import (
+    calculate_entity_risk_score,
+    generate_account_number,
+    generate_iban,
+    generate_lei_code,
+    generate_stock_ticker,
+    generate_swift_code,
+    generate_tax_id,
+    random_amount,
+    random_business_hours_datetime,
     random_choice_weighted,
     random_date_between,
     random_datetime_between,
-    random_business_hours_datetime,
-    random_amount,
-    generate_account_number,
-    generate_iban,
-    generate_swift_code,
-    generate_tax_id,
-    generate_lei_code,
-    generate_stock_ticker,
-    calculate_entity_risk_score,
 )
 
 

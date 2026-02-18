@@ -15,10 +15,12 @@ from banking.aml.enhanced_structuring_detection import (
 
 @pytest.fixture
 def mock_dependencies():
-    with patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator") as mock_eg, \
-         patch("banking.aml.enhanced_structuring_detection.VectorSearchClient") as mock_vs, \
-         patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection") as mock_conn, \
-         patch("banking.aml.enhanced_structuring_detection.traversal") as mock_trav:
+    with (
+        patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator") as mock_eg,
+        patch("banking.aml.enhanced_structuring_detection.VectorSearchClient") as mock_vs,
+        patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection") as mock_conn,
+        patch("banking.aml.enhanced_structuring_detection.traversal") as mock_trav,
+    ):
         mock_eg_inst = MagicMock()
         mock_eg_inst.dimensions = 384
         mock_eg.return_value = mock_eg_inst
@@ -81,10 +83,9 @@ class TestEnhancedDetectorInit:
 class TestDetectGraphPatterns:
     def test_detect_graph_patterns_empty(self, detector, mock_dependencies):
         mock_g = MagicMock()
-        mock_g.V.return_value.has_label.return_value.as_.return_value \
-            .out_e.return_value.has.return_value.has.return_value \
-            .in_v.return_value.has_label.return_value.as_.return_value \
-            .select.return_value.by.return_value.by.return_value.toList.return_value = []
+        mock_g.V.return_value.has_label.return_value.as_.return_value.out_e.return_value.has.return_value.has.return_value.in_v.return_value.has_label.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         mock_dependencies["traversal"].return_value.with_remote.return_value = mock_g
         patterns = detector.detect_graph_patterns()
         assert patterns == []
@@ -105,10 +106,9 @@ class TestDetectSemanticPatterns:
 class TestHybridDetection:
     def test_detect_all_patterns(self, detector, mock_dependencies):
         mock_g = MagicMock()
-        mock_g.V.return_value.has_label.return_value.as_.return_value \
-            .out_e.return_value.has.return_value.has.return_value \
-            .in_v.return_value.has_label.return_value.as_.return_value \
-            .select.return_value.by.return_value.by.return_value.toList.return_value = []
+        mock_g.V.return_value.has_label.return_value.as_.return_value.out_e.return_value.has.return_value.has.return_value.in_v.return_value.has_label.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         mock_dependencies["traversal"].return_value.with_remote.return_value = mock_g
         mock_dependencies["vector_instance"].search.return_value = []
 
@@ -120,9 +120,7 @@ class TestHybridDetection:
 class TestRiskScoreCalculation:
     def test_calculate_risk_score(self, detector):
         if hasattr(detector, "_calculate_risk_score"):
-            score = detector._calculate_risk_score(
-                total_amount=25000, tx_count=5, threshold=10000
-            )
+            score = detector._calculate_risk_score(total_amount=25000, tx_count=5, threshold=10000)
             assert 0 <= score <= 1
 
 

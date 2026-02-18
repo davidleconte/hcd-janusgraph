@@ -1,13 +1,15 @@
 """Tests for banking.streaming modules."""
+
 import json
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-from banking.streaming.events import EntityEvent
-from banking.streaming.dlq_handler import DLQMessage, DLQHandler, DLQStats, MockDLQHandler
-from banking.streaming.metrics import StreamingMetrics
+import pytest
+
 from banking.streaming import entity_converter
+from banking.streaming.dlq_handler import DLQHandler, DLQMessage, DLQStats, MockDLQHandler
+from banking.streaming.events import EntityEvent
+from banking.streaming.metrics import StreamingMetrics
 
 
 class TestEntityEvent:
@@ -43,8 +45,12 @@ class TestEntityEvent:
 
     def test_to_dict(self):
         event = EntityEvent(
-            entity_id="e-1", event_type="create", entity_type="person",
-            payload={"k": "v"}, source="test", text_for_embedding="hello",
+            entity_id="e-1",
+            event_type="create",
+            entity_type="person",
+            payload={"k": "v"},
+            source="test",
+            text_for_embedding="hello",
         )
         d = event.to_dict()
         assert d["entity_id"] == "e-1"
@@ -56,7 +62,10 @@ class TestEntityEvent:
 
     def test_to_json(self):
         event = EntityEvent(
-            entity_id="e-1", event_type="create", entity_type="person", payload={"k": "v"},
+            entity_id="e-1",
+            event_type="create",
+            entity_type="person",
+            payload={"k": "v"},
         )
         j = event.to_json()
         parsed = json.loads(j)
@@ -68,14 +77,26 @@ class TestEntityEvent:
             assert event.event_type == et
 
     def test_all_valid_entity_types(self):
-        for ent in ("person", "account", "transaction", "company", "communication", "trade", "travel", "document"):
+        for ent in (
+            "person",
+            "account",
+            "transaction",
+            "company",
+            "communication",
+            "trade",
+            "travel",
+            "document",
+        ):
             event = EntityEvent(entity_id="e-1", event_type="create", entity_type=ent, payload={})
             assert event.entity_type == ent
 
     def test_metadata_optional(self):
         event = EntityEvent(
-            entity_id="e-1", event_type="create", entity_type="person",
-            payload={}, metadata={"key": "val"},
+            entity_id="e-1",
+            event_type="create",
+            entity_type="person",
+            payload={},
+            metadata={"key": "val"},
         )
         assert event.metadata == {"key": "val"}
 
@@ -83,16 +104,23 @@ class TestEntityEvent:
 class TestEntityEventFromDict:
     def test_from_dict(self):
         data = {
-            "entity_id": "e-1", "event_type": "create", "entity_type": "person",
-            "payload": {"name": "test"}, "event_id": "ev-1",
-            "timestamp": "2026-01-01T00:00:00+00:00", "version": 1, "source": "test",
+            "entity_id": "e-1",
+            "event_type": "create",
+            "entity_type": "person",
+            "payload": {"name": "test"},
+            "event_id": "ev-1",
+            "timestamp": "2026-01-01T00:00:00+00:00",
+            "version": 1,
+            "source": "test",
         }
         event = EntityEvent.from_dict(data)
         assert event.entity_id == "e-1"
 
     def test_from_json(self):
         data = {
-            "entity_id": "e-1", "event_type": "create", "entity_type": "person",
+            "entity_id": "e-1",
+            "event_type": "create",
+            "entity_type": "person",
             "payload": {"name": "test"},
         }
         event = EntityEvent.from_json(json.dumps(data))
@@ -123,9 +151,10 @@ class TestStreamingMetrics:
 
 class TestEntityConverter:
     def test_entity_to_dict_pydantic(self):
-        from banking.streaming.entity_converter import entity_to_dict
-        from banking.data_generators.utils.data_models import Person, Gender, RiskLevel
         from banking.data_generators.core.person_generator import PersonGenerator
+        from banking.data_generators.utils.data_models import Gender, Person, RiskLevel
+        from banking.streaming.entity_converter import entity_to_dict
+
         gen = PersonGenerator(seed=42)
         person = gen.generate()
         d = entity_to_dict(person)
@@ -134,13 +163,16 @@ class TestEntityConverter:
 
     def test_get_entity_id(self):
         from banking.streaming.entity_converter import get_entity_id
+
         class FakeEntity:
             entity_id = "e-123"
+
         assert get_entity_id(FakeEntity()) == "e-123"
 
     def test_get_entity_type(self):
-        from banking.streaming.entity_converter import get_entity_type
         from banking.data_generators.core.person_generator import PersonGenerator
+        from banking.streaming.entity_converter import get_entity_type
+
         gen = PersonGenerator(seed=42)
         person = gen.generate()
         etype = get_entity_type(person)
@@ -150,6 +182,7 @@ class TestEntityConverter:
 class TestDLQMessage:
     def test_create(self):
         from datetime import datetime, timezone
+
         now = datetime.now(timezone.utc)
         msg = DLQMessage(
             original_topic="test-topic",
@@ -165,10 +198,16 @@ class TestDLQMessage:
 
     def test_dlq_message_to_dict(self):
         from datetime import datetime, timezone
+
         now = datetime.now(timezone.utc)
         msg = DLQMessage(
-            original_topic="t", original_event=None, failure_reason="err",
-            failure_count=1, first_failure_time=now, last_failure_time=now, message_id="m1",
+            original_topic="t",
+            original_event=None,
+            failure_reason="err",
+            failure_count=1,
+            first_failure_time=now,
+            last_failure_time=now,
+            message_id="m1",
         )
         d = msg.to_dict()
         assert d["original_topic"] == "t"

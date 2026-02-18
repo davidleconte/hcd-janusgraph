@@ -12,9 +12,9 @@ from fastapi.testclient import TestClient
 from src.python.api.routers.performance import (
     CacheInvalidateRequest,
     CacheStatsResponse,
-    ProfileReportResponse,
     ProfilerConfigRequest,
     ProfilerConfigResponse,
+    ProfileReportResponse,
     get_cache,
     get_profiler,
     router,

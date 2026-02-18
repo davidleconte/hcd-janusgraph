@@ -5,7 +5,7 @@ Tests for the VaultClient wrapper with mocking.
 """
 
 import time
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
@@ -162,9 +162,7 @@ class TestVaultClient:
 
     def test_get_secret_no_cache(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"val": "x"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"val": "x"}}}
         client = _make_client(mock_hvac=mock_hvac)
         client.get_secret("p", use_cache=False)
         client.get_secret("p", use_cache=False)
@@ -172,9 +170,7 @@ class TestVaultClient:
 
     def test_get_secret_cache_expiry(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"val": "x"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"val": "x"}}}
         config = VaultConfig(vault_token="tok", cache_ttl=0)
         client = _make_client(config=config, mock_hvac=mock_hvac)
         client.get_secret("p")
@@ -208,9 +204,7 @@ class TestVaultClient:
 
     def test_set_secret_invalidates_cache(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"val": "x"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"val": "x"}}}
         client = _make_client(mock_hvac=mock_hvac)
         client.get_secret("mypath")
         assert "mypath" in client._cache
@@ -219,9 +213,7 @@ class TestVaultClient:
 
     def test_list_secrets(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.list_secrets.return_value = {
-            "data": {"keys": ["a", "b"]}
-        }
+        mock_hvac.secrets.kv.v2.list_secrets.return_value = {"data": {"keys": ["a", "b"]}}
         client = _make_client(mock_hvac=mock_hvac)
         assert client.list_secrets() == ["a", "b"]
 
@@ -247,12 +239,14 @@ class TestVaultClient:
     def test_retry_logic(self):
         mock_hvac = MagicMock()
         call_count = 0
+
         def failing_read(*a, **kw):
             nonlocal call_count
             call_count += 1
             if call_count < 3:
                 raise Exception("transient")
             return {"data": {"data": {"val": "ok"}}}
+
         mock_hvac.secrets.kv.v2.read_secret_version.side_effect = failing_read
         config = VaultConfig(vault_token="tok", max_retries=3, retry_delay=0.1)
         client = _make_client(config=config, mock_hvac=mock_hvac)

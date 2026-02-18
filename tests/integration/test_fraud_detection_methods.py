@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import pytest
+
 from tests.integration._integration_test_utils import run_with_timeout_bool
 
 # Add paths
@@ -37,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
+
     def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
@@ -54,6 +56,7 @@ def check_janusgraph_available():
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
+
     def _check() -> bool:
         from opensearchpy import OpenSearch
 
@@ -332,16 +335,14 @@ class TestPatternInjectionFraudDetection:
     def test_detect_high_velocity_pattern(self, gremlin_client):
         """Test detection of high velocity transaction pattern."""
         # Query for accounts with many transactions (potential velocity issue)
-        result = gremlin_client.execute(
-            """
+        result = gremlin_client.execute("""
             g.V().hasLabel('account')
              .where(outE('made_transaction').count().is(gte(5)))
              .project('account_id', 'txn_count')
              .by('id')
              .by(outE('made_transaction').count())
              .limit(5)
-        """
-        )
+        """)
 
         if not result:
             logger.info("No accounts with multiple transactions found - graph data not yet loaded")
@@ -358,8 +359,7 @@ class TestPatternInjectionFraudDetection:
     def test_detect_large_amount_transactions(self, gremlin_client):
         """Test detection of large amount transactions."""
         # Query for large transactions
-        result = gremlin_client.execute(
-            """
+        result = gremlin_client.execute("""
             g.E().hasLabel('made_transaction')
              .has('amount', gte(5000.0))
              .project('amount', 'from', 'to')
@@ -367,8 +367,7 @@ class TestPatternInjectionFraudDetection:
              .by(outV().values('id'))
              .by(inV().values('id'))
              .limit(10)
-        """
-        )
+        """)
 
         logger.info("Large transactions found: %s", len(result))
         for txn in result[:5]:
@@ -381,15 +380,13 @@ class TestPatternInjectionFraudDetection:
     def test_score_transaction_from_graph_data(self, gremlin_client):
         """Test scoring a transaction using real graph data."""
         # Get a real account and recent transaction
-        result = gremlin_client.execute(
-            """
+        result = gremlin_client.execute("""
             g.V().hasLabel('account')
              .where(outE('made_transaction'))
              .limit(1)
              .project('account_id')
              .by('id')
-        """
-        )
+        """)
 
         if not result:
             logger.info("No accounts with transactions found - graph data not yet loaded")

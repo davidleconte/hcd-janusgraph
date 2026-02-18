@@ -65,7 +65,9 @@ class FraudDetector(NotebookCompatMixin):
         use_ssl: bool = os.getenv("JANUSGRAPH_USE_SSL", "false").lower() == "true",
     ):
         """Initialize fraud detector."""
-        logger.info("Connecting to JanusGraph: %s:%s (SSL: %s)", janusgraph_host, janusgraph_port, use_ssl)
+        logger.info(
+            "Connecting to JanusGraph: %s:%s (SSL: %s)", janusgraph_host, janusgraph_port, use_ssl
+        )
         protocol = "wss" if use_ssl else "ws"
         self.graph_url = f"{protocol}://{janusgraph_host}:{janusgraph_port}/gremlin"
 

@@ -14,14 +14,14 @@ import re
 from datetime import datetime
 from decimal import Decimal
 
-from hypothesis import given, settings, strategies as st
-
-settings.register_profile("data_generators_properties_no_deadline", deadline=None)
-settings.load_profile("data_generators_properties_no_deadline")
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 from banking.data_generators.core import AccountGenerator, PersonGenerator
 from banking.data_generators.events import TransactionGenerator
 
+settings.register_profile("data_generators_properties_no_deadline", deadline=None)
+settings.load_profile("data_generators_properties_no_deadline")
 
 # ============================================================================
 # Person Generator Property Tests (8 tests)
@@ -38,10 +38,10 @@ class TestPersonGeneratorProperties:
         gen = PersonGenerator(seed=seed)
         batch_size = 10
         persons = gen.generate_batch(batch_size)
-        
+
         # Verify batch size
         assert len(persons) == batch_size
-        
+
         # Verify all persons have consistent structure
         for person in persons:
             assert person.first_name is not None
@@ -106,14 +106,18 @@ class TestPersonGeneratorProperties:
         persons = gen.generate_batch(50)
 
         from banking.data_generators.utils.data_models import RiskLevel
+
         valid_levels = {RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH, RiskLevel.CRITICAL}
 
         for person in persons:
-            assert person.risk_level in valid_levels, (
-                f"Risk level must be valid: {person.risk_level}"
-            )
+            assert (
+                person.risk_level in valid_levels
+            ), f"Risk level must be valid: {person.risk_level}"
 
-    @given(seed=st.integers(min_value=0, max_value=10000), count=st.integers(min_value=10, max_value=100))
+    @given(
+        seed=st.integers(min_value=0, max_value=10000),
+        count=st.integers(min_value=10, max_value=100),
+    )
     @settings(max_examples=30)
     def test_person_generator_no_exceptions(self, seed: int, count: int) -> None:
         """Property: Generator never raises exceptions for valid inputs."""
@@ -126,7 +130,7 @@ class TestPersonGeneratorProperties:
     def test_person_data_types(self, seed: int) -> None:
         """Property: All fields have correct data types."""
         from datetime import date as date_type
-        
+
         gen = PersonGenerator(seed=seed)
         person = gen.generate()
 
@@ -153,10 +157,10 @@ class TestAccountGeneratorProperties:
         gen = AccountGenerator(seed=seed)
         batch_size = 10
         accounts = gen.generate_batch(batch_size)
-        
+
         # Verify batch size
         assert len(accounts) == batch_size
-        
+
         # Verify all accounts have consistent structure
         for account in accounts:
             assert account.account_number is not None
@@ -171,9 +175,9 @@ class TestAccountGeneratorProperties:
         accounts = gen.generate_batch(50)
 
         for account in accounts:
-            assert account.current_balance >= 0, (
-                f"Balance must be non-negative: {account.current_balance}"
-            )
+            assert (
+                account.current_balance >= 0
+            ), f"Balance must be non-negative: {account.current_balance}"
 
     @given(seed=st.integers(min_value=0, max_value=10000))
     @settings(max_examples=50)
@@ -207,6 +211,7 @@ class TestAccountGeneratorProperties:
         accounts = gen.generate_batch(50)
 
         from banking.data_generators.utils.data_models import AccountType
+
         valid_types = {
             AccountType.CHECKING,
             AccountType.SAVINGS,
@@ -218,11 +223,14 @@ class TestAccountGeneratorProperties:
         }
 
         for account in accounts:
-            assert account.account_type in valid_types, (
-                f"Account type must be valid: {account.account_type}"
-            )
+            assert (
+                account.account_type in valid_types
+            ), f"Account type must be valid: {account.account_type}"
 
-    @given(seed=st.integers(min_value=0, max_value=10000), count=st.integers(min_value=1, max_value=100))
+    @given(
+        seed=st.integers(min_value=0, max_value=10000),
+        count=st.integers(min_value=1, max_value=100),
+    )
     @settings(max_examples=30)
     def test_account_generator_no_exceptions(self, seed: int, count: int) -> None:
         """Property: Generator never raises exceptions."""
@@ -306,7 +314,10 @@ class TestTransactionGeneratorProperties:
                 f"{txn.from_account_id} vs {txn.to_account_id}"
             )
 
-    @given(seed=st.integers(min_value=0, max_value=10000), count=st.integers(min_value=1, max_value=100))
+    @given(
+        seed=st.integers(min_value=0, max_value=10000),
+        count=st.integers(min_value=1, max_value=100),
+    )
     @settings(max_examples=30)
     def test_transaction_generator_no_exceptions(self, seed: int, count: int) -> None:
         """Property: Generator never raises exceptions."""
@@ -384,9 +395,7 @@ class TestCrossGeneratorProperties:
         # Transaction between accounts should be valid
         account2 = account_gen.generate()
         txn_gen = TransactionGenerator(seed=seed)
-        txn = txn_gen.generate(
-            from_account_id=account.id, to_account_id=account2.id
-        )
+        txn = txn_gen.generate(from_account_id=account.id, to_account_id=account2.id)
         assert txn.from_account_id == account.id
         assert txn.to_account_id == account2.id
 
@@ -426,5 +435,6 @@ class TestConfigurationProperties:
             assert txn.amount <= Decimal("10000000")  # 10 million max
             assert txn.fee_amount >= 0
             assert txn.fee_amount < txn.amount  # Fee should be less than amount
+
 
 # Made with Bob

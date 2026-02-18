@@ -9,7 +9,6 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 Date: 2026-02-06
 """
 
-import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -20,7 +19,6 @@ from pydantic.functional_serializers import PlainSerializer
 from typing_extensions import Annotated
 
 from banking.data_generators.utils.deterministic import (
-    REFERENCE_TIMESTAMP,
     reference_now,
     seeded_uuid_hex,
 )

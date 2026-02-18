@@ -211,9 +211,12 @@ class GraphConsumer:
                     if value is not None and key not in skip_keys:
                         if isinstance(value, (int, float, bool)):
                             prop_val = value
-                        elif isinstance(value, str) and ("timestamp" in key or "date" in key or "_at" in key):
+                        elif isinstance(value, str) and (
+                            "timestamp" in key or "date" in key or "_at" in key
+                        ):
                             try:
                                 from datetime import datetime
+
                                 dt = datetime.fromisoformat(value)
                                 prop_val = int(dt.timestamp())
                             except (ValueError, TypeError):
@@ -229,7 +232,10 @@ class GraphConsumer:
             elif event.event_type == "update":
                 # Check version for optimistic concurrency
                 existing = (
-                    self.g.V().has(entity_type, "entity_id", entity_id).value_map("version").toList()
+                    self.g.V()
+                    .has(entity_type, "entity_id", entity_id)
+                    .value_map("version")
+                    .toList()
                 )
 
                 if existing:
@@ -255,9 +261,12 @@ class GraphConsumer:
                     if value is not None and key not in skip_keys:
                         if isinstance(value, (int, float, bool)):
                             prop_val = value
-                        elif isinstance(value, str) and ("timestamp" in key or "date" in key or "_at" in key):
+                        elif isinstance(value, str) and (
+                            "timestamp" in key or "date" in key or "_at" in key
+                        ):
                             try:
                                 from datetime import datetime
+
                                 dt = datetime.fromisoformat(value)
                                 prop_val = int(dt.timestamp())
                             except (ValueError, TypeError):

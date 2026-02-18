@@ -1,4 +1,5 @@
 """Comprehensive tests for src.python.security.query_sanitizer — targets 28% → 90%+."""
+
 import os
 import time
 
@@ -6,20 +7,21 @@ import pytest
 
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 with patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
     with patch("banking.compliance.audit_logger.AuditLogger.log_event", MagicMock()):
         import banking.compliance.audit_logger as _al
+
         _al._audit_logger = MagicMock()
 
         from src.python.security.query_sanitizer import (
-            QueryComplexity,
-            ValidationError,
-            QueryPattern,
-            QueryAllowlist,
             GremlinQueryBuilder,
+            QueryAllowlist,
+            QueryComplexity,
+            QueryPattern,
             QueryValidator,
+            ValidationError,
             sanitize_gremlin_query,
         )
 
@@ -53,7 +55,9 @@ class TestQueryAllowlist:
         assert len(names) >= 8
 
     def test_add_and_remove_pattern(self):
-        p = QueryPattern(name="custom", pattern=r"^custom$", description="c", complexity=QueryComplexity.SIMPLE)
+        p = QueryPattern(
+            name="custom", pattern=r"^custom$", description="c", complexity=QueryComplexity.SIMPLE
+        )
         self.al.add_pattern(p)
         assert "custom" in self.al.list_patterns()
         self.al.remove_pattern("custom")

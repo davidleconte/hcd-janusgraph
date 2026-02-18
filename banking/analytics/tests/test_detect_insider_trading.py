@@ -462,6 +462,7 @@ class TestDataclasses:
         assert event.symbol == "AAPL"
         assert event.event_type == "earnings"
 
+
 class TestTimingPatternDetectionAdvanced:
     """Advanced tests for timing correlation analysis"""
 
@@ -811,7 +812,7 @@ class TestCommunicationDetectionAdvanced:
         detector = InsiderTradingDetector()
 
         comm = {"contains_suspicious_keywords": [False], "is_encrypted": [False]}
-        
+
         low_value_trade = {"total_value": [50000]}
         high_value_trade = {"total_value": [250000]}
 
@@ -865,9 +866,7 @@ class TestNetworkAnalysisAdvanced:
         titles_to_test = ["CEO", "CFO", "CTO", "Director", "VP", "Executive"]
 
         for title in titles_to_test:
-            trades = [
-                {"insider": {"job_title": [title]}, "trade": {"total_value": [100000]}}
-            ] * 2
+            trades = [{"insider": {"job_title": [title]}, "trade": {"total_value": [100000]}}] * 2
 
             risk = detector._calculate_network_risk(trades)
 
@@ -1066,13 +1065,14 @@ class TestEdgeCasesAndErrorHandling:
         assert len(clusters) == 1
         assert clusters[0].total_volume == 300
 
+
 class TestDetectionMethodsWithMocking:
     """Test main detection methods with mocked JanusGraph client"""
 
     def test_detect_timing_patterns_with_mock(self):
         """Test timing pattern detection with mocked client"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client
         mock_client = Mock()
         mock_result = Mock()
@@ -1123,7 +1123,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_coordinated_trading_with_mock(self):
         """Test coordinated trading detection with mocked client"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client
         mock_client = Mock()
         mock_result = Mock()
@@ -1174,7 +1174,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_suspicious_communications_with_mock(self):
         """Test communication detection with mocked client"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client
         mock_client = Mock()
         mock_result = Mock()
@@ -1212,7 +1212,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_network_patterns_with_mock(self):
         """Test network pattern detection with mocked client"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client
         mock_client = Mock()
         mock_result = Mock()
@@ -1275,7 +1275,7 @@ class TestDetectionMethodsWithMocking:
     def test_run_full_scan(self, mock_client_class):
         """Test full scan execution"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client
         mock_client = Mock()
         mock_result = Mock()
@@ -1295,7 +1295,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_timing_patterns_with_exception(self):
         """Test timing pattern detection handles exceptions"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client that raises exception
         mock_client = Mock()
         mock_client.submit.side_effect = Exception("Connection error")
@@ -1309,7 +1309,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_coordinated_trading_with_exception(self):
         """Test coordinated trading detection handles exceptions"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client that raises exception
         mock_client = Mock()
         mock_client.submit.side_effect = Exception("Connection error")
@@ -1323,7 +1323,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_suspicious_communications_with_exception(self):
         """Test communication detection handles exceptions"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client that raises exception
         mock_client = Mock()
         mock_client.submit.side_effect = Exception("Connection error")
@@ -1337,7 +1337,7 @@ class TestDetectionMethodsWithMocking:
     def test_detect_network_patterns_with_exception(self):
         """Test network pattern detection handles exceptions"""
         detector = InsiderTradingDetector()
-        
+
         # Mock client that raises exception
         mock_client = Mock()
         mock_client.submit.side_effect = Exception("Connection error")
@@ -1347,7 +1347,6 @@ class TestDetectionMethodsWithMocking:
         alerts = detector.detect_network_patterns()
 
         assert alerts == []
-
 
 
 if __name__ == "__main__":

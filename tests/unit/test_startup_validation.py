@@ -55,7 +55,14 @@ class TestValidatePasswords:
         validate_passwords(result)
         assert result.has_errors
 
-    @patch.dict(os.environ, {"JANUSGRAPH_PASSWORD": "MyStr0ng!Pass#2024", "OPENSEARCH_INITIAL_ADMIN_PASSWORD": "Str0ng!Pass#2024"}, clear=False)
+    @patch.dict(
+        os.environ,
+        {
+            "JANUSGRAPH_PASSWORD": "MyStr0ng!Pass#2024",
+            "OPENSEARCH_INITIAL_ADMIN_PASSWORD": "Str0ng!Pass#2024",
+        },
+        clear=False,
+    )
     def test_accepts_strong_password(self):
         result = ValidationResult()
         validate_passwords(result, strict=False)

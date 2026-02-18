@@ -198,9 +198,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
             if len(value) > self.config.max_header_value_length:
                 return ("request_limit", f"Header '{name}' exceeds max length")
             if name.lower() in ("cookie", "referer", "user-agent", "x-forwarded-for"):
-                hit = _check_patterns(
-                    value, ATTACK_CATEGORIES, self.config.enabled_categories
-                )
+                hit = _check_patterns(value, ATTACK_CATEGORIES, self.config.enabled_categories)
                 if hit:
                     return (hit, f"Suspicious pattern in header '{name}': {hit}")
 

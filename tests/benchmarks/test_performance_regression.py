@@ -13,17 +13,17 @@ import pytest
 
 # Data generators
 from banking.data_generators.core import (
-    PersonGenerator,
     AccountGenerator,
+    PersonGenerator,
 )
 from banking.data_generators.events import (
-    TransactionGenerator,
     CommunicationGenerator,
+    TransactionGenerator,
 )
-from banking.data_generators.orchestration import MasterOrchestrator, GenerationConfig
+from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
 
 # Streaming
-from banking.streaming.events import create_person_event, create_account_event
+from banking.streaming.events import create_account_event, create_person_event
 
 
 class TestDataGenerationPerformance:
@@ -32,7 +32,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-small")
     def test_person_generation_100(self, benchmark):
         """Benchmark: Generate 100 persons.
-        
+
         Target: <0.5 seconds
         Baseline: ~0.3 seconds (before optimization)
         """
@@ -44,7 +44,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-medium")
     def test_person_generation_1000(self, benchmark):
         """Benchmark: Generate 1000 persons.
-        
+
         Target: <2.0 seconds
         Baseline: ~1.5 seconds (before optimization)
         """
@@ -56,7 +56,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-small")
     def test_account_generation_100(self, benchmark):
         """Benchmark: Generate 100 accounts.
-        
+
         Target: <0.3 seconds
         Baseline: ~0.2 seconds (before optimization)
         """
@@ -68,7 +68,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-medium")
     def test_account_generation_1000(self, benchmark):
         """Benchmark: Generate 1000 accounts.
-        
+
         Target: <1.5 seconds
         Baseline: ~1.0 seconds (before optimization)
         """
@@ -80,7 +80,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-small")
     def test_transaction_generation_100(self, benchmark):
         """Benchmark: Generate 100 transactions.
-        
+
         Target: <0.2 seconds
         Baseline: ~0.15 seconds (before optimization)
         """
@@ -92,7 +92,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-large")
     def test_transaction_generation_10000(self, benchmark):
         """Benchmark: Generate 10000 transactions.
-        
+
         Target: <10.0 seconds
         Baseline: ~8.0 seconds (before optimization)
         """
@@ -104,7 +104,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="generation-small")
     def test_communication_generation_100(self, benchmark):
         """Benchmark: Generate 100 communications.
-        
+
         Target: <2.0 seconds (adjusted based on actual performance)
         Baseline: ~1.8 seconds (communications are complex with email/phone generation)
         """
@@ -116,7 +116,7 @@ class TestDataGenerationPerformance:
     @pytest.mark.benchmark(group="orchestration")
     def test_orchestrator_small_dataset(self, benchmark, tmp_path):
         """Benchmark: Generate small dataset via orchestrator.
-        
+
         Target: <2.0 seconds
         Baseline: ~1.7 seconds (before optimization)
         """
@@ -129,11 +129,11 @@ class TestDataGenerationPerformance:
             communication_count=50,
             output_dir=tmp_path,
         )
-        
+
         def run_orchestrator():
             orchestrator = MasterOrchestrator(config)
             return orchestrator.generate_all()
-        
+
         result = benchmark(run_orchestrator)
         # GenerationStats object has attributes with _generated suffix
         assert result.persons_generated == 50
@@ -150,7 +150,7 @@ class TestStreamingPerformance:
     @pytest.mark.benchmark(group="streaming-serialization")
     def test_person_event_serialization(self, benchmark):
         """Benchmark: Person event serialization.
-        
+
         Target: <0.001 seconds per event
         Baseline: ~0.0005 seconds (before optimization)
         """
@@ -172,7 +172,7 @@ class TestStreamingPerformance:
     @pytest.mark.benchmark(group="streaming-serialization")
     def test_account_event_serialization(self, benchmark):
         """Benchmark: Account event serialization.
-        
+
         Target: <0.001 seconds per event
         Baseline: ~0.0005 seconds (before optimization)
         """
@@ -193,10 +193,11 @@ class TestStreamingPerformance:
     @pytest.mark.benchmark(group="streaming-batch")
     def test_batch_event_creation_100(self, benchmark):
         """Benchmark: Create 100 events in batch.
-        
+
         Target: <0.1 seconds
         Baseline: ~0.05 seconds (before optimization)
         """
+
         def create_batch():
             events = []
             for i in range(100):
@@ -207,7 +208,7 @@ class TestStreamingPerformance:
                 )
                 events.append(event)
             return events
-        
+
         result = benchmark(create_batch)
         assert len(result) == 100
         assert benchmark.stats["mean"] < 0.1
@@ -215,7 +216,7 @@ class TestStreamingPerformance:
     @pytest.mark.benchmark(group="streaming-batch")
     def test_batch_serialization_100(self, benchmark):
         """Benchmark: Serialize 100 events.
-        
+
         Target: <0.1 seconds
         Baseline: ~0.05 seconds (before optimization)
         """
@@ -227,10 +228,10 @@ class TestStreamingPerformance:
             )
             for i in range(100)
         ]
-        
+
         def serialize_batch():
             return [event.to_json() for event in events]
-        
+
         result = benchmark(serialize_batch)
         assert len(result) == 100
         assert benchmark.stats["mean"] < 0.1
@@ -242,11 +243,11 @@ class TestMemoryPerformance:
     @pytest.mark.benchmark(group="memory")
     def test_person_generation_memory(self, benchmark):
         """Benchmark: Memory usage for person generation.
-        
+
         Target: <50MB for 1000 persons
         """
         import tracemalloc
-        
+
         def generate_with_memory_tracking():
             tracemalloc.start()
             generator = PersonGenerator(seed=42)
@@ -254,7 +255,7 @@ class TestMemoryPerformance:
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
             return persons, peak
-        
+
         result, peak_memory = benchmark(generate_with_memory_tracking)
         assert len(result) == 1000
         # Peak memory should be less than 50MB (52428800 bytes)
@@ -263,11 +264,11 @@ class TestMemoryPerformance:
     @pytest.mark.benchmark(group="memory")
     def test_transaction_generation_memory(self, benchmark):
         """Benchmark: Memory usage for transaction generation.
-        
+
         Target: <100MB for 10000 transactions
         """
         import tracemalloc
-        
+
         def generate_with_memory_tracking():
             tracemalloc.start()
             generator = TransactionGenerator(seed=42)
@@ -275,7 +276,7 @@ class TestMemoryPerformance:
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
             return transactions, peak
-        
+
         result, peak_memory = benchmark(generate_with_memory_tracking)
         assert len(result) == 10000
         # Peak memory should be less than 100MB (104857600 bytes)
@@ -288,18 +289,18 @@ class TestValidationPerformance:
     @pytest.mark.benchmark(group="validation")
     def test_person_validation_100(self, benchmark):
         """Benchmark: Validate 100 person objects.
-        
+
         Target: <0.05 seconds
         """
         generator = PersonGenerator(seed=42)
         persons = generator.generate_batch(100)
-        
+
         def validate_batch():
             for person in persons:
                 # Pydantic validation happens on access
                 _ = person.model_dump()
             return len(persons)
-        
+
         result = benchmark(validate_batch)
         assert result == 100
         assert benchmark.stats["mean"] < 0.05
@@ -307,17 +308,17 @@ class TestValidationPerformance:
     @pytest.mark.benchmark(group="validation")
     def test_account_validation_100(self, benchmark):
         """Benchmark: Validate 100 account objects.
-        
+
         Target: <0.05 seconds
         """
         generator = AccountGenerator(seed=42)
         accounts = generator.generate_batch(100)
-        
+
         def validate_batch():
             for account in accounts:
                 _ = account.model_dump()
             return len(accounts)
-        
+
         result = benchmark(validate_batch)
         assert result == 100
         assert benchmark.stats["mean"] < 0.05
@@ -336,8 +337,7 @@ pytest_benchmark_config = {
 
 def pytest_configure(config):
     """Configure pytest-benchmark."""
-    config.addinivalue_line(
-        "markers", "benchmark: Performance benchmark tests"
-    )
+    config.addinivalue_line("markers", "benchmark: Performance benchmark tests")
+
 
 # Made with Bob

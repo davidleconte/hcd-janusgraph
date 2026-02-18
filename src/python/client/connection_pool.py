@@ -203,7 +203,11 @@ class ConnectionPool:
                 self._destroy_connection(conn)
             except Empty:
                 break
-        logger.info("ConnectionPool closed: created=%d, returned=%d", self._total_created, self._total_returned)
+        logger.info(
+            "ConnectionPool closed: created=%d, returned=%d",
+            self._total_created,
+            self._total_returned,
+        )
 
     @property
     def size(self) -> int:

@@ -15,8 +15,6 @@ Design decisions
   ``dependencies.py`` is kept for backward-compat but delegates here.
 """
 
-
-
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -99,7 +97,9 @@ class GraphRepository:
 
     def find_shared_addresses(self, min_members: int = 3) -> List[Dict[str, Any]]:
         """Find addresses shared by >= *min_members* persons."""
-        return self.find_shared_addresses_with_accounts(min_members=min_members, include_accounts=False)
+        return self.find_shared_addresses_with_accounts(
+            min_members=min_members, include_accounts=False
+        )
 
     def find_shared_addresses_with_accounts(
         self, min_members: int = 3, include_accounts: bool = False
@@ -151,9 +151,11 @@ class GraphRepository:
                 ),
                 "members_simple": r.get("persons", r.get("members", [])),
                 "member_count": len(r.get("persons", r.get("members", []))),
-                "member_accounts": [entry.get("account_ids", []) for entry in _normalise_members(r.get("members"))]
-                if include_accounts
-                else [],
+                "member_accounts": (
+                    [entry.get("account_ids", []) for entry in _normalise_members(r.get("members"))]
+                    if include_accounts
+                    else []
+                ),
             }
             for r in results
         ]
@@ -191,12 +193,7 @@ class GraphRepository:
 
     def get_company(self, company_id: str) -> Optional[Dict[str, Any]]:
         """Return flattened company properties, or ``None`` if not found."""
-        results = (
-            self._g.V()
-            .has("company_id", company_id)
-            .value_map(True)
-            .toList()
-        )
+        results = self._g.V().has("company_id", company_id).value_map(True).toList()
         if not results:
             return None
         return _flatten_value_map(results[0])
@@ -260,9 +257,7 @@ class GraphRepository:
             return direct_owners, 1 if direct_owners else 0
 
         # Deduplicate UBOs by person and keep the strongest chain.
-        merged: Dict[str, Dict[str, Any]] = {
-            owner["person_id"]: owner for owner in direct_owners
-        }
+        merged: Dict[str, Dict[str, Any]] = {owner["person_id"]: owner for owner in direct_owners}
         for owner in indirect_owners:
             current = merged.get(owner["person_id"])
             if current is None or owner["ownership_percentage"] > current.get(
@@ -271,9 +266,11 @@ class GraphRepository:
                 merged[owner["person_id"]] = owner
 
         merged_owners = list(merged.values())
-        total_layers = max(
-            [1] + [owner.get("chain_length", 1) for owner in merged_owners]
-        ) if merged_owners else 0
+        total_layers = (
+            max([1] + [owner.get("chain_length", 1) for owner in merged_owners])
+            if merged_owners
+            else 0
+        )
 
         return merged_owners, total_layers
 

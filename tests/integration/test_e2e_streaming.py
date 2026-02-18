@@ -32,11 +32,10 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from tests.integration._integration_test_utils import run_with_timeout_bool
-
 from banking.streaming.events import EntityEvent, create_person_event
 from banking.streaming.producer import EntityProducer, MockEntityProducer, get_producer
 from banking.streaming.streaming_orchestrator import StreamingConfig, StreamingOrchestrator
+from tests.integration._integration_test_utils import run_with_timeout_bool
 
 pytestmark = [pytest.mark.integration, pytest.mark.timeout(180)]
 
@@ -44,6 +43,7 @@ pytestmark = [pytest.mark.integration, pytest.mark.timeout(180)]
 # Check if services are available
 def check_pulsar_available():
     """Check if Pulsar is available."""
+
     def _check() -> bool:
         import pulsar
 
@@ -58,6 +58,7 @@ def check_pulsar_available():
 
 def check_janusgraph_available():
     """Check if JanusGraph is available."""
+
     def _check() -> bool:
         from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
         from gremlin_python.process.anonymous_traversal import traversal
@@ -74,6 +75,7 @@ def check_janusgraph_available():
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
+
     def _check() -> bool:
         import os
 

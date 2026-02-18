@@ -11,17 +11,14 @@ Tests cover:
 - Statistics retrieval
 """
 
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch, MagicMock
-from typing import List, Dict, Any
+from unittest.mock import Mock, patch
 
 from banking.aml.sanctions_screening import (
     SanctionMatch,
-    ScreeningResult,
     SanctionsScreener,
+    ScreeningResult,
 )
-
 
 # ============================================================================
 # Test Dataclasses
@@ -208,7 +205,7 @@ class TestIndexManagement:
         mock_client_instance.client.indices.exists.return_value = False
         mock_search_client.return_value = mock_client_instance
 
-        screener = SanctionsScreener()
+        SanctionsScreener()
 
         mock_client_instance.create_vector_index.assert_called_once()
         call_args = mock_client_instance.create_vector_index.call_args
@@ -227,7 +224,7 @@ class TestIndexManagement:
         mock_client_instance.client.indices.exists.return_value = True
         mock_search_client.return_value = mock_client_instance
 
-        screener = SanctionsScreener()
+        SanctionsScreener()
 
         mock_client_instance.create_vector_index.assert_not_called()
 
@@ -405,7 +402,9 @@ class TestCustomerScreening:
     @patch("banking.aml.sanctions_screening.encode_person_name")
     @patch("banking.aml.sanctions_screening.VectorSearchClient")
     @patch("banking.aml.sanctions_screening.EmbeddingGenerator")
-    def test_screen_customer_medium_risk_match(self, mock_generator, mock_search_client, mock_encode):
+    def test_screen_customer_medium_risk_match(
+        self, mock_generator, mock_search_client, mock_encode
+    ):
         """Test screening customer with medium-risk match."""
         mock_gen_instance = Mock()
         mock_gen_instance.dimensions = 384
@@ -521,7 +520,12 @@ class TestBatchScreening:
 
         # First customer: match, second: no match
         mock_client_instance.search.side_effect = [
-            [{"score": 0.96, "source": {"name": "John Doe", "id": "SANC-001", "list_type": "OFAC"}}],
+            [
+                {
+                    "score": 0.96,
+                    "source": {"name": "John Doe", "id": "SANC-001", "list_type": "OFAC"},
+                }
+            ],
             [],
         ]
         mock_search_client.return_value = mock_client_instance
@@ -600,5 +604,6 @@ class TestStatistics:
         assert stats["index_size_bytes"] == 5000000
         assert stats["index_name"] == "sanctions_list"
         assert stats["embedding_dimensions"] == 384
+
 
 # Made with Bob

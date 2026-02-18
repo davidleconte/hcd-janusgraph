@@ -9,15 +9,15 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..core.base_generator import BaseGenerator
 from ..events.communication_generator import CommunicationGenerator
 from ..events.trade_generator import TradeGenerator
-from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.data_models import Pattern, RiskLevel
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..utils.helpers import (
     calculate_pattern_confidence,
     random_choice_weighted,

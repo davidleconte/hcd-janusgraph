@@ -1,9 +1,10 @@
 """Tests for banking.aml.enhanced_structuring_detection module - full coverage."""
 
-import pytest
-import numpy as np
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pytest
 
 MODULE = "banking.aml.enhanced_structuring_detection"
 
@@ -27,35 +28,46 @@ def mock_deps():
         mock_vs.client.indices.exists.return_value = False
         mock_vs_cls.return_value = mock_vs
         yield {
-            "conn_cls": mock_conn_cls, "conn": mock_conn,
-            "traversal": mock_trav, "g": mock_g,
-            "emb_cls": mock_emb_cls, "emb": mock_emb,
-            "vs_cls": mock_vs_cls, "vs": mock_vs,
+            "conn_cls": mock_conn_cls,
+            "conn": mock_conn,
+            "traversal": mock_trav,
+            "g": mock_g,
+            "emb_cls": mock_emb_cls,
+            "emb": mock_emb,
+            "vs_cls": mock_vs_cls,
+            "vs": mock_vs,
         }
 
 
 @pytest.fixture
 def detector(mock_deps):
     from banking.aml.enhanced_structuring_detection import EnhancedStructuringDetector
+
     return EnhancedStructuringDetector()
 
 
 class TestInit:
     def test_creates_index(self, mock_deps):
         from banking.aml.enhanced_structuring_detection import EnhancedStructuringDetector
+
         EnhancedStructuringDetector()
         mock_deps["vs"].create_vector_index.assert_called_once()
 
     def test_skips_existing_index(self, mock_deps):
         mock_deps["vs"].client.indices.exists.return_value = True
         from banking.aml.enhanced_structuring_detection import EnhancedStructuringDetector
+
         EnhancedStructuringDetector()
         mock_deps["vs"].create_vector_index.assert_not_called()
 
 
 class TestDetectGraphPatterns:
     def test_empty_results(self, detector, mock_deps):
-        mock_deps["g"].V.return_value.has_label.return_value.as_.return_value.out_e.return_value.has.return_value.has.return_value.in_v.return_value.has_label.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = []
+        mock_deps[
+            "g"
+        ].V.return_value.has_label.return_value.as_.return_value.out_e.return_value.has.return_value.has.return_value.in_v.return_value.has_label.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         result = detector.detect_graph_patterns()
         assert result == []
 
@@ -66,6 +78,7 @@ class TestDetectGraphPatterns:
 
     def test_with_results(self, detector, mock_deps):
         from gremlin_python.process.traversal import T
+
         mock_g = MagicMock()
         mock_deps["traversal"].return_value.with_remote.return_value = mock_g
         account_data = {T.id: 1, "account_id": ["acc1"]}
@@ -88,7 +101,9 @@ class TestDetectSemanticPatterns:
     def test_few_transactions(self, detector, mock_deps):
         mock_g = MagicMock()
         mock_deps["traversal"].return_value.with_remote.return_value = mock_g
-        mock_g.V.return_value.has_label.return_value.has.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.limit.return_value.toList.return_value = []
+        mock_g.V.return_value.has_label.return_value.has.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.limit.return_value.toList.return_value = (
+            []
+        )
         result = detector.detect_semantic_patterns()
         assert result == []
 
@@ -101,12 +116,21 @@ class TestDetectSemanticPatterns:
         mock_g = MagicMock()
         mock_deps["traversal"].return_value.with_remote.return_value = mock_g
         txns = [
-            {"tx_id": f"tx{i}", "amount": 9500.0, "description": "cash deposit",
-             "merchant": "bank", "account_id": "acc1", "person_id": ["p1"],
-             "person_name": ["John"], "timestamp": 1000 + i}
+            {
+                "tx_id": f"tx{i}",
+                "amount": 9500.0,
+                "description": "cash deposit",
+                "merchant": "bank",
+                "account_id": "acc1",
+                "person_id": ["p1"],
+                "person_name": ["John"],
+                "timestamp": 1000 + i,
+            }
             for i in range(5)
         ]
-        mock_g.V.return_value.has_label.return_value.has.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.limit.return_value.toList.return_value = txns
+        mock_g.V.return_value.has_label.return_value.has.return_value.has.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.by.return_value.limit.return_value.toList.return_value = (
+            txns
+        )
         embeddings = np.ones((5, 384)) * 0.9
         mock_deps["emb"].encode.return_value = embeddings
         result = detector.detect_semantic_patterns(min_similarity=0.5, min_cluster_size=3)
@@ -138,6 +162,7 @@ class TestCalculateRiskScore:
 class TestFormatTransaction:
     def test_format(self, detector):
         from gremlin_python.process.traversal import T
+
         tx = {T.id: 42, "amount": [9500.0], "timestamp": [1000], "description": ["payment"]}
         result = detector._format_transaction(tx)
         assert result["amount"] == 9500.0
@@ -175,10 +200,9 @@ class TestDetectMultiAccountStructuring:
         assert not result["is_coordinated_structuring"]
 
     def test_coordinated(self, detector):
-        txns = (
-            [{"account_id": "a1", "amount": 9500} for _ in range(5)] +
-            [{"account_id": "a2", "amount": 9500} for _ in range(5)]
-        )
+        txns = [{"account_id": "a1", "amount": 9500} for _ in range(5)] + [
+            {"account_id": "a2", "amount": 9500} for _ in range(5)
+        ]
         result = detector.detect_multi_account_structuring(txns)
         assert result["is_coordinated_structuring"]
         assert result["risk_level"] == "high"
@@ -262,11 +286,19 @@ class TestAnalyzeTemporalPattern:
 class TestGenerateReport:
     def test_text_report(self, detector):
         from banking.aml.enhanced_structuring_detection import StructuringPattern
+
         p = StructuringPattern(
-            pattern_id="p1", pattern_type="rapid_sequence", account_id="a1",
-            person_id="p1", person_name="John", transactions=[],
-            total_amount=50000, transaction_count=5, time_window_hours=24,
-            risk_score=0.8, detection_method="graph",
+            pattern_id="p1",
+            pattern_type="rapid_sequence",
+            account_id="a1",
+            person_id="p1",
+            person_name="John",
+            transactions=[],
+            total_amount=50000,
+            transaction_count=5,
+            time_window_hours=24,
+            risk_score=0.8,
+            detection_method="graph",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
         report = detector.generate_report([p])
@@ -274,13 +306,22 @@ class TestGenerateReport:
         assert "p1" in report
 
     def test_json_report(self, detector):
-        from banking.aml.enhanced_structuring_detection import StructuringPattern
         import json
+
+        from banking.aml.enhanced_structuring_detection import StructuringPattern
+
         p = StructuringPattern(
-            pattern_id="p1", pattern_type="test", account_id="a1",
-            person_id="p1", person_name="John", transactions=[],
-            total_amount=10000, transaction_count=3, time_window_hours=24,
-            risk_score=0.5, detection_method="vector",
+            pattern_id="p1",
+            pattern_type="test",
+            account_id="a1",
+            person_id="p1",
+            person_name="John",
+            transactions=[],
+            total_amount=10000,
+            transaction_count=3,
+            time_window_hours=24,
+            risk_score=0.5,
+            detection_method="vector",
             timestamp="2026-01-01",
         )
         report = detector.generate_report([p], output_format="json")

@@ -5,18 +5,18 @@ Provides TOTP-based multi-factor authentication for enhanced security.
 Supports QR code generation, backup codes, and MFA enforcement policies.
 """
 
-import json
 import hashlib
+import json
 import logging
 import os
+import secrets
 import tempfile
 import threading
-from pathlib import Path
-import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from io import BytesIO
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pyotp
@@ -503,11 +503,7 @@ class MFAEnrollment:
         self._storage_path.parent.mkdir(parents=True, exist_ok=True)
         tmp_path = self._storage_path.with_suffix(".tmp")
         payload = {
-            user_id: {
-                k: v
-                for k, v in record.items()
-                if k != "qr_code" and k != "backup_codes"
-            }
+            user_id: {k: v for k, v in record.items() if k != "qr_code" and k != "backup_codes"}
             for user_id, record in self._enrollments.items()
         }
         with tmp_path.open("w", encoding="utf-8") as handle:
@@ -541,7 +537,6 @@ class MFAEnrollment:
         except (OSError, ValueError, TypeError) as exc:
             logger.warning("Failed consuming backup code for user %s: %s", user_id, exc)
         return False
-
 
 
 class MFAMiddleware:

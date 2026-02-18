@@ -1,17 +1,18 @@
 """Tests for banking.data_generators.loaders.janusgraph_loader module."""
 
-import pytest
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from banking.data_generators.loaders.janusgraph_loader import (
+    REQUIRED_ACCOUNT_FIELDS,
+    REQUIRED_PERSON_FIELDS,
+    JanusGraphLoader,
     _serialize_value,
     _validate_entity,
-    JanusGraphLoader,
-    REQUIRED_PERSON_FIELDS,
-    REQUIRED_ACCOUNT_FIELDS,
 )
 
 
@@ -34,6 +35,7 @@ class TestSerializeValue:
     def test_enum(self):
         class Color(Enum):
             RED = "red"
+
         assert _serialize_value(Color.RED) == "red"
 
     def test_datetime(self):
@@ -61,8 +63,14 @@ class TestSerializeValue:
 
 class TestValidateEntity:
     def test_valid_entity(self):
-        entity = {"person_id": "p1", "first_name": "John", "last_name": "Doe",
-                   "full_name": "John Doe", "nationality": "US", "risk_level": "low"}
+        entity = {
+            "person_id": "p1",
+            "first_name": "John",
+            "last_name": "Doe",
+            "full_name": "John Doe",
+            "nationality": "US",
+            "risk_level": "low",
+        }
         missing = _validate_entity(entity, REQUIRED_PERSON_FIELDS, "person")
         assert missing == []
 
@@ -72,8 +80,14 @@ class TestValidateEntity:
         assert len(missing) > 0
 
     def test_empty_string_field(self):
-        entity = {"person_id": "", "first_name": "John", "last_name": "Doe",
-                   "full_name": "John Doe", "nationality": "US", "risk_level": "low"}
+        entity = {
+            "person_id": "",
+            "first_name": "John",
+            "last_name": "Doe",
+            "full_name": "John Doe",
+            "nationality": "US",
+            "risk_level": "low",
+        }
         missing = _validate_entity(entity, REQUIRED_PERSON_FIELDS, "person")
         assert "person_id" in missing
 
@@ -138,6 +152,7 @@ class TestJanusGraphLoader:
 
     def test_create_vertex_new(self, connected_loader):
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -146,17 +161,22 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [99]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
-        result = connected_loader._create_vertex("person", "person_id", "p1", {"name": "John", "age": 30})
+        result = connected_loader._create_vertex(
+            "person", "person_id", "p1", {"name": "John", "age": 30}
+        )
         assert result == 99
 
     def test_create_vertex_no_result(self, connected_loader):
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
             mock_result.all.return_value.result.return_value = []
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader._create_vertex("person", "person_id", "p1", {"name": "John"})
         assert result is None
@@ -164,10 +184,15 @@ class TestJanusGraphLoader:
     def test_load_persons(self, connected_loader):
         person = MagicMock()
         person.model_dump.return_value = {
-            "person_id": "p1", "first_name": "John", "last_name": "Doe",
-            "full_name": "John Doe", "nationality": "US", "risk_level": "low",
+            "person_id": "p1",
+            "first_name": "John",
+            "last_name": "Doe",
+            "full_name": "John Doe",
+            "nationality": "US",
+            "risk_level": "low",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -176,6 +201,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [1]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_persons([person])
         assert "p1" in result
@@ -189,9 +215,12 @@ class TestJanusGraphLoader:
     def test_load_companies(self, connected_loader):
         company = MagicMock()
         company.model_dump.return_value = {
-            "company_id": "c1", "legal_name": "Corp", "registration_country": "US",
+            "company_id": "c1",
+            "legal_name": "Corp",
+            "registration_country": "US",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -200,6 +229,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [2]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_companies([company])
         assert "c1" in result
@@ -207,10 +237,14 @@ class TestJanusGraphLoader:
     def test_load_accounts_with_person_owner(self, connected_loader):
         account = MagicMock()
         account.model_dump.return_value = {
-            "account_id": "a1", "account_type": "checking", "currency": "USD",
-            "owner_id": "p1", "owner_type": "person",
+            "account_id": "a1",
+            "account_type": "checking",
+            "currency": "USD",
+            "owner_id": "p1",
+            "owner_type": "person",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -219,6 +253,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [3]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_accounts([account], {"p1": 1}, {})
         assert "a1" in result
@@ -226,10 +261,14 @@ class TestJanusGraphLoader:
     def test_load_accounts_with_company_owner(self, connected_loader):
         account = MagicMock()
         account.model_dump.return_value = {
-            "account_id": "a1", "account_type": "business", "currency": "USD",
-            "owner_id": "c1", "owner_type": "company",
+            "account_id": "a1",
+            "account_type": "business",
+            "currency": "USD",
+            "owner_id": "c1",
+            "owner_type": "company",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -238,6 +277,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [4]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_accounts([account], {}, {"c1": 2})
         assert "a1" in result
@@ -245,10 +285,14 @@ class TestJanusGraphLoader:
     def test_load_transactions(self, connected_loader):
         tx = MagicMock()
         tx.model_dump.return_value = {
-            "transaction_id": "t1", "amount": Decimal("100"), "currency": "USD",
-            "from_account_id": "a1", "to_account_id": "a2",
+            "transaction_id": "t1",
+            "amount": Decimal("100"),
+            "currency": "USD",
+            "from_account_id": "a1",
+            "to_account_id": "a2",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -257,6 +301,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = [5]
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_transactions([tx], {"a1": 1, "a2": 2})
         assert "t1" in result
@@ -264,11 +309,17 @@ class TestJanusGraphLoader:
     def test_load_trades(self, connected_loader):
         trade = MagicMock()
         trade.model_dump.return_value = {
-            "trade_id": "tr1", "symbol": "AAPL", "side": "buy",
-            "quantity": 100, "price": Decimal("150"), "total_value": Decimal("15000"),
-            "account_id": "a1", "trader_id": "p1",
+            "trade_id": "tr1",
+            "symbol": "AAPL",
+            "side": "buy",
+            "quantity": 100,
+            "price": Decimal("150"),
+            "total_value": Decimal("15000"),
+            "account_id": "a1",
+            "trader_id": "p1",
         }
         call_count = [0]
+
         def mock_submit(*args, **kwargs):
             call_count[0] += 1
             mock_result = MagicMock()
@@ -279,6 +330,7 @@ class TestJanusGraphLoader:
             else:
                 mock_result.all.return_value.result.return_value = []
             return mock_result
+
         connected_loader.client.submit.side_effect = mock_submit
         result = connected_loader.load_trades([trade], {"a1": 1}, {"p1": 2})
         assert result == 1
@@ -293,7 +345,8 @@ class TestJanusGraphLoader:
     def test_load_communications(self, connected_loader):
         comm = MagicMock()
         comm.model_dump.return_value = {
-            "from_person_id": "p1", "to_person_id": "p2",
+            "from_person_id": "p1",
+            "to_person_id": "p2",
             "communication_type": "email",
         }
         connected_loader.client.submit.return_value.all.return_value.result.return_value = []
@@ -303,7 +356,8 @@ class TestJanusGraphLoader:
     def test_load_communications_recipient_ids(self, connected_loader):
         comm = MagicMock()
         comm.model_dump.return_value = {
-            "from_person_id": "p1", "recipient_ids": ["p2"],
+            "from_person_id": "p1",
+            "recipient_ids": ["p2"],
             "communication_type": "email",
         }
         connected_loader.client.submit.return_value.all.return_value.result.return_value = []

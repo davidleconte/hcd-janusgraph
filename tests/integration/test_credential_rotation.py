@@ -21,6 +21,9 @@ Run with:
 """
 
 import os
+
+# Import rotation framework components
+import sys
 import time
 from pathlib import Path
 from typing import Generator
@@ -28,8 +31,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Import rotation framework components
-import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts" / "security"))
 
 hvac = pytest.importorskip("hvac", reason="hvac package required for credential rotation tests")
@@ -44,8 +45,8 @@ from credential_rotation_framework import (
     VaultClient,
 )
 
+from src.python.utils.vault_client import VaultClient as UtilsVaultClient
 from src.python.utils.vault_client import (
-    VaultClient as UtilsVaultClient,
     VaultConfig,
 )
 
@@ -57,6 +58,7 @@ def is_vault_available() -> bool:
     """Check if Vault is available."""
     try:
         import hvac
+
         vault_addr = os.getenv("VAULT_ADDR", "http://localhost:8200")
         vault_token = os.getenv("VAULT_TOKEN")
         if not vault_token:
@@ -127,7 +129,7 @@ class TestPasswordGeneration:
     def test_generate_password_default(self, password_generator):
         """Test default password generation."""
         password = password_generator.generate_password()
-        
+
         assert len(password) == 32
         assert any(c.islower() for c in password)
         assert any(c.isupper() for c in password)
@@ -142,7 +144,7 @@ class TestPasswordGeneration:
     def test_generate_password_no_special(self, password_generator):
         """Test password generation without special characters."""
         password = password_generator.generate_password(include_special=False)
-        
+
         assert len(password) == 32
         assert any(c.islower() for c in password)
         assert any(c.isupper() for c in password)
@@ -152,7 +154,7 @@ class TestPasswordGeneration:
     def test_generate_token(self, password_generator):
         """Test token generation."""
         token = password_generator.generate_token(length=64)
-        
+
         assert len(token) >= 64  # URL-safe encoding may be longer
         assert token.replace("-", "").replace("_", "").isalnum()
 
@@ -201,10 +203,10 @@ class TestVaultOperations:
         """Test reading and writing secrets."""
         test_path = f"test/rotation-{int(time.time())}"
         test_data = {"username": "testuser", "password": "testpass123"}
-        
+
         # Write secret
         vault_client.write_secret(test_path, test_data)
-        
+
         # Read secret
         result = vault_client.read_secret(test_path)
         assert result["username"] == "testuser"
@@ -214,13 +216,13 @@ class TestVaultOperations:
         """Test creating backup of secret."""
         test_path = f"test/backup-{int(time.time())}"
         test_data = {"username": "user", "password": "pass"}
-        
+
         # Create initial secret
         vault_client.write_secret(test_path, test_data)
-        
+
         # Create backup
         backup_path = vault_client.create_backup(test_path)
-        
+
         # Verify backup exists
         backup_data = vault_client.read_secret(backup_path.replace("janusgraph/", ""))
         assert backup_data["username"] == "user"
@@ -234,11 +236,11 @@ class TestCredentialRotation:
     def test_rotate_janusgraph_password_mock(self, credential_rotator):
         """Test JanusGraph password rotation with mocked services."""
         # Mock health checks to avoid actual service dependencies
-        with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=True):
-            with patch.object(credential_rotator, '_update_janusgraph_config'):
-                with patch.object(credential_rotator, '_restart_service'):
+        with patch.object(credential_rotator.health_checker, "check_janusgraph", return_value=True):
+            with patch.object(credential_rotator, "_update_janusgraph_config"):
+                with patch.object(credential_rotator, "_restart_service"):
                     result = credential_rotator.rotate_janusgraph_password()
-        
+
         # Verify result structure
         assert isinstance(result, RotationResult)
         assert result.service == "janusgraph"
@@ -252,11 +254,11 @@ class TestCredentialRotation:
         # Setup test credentials in Vault
         test_creds = {"username": "admin", "password": "oldpass"}
         credential_rotator.vault.write_secret("opensearch/admin", test_creds)
-        
-        with patch.object(credential_rotator.health_checker, 'check_opensearch', return_value=True):
-            with patch.object(credential_rotator, '_update_opensearch_user'):
+
+        with patch.object(credential_rotator.health_checker, "check_opensearch", return_value=True):
+            with patch.object(credential_rotator, "_update_opensearch_user"):
                 result = credential_rotator.rotate_opensearch_password()
-        
+
         assert isinstance(result, RotationResult)
         assert result.service == "opensearch"
 
@@ -266,36 +268,42 @@ class TestCredentialRotation:
         # Setup test credentials
         test_creds = {"username": "admin", "password": "oldpass"}
         credential_rotator.vault.write_secret("grafana/admin", test_creds)
-        
-        with patch.object(credential_rotator.health_checker, 'check_grafana', return_value=True):
-            with patch.object(credential_rotator, '_update_grafana_password'):
-                with patch.object(credential_rotator, '_verify_grafana_login', return_value=True):
+
+        with patch.object(credential_rotator.health_checker, "check_grafana", return_value=True):
+            with patch.object(credential_rotator, "_update_grafana_password"):
+                with patch.object(credential_rotator, "_verify_grafana_login", return_value=True):
                     result = credential_rotator.rotate_grafana_password()
-        
+
         assert isinstance(result, RotationResult)
         assert result.service == "grafana"
 
     @pytest.mark.slow
     def test_rotate_pulsar_token_mock(self, credential_rotator):
         """Test Pulsar token rotation with mocked services."""
-        with patch.object(credential_rotator.health_checker, 'check_pulsar', return_value=True):
-            with patch.object(credential_rotator, '_update_pulsar_token'):
-                with patch.object(credential_rotator, '_restart_service'):
+        with patch.object(credential_rotator.health_checker, "check_pulsar", return_value=True):
+            with patch.object(credential_rotator, "_update_pulsar_token"):
+                with patch.object(credential_rotator, "_restart_service"):
                     result = credential_rotator.rotate_pulsar_token()
-        
+
         assert isinstance(result, RotationResult)
         assert result.service == "pulsar"
 
     @pytest.mark.slow
     def test_rotate_certificates_mock(self, credential_rotator):
         """Test SSL/TLS certificate rotation with mocked services."""
-        with patch('subprocess.run'):
-            with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=True):
-                with patch.object(credential_rotator.health_checker, 'check_opensearch', return_value=True):
-                    with patch.object(credential_rotator.health_checker, 'check_grafana', return_value=True):
-                        with patch.object(credential_rotator, '_restart_service'):
+        with patch("subprocess.run"):
+            with patch.object(
+                credential_rotator.health_checker, "check_janusgraph", return_value=True
+            ):
+                with patch.object(
+                    credential_rotator.health_checker, "check_opensearch", return_value=True
+                ):
+                    with patch.object(
+                        credential_rotator.health_checker, "check_grafana", return_value=True
+                    ):
+                        with patch.object(credential_rotator, "_restart_service"):
                             result = credential_rotator.rotate_certificates()
-        
+
         assert isinstance(result, RotationResult)
         assert result.service == "certificates"
 
@@ -308,19 +316,19 @@ class TestRollbackScenarios:
         test_path = f"test/rollback-{int(time.time())}"
         original_data = {"username": "user", "password": "original"}
         new_data = {"username": "user", "password": "new"}
-        
+
         # Create original secret
         credential_rotator.vault.write_secret(test_path, original_data)
-        
+
         # Create backup
         backup_path = credential_rotator.vault.create_backup(test_path)
-        
+
         # Update to new credentials
         credential_rotator.vault.write_secret(test_path, new_data)
-        
+
         # Rollback
         credential_rotator._rollback_from_backup(backup_path, test_path)
-        
+
         # Verify rollback
         result = credential_rotator.vault.read_secret(test_path)
         assert result["password"] == "original"
@@ -331,13 +339,15 @@ class TestRollbackScenarios:
         # Setup test credentials
         test_creds = {"username": "admin", "password": "oldpass"}
         credential_rotator.vault.write_secret("opensearch/admin", test_creds)
-        
+
         # Mock health check to fail after rotation
-        with patch.object(credential_rotator.health_checker, 'check_opensearch', side_effect=[True, False]):
-            with patch.object(credential_rotator, '_update_opensearch_user'):
-                with patch.object(credential_rotator, '_rollback_opensearch_user') as mock_rollback:
+        with patch.object(
+            credential_rotator.health_checker, "check_opensearch", side_effect=[True, False]
+        ):
+            with patch.object(credential_rotator, "_update_opensearch_user"):
+                with patch.object(credential_rotator, "_rollback_opensearch_user") as mock_rollback:
                     result = credential_rotator.rotate_opensearch_password()
-        
+
         # Verify rollback was called
         assert result.status == RotationStatus.FAILED
         mock_rollback.assert_called_once()
@@ -348,19 +358,23 @@ class TestHealthCheckValidation:
 
     def test_pre_rotation_health_check_failure(self, credential_rotator):
         """Test that rotation aborts if pre-rotation health check fails."""
-        with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=False):
+        with patch.object(
+            credential_rotator.health_checker, "check_janusgraph", return_value=False
+        ):
             result = credential_rotator.rotate_janusgraph_password()
-        
+
         assert result.status == RotationStatus.FAILED
         assert "not healthy before rotation" in result.error_message
 
     def test_post_rotation_health_check_failure(self, credential_rotator):
         """Test that rotation rolls back if post-rotation health check fails."""
-        with patch.object(credential_rotator.health_checker, 'check_janusgraph', side_effect=[True, False]):
-            with patch.object(credential_rotator, '_update_janusgraph_config'):
-                with patch.object(credential_rotator, '_restart_service'):
+        with patch.object(
+            credential_rotator.health_checker, "check_janusgraph", side_effect=[True, False]
+        ):
+            with patch.object(credential_rotator, "_update_janusgraph_config"):
+                with patch.object(credential_rotator, "_restart_service"):
                     result = credential_rotator.rotate_janusgraph_password()
-        
+
         assert result.status == RotationStatus.FAILED
         assert "health check failed" in result.error_message.lower()
 
@@ -371,12 +385,12 @@ class TestVaultIntegration:
     def test_vault_secret_versioning(self, vault_client):
         """Test that Vault maintains secret versions."""
         test_path = f"test/versioning-{int(time.time())}"
-        
+
         # Write multiple versions
         vault_client.write_secret(test_path, {"password": "v1"})
         vault_client.write_secret(test_path, {"password": "v2"})
         vault_client.write_secret(test_path, {"password": "v3"})
-        
+
         # Read latest version
         result = vault_client.read_secret(test_path)
         assert result["password"] == "v3"
@@ -384,16 +398,16 @@ class TestVaultIntegration:
     def test_vault_metadata_tracking(self, credential_rotator):
         """Test that rotation metadata is tracked in Vault."""
         test_path = f"test/metadata-{int(time.time())}"
-        
+
         # Simulate rotation with metadata
         new_creds = {
             "username": "admin",
             "password": "newpass",
             "rotated_at": "2026-02-11T10:00:00Z",
-            "rotated_by": "credential_rotation_framework"
+            "rotated_by": "credential_rotation_framework",
         }
         credential_rotator.vault.write_secret(test_path, new_creds)
-        
+
         # Verify metadata
         result = credential_rotator.vault.read_secret(test_path)
         assert "rotated_at" in result
@@ -403,18 +417,18 @@ class TestVaultIntegration:
     def test_vault_backup_retention(self, vault_client):
         """Test that backups are retained in Vault."""
         test_path = f"test/retention-{int(time.time())}"
-        
+
         # Create secret and backup
         vault_client.write_secret(test_path, {"password": "original"})
         backup_path = vault_client.create_backup(test_path)
-        
+
         # Update original
         vault_client.write_secret(test_path, {"password": "updated"})
-        
+
         # Verify both exist
         original = vault_client.read_secret(test_path)
         backup = vault_client.read_secret(backup_path.replace("janusgraph/", ""))
-        
+
         assert original["password"] == "updated"
         assert backup["password"] == "original"
 
@@ -430,24 +444,37 @@ class TestConcurrentRotation:
             ("opensearch", credential_rotator.rotate_opensearch_password),
             ("grafana", credential_rotator.rotate_grafana_password),
         ]
-        
+
         results = []
         for service_name, rotate_func in services:
             # Setup test credentials
             test_creds = {"username": "admin", "password": "oldpass"}
             credential_rotator.vault.write_secret(f"{service_name}/admin", test_creds)
-            
+
             # Mock all external dependencies
-            with patch.object(credential_rotator.health_checker, f'check_{service_name}', return_value=True):
-                with patch.object(credential_rotator, f'_update_{service_name}_config', create=True):
-                    with patch.object(credential_rotator, f'_update_{service_name}_user', create=True):
-                        with patch.object(credential_rotator, f'_update_{service_name}_password', create=True):
-                            with patch.object(credential_rotator, f'_verify_{service_name}_login', return_value=True, create=True):
-                                with patch.object(credential_rotator, '_restart_service'):
+            with patch.object(
+                credential_rotator.health_checker, f"check_{service_name}", return_value=True
+            ):
+                with patch.object(
+                    credential_rotator, f"_update_{service_name}_config", create=True
+                ):
+                    with patch.object(
+                        credential_rotator, f"_update_{service_name}_user", create=True
+                    ):
+                        with patch.object(
+                            credential_rotator, f"_update_{service_name}_password", create=True
+                        ):
+                            with patch.object(
+                                credential_rotator,
+                                f"_verify_{service_name}_login",
+                                return_value=True,
+                                create=True,
+                            ):
+                                with patch.object(credential_rotator, "_restart_service"):
                                     result = rotate_func()
-            
+
             results.append(result)
-        
+
         # Verify all rotations completed
         assert len(results) == 3
         assert all(isinstance(r, RotationResult) for r in results)
@@ -470,11 +497,17 @@ class TestErrorHandling:
     def test_rotation_timeout(self, credential_rotator):
         """Test handling of rotation timeouts."""
         # Mock a slow operation
-        with patch.object(credential_rotator, '_restart_service', side_effect=lambda *args, **kwargs: time.sleep(0.1)):
-            with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=True):
-                with patch.object(credential_rotator, '_update_janusgraph_config'):
+        with patch.object(
+            credential_rotator,
+            "_restart_service",
+            side_effect=lambda *args, **kwargs: time.sleep(0.1),
+        ):
+            with patch.object(
+                credential_rotator.health_checker, "check_janusgraph", return_value=True
+            ):
+                with patch.object(credential_rotator, "_update_janusgraph_config"):
                     result = credential_rotator.rotate_janusgraph_password()
-        
+
         # Should complete despite delay
         assert isinstance(result, RotationResult)
         assert result.duration_seconds >= 0.1
@@ -485,28 +518,28 @@ class TestRotationMetrics:
 
     def test_rotation_duration_tracking(self, credential_rotator):
         """Test that rotation duration is tracked."""
-        with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=True):
-            with patch.object(credential_rotator, '_update_janusgraph_config'):
-                with patch.object(credential_rotator, '_restart_service'):
+        with patch.object(credential_rotator.health_checker, "check_janusgraph", return_value=True):
+            with patch.object(credential_rotator, "_update_janusgraph_config"):
+                with patch.object(credential_rotator, "_restart_service"):
                     result = credential_rotator.rotate_janusgraph_password()
-        
+
         assert result.duration_seconds > 0
         assert result.timestamp is not None
 
     def test_rotation_result_structure(self, credential_rotator):
         """Test that rotation result has all required fields."""
-        with patch.object(credential_rotator.health_checker, 'check_janusgraph', return_value=True):
-            with patch.object(credential_rotator, '_update_janusgraph_config'):
-                with patch.object(credential_rotator, '_restart_service'):
+        with patch.object(credential_rotator.health_checker, "check_janusgraph", return_value=True):
+            with patch.object(credential_rotator, "_update_janusgraph_config"):
+                with patch.object(credential_rotator, "_restart_service"):
                     result = credential_rotator.rotate_janusgraph_password()
-        
-        assert hasattr(result, 'service')
-        assert hasattr(result, 'status')
-        assert hasattr(result, 'old_credential_id')
-        assert hasattr(result, 'new_credential_id')
-        assert hasattr(result, 'timestamp')
-        assert hasattr(result, 'duration_seconds')
-        assert hasattr(result, 'error_message')
+
+        assert hasattr(result, "service")
+        assert hasattr(result, "status")
+        assert hasattr(result, "old_credential_id")
+        assert hasattr(result, "new_credential_id")
+        assert hasattr(result, "timestamp")
+        assert hasattr(result, "duration_seconds")
+        assert hasattr(result, "error_message")
 
 
 # Made with Bob

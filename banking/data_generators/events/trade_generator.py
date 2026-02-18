@@ -9,11 +9,11 @@ Date: 2026-02-06
 """
 
 import random
-from datetime import datetime, timedelta, timezone
-
-from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any, Dict, List, Optional
+
+from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
 
 from ..core.base_generator import BaseGenerator
 from ..utils.constants import STOCK_EXCHANGES
@@ -177,7 +177,9 @@ class TradeGenerator(BaseGenerator[Trade]):
             return generate_stock_ticker()
         elif asset_type == "option":
             base = generate_stock_ticker()
-            expiry = (REFERENCE_TIMESTAMP + timedelta(days=random.randint(30, 365))).strftime("%y%m%d")
+            expiry = (REFERENCE_TIMESTAMP + timedelta(days=random.randint(30, 365))).strftime(
+                "%y%m%d"
+            )
             strike = random.randint(50, 500)
             call_put = random.choice(["C", "P"])
             return f"{base}{expiry}{call_put}{strike:05d}"

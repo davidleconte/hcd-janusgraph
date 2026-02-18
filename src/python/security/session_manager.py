@@ -85,9 +85,7 @@ class SessionManager:
         if not self.config.secret_key:
             raise ValueError("Session secret key must be configured and non-empty.")
         if _is_weak_secret(self.config.secret_key):
-            raise ValueError(
-                "Session secret key is too weak. Use a strong secret (>=32 chars)."
-            )
+            raise ValueError("Session secret key is too weak. Use a strong secret (>=32 chars).")
         self._sessions: Dict[str, Session] = {}
         self._user_sessions: Dict[str, List[str]] = {}
         self._lock = threading.Lock()
@@ -174,9 +172,7 @@ class SessionManager:
                 session.refresh_token_hash = self._hash(new_refresh_token)
 
             session.last_active = now
-            session.expires_at = now + timedelta(
-                minutes=self.config.refresh_token_ttl_minutes
-            )
+            session.expires_at = now + timedelta(minutes=self.config.refresh_token_ttl_minutes)
 
             logger.info("Session refreshed: session=%s", session_id)
 
@@ -236,23 +232,21 @@ class SessionManager:
         for sid in self._user_sessions.get(user_id, []):
             s = self._sessions.get(sid)
             if s and not s.revoked and now < s.expires_at:
-                result.append({
-                    "session_id": s.session_id,
-                    "created_at": s.created_at.isoformat(),
-                    "last_active": s.last_active.isoformat(),
-                    "ip_address": s.ip_address,
-                    "user_agent": s.user_agent,
-                })
+                result.append(
+                    {
+                        "session_id": s.session_id,
+                        "created_at": s.created_at.isoformat(),
+                        "last_active": s.last_active.isoformat(),
+                        "ip_address": s.ip_address,
+                        "user_agent": s.user_agent,
+                    }
+                )
         return result
 
     def cleanup_expired(self) -> int:
         with self._lock:
             now = datetime.now(timezone.utc)
-            expired = [
-                sid
-                for sid, s in self._sessions.items()
-                if s.revoked or now > s.expires_at
-            ]
+            expired = [sid for sid, s in self._sessions.items() if s.revoked or now > s.expires_at]
             for sid in expired:
                 self._remove_session(sid)
             return len(expired)

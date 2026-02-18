@@ -12,18 +12,15 @@ Tests cover:
 - Alert generation
 """
 
-import pytest
 from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import Mock, patch, MagicMock
-from typing import List, Dict, Any
+from unittest.mock import Mock, patch
 
 from banking.aml.structuring_detection import (
-    StructuringPattern,
     StructuringAlert,
     StructuringDetector,
+    StructuringPattern,
 )
-
 
 # ============================================================================
 # Test Dataclasses
@@ -594,5 +591,6 @@ class TestErrorHandling:
         patterns = detector.detect_network_structuring("acc-123")
 
         assert len(patterns) == 0
+
 
 # Made with Bob

@@ -48,6 +48,7 @@ pytestmark = [pytest.mark.timeout(240)]
 
 def check_hcd_available():
     """Check if HCD/Cassandra is available."""
+
     def _check() -> bool:
         from cassandra.cluster import Cluster
 
@@ -58,11 +59,13 @@ def check_hcd_available():
         session.execute("SELECT now() FROM system.local")
         cluster.shutdown()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_janusgraph_available():
     """Check if JanusGraph is available using client approach."""
+
     def _check() -> bool:
         from gremlin_python.driver import client, serializer
 
@@ -74,11 +77,13 @@ def check_janusgraph_available():
         result = c.submit("g.V().count()").all().result()
         c.close()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_opensearch_available():
     """Check if OpenSearch is available."""
+
     def _check() -> bool:
         from opensearchpy import OpenSearch
 
@@ -92,17 +97,20 @@ def check_opensearch_available():
         )
         client.info()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 
 def check_pulsar_available():
     """Check if Pulsar is available."""
+
     def _check() -> bool:
         import pulsar
 
         client = pulsar.Client("pulsar://localhost:6650", operation_timeout_seconds=5)
         client.close()
         return True
+
     return run_with_timeout_bool(_check, timeout_seconds=8.0)
 
 

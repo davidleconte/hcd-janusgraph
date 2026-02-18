@@ -1,23 +1,33 @@
 """Comprehensive tests for src.python.utils.embedding_generator — targets 29% → 90%+."""
-import pytest
+
+from unittest.mock import MagicMock, patch
+
 import numpy as np
-from unittest.mock import patch, MagicMock
+import pytest
 
 
 class FakeSentenceTransformer:
     def __init__(self, *a, **kw):
         pass
 
-    def encode(self, texts, batch_size=32, show_progress_bar=False,
-               normalize_embeddings=True, convert_to_numpy=True):
+    def encode(
+        self,
+        texts,
+        batch_size=32,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
+    ):
         n = len(texts) if isinstance(texts, list) else 1
         return np.random.rand(n, 384).astype(np.float32)
 
 
 @pytest.fixture(autouse=True)
 def mock_sentence_transformer():
-    with patch("src.python.utils.embedding_generator.SentenceTransformer", FakeSentenceTransformer), \
-         patch("src.python.utils.embedding_generator._HAS_ML_DEPS", True):
+    with (
+        patch("src.python.utils.embedding_generator.SentenceTransformer", FakeSentenceTransformer),
+        patch("src.python.utils.embedding_generator._HAS_ML_DEPS", True),
+    ):
         yield
 
 

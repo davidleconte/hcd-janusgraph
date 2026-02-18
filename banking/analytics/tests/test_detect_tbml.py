@@ -387,6 +387,7 @@ class TestDataclasses:
         assert anomaly.direction == "over"
         assert anomaly.deviation_percent == 50.0
 
+
 class TestCarouselFraudDetectionAdvanced:
     """Advanced tests for carousel fraud detection"""
 
@@ -903,7 +904,6 @@ class TestReportGenerationAdvanced:
         assert report["alerts_by_severity"]["medium"] == 1
         assert report["alerts_by_severity"]["low"] == 1
         assert report["total_value_at_risk"] == 2250000.0
-
 
 
 if __name__ == "__main__":

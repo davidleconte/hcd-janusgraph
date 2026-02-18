@@ -164,7 +164,9 @@ class TestParseAuditLog:
         log_path = Path(audit_log_dir) / "bad.log"
         with open(log_path, "w") as f:
             f.write("not json\n")
-            f.write('{"timestamp": "2026-01-15T10:00:00+00:00", "event_type": "auth_login", "severity": "info", "user": "a", "resource": "b", "action": "c", "result": "d"}\n')
+            f.write(
+                '{"timestamp": "2026-01-15T10:00:00+00:00", "event_type": "auth_login", "severity": "info", "user": "a", "resource": "b", "action": "c", "result": "d"}\n'
+            )
         r = ComplianceReporter(log_dir=audit_log_dir)
         events = r.parse_audit_log("bad.log")
         assert len(events) == 1
@@ -360,7 +362,9 @@ class TestConvenienceFunction:
         end = datetime(2026, 1, 31, tzinfo=timezone.utc)
         with tempfile.TemporaryDirectory() as tmpdir:
             output = str(Path(tmpdir) / "out.json")
-            report = generate_compliance_report("gdpr", start, end, log_dir=audit_log_dir, output_file=output)
+            generate_compliance_report(
+                "gdpr", start, end, log_dir=audit_log_dir, output_file=output
+            )
             assert Path(output).exists()
 
 

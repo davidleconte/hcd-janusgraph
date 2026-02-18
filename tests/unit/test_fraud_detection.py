@@ -1,12 +1,12 @@
 """Tests for banking.fraud.fraud_detection module."""
 
-import numpy as np
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
-from banking.fraud.models import FraudAlert, FraudScore, HIGH_RISK_MERCHANTS
+import numpy as np
+import pytest
 
+from banking.fraud.models import HIGH_RISK_MERCHANTS, FraudAlert, FraudScore
 
 MODULE = "banking.fraud.fraud_detection"
 
@@ -48,23 +48,27 @@ def mock_deps():
 @pytest.fixture
 def detector(mock_deps):
     from banking.fraud.fraud_detection import FraudDetector
+
     return FraudDetector()
 
 
 class TestFraudDetectorInit:
     def test_init_creates_index(self, mock_deps):
         from banking.fraud.fraud_detection import FraudDetector
+
         FraudDetector()
         mock_deps["vs"].create_vector_index.assert_called_once()
 
     def test_init_skips_existing_index(self, mock_deps):
         mock_deps["vs"].client.indices.exists.return_value = True
         from banking.fraud.fraud_detection import FraudDetector
+
         FraudDetector()
         mock_deps["vs"].create_vector_index.assert_not_called()
 
     def test_init_ssl(self, mock_deps):
         from banking.fraud.fraud_detection import FraudDetector
+
         d = FraudDetector(use_ssl=True)
         assert d.graph_url.startswith("wss://")
 
@@ -84,7 +88,11 @@ class TestConnectDisconnect:
         mock_deps["conn_cls"].assert_not_called()
 
     def test_connect_circuit_breaker_open(self, detector):
-        with patch.object(type(detector._breaker), "state", new_callable=lambda: property(lambda self: MagicMock(value="open"))):
+        with patch.object(
+            type(detector._breaker),
+            "state",
+            new_callable=lambda: property(lambda self: MagicMock(value="open")),
+        ):
             with pytest.raises(ConnectionError):
                 detector.connect()
 
@@ -116,10 +124,18 @@ class TestConnectDisconnect:
 class TestScoreTransaction:
     def test_score_low_risk(self, detector, mock_deps):
         g = mock_deps["g"]
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = []
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         mock_deps["emb"].encode.return_value = [np.zeros(384)]
         mock_deps["vs"].search.return_value = []
 
@@ -130,10 +146,18 @@ class TestScoreTransaction:
 
     def test_score_with_timestamp(self, detector, mock_deps):
         g = mock_deps["g"]
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = 0
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = []
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = (
+            0
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         mock_deps["emb"].encode.return_value = [np.zeros(384)]
         mock_deps["vs"].search.return_value = []
 
@@ -143,10 +167,18 @@ class TestScoreTransaction:
 
     def test_score_critical(self, detector, mock_deps):
         g = mock_deps["g"]
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = 20
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = 10000
-        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = 100
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = []
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = (
+            20
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = (
+            10000
+        )
+        g.V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = (
+            100
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         mock_deps["emb"].encode.return_value = [np.zeros(384)]
         mock_deps["vs"].search.return_value = []
 
@@ -162,15 +194,23 @@ class TestCheckVelocity:
 
     def test_velocity_high(self, detector, mock_deps):
         g = mock_deps["g"]
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = 15
-        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = 8000
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.count.return_value.next.return_value = (
+            15
+        )
+        g.V.return_value.has.return_value.out_e.return_value.has.return_value.values.return_value.sum_.return_value.next.return_value = (
+            8000
+        )
         result = detector._check_velocity("acc1", 100.0, datetime.now(timezone.utc))
         assert result == 1.0
 
 
 class TestCheckNetwork:
     def test_network_low(self, detector, mock_deps):
-        mock_deps["g"].V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = 5
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.both.return_value.dedup.return_value.count.return_value.next.return_value = (
+            5
+        )
         assert detector._check_network("acc1") == pytest.approx(0.1)
 
     def test_network_error(self, detector, mock_deps):
@@ -201,25 +241,47 @@ class TestCheckMerchant:
 
 class TestCheckBehavior:
     def test_no_history(self, detector, mock_deps):
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = []
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         assert detector._check_behavior("acc1", 100.0, "store", "desc") == 0.3
 
     def test_with_history(self, detector, mock_deps):
-        txns = [{"amount": [100.0, 200.0, 150.0], "merchant": ["store A", "store B"], "description": ["food", "gas"]}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        txns = [
+            {
+                "amount": [100.0, 200.0, 150.0],
+                "merchant": ["store A", "store B"],
+                "description": ["food", "gas"],
+            }
+        ]
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         mock_deps["emb"].encode.return_value = np.array([[0.1] * 384, [0.2] * 384])
         result = detector._check_behavior("acc1", 10000.0, "new merchant", "unusual purchase")
         assert 0 <= result <= 1.0
 
     def test_zero_std(self, detector, mock_deps):
         txns = [{"amount": [100.0, 100.0], "merchant": [], "description": []}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         result = detector._check_behavior("acc1", 200.0, "", "")
         assert result > 0
 
     def test_same_amount_zero_std(self, detector, mock_deps):
         txns = [{"amount": [100.0, 100.0], "merchant": [], "description": []}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         result = detector._check_behavior("acc1", 100.0, "", "")
         assert 0 <= result <= 1.0
 
@@ -229,14 +291,22 @@ class TestCheckBehavior:
 
     def test_semantic_low_similarity(self, detector, mock_deps):
         txns = [{"amount": [100.0], "merchant": ["store"], "description": ["old desc"]}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         mock_deps["emb"].encode.side_effect = [np.array([[0.1] * 384]), np.array([[0.9] * 384])]
         result = detector._check_behavior("acc1", 100.0, "store", "new desc")
         assert 0 <= result <= 1.0
 
     def test_semantic_error(self, detector, mock_deps):
         txns = [{"amount": [100.0], "merchant": ["store"], "description": ["old desc"]}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         mock_deps["emb"].encode.side_effect = Exception("encode fail")
         result = detector._check_behavior("acc1", 100.0, "store", "new desc")
         assert 0 <= result <= 1.0
@@ -244,14 +314,22 @@ class TestCheckBehavior:
     def test_merchant_frequency_zero(self, detector, mock_deps):
         merchants = ["store A"] * 100
         txns = [{"amount": [100.0] * 100, "merchant": merchants, "description": []}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         result = detector._check_behavior("acc1", 100.0, "rare merchant", "")
         assert result > 0
 
     def test_merchant_frequency_low(self, detector, mock_deps):
         merchants = ["store A"] * 98 + ["rare"] * 2
         txns = [{"amount": [100.0] * 100, "merchant": merchants, "description": []}]
-        mock_deps["g"].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = txns
+        mock_deps[
+            "g"
+        ].V.return_value.has.return_value.out_e.return_value.has.return_value.project.return_value.by.return_value.by.return_value.by.return_value.toList.return_value = (
+            txns
+        )
         result = detector._check_behavior("acc1", 100.0, "rare", "")
         assert 0 <= result <= 1.0
 
@@ -277,7 +355,10 @@ class TestDetectAccountTakeover:
 class TestFindSimilarFraudCases:
     def test_find_similar(self, detector, mock_deps):
         mock_deps["emb"].encode_for_search.return_value = np.zeros(384)
-        mock_deps["vs"].search.return_value = [{"source": {"case_id": "c1"}}, {"source": {"case_id": "c2"}}]
+        mock_deps["vs"].search.return_value = [
+            {"source": {"case_id": "c1"}},
+            {"source": {"case_id": "c2"}},
+        ]
         result = detector.find_similar_fraud_cases("suspicious tx", 5000.0)
         assert len(result) == 2
 
@@ -295,7 +376,9 @@ class TestGenerateAlert:
         mock_deps["emb"].encode_for_search.return_value = np.zeros(384)
         mock_deps["vs"].search.return_value = []
         score = FraudScore("tx1", 0.8, 0.8, 0.3, 0.3, 0.3, "high", "review")
-        alert = detector.generate_alert(score, {"description": "test", "amount": 5000, "account_id": "a1"})
+        alert = detector.generate_alert(
+            score, {"description": "test", "amount": 5000, "account_id": "a1"}
+        )
         assert isinstance(alert, FraudAlert)
         assert alert.alert_type == "velocity"
 

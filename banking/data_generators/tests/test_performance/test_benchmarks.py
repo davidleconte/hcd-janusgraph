@@ -34,7 +34,9 @@ class TestGenerationSpeed:
 
     def test_account_generation_speed(self, account_generator, sample_person, benchmark):
         """Benchmark account generation speed"""
-        result = benchmark(account_generator.generate, owner_id=sample_person.id, owner_type="person")
+        result = benchmark(
+            account_generator.generate, owner_id=sample_person.id, owner_type="person"
+        )
         assert result is not None
 
     def test_transaction_generation_speed(self, transaction_generator, sample_accounts, benchmark):

@@ -1,18 +1,21 @@
 """Tests for src.python.security.mfa module (unblocked by pyotp install)."""
+
 import os
 import sys
 from unittest.mock import MagicMock, patch
 
 # Patch AuditLogger before any import triggers it
-with patch('banking.compliance.audit_logger.AuditLogger.__init__', lambda self, **kw: None):
-    with patch('banking.compliance.audit_logger.AuditLogger.log_event', MagicMock()):
+with patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, **kw: None):
+    with patch("banking.compliance.audit_logger.AuditLogger.log_event", MagicMock()):
         import banking.compliance.audit_logger as _al
+
         _al._audit_logger = MagicMock()
 
-import pytest
 import pyotp
+import pytest
 
-from src.python.security.mfa import MFAMethod, MFAConfig, MFAManager
+from src.python.security.mfa import MFAConfig, MFAManager, MFAMethod
+
 
 class TestMFAConfig:
     def test_defaults(self):

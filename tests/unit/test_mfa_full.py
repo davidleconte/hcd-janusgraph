@@ -1,15 +1,20 @@
 """Comprehensive tests for src.python.security.mfa — targets 55% → 90%+."""
+
 import os
-import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
-from unittest.mock import patch as _patch, MagicMock as _MagicMock
+from unittest.mock import MagicMock as _MagicMock
+from unittest.mock import patch as _patch
+
 with _patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
     with _patch("banking.compliance.audit_logger.AuditLogger.log_event", _MagicMock()):
         import banking.compliance.audit_logger as _al
+
         _al._audit_logger = _MagicMock()
 
 import pyotp
@@ -20,11 +25,12 @@ def mfa_store_path(monkeypatch, tmp_path):
     """Use a temporary MFA enrollment store for every test."""
     monkeypatch.setenv("JANUSGRAPH_MFA_STORE_PATH", str(tmp_path / "mfa_enrollments.json"))
 
+
 from src.python.security.mfa import (
-    MFAMethod,
     MFAConfig,
-    MFAManager,
     MFAEnrollment,
+    MFAManager,
+    MFAMethod,
     MFAMiddleware,
 )
 
@@ -132,7 +138,9 @@ class TestMFAManager:
         secret = self.mgr.generate_secret()
         for _ in range(3):
             self.mgr.verify_totp(secret, "000000", user_id="u1")
-        self.mgr.failed_attempts["u1"]["last_attempt"] = datetime.now(timezone.utc) - timedelta(seconds=600)
+        self.mgr.failed_attempts["u1"]["last_attempt"] = datetime.now(timezone.utc) - timedelta(
+            seconds=600
+        )
         assert not self.mgr._is_locked_out("u1")
 
     def test_reset_failed_attempts(self):

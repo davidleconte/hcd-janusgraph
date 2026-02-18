@@ -1,8 +1,15 @@
 """Tests for src.python.utils.error_codes module."""
+
 import pytest
+
 from src.python.utils.error_codes import (
-    ErrorCategory, ErrorCode, ERROR_CODES, AppException,
-    ValidationError, NotFoundError, ConnectionError,
+    ERROR_CODES,
+    AppException,
+    ConnectionError,
+    ErrorCategory,
+    ErrorCode,
+    NotFoundError,
+    ValidationError,
 )
 
 

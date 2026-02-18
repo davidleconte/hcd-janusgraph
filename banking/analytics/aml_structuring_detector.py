@@ -267,7 +267,11 @@ class AMLStructuringDetector:
                             }
                         )
                 except Exception:
-                    logger.debug("Failed to analyze account %s for structuring, skipping", account_id, exc_info=True)
+                    logger.debug(
+                        "Failed to analyze account %s for structuring, skipping",
+                        account_id,
+                        exc_info=True,
+                    )
                     continue
 
         if patterns:

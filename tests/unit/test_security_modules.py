@@ -1,19 +1,31 @@
 """Tests for src.python.security modules."""
+
 import os
+
 import pytest
 
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
 from unittest.mock import patch
+
 with patch("banking.compliance.audit_logger.AuditLogger.__init__", lambda self, *a, **kw: None):
     from src.python.security.query_sanitizer import (
-        QueryComplexity, ValidationError, QueryPattern, QueryAllowlist,
+        QueryComplexity,
+        ValidationError,
+        QueryPattern,
+        QueryAllowlist,
     )
+
 from src.python.security.rbac import (
-    Permission, ResourceType, Role, RBACManager,
+    Permission,
+    RBACManager,
+    ResourceType,
+    Role,
 )
+
 try:
-    from src.python.security.mfa import MFAMethod, MFAConfig, MFAManager
+    from src.python.security.mfa import MFAConfig, MFAManager, MFAMethod
+
     HAS_MFA = True
 except ImportError:
     HAS_MFA = False
@@ -30,7 +42,9 @@ class TestQueryComplexity:
 class TestQueryPattern:
     def test_creation(self):
         p = QueryPattern(
-            name="test", pattern=r"^g\.V\(\)$", description="test pattern",
+            name="test",
+            pattern=r"^g\.V\(\)$",
+            description="test pattern",
             complexity=QueryComplexity.SIMPLE,
         )
         assert p.name == "test"
@@ -39,7 +53,9 @@ class TestQueryPattern:
 
     def test_matches(self):
         p = QueryPattern(
-            name="test", pattern=r"^g\.V\(\)$", description="test",
+            name="test",
+            pattern=r"^g\.V\(\)$",
+            description="test",
             complexity=QueryComplexity.SIMPLE,
         )
         assert p.matches("g.V()")
@@ -54,7 +70,9 @@ class TestQueryAllowlist:
     def test_add_pattern(self):
         al = QueryAllowlist()
         p = QueryPattern(
-            name="custom", pattern=r"^custom$", description="custom",
+            name="custom",
+            pattern=r"^custom$",
+            description="custom",
             complexity=QueryComplexity.SIMPLE,
         )
         al.add_pattern(p)
@@ -64,6 +82,7 @@ class TestQueryAllowlist:
 class TestSanitizeGremlinQuery:
     def test_import(self):
         from src.python.security.query_sanitizer import sanitize_gremlin_query
+
         assert callable(sanitize_gremlin_query)
 
 
@@ -157,6 +176,7 @@ class TestMFAManager:
 
     def test_verify_totp(self):
         import pyotp
+
         mgr = MFAManager()
         secret = mgr.generate_secret()
         totp = pyotp.TOTP(secret)

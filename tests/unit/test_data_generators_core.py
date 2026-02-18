@@ -1,15 +1,17 @@
 """Tests for banking.data_generators.core modules."""
-import pytest
+
 import random
 from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
-from banking.data_generators.core.base_generator import BaseGenerator
-from banking.data_generators.core.person_generator import PersonGenerator
-from banking.data_generators.core.company_generator import CompanyGenerator
+import pytest
+
 from banking.data_generators.core.account_generator import AccountGenerator
-from banking.data_generators.utils.data_models import Person, Company, Account, Gender, RiskLevel
+from banking.data_generators.core.base_generator import BaseGenerator
+from banking.data_generators.core.company_generator import CompanyGenerator
+from banking.data_generators.core.person_generator import PersonGenerator
+from banking.data_generators.utils.data_models import Account, Company, Gender, Person, RiskLevel
 
 
 class ConcreteGenerator(BaseGenerator[str]):
@@ -50,12 +52,14 @@ class TestBaseGenerator:
         gen = ConcreteGenerator(seed=42)
         original_generate = gen.generate
         call_count = 0
+
         def failing_generate():
             nonlocal call_count
             call_count += 1
             if call_count == 3:
                 raise ValueError("test error")
             return original_generate()
+
         gen.generate = failing_generate
         results = gen.generate_batch(5)
         assert len(results) == 4
@@ -65,12 +69,14 @@ class TestBaseGenerator:
         gen = ConcreteGenerator(seed=42, config={"raise_on_error": True})
         original_generate = gen.generate
         call_count = 0
+
         def failing_generate():
             nonlocal call_count
             call_count += 1
             if call_count == 2:
                 raise ValueError("test error")
             return original_generate()
+
         gen.generate = failing_generate
         with pytest.raises(ValueError, match="test error"):
             gen.generate_batch(5)
@@ -136,12 +142,15 @@ class TestPersonGenerator:
         assert p1.last_name is not None
 
     def test_config_options(self):
-        gen = PersonGenerator(seed=42, config={
-            "pep_probability": 1.0,
-            "sanctioned_probability": 0.0,
-            "min_age": 25,
-            "max_age": 30,
-        })
+        gen = PersonGenerator(
+            seed=42,
+            config={
+                "pep_probability": 1.0,
+                "sanctioned_probability": 0.0,
+                "min_age": 25,
+                "max_age": 30,
+            },
+        )
         person = gen.generate()
         assert person.is_pep is True
         age_days = (date.today() - person.date_of_birth).days
@@ -188,10 +197,13 @@ class TestCompanyGenerator:
         assert len(companies) == 5
 
     def test_config_options(self):
-        gen = CompanyGenerator(seed=42, config={
-            "public_company_probability": 1.0,
-            "shell_company_probability": 0.0,
-        })
+        gen = CompanyGenerator(
+            seed=42,
+            config={
+                "public_company_probability": 1.0,
+                "shell_company_probability": 0.0,
+            },
+        )
         company = gen.generate()
         assert company.is_public is True
 
@@ -221,10 +233,13 @@ class TestAccountGenerator:
         assert len(accounts) == 5
 
     def test_config_options(self):
-        gen = AccountGenerator(seed=42, config={
-            "dormant_probability": 1.0,
-            "min_balance": 100,
-            "max_balance": 200,
-        })
+        gen = AccountGenerator(
+            seed=42,
+            config={
+                "dormant_probability": 1.0,
+                "min_balance": 100,
+                "max_balance": 200,
+            },
+        )
         account = gen.generate()
         assert account.is_dormant is True

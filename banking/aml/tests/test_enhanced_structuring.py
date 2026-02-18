@@ -11,10 +11,8 @@ Tests cover:
 - Error handling
 """
 
-import pytest
 from datetime import datetime, timezone
-from decimal import Decimal
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from banking.aml.enhanced_structuring_detection import (
     EnhancedStructuringDetector,
@@ -51,7 +49,7 @@ class TestEnhancedDetectorInit:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_custom_opensearch(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
-        detector = EnhancedStructuringDetector(
+        EnhancedStructuringDetector(
             opensearch_host="search.example.com",
             opensearch_port=9300,
             embedding_model="bert",
@@ -76,9 +74,7 @@ class TestEnhancedDetectorRiskScoring:
     def test_calculate_risk_score_basic(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        score = detector._calculate_risk_score(
-            total_amount=15000.0, tx_count=5, threshold=10000.0
-        )
+        score = detector._calculate_risk_score(total_amount=15000.0, tx_count=5, threshold=10000.0)
         assert 0.0 <= score <= 1.0
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
@@ -86,9 +82,7 @@ class TestEnhancedDetectorRiskScoring:
     def test_calculate_risk_score_high_amount(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        score = detector._calculate_risk_score(
-            total_amount=50000.0, tx_count=10, threshold=10000.0
-        )
+        score = detector._calculate_risk_score(total_amount=50000.0, tx_count=10, threshold=10000.0)
         assert score > 0.3
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
@@ -96,9 +90,7 @@ class TestEnhancedDetectorRiskScoring:
     def test_calculate_risk_score_minimum(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        score = detector._calculate_risk_score(
-            total_amount=10001.0, tx_count=3, threshold=10000.0
-        )
+        score = detector._calculate_risk_score(total_amount=10001.0, tx_count=3, threshold=10000.0)
         assert score >= 0.0
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
@@ -199,10 +191,10 @@ class TestEnhancedDetectorSimpleDetection:
         detector = EnhancedStructuringDetector()
         report = detector.generate_report([], output_format="json")
         import json
+
         parsed = json.loads(report)
         assert isinstance(parsed, list)
         assert len(parsed) == 0
-
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
@@ -278,16 +270,22 @@ class TestEnhancedDetectorAdditionalCoverage:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_ensure_transaction_index_creates_when_missing(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = False
-        detector = EnhancedStructuringDetector()
+        EnhancedStructuringDetector()
         mock_search.return_value.create_vector_index.assert_called_once()
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_format_transaction(self, mock_embed, mock_search):
         from gremlin_python.process.traversal import T
+
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        tx_data = {T.id: "tx-123", "amount": [9500.0], "timestamp": [1700000000], "description": ["ATM deposit"]}
+        tx_data = {
+            T.id: "tx-123",
+            "amount": [9500.0],
+            "timestamp": [1700000000],
+            "description": ["ATM deposit"],
+        }
         result = detector._format_transaction(tx_data)
         assert result["transaction_id"] == "tx-123"
         assert result["amount"] == 9500.0
@@ -297,7 +295,13 @@ class TestEnhancedDetectorAdditionalCoverage:
     def test_detect_structuring_risk_levels(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        txs = [{"amount": 9500}, {"amount": 9600}, {"amount": 9700}, {"amount": 9800}, {"amount": 9900}]
+        txs = [
+            {"amount": 9500},
+            {"amount": 9600},
+            {"amount": 9700},
+            {"amount": 9800},
+            {"amount": 9900},
+        ]
         result = detector.detect_structuring("acc-1", txs)
         assert result["is_structuring"] is True
         assert result["risk_level"] in ("low", "medium", "high")
@@ -386,6 +390,7 @@ class TestEnhancedDetectorAdditionalCoverage:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_temporal_pattern_systematic(self, mock_embed, mock_search):
         from datetime import timedelta
+
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
         base = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -399,7 +404,10 @@ class TestEnhancedDetectorAdditionalCoverage:
     def test_temporal_pattern_no_datetime_timestamps(self, mock_embed, mock_search):
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
-        txs = [{"amount": 9500, "timestamp": "2026-01-01"}, {"amount": 9600, "timestamp": "2026-01-02"}]
+        txs = [
+            {"amount": 9500, "timestamp": "2026-01-01"},
+            {"amount": 9600, "timestamp": "2026-01-02"},
+        ]
         result = detector.analyze_temporal_pattern("acc-1", txs)
         assert result["is_systematic"] is False
 
@@ -409,11 +417,18 @@ class TestEnhancedDetectorAdditionalCoverage:
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
         pattern = StructuringPattern(
-            pattern_id="TEST_001", pattern_type="rapid_sequence",
-            account_id="acc-1", person_id="p-1", person_name="Jane Doe",
-            transactions=[{"id": "tx-1"}], total_amount=25000.0,
-            transaction_count=3, time_window_hours=24.0, risk_score=0.85,
-            detection_method="graph", timestamp=datetime.now(timezone.utc).isoformat(),
+            pattern_id="TEST_001",
+            pattern_type="rapid_sequence",
+            account_id="acc-1",
+            person_id="p-1",
+            person_name="Jane Doe",
+            transactions=[{"id": "tx-1"}],
+            total_amount=25000.0,
+            transaction_count=3,
+            time_window_hours=24.0,
+            risk_score=0.85,
+            detection_method="graph",
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
         report = detector.generate_report([pattern], output_format="text")
         assert "Jane Doe" in report
@@ -424,13 +439,21 @@ class TestEnhancedDetectorAdditionalCoverage:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_generate_report_json_with_patterns(self, mock_embed, mock_search):
         import json
+
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
         pattern = StructuringPattern(
-            pattern_id="TEST_002", pattern_type="semantic_similarity",
-            account_id="acc-2", person_id="p-2", person_name="John",
-            transactions=[], total_amount=15000.0, transaction_count=2,
-            time_window_hours=24.0, risk_score=0.6, detection_method="vector",
+            pattern_id="TEST_002",
+            pattern_type="semantic_similarity",
+            account_id="acc-2",
+            person_id="p-2",
+            person_name="John",
+            transactions=[],
+            total_amount=15000.0,
+            transaction_count=2,
+            time_window_hours=24.0,
+            risk_score=0.6,
+            detection_method="vector",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
         report = detector.generate_report([pattern], output_format="json")
@@ -446,7 +469,9 @@ class TestEnhancedDetectorAdditionalCoverage:
         mock_search.return_value.client.indices.exists.return_value = True
         mock_g = Mock()
         mock_trav.return_value.with_remote.return_value = mock_g
-        mock_g.V.return_value.hasLabel.return_value.as_.return_value.outE.return_value.has.return_value.has.return_value.inV.return_value.hasLabel.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = []
+        mock_g.V.return_value.hasLabel.return_value.as_.return_value.outE.return_value.has.return_value.has.return_value.inV.return_value.hasLabel.return_value.as_.return_value.select.return_value.by.return_value.by.return_value.toList.return_value = (
+            []
+        )
         detector = EnhancedStructuringDetector()
         patterns = detector.detect_graph_patterns()
         assert patterns == []
@@ -497,8 +522,11 @@ class TestDetectGraphPatternsWithResults:
     @patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection")
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
-    def test_detect_graph_patterns_with_results(self, mock_embed, mock_search, mock_conn, mock_trav):
+    def test_detect_graph_patterns_with_results(
+        self, mock_embed, mock_search, mock_conn, mock_trav
+    ):
         from gremlin_python.process.traversal import T
+
         mock_search.return_value.client.indices.exists.return_value = True
 
         mock_g = Mock()
@@ -508,15 +536,30 @@ class TestDetectGraphPatternsWithResults:
         query_results = [
             {
                 "account": {T.id: account_id, "account_id": ["ACC001"]},
-                "transaction": {T.id: "tx-1", "amount": [9500.0], "timestamp": [1700000000], "description": ["ATM deposit"]},
+                "transaction": {
+                    T.id: "tx-1",
+                    "amount": [9500.0],
+                    "timestamp": [1700000000],
+                    "description": ["ATM deposit"],
+                },
             },
             {
                 "account": {T.id: account_id, "account_id": ["ACC001"]},
-                "transaction": {T.id: "tx-2", "amount": [9600.0], "timestamp": [1700001000], "description": ["ATM deposit"]},
+                "transaction": {
+                    T.id: "tx-2",
+                    "amount": [9600.0],
+                    "timestamp": [1700001000],
+                    "description": ["ATM deposit"],
+                },
             },
             {
                 "account": {T.id: account_id, "account_id": ["ACC001"]},
-                "transaction": {T.id: "tx-3", "amount": [9700.0], "timestamp": [1700002000], "description": ["ATM deposit"]},
+                "transaction": {
+                    T.id: "tx-3",
+                    "amount": [9700.0],
+                    "timestamp": [1700002000],
+                    "description": ["ATM deposit"],
+                },
             },
         ]
 
@@ -547,6 +590,7 @@ class TestDetectGraphPatternsWithResults:
             if args:
                 return person_chain
             return chain
+
         mock_g.V.side_effect = v_side_effect
 
         detector = EnhancedStructuringDetector()
@@ -562,8 +606,11 @@ class TestDetectGraphPatternsWithResults:
     @patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection")
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
-    def test_detect_graph_patterns_below_min_transactions(self, mock_embed, mock_search, mock_conn, mock_trav):
+    def test_detect_graph_patterns_below_min_transactions(
+        self, mock_embed, mock_search, mock_conn, mock_trav
+    ):
         from gremlin_python.process.traversal import T
+
         mock_search.return_value.client.indices.exists.return_value = True
 
         mock_g = Mock()
@@ -572,7 +619,12 @@ class TestDetectGraphPatternsWithResults:
         query_results = [
             {
                 "account": {T.id: "acc-001"},
-                "transaction": {T.id: "tx-1", "amount": [9500.0], "timestamp": [1700000000], "description": [""]},
+                "transaction": {
+                    T.id: "tx-1",
+                    "amount": [9500.0],
+                    "timestamp": [1700000000],
+                    "description": [""],
+                },
             },
         ]
 
@@ -595,8 +647,11 @@ class TestDetectGraphPatternsWithResults:
     @patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection")
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
-    def test_detect_graph_patterns_total_below_threshold(self, mock_embed, mock_search, mock_conn, mock_trav):
+    def test_detect_graph_patterns_total_below_threshold(
+        self, mock_embed, mock_search, mock_conn, mock_trav
+    ):
         from gremlin_python.process.traversal import T
+
         mock_search.return_value.client.indices.exists.return_value = True
 
         mock_g = Mock()
@@ -604,9 +659,33 @@ class TestDetectGraphPatternsWithResults:
 
         account_id = "acc-002"
         query_results = [
-            {"account": {T.id: account_id}, "transaction": {T.id: "tx-1", "amount": [1000.0], "timestamp": [1700000000], "description": [""]}},
-            {"account": {T.id: account_id}, "transaction": {T.id: "tx-2", "amount": [1000.0], "timestamp": [1700001000], "description": [""]}},
-            {"account": {T.id: account_id}, "transaction": {T.id: "tx-3", "amount": [1000.0], "timestamp": [1700002000], "description": [""]}},
+            {
+                "account": {T.id: account_id},
+                "transaction": {
+                    T.id: "tx-1",
+                    "amount": [1000.0],
+                    "timestamp": [1700000000],
+                    "description": [""],
+                },
+            },
+            {
+                "account": {T.id: account_id},
+                "transaction": {
+                    T.id: "tx-2",
+                    "amount": [1000.0],
+                    "timestamp": [1700001000],
+                    "description": [""],
+                },
+            },
+            {
+                "account": {T.id: account_id},
+                "transaction": {
+                    T.id: "tx-3",
+                    "amount": [1000.0],
+                    "timestamp": [1700002000],
+                    "description": [""],
+                },
+            },
         ]
 
         chain = Mock()
@@ -632,7 +711,9 @@ class TestDetectSemanticPatterns:
     @patch("banking.aml.enhanced_structuring_detection.DriverRemoteConnection")
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
-    def test_detect_semantic_insufficient_transactions(self, mock_embed, mock_search, mock_conn, mock_trav):
+    def test_detect_semantic_insufficient_transactions(
+        self, mock_embed, mock_search, mock_conn, mock_trav
+    ):
         mock_search.return_value.client.indices.exists.return_value = True
 
         mock_g = Mock()
@@ -657,15 +738,23 @@ class TestDetectSemanticPatterns:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_detect_semantic_with_cluster(self, mock_embed, mock_search, mock_conn, mock_trav):
         import numpy as np
+
         mock_search.return_value.client.indices.exists.return_value = True
 
         mock_g = Mock()
         mock_trav.return_value.with_remote.return_value = mock_g
 
         txns = [
-            {"tx_id": f"tx-{i}", "amount": 9500 + i * 10, "description": "ATM deposit cash",
-             "merchant": "ATM", "account_id": f"acc-{i % 2}", "person_id": [f"p-{i % 2}"],
-             "person_name": [f"Person {i % 2}"], "timestamp": 1700000000 + i * 1000}
+            {
+                "tx_id": f"tx-{i}",
+                "amount": 9500 + i * 10,
+                "description": "ATM deposit cash",
+                "merchant": "ATM",
+                "account_id": f"acc-{i % 2}",
+                "person_id": [f"p-{i % 2}"],
+                "person_name": [f"Person {i % 2}"],
+                "timestamp": 1700000000 + i * 1000,
+            }
             for i in range(5)
         ]
 
@@ -710,16 +799,32 @@ class TestDetectHybridPatternsWithResults:
         detector = EnhancedStructuringDetector()
 
         graph_pattern = StructuringPattern(
-            pattern_id="G1", pattern_type="rapid_sequence", account_id="acc-1",
-            person_id="p-1", person_name="Alice", transactions=[], total_amount=15000,
-            transaction_count=3, time_window_hours=24, risk_score=0.5,
-            detection_method="graph", timestamp="2026-01-01T00:00:00Z",
+            pattern_id="G1",
+            pattern_type="rapid_sequence",
+            account_id="acc-1",
+            person_id="p-1",
+            person_name="Alice",
+            transactions=[],
+            total_amount=15000,
+            transaction_count=3,
+            time_window_hours=24,
+            risk_score=0.5,
+            detection_method="graph",
+            timestamp="2026-01-01T00:00:00Z",
         )
         semantic_pattern = StructuringPattern(
-            pattern_id="S1", pattern_type="semantic_similarity", account_id="acc-2",
-            person_id="p-2", person_name="Bob", transactions=[], total_amount=20000,
-            transaction_count=4, time_window_hours=72, risk_score=0.9,
-            detection_method="vector", timestamp="2026-01-01T00:00:00Z",
+            pattern_id="S1",
+            pattern_type="semantic_similarity",
+            account_id="acc-2",
+            person_id="p-2",
+            person_name="Bob",
+            transactions=[],
+            total_amount=20000,
+            transaction_count=4,
+            time_window_hours=72,
+            risk_score=0.9,
+            detection_method="vector",
+            timestamp="2026-01-01T00:00:00Z",
         )
 
         detector.detect_graph_patterns = Mock(return_value=[graph_pattern])
@@ -747,6 +852,7 @@ class TestAdditionalBranchCoverage:
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_temporal_pattern_high_regularity(self, mock_embed, mock_search):
         from datetime import timedelta
+
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
         base = datetime(2026, 1, 1, tzinfo=timezone.utc)

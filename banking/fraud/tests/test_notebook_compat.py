@@ -2,17 +2,19 @@
 Tests for NotebookCompatMixin to increase coverage from 14% to 80%+.
 """
 
+from unittest.mock import Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime, timezone
 
 from banking.fraud.fraud_detection import FraudDetector
 
 
 @pytest.fixture
 def detector():
-    with patch("banking.fraud.fraud_detection.VectorSearchClient"), \
-         patch("banking.fraud.fraud_detection.EmbeddingGenerator"):
+    with (
+        patch("banking.fraud.fraud_detection.VectorSearchClient"),
+        patch("banking.fraud.fraud_detection.EmbeddingGenerator"),
+    ):
         return FraudDetector()
 
 

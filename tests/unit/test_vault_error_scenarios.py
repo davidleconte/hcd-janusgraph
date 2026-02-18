@@ -79,9 +79,7 @@ class TestSecretErrors:
 
     def test_key_not_found(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"a": 1}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"a": 1}}}
         client = _make_client(mock_hvac=mock_hvac)
         with pytest.raises(VaultError):
             client.get_secret("path", "missing_key")
@@ -180,18 +178,14 @@ class TestListOperations:
 class TestEdgeCases:
     def test_empty_secret_path(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"k": "v"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"k": "v"}}}
         client = _make_client(mock_hvac=mock_hvac)
         result = client.get_secret("")
         assert result == {"k": "v"}
 
     def test_very_long_secret_path(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"k": "v"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"k": "v"}}}
         client = _make_client(mock_hvac=mock_hvac)
         long_path = "a/" * 100 + "secret"
         result = client.get_secret(long_path)
@@ -199,18 +193,14 @@ class TestEdgeCases:
 
     def test_special_characters_in_path(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"k": "v"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"k": "v"}}}
         client = _make_client(mock_hvac=mock_hvac)
         result = client.get_secret("path/with-dashes_and.dots")
         assert result == {"k": "v"}
 
     def test_none_secret_data(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": None}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": None}}
         config = VaultConfig(vault_token="tok", max_retries=0, retry_delay=0.1)
         client = _make_client(config=config, mock_hvac=mock_hvac)
         with pytest.raises(VaultError):
@@ -218,9 +208,7 @@ class TestEdgeCases:
 
     def test_cache_with_zero_ttl(self):
         mock_hvac = MagicMock()
-        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {
-            "data": {"data": {"k": "v"}}
-        }
+        mock_hvac.secrets.kv.v2.read_secret_version.return_value = {"data": {"data": {"k": "v"}}}
         config = VaultConfig(vault_token="tok", cache_ttl=0)
         client = _make_client(config=config, mock_hvac=mock_hvac)
         client.get_secret("p")

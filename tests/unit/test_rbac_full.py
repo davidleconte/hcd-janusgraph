@@ -1,15 +1,17 @@
 """Comprehensive tests for src.python.security.rbac — targets 42% → 90%+."""
+
 import json
+
 import pytest
 
 from src.python.security.rbac import (
+    AccessDecision,
+    AccessRequest,
     Permission,
+    RBACManager,
     ResourceType,
     Role,
     User,
-    AccessRequest,
-    AccessDecision,
-    RBACManager,
 )
 
 
@@ -164,14 +166,18 @@ class TestRBACManager:
     def test_evaluate_access_granted(self):
         u = User(user_id="u1", username="alice", email="a@b.com", roles=["analyst"])
         self.mgr.register_user(u)
-        req = AccessRequest(user=u, resource_type=ResourceType.VERTEX, resource_id="v-1", action=Permission.READ_ALL)
+        req = AccessRequest(
+            user=u, resource_type=ResourceType.VERTEX, resource_id="v-1", action=Permission.READ_ALL
+        )
         decision = self.mgr.evaluate_access(req)
         assert decision.allowed
         assert "Access granted" in decision.reason
 
     def test_evaluate_access_user_not_found(self):
         u = User(user_id="ghost", username="ghost", email="g@b.com")
-        req = AccessRequest(user=u, resource_type=ResourceType.VERTEX, resource_id="v-1", action=Permission.READ)
+        req = AccessRequest(
+            user=u, resource_type=ResourceType.VERTEX, resource_id="v-1", action=Permission.READ
+        )
         decision = self.mgr.evaluate_access(req)
         assert not decision.allowed
         assert "User not found" in decision.reason
@@ -179,12 +185,19 @@ class TestRBACManager:
     def test_evaluate_access_denied(self):
         u = User(user_id="u1", username="alice", email="a@b.com", roles=["user"])
         self.mgr.register_user(u)
-        req = AccessRequest(user=u, resource_type=ResourceType.SYSTEM, resource_id=None, action=Permission.MANAGE_SYSTEM)
+        req = AccessRequest(
+            user=u,
+            resource_type=ResourceType.SYSTEM,
+            resource_id=None,
+            action=Permission.MANAGE_SYSTEM,
+        )
         decision = self.mgr.evaluate_access(req)
         assert not decision.allowed
 
     def test_evaluate_access_mfa_required(self):
-        u = User(user_id="u1", username="alice", email="a@b.com", roles=["admin"], mfa_enabled=False)
+        u = User(
+            user_id="u1", username="alice", email="a@b.com", roles=["admin"], mfa_enabled=False
+        )
         self.mgr.register_user(u)
         req = AccessRequest(
             user=u,

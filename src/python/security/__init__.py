@@ -11,8 +11,8 @@ This module provides security utilities including:
 
 from .query_sanitizer import (
     GremlinQueryBuilder,
-    QueryValidator,
     QueryAllowlist,
+    QueryValidator,
     sanitize_gremlin_query,
 )
 

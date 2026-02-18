@@ -223,7 +223,5 @@ class TestLoadCommunications:
         assert loader.stats["edges_created"] == 1
 
     def test_skip_when_person_not_in_map(self, loader):
-        count = loader.load_communications(
-            [self._make_comm()], person_id_map={"P-1": 100}
-        )
+        count = loader.load_communications([self._make_comm()], person_id_map={"P-1": 100})
         assert count == 0

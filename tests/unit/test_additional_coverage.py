@@ -1,22 +1,50 @@
 """Additional tests for coverage of remaining modules."""
-import pytest
+
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from banking.compliance.audit_logger import AuditEventType, get_audit_logger
 from banking.data_generators.utils.constants import (
-    COUNTRIES, HIGH_RISK_COUNTRIES, CURRENCIES, PEP_CATEGORIES,
-    SANCTIONS_LISTS, TAX_HAVENS, STOCK_EXCHANGES,
-    ROUND_AMOUNTS, STRUCTURING_THRESHOLDS, SUSPICIOUS_KEYWORDS,
+    COUNTRIES,
+    CURRENCIES,
+    HIGH_RISK_COUNTRIES,
+    PEP_CATEGORIES,
+    ROUND_AMOUNTS,
+    SANCTIONS_LISTS,
+    STOCK_EXCHANGES,
+    STRUCTURING_THRESHOLDS,
+    SUSPICIOUS_KEYWORDS,
+    TAX_HAVENS,
 )
 from banking.data_generators.utils.data_models import (
-    Gender, RiskLevel, AccountType, TransactionType, CommunicationType,
-    CompanyType, IndustryType, RelationshipType,
-    BaseEntity, Address, PhoneNumber, EmailAddress, IdentificationDocument,
-    Employment, Person, Company, Account, Transaction, Trade, Communication,
-    CompanyAddress, CompanyOfficer, Relationship, Pattern,
+    Account,
+    AccountType,
+    Address,
+    BaseEntity,
+    Communication,
+    CommunicationType,
+    Company,
+    CompanyAddress,
+    CompanyOfficer,
+    CompanyType,
+    EmailAddress,
+    Employment,
+    Gender,
+    IdentificationDocument,
+    IndustryType,
+    Pattern,
+    Person,
+    PhoneNumber,
+    Relationship,
+    RelationshipType,
+    RiskLevel,
+    Trade,
+    Transaction,
+    TransactionType,
 )
-from banking.compliance.audit_logger import get_audit_logger, AuditEventType
 
 
 class TestConstants:
@@ -86,8 +114,12 @@ class TestEnums:
 class TestDataModels:
     def test_address(self):
         addr = Address(
-            street="123 Main St", city="NYC", state="NY",
-            country="US", country_code="US", postal_code="10001",
+            street="123 Main St",
+            city="NYC",
+            state="NY",
+            country="US",
+            country_code="US",
+            postal_code="10001",
         )
         assert addr.city == "NYC"
 
@@ -101,30 +133,39 @@ class TestDataModels:
 
     def test_identification_document(self):
         doc = IdentificationDocument(
-            doc_type="passport", doc_number="AB123456",
-            issuing_country="US", issue_date=date(2020, 1, 1),
+            doc_type="passport",
+            doc_number="AB123456",
+            issuing_country="US",
+            issue_date=date(2020, 1, 1),
             expiry_date=date(2030, 1, 1),
         )
         assert doc.doc_type == "passport"
 
     def test_employment(self):
         emp = Employment(
-            employer_name="Acme Corp", job_title="Engineer",
-            industry=IndustryType.TECHNOLOGY, annual_income=Decimal("100000"),
+            employer_name="Acme Corp",
+            job_title="Engineer",
+            industry=IndustryType.TECHNOLOGY,
+            annual_income=Decimal("100000"),
             start_date=date(2020, 1, 1),
         )
         assert emp.employer_name == "Acme Corp"
 
     def test_company_address(self):
         addr = CompanyAddress(
-            street="456 Corp Ave", city="London", country="GB",
-            country_code="GB", postal_code="EC1A 1BB",
+            street="456 Corp Ave",
+            city="London",
+            country="GB",
+            country_code="GB",
+            postal_code="EC1A 1BB",
         )
         assert addr.country_code == "GB"
 
     def test_company_officer(self):
         officer = CompanyOfficer(
-            person_id="p-1", name="Jane Doe", role="CEO",
+            person_id="p-1",
+            name="Jane Doe",
+            role="CEO",
             appointment_date=date(2020, 1, 1),
         )
         assert officer.role == "CEO"
@@ -139,18 +180,23 @@ class TestAuditLogger:
 class TestHelpersFull:
     def test_calculate_entity_risk_score_high_risk(self):
         from banking.data_generators.utils.helpers import calculate_entity_risk_score
-        score = calculate_entity_risk_score({"pep": True, "sanctioned": True, "high_risk_country": True})
+
+        score = calculate_entity_risk_score(
+            {"pep": True, "sanctioned": True, "high_risk_country": True}
+        )
         assert isinstance(score, float)
         assert 0.0 <= score <= 1.0
 
     def test_calculate_entity_risk_score_low_risk(self):
         from banking.data_generators.utils.helpers import calculate_entity_risk_score
+
         score = calculate_entity_risk_score({"pep": False, "sanctioned": False})
         assert isinstance(score, float)
         assert 0.0 <= score <= 1.0
 
     def test_generate_iban_different_countries(self):
         from banking.data_generators.utils.helpers import generate_iban
+
         for country in ["US", "GB", "DE", "FR"]:
             iban = generate_iban(country)
             assert isinstance(iban, str)
@@ -158,12 +204,14 @@ class TestHelpersFull:
 
     def test_generate_swift_code_different_countries(self):
         from banking.data_generators.utils.helpers import generate_swift_code
+
         for country in ["US", "GB", "DE"]:
             swift = generate_swift_code(country)
             assert isinstance(swift, str)
 
     def test_generate_tax_id_different_countries(self):
         from banking.data_generators.utils.helpers import generate_tax_id
+
         for country in ["US", "GB", "DE", "FR", "JP"]:
             tax_id = generate_tax_id(country)
             assert isinstance(tax_id, str)

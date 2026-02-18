@@ -13,7 +13,6 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from gremlin_python.driver import serializer
 from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
 from gremlin_python.process.anonymous_traversal import traversal
-
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -122,7 +121,9 @@ def _normalize_roles(raw_roles: str | List[str]) -> List[str]:
 def _is_mfa_required(user_roles: List[str]) -> bool:
     """Return True when one of the user roles requires MFA."""
     settings = get_settings()
-    required_roles = {role.strip().lower() for role in settings.mfa_required_roles.split(",") if role.strip()}
+    required_roles = {
+        role.strip().lower() for role in settings.mfa_required_roles.split(",") if role.strip()
+    }
     return any(role in required_roles for role in user_roles)
 
 

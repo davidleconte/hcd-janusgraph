@@ -16,9 +16,11 @@ from banking.aml.sanctions_screening import (
 
 @pytest.fixture
 def mock_deps():
-    with patch("banking.aml.sanctions_screening.EmbeddingGenerator") as mock_eg, \
-         patch("banking.aml.sanctions_screening.VectorSearchClient") as mock_vs, \
-         patch("banking.aml.sanctions_screening.encode_person_name") as mock_encode:
+    with (
+        patch("banking.aml.sanctions_screening.EmbeddingGenerator") as mock_eg,
+        patch("banking.aml.sanctions_screening.VectorSearchClient") as mock_vs,
+        patch("banking.aml.sanctions_screening.encode_person_name") as mock_encode,
+    ):
         mock_eg_inst = MagicMock()
         mock_eg_inst.dimensions = 384
         mock_eg_inst.encode.return_value = [[0.1] * 384]

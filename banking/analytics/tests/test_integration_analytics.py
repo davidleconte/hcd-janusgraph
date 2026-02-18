@@ -341,15 +341,9 @@ class TestGraphSchemaValidation:
         )
 
         try:
-            counts = (
-                jg_client.submit(
-                    """
+            counts = jg_client.submit("""
                 g.V().groupCount().by(label)
-            """
-                )
-                .all()
-                .result()
-            )
+            """).all().result()
 
             if counts:
                 print(f"Vertex counts by label: {counts[0]}")

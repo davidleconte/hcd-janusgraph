@@ -9,11 +9,12 @@ Tests Pydantic field validators for security vulnerabilities:
 - Format validation
 """
 
-import pytest
 from decimal import Decimal
+
+import pytest
 from pydantic import ValidationError
 
-from src.python.api.models import UBORequest, StructuringAlertRequest
+from src.python.api.models import StructuringAlertRequest, UBORequest
 
 
 class TestUBORequestValidation:
@@ -97,7 +98,7 @@ class TestUBORequestValidation:
         # Valid boundaries
         UBORequest(company_id="COMP-123", max_depth=1)
         UBORequest(company_id="COMP-123", max_depth=20)
-        
+
         # Invalid boundaries
         with pytest.raises(ValidationError):
             UBORequest(company_id="COMP-123", max_depth=0)
@@ -109,7 +110,7 @@ class TestUBORequestValidation:
         # Valid boundaries
         UBORequest(company_id="COMP-123", ownership_threshold=0.0)
         UBORequest(company_id="COMP-123", ownership_threshold=100.0)
-        
+
         # Invalid boundaries
         with pytest.raises(ValidationError):
             UBORequest(company_id="COMP-123", ownership_threshold=-0.1)
@@ -153,7 +154,7 @@ class TestStructuringAlertRequestValidation:
         StructuringAlertRequest(threshold_amount=0.01)
         StructuringAlertRequest(threshold_amount=10000.00)
         StructuringAlertRequest(threshold_amount=999999999.99)
-        
+
         # Invalid amounts
         with pytest.raises(ValidationError):
             StructuringAlertRequest(threshold_amount=0.0)  # Too small
@@ -172,7 +173,7 @@ class TestStructuringAlertRequestValidation:
         # Valid boundaries
         StructuringAlertRequest(time_window_days=1)
         StructuringAlertRequest(time_window_days=90)
-        
+
         # Invalid boundaries
         with pytest.raises(ValidationError):
             StructuringAlertRequest(time_window_days=0)
@@ -184,7 +185,7 @@ class TestStructuringAlertRequestValidation:
         # Valid boundaries
         StructuringAlertRequest(min_transaction_count=1)
         StructuringAlertRequest(min_transaction_count=1000)
-        
+
         # Invalid boundaries
         with pytest.raises(ValidationError):
             StructuringAlertRequest(min_transaction_count=0)
@@ -196,7 +197,7 @@ class TestStructuringAlertRequestValidation:
         # Valid pagination
         StructuringAlertRequest(offset=0, limit=1)
         StructuringAlertRequest(offset=100, limit=500)
-        
+
         # Invalid pagination
         with pytest.raises(ValidationError):
             StructuringAlertRequest(offset=-1)  # Negative offset
@@ -247,5 +248,6 @@ class TestEdgeCases:
         """IDs should preserve case (uppercase only per pattern)."""
         request = UBORequest(company_id="COMP-123")
         assert request.company_id == "COMP-123"
+
 
 # Made with Bob

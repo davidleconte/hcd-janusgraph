@@ -1,15 +1,25 @@
 """Tests for banking.fraud.models module."""
-from banking.fraud.models import FraudAlert, FraudScore, HIGH_RISK_MERCHANTS
+
+from banking.fraud.models import HIGH_RISK_MERCHANTS, FraudAlert, FraudScore
 
 
 class TestFraudAlert:
     def test_creation(self):
         alert = FraudAlert(
-            alert_id="A-001", alert_type="velocity", severity="high",
-            transaction_id="T-001", account_id="ACC-001", customer_id="C-001",
-            customer_name="Test", amount=1000.0, merchant="crypto",
-            fraud_score=0.95, risk_factors=["rapid_tx"], similar_cases=[],
-            timestamp="2026-01-01T00:00:00Z", metadata={},
+            alert_id="A-001",
+            alert_type="velocity",
+            severity="high",
+            transaction_id="T-001",
+            account_id="ACC-001",
+            customer_id="C-001",
+            customer_name="Test",
+            amount=1000.0,
+            merchant="crypto",
+            fraud_score=0.95,
+            risk_factors=["rapid_tx"],
+            similar_cases=[],
+            timestamp="2026-01-01T00:00:00Z",
+            metadata={},
         )
         assert alert.alert_id == "A-001"
         assert alert.fraud_score == 0.95
@@ -19,10 +29,14 @@ class TestFraudAlert:
 class TestFraudScore:
     def test_creation(self):
         score = FraudScore(
-            transaction_id="T-001", overall_score=0.8,
-            velocity_score=0.9, network_score=0.7,
-            merchant_score=0.6, behavioral_score=0.5,
-            risk_level="high", recommendation="block",
+            transaction_id="T-001",
+            overall_score=0.8,
+            velocity_score=0.9,
+            network_score=0.7,
+            merchant_score=0.6,
+            behavioral_score=0.5,
+            risk_level="high",
+            recommendation="block",
         )
         assert score.overall_score == 0.8
         assert score.risk_level == "high"
