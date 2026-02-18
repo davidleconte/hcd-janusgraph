@@ -1,7 +1,7 @@
 # Project Status and Verification Baseline
 
-**Date:** 2026-02-17  
-**Version:** 1.0  
+**Date:** 2026-02-18  
+**Version:** 1.1  
 **Status:** Active
 
 ---
@@ -12,12 +12,14 @@ This is the single source of truth for current project readiness statements in r
 
 To prevent drift, root docs should link here instead of duplicating numeric pass/coverage/grade claims.
 
-## Current Verified Baseline (2026-02-17)
+## Current Verified Baseline (2026-02-18)
 
 - Runtime standard: Podman + `podman-compose` (no Docker runtime commands in runbooks).
 - Deployment standard: run from `config/compose` with explicit project isolation (`COMPOSE_PROJECT_NAME=janusgraph-demo`).
 - Podman connection standard: set `PODMAN_CONNECTION` to the active machine connection in your environment.
-- Determinism status: strongly repeatable, but not yet fully deterministic end-to-end.
+- Determinism status: canonical deterministic setup/proof is enforced via `scripts/deployment/deterministic_setup_and_proof_wrapper.sh` with strict notebook determinism checks enabled by default.
+- Coverage gate baseline: enforced `--cov-fail-under=70` in CI and local pytest defaults.
+- Type-check baseline: canonical mypy path is `mypy src/python banking/ --ignore-missing-imports`.
 
 ## Determinism Track
 
@@ -32,4 +34,3 @@ Authoritative implementation and planning docs:
 - Update this file whenever a deployment proof run, full notebook run, or CI quality baseline changes.
 - Keep historical detail in audit/remediation docs; keep this file concise and current.
 - Root docs must reference this file for status assertions.
-

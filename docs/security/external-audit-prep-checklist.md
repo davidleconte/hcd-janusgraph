@@ -58,7 +58,7 @@ detect-secrets scan --all-files > audit-prep/secrets-scan.json
 uv tool run vulture src/ banking/ --min-confidence 80 > audit-prep/dead-code.txt
 
 # Type checking
-uv tool run mypy src/ banking/ --ignore-missing-imports > audit-prep/mypy-results.txt 2>&1
+uv tool run mypy src/python banking/ --ignore-missing-imports > audit-prep/mypy-results.txt 2>&1
 ```
 
 - [ ] Bandit: 0 high/critical findings

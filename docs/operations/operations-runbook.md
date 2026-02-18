@@ -3,11 +3,11 @@
 ## Document Information
 
 - **Document Version:** 1.0.0
-- **Last Updated:** 2026-01-28
+- **Last Updated:** 2026-02-18
 - **Owner:** Operations Team
 - **Review Cycle:** Quarterly
-- **On-Call Contact:** <ops-oncall@example.com>
-- **Status:** Legacy narrative reference (not canonical deterministic runtime runbook)
+- **On-Call Contact:** Local on-call roster (not stored in repo)
+- **Status:** Legacy narrative template reference (not canonical deterministic runtime runbook)
 - **Canonical Runtime Path:** `scripts/deployment/deterministic_setup_and_proof_wrapper.sh`
 - **Canonical Pipeline:** `scripts/testing/run_demo_pipeline_repeatable.sh`
 - **Authoritative Current State:** `docs/project-status.md`
@@ -17,6 +17,7 @@
 > [!WARNING]
 > Procedures and snippets below include historical examples and may not reflect the current enforced deterministic setup.
 > Use the canonical scripts above for execution and validation.
+> Contact values in this file are placeholders/template references and must be replaced by your operating team roster.
 
 ## Executive Summary
 
@@ -26,10 +27,10 @@ This runbook provides comprehensive operational procedures for the HCD JanusGrap
 
 | Emergency | Contact | Response Time |
 |-----------|---------|---------------|
-| P0 - System Down | <ops-oncall@example.com> | 15 minutes |
-| P1 - Critical Issue | <ops-team@example.com> | 1 hour |
-| P2 - Major Issue | <ops-team@example.com> | 4 hours |
-| P3 - Minor Issue | <ops-team@example.com> | 1 business day |
+| P0 - System Down | Local on-call roster | 15 minutes |
+| P1 - Critical Issue | Local on-call roster | 1 hour |
+| P2 - Major Issue | Local on-call roster | 4 hours |
+| P3 - Minor Issue | Local on-call roster | 1 business day |
 
 ---
 

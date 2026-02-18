@@ -2,8 +2,8 @@
 
 **File**: README.md
 **Created**: 2026-01-28T10:36:00.123
-**Last Updated**: 2026-02-17
-**Last Verified**: 2026-02-17
+**Last Updated**: 2026-02-18
+**Last Verified**: 2026-02-18
 **Applies To**: Podman-based local deployment (`podman-compose`) with `COMPOSE_PROJECT_NAME=janusgraph-demo`
 **Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

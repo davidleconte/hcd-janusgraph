@@ -788,7 +788,7 @@ uv tool run autoflake --in-place --remove-all-unused-imports --recursive src/ ba
 
 **CI Quality Gates** (`.github/workflows/quality-gates.yml`):
 
-- Test coverage ≥85%
+- Test coverage ≥70% (current enforced gate)
 - Docstring coverage ≥80%
 - Security scan (bandit)
 - Type checking (mypy)
