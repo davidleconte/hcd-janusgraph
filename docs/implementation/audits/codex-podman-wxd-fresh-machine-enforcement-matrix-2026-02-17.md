@@ -59,3 +59,6 @@ Use this canonical sequence for fresh-machine proof runs:
 | R-20 | One canonical deterministic command wrapper is required for proof runs | `README.md`, `QUICKSTART.md`, `AGENTS.md` | Enforced |
 | R-21 | CI quality and security checks are hard-fail in reusable gates | `.github/workflows/quality-gates.yml`, `.github/workflows/security-scan.yml` | Enforced |
 | R-22 | Placeholder deployment workflows are replaced with explicit validation/gate semantics | `.github/workflows/deploy-dev.yml`, `.github/workflows/deploy-prod.yml` | Enforced |
+
+| R-23 | Deterministic proof CI gate must execute canonical wrapper and publish proof artifacts | `.github/workflows/deterministic-proof.yml` | Enforced |
+| R-24 | Branch protection must require `Deterministic Proof / deterministic-proof` check on `master`/`main` | GitHub branch protection settings (repository admin) | Pending (manual admin action) |

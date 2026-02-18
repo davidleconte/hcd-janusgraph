@@ -638,3 +638,13 @@ bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --skip-prefligh
 ```
 
 This wrapper is governance-only and delegates execution to `scripts/testing/run_demo_pipeline_repeatable.sh`.
+
+## Codex CI Deterministic Gate
+
+CI now includes a dedicated deterministic proof workflow:
+
+- Workflow: `.github/workflows/deterministic-proof.yml`
+- Required command path: `scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
+- Artifacts: `deterministic-status.json`, `notebook_run_report.tsv`, `pipeline_summary.txt`, determinism/runtime logs
+
+Repository admins must mark `Deterministic Proof / deterministic-proof` as a required branch-protection check on `master`/`main`.
