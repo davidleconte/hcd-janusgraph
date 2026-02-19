@@ -118,6 +118,7 @@ variable "tags" {
   description = "Additional tags for resources"
   type        = map(string)
   default     = {}
+}
 
 # ============================================================================
 # Azure-Specific Variables
@@ -579,5 +580,4 @@ variable "baremetal_load_balancer_ip" {
   description = "Virtual IP for bare metal load balancer (HAProxy/Keepalived)"
   type        = string
   default     = ""
-}
 }

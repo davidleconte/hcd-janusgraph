@@ -264,15 +264,20 @@ if [[ "$DRY_RUN" == "false" ]]; then
     fi
     echo "✅ Services healthy"
 
+    if resolved_post_deploy="$(resolve_podman_connection "${PODMAN_CONNECTION}")"; then
+        PODMAN_CONNECTION="${resolved_post_deploy}"
+        export PODMAN_CONNECTION
+    fi
+
     {
         echo "=== service snapshot: podman ps (label filter) ==="
-        podman --remote --connection "${PODMAN_CONNECTION}" ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}"
+        podman --remote --connection "${PODMAN_CONNECTION}" ps --filter "label=io.podman.compose.project=${PROJECT_NAME}" --format "{{.Names}}\t{{.Status}}\t{{.Ports}}" || true
         echo ""
         echo "=== service snapshot: inspect key services ==="
-        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_jupyter_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_hcd-server_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-        podman --remote --connection "${PODMAN_CONNECTION}" container inspect janusgraph-demo_pulsar_1 --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}'
-    } > "${REPORT_DIR}/services_snapshot.log"
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect "${PROJECT_NAME}_jupyter_1" --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}' || true
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect "${PROJECT_NAME}_hcd-server_1" --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}' || true
+        podman --remote --connection "${PODMAN_CONNECTION}" container inspect "${PROJECT_NAME}_pulsar_1" --format '{{.Name}} state={{.State.Status}} started={{.State.StartedAt}}' || true
+    } > "${REPORT_DIR}/services_snapshot.log" 2>&1
 fi
 
 run_cmd "Runtime Contracts Validation" \

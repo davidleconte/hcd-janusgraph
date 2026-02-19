@@ -74,6 +74,7 @@ output "node_role_arn" {
 output "ebs_csi_role_arn" {
   description = "ARN of the IAM role for EBS CSI driver"
   value       = var.cloud_provider == "aws" && var.enable_ebs_csi ? aws_iam_role.ebs_csi[0].arn : null
+}
 
 # ============================================================================
 # Azure-Specific Outputs
@@ -146,7 +147,6 @@ output "kubernetes_version" {
 output "node_count" {
   description = "Number of worker nodes"
   value       = var.node_count
-}
 }
 
 output "kubeconfig" {

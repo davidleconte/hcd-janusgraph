@@ -183,3 +183,5 @@ output/
 site/
 .hypothesis/
 *.nbconvert.ipynb
+terraform/environments/*/.terraform/
+terraform/environments/*/.terraform.lock.hcl
