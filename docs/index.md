@@ -105,16 +105,30 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **Changelog** - Version history and changes (see root `CHANGELOG.md`)
 - **[Implementation Phases](implementation/phases/)** - Phase completion summaries
 - **[Remediation Baseline](implementation/remediation-plan-workingB-plus.md)** - Current prioritized backlog and delivery plan
+- **[Codex Program Tracker (2026-02-18)](codex-program-tracker.md)** - Master tracker for P0-P2 execution status and KPI progress
 
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Codex Comprehensive Audit Report (2026-02-18)](codex-audit-report-2026-02-18.md)** - Full repository-wide technical and operational audit
+- **[Codex Implementation Plan P0-P2 (2026-02-18)](codex-implementation-plan-p0-p2.md)** - Prioritized delivery roadmap with timelines and ownership model
+- **[Codex Execution Task Board (2026-02-18)](codex-execution-task-board.md)** - Ticketized workplan with acceptance criteria
+- **[Codex GitHub Issue Drafts (2026-02-18)](codex-github-issues-drafts-2026-02-18.md)** - Ready-to-submit issue bodies matching CODEX-P0..P2 tickets
 - **[Codex Documentation Obsolescence Audit (2026-02-17)](implementation/audits/codex-documentation-obsolescence-audit-2026-02-17.md)** - Full docs audit and archival ledger
 - **[Codex Executive Summary (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - Deployment recovery and notebook proof closure
 - **[Codex Remediation Log (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Issue-by-issue solutions and evidence
 - **[Comprehensive Project Audit (2026-02-16)](implementation/audits/comprehensive-project-audit-2026-02-16.md)** - Current consolidated technical baseline
 - **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
 - **[Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)** - Detailed implementation plan for end-to-end deterministic runs
+
+### Codex Program Artifacts (2026-02-18)
+
+- [codex-audit-report-2026-02-18.md](codex-audit-report-2026-02-18.md)
+- [codex-implementation-plan-p0-p2.md](codex-implementation-plan-p0-p2.md)
+- [codex-execution-task-board.md](codex-execution-task-board.md)
+- [codex-program-tracker.md](codex-program-tracker.md)
+- [codex-github-issues-drafts-2026-02-18.md](codex-github-issues-drafts-2026-02-18.md)
+- [codes_mcp_fraud_pilot_plan_1771491238767.md](codes_mcp_fraud_pilot_plan_1771491238767.md)
 
 #### Gap Analysis
 
