@@ -1,0 +1,227 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hcd-backup
+  namespace: janusgraph-banking-prod
+  labels:
+    app: hcd-backup
+    component: backup
+spec:
+  # Run daily at 2 AM UTC
+  schedule: "0 2 * * *"
+  
+  # Keep last 3 successful jobs
+  successfulJobsHistoryLimit: 3
+  
+  # Keep last 1 failed job
+  failedJobsHistoryLimit: 1
+  
+  # Don't start new job if previous is still running
+  concurrencyPolicy: Forbid
+  
+  jobTemplate:
+    metadata:
+      labels:
+        app: hcd-backup
+        component: backup
+    spec:
+      # Job timeout: 2 hours
+      activeDeadlineSeconds: 7200
+      
+      # Retry once on failure
+      backoffLimit: 1
+      
+      template:
+        metadata:
+          labels:
+            app: hcd-backup
+            component: backup
+        spec:
+          restartPolicy: OnFailure
+          
+          serviceAccountName: hcd-backup
+          
+          initContainers:
+            # Pre-backup validation
+            - name: pre-backup-check
+              image: datastax/hcd-server:1.2.3
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  echo "Running pre-backup validation..."
+                  
+                  # Check cluster health
+                  nodetool status | grep -q "UN" || {
+                    echo "✗ Cluster not healthy"
+                    exit 1
+                  }
+                  
+                  # Check disk space
+                  DISK_USAGE=$(df -h /var/lib/cassandra | tail -1 | awk '{print $5}' | sed 's/%//')
+                  if [ "$DISK_USAGE" -gt 80 ]; then
+                    echo "⚠ Disk usage above 80%: ${DISK_USAGE}%"
+                  fi
+                  
+                  echo "✓ Pre-backup validation passed"
+              volumeMounts:
+                - name: hcd-data
+                  mountPath: /var/lib/cassandra
+          
+          containers:
+            # Main backup container
+            - name: medusa-backup
+              image: k8ssandra/medusa:0.19.0
+              env:
+                - name: MEDUSA_MODE
+                  value: "standalone"
+                
+                - name: BACKUP_NAME
+                  value: "backup-$(date +%Y%m%d-%H%M%S)"
+                
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-backup-credentials
+                      key: access-key-id
+                
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-backup-credentials
+                      key: secret-access-key
+                
+                - name: AWS_REGION
+                  value: "eu-west-3"
+                
+                - name: S3_BUCKET
+                  value: "janusgraph-banking-backups-prod"
+              
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  
+                  echo "Starting HCD backup..."
+                  echo "Backup name: $BACKUP_NAME"
+                  echo "S3 bucket: s3://$S3_BUCKET"
+                  
+                  # Create backup
+                  medusa backup \
+                    --backup-name "$BACKUP_NAME" \
+                    --mode differential \
+                    --temp-dir /tmp/medusa
+                  
+                  # Verify backup
+                  medusa verify \
+                    --backup-name "$BACKUP_NAME"
+                  
+                  # List recent backups
+                  echo "Recent backups:"
+                  medusa list-backups | tail -5
+                  
+                  echo "✓ Backup completed successfully"
+              
+              volumeMounts:
+                - name: hcd-data
+                  mountPath: /var/lib/cassandra
+                  readOnly: true
+                
+                - name: medusa-config
+                  mountPath: /etc/medusa
+                  readOnly: true
+                
+                - name: temp
+                  mountPath: /tmp/medusa
+              
+              resources:
+                requests:
+                  cpu: "1"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2"
+                  memory: "4Gi"
+          
+          # Post-backup cleanup and notification
+          containers:
+            - name: post-backup
+              image: amazon/aws-cli:2.13.0
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-backup-credentials
+                      key: access-key-id
+                
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: s3-backup-credentials
+                      key: secret-access-key
+                
+                - name: AWS_REGION
+                  value: "eu-west-3"
+                
+                - name: S3_BUCKET
+                  value: "janusgraph-banking-backups-prod"
+                
+                - name: RETENTION_DAYS
+                  value: "30"
+              
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -e
+                  
+                  echo "Running post-backup tasks..."
+                  
+                  # Delete backups older than retention period
+                  CUTOFF_DATE=$(date -d "$RETENTION_DAYS days ago" +%Y%m%d)
+                  
+                  echo "Cleaning up backups older than $RETENTION_DAYS days (before $CUTOFF_DATE)"
+                  
+                  aws s3 ls s3://$S3_BUCKET/ | while read -r line; do
+                    BACKUP_DATE=$(echo $line | awk '{print $2}' | sed 's/backup-//' | cut -d'-' -f1)
+                    if [ "$BACKUP_DATE" -lt "$CUTOFF_DATE" ]; then
+                      BACKUP_NAME=$(echo $line | awk '{print $2}')
+                      echo "Deleting old backup: $BACKUP_NAME"
+                      aws s3 rm s3://$S3_BUCKET/$BACKUP_NAME --recursive
+                    fi
+                  done
+                  
+                  # Get backup statistics
+                  TOTAL_BACKUPS=$(aws s3 ls s3://$S3_BUCKET/ | wc -l)
+                  TOTAL_SIZE=$(aws s3 ls s3://$S3_BUCKET/ --recursive --summarize | grep "Total Size" | awk '{print $3}')
+                  
+                  echo "Backup statistics:"
+                  echo "  Total backups: $TOTAL_BACKUPS"
+                  echo "  Total size: $TOTAL_SIZE bytes"
+                  
+                  # Send notification (placeholder - integrate with your notification system)
+                  echo "✓ Post-backup tasks completed"
+              
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "512Mi"
+                limits:
+                  cpu: "1"
+                  memory: "1Gi"
+          
+          volumes:
+            - name: hcd-data
+              persistentVolumeClaim:
+                claimName: hcd-data-hcd-paris-rack1-sts-0
+            
+            - name: medusa-config
+              configMap:
+                name: medusa-config
+            
+            - name: temp
+              emptyDir:
+                sizeLimit: 10Gi
+
+# Made with Bob

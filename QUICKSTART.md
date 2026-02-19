@@ -587,12 +587,23 @@ NETWORK_NAME=hcd-janusgraph-network
 
 ### Documentation
 
+#### Technical Documentation
 - **README.md** - Project overview
-- **docs/SETUP.md** - Detailed setup
-- **docs/TESTING.md** - Testing guide
-- **docs/ARCHITECTURE.md** - System design
-- **docs/TROUBLESHOOTING.md** - Common issues
-- **docs/SECURITY.md** - Security guidelines
+- **[docs/INDEX.md](docs/INDEX.md)** - Central documentation index
+- **[docs/guides/setup-guide.md](docs/guides/setup-guide.md)** - Detailed setup
+- **[docs/guides/testing-guide.md](docs/guides/testing-guide.md)** - Testing guide
+- **[docs/architecture/system-architecture.md](docs/architecture/system-architecture.md)** - Logical architecture
+- **[docs/architecture/deployment-architecture.md](docs/architecture/deployment-architecture.md)** - Deployment architecture
+- **[docs/architecture/podman-isolation-architecture.md](docs/architecture/podman-isolation-architecture.md)** - Isolation model
+- **[docs/guides/troubleshooting-guide.md](docs/guides/troubleshooting-guide.md)** - Common issues
+- **SECURITY.md** - Security policy
+
+#### Business Documentation
+- **[docs/business/README.md](docs/business/README.md)** - Business documentation index
+- **[docs/business/executive-summary.md](docs/business/executive-summary.md)** - 1-page investment overview (599% ROI)
+- **[docs/business/business-user-guide.md](docs/business/business-user-guide.md)** - Complete user guide with banking use cases
+- **[docs/business/sla-documentation.md](docs/business/sla-documentation.md)** - Service level commitments (99.9% availability)
+- **[docs/business/banking-financial-services-guide.md](docs/business/banking-financial-services-guide.md)** - Industry-specific guide
 
 ### Support Channels
 

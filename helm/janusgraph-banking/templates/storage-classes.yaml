@@ -1,0 +1,74 @@
+{{- if .Values.storageClasses.enabled }}
+---
+# Storage Class for HCD Cassandra
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClasses.hcd.name }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+provisioner: {{ .Values.storageClasses.hcd.provisioner }}
+parameters:
+  {{- toYaml .Values.storageClasses.hcd.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.storageClasses.hcd.reclaimPolicy | default "Retain" }}
+volumeBindingMode: {{ .Values.storageClasses.hcd.volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ .Values.storageClasses.hcd.allowVolumeExpansion | default true }}
+---
+# Storage Class for JanusGraph
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClasses.janusgraph.name }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+provisioner: {{ .Values.storageClasses.janusgraph.provisioner }}
+parameters:
+  {{- toYaml .Values.storageClasses.janusgraph.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.storageClasses.janusgraph.reclaimPolicy | default "Retain" }}
+volumeBindingMode: {{ .Values.storageClasses.janusgraph.volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ .Values.storageClasses.janusgraph.allowVolumeExpansion | default true }}
+---
+# Storage Class for OpenSearch
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClasses.opensearch.name }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+provisioner: {{ .Values.storageClasses.opensearch.provisioner }}
+parameters:
+  {{- toYaml .Values.storageClasses.opensearch.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.storageClasses.opensearch.reclaimPolicy | default "Retain" }}
+volumeBindingMode: {{ .Values.storageClasses.opensearch.volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ .Values.storageClasses.opensearch.allowVolumeExpansion | default true }}
+---
+# Storage Class for Pulsar
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClasses.pulsar.name }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+provisioner: {{ .Values.storageClasses.pulsar.provisioner }}
+parameters:
+  {{- toYaml .Values.storageClasses.pulsar.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.storageClasses.pulsar.reclaimPolicy | default "Retain" }}
+volumeBindingMode: {{ .Values.storageClasses.pulsar.volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ .Values.storageClasses.pulsar.allowVolumeExpansion | default true }}
+---
+# Storage Class for Mission Control
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClasses.missionControl.name }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+provisioner: {{ .Values.storageClasses.missionControl.provisioner }}
+parameters:
+  {{- toYaml .Values.storageClasses.missionControl.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.storageClasses.missionControl.reclaimPolicy | default "Retain" }}
+volumeBindingMode: {{ .Values.storageClasses.missionControl.volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ .Values.storageClasses.missionControl.allowVolumeExpansion | default true }}
+{{- end }}
+
+# Made with Bob

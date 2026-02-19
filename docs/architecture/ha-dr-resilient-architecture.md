@@ -1,8 +1,8 @@
 # High Availability & Disaster Recovery Architecture
 
-**Date:** 2026-02-11  
-**Version:** 1.0  
-**Status:** Active  
+**Date:** 2026-02-19
+**Version:** 1.1
+**Status:** Active
 **Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 
 ---
@@ -17,8 +17,33 @@ This document describes the resilient architecture of the HCD + JanusGraph Banki
 - **Event-sourced architecture** (Pulsar message replay)
 - **Comprehensive monitoring** (31 alert rules, 4 metrics exporters)
 - **Tiered RTO/RPO targets** (4h/15min for critical services)
+- **Gate-based validation** (G0-G9 deployment gates)
+- **Podman isolation** (Five-layer isolation model)
 
 **Architecture Grade:** A (93/100) - Production Ready
+
+---
+
+## Related Architecture Documentation
+
+This document should be read in conjunction with:
+
+**Core Architecture:**
+- **[Architecture Overview](architecture-overview.md)** - Complete system architecture
+- **[Deployment Architecture](deployment-architecture.md)** - Canonical deployment procedures
+- **[Operational Architecture](operational-architecture.md)** - Runtime topology and operations
+
+**Resilience & Reliability:**
+- **[Podman Isolation Architecture](podman-isolation-architecture.md)** - Five-layer isolation model
+- **[Deterministic Deployment Architecture](deterministic-deployment-architecture.md)** - Gate-based validation (G0-G9)
+- **[Service Startup Sequence](service-startup-sequence.md)** - Service dependencies and startup order
+- **[Troubleshooting Architecture](troubleshooting-architecture.md)** - Troubleshooting framework
+
+**Architecture Decision Records:**
+- [ADR-013: Podman Over Docker](adr-013-podman-over-docker.md) - Container runtime decision
+- [ADR-014: Project-Name Isolation](adr-014-project-name-isolation.md) - Isolation strategy
+- [ADR-015: Deterministic Deployment](adr-015-deterministic-deployment.md) - Deployment approach
+- [ADR-016: Gate-Based Validation](adr-016-gate-based-validation.md) - Validation framework
 
 ---
 
@@ -247,7 +272,7 @@ Max Wait:  30s       (max_delay cap)
 
 ### Layer 3: Health Checks & Dependencies
 
-**Docker Compose Health Checks:**
+**Podman Compose Health Checks:**
 
 ```yaml
 # All services have health checks
@@ -270,15 +295,25 @@ janusgraph-server:
 ```
 
 **Service Startup Order:**
+
+For complete service startup sequence and dependencies, see [Service Startup Sequence](service-startup-sequence.md).
+
+**HA-Specific Startup Summary:**
 ```
-1. HCD/Cassandra     (90s startup)
-2. OpenSearch        (60s startup)
-3. Vault             (10s startup)
-4. JanusGraph        (90s startup, waits for HCD + OpenSearch)
-5. Pulsar            (90s startup)
-6. Consumers         (Wait for Pulsar + JanusGraph)
-7. Applications      (Wait for JanusGraph)
+1. HCD/Cassandra     (90s startup) - Primary data store
+2. OpenSearch        (60s startup) - Search and analytics
+3. Vault             (10s startup) - Secrets management
+4. JanusGraph        (90s startup, waits for HCD + OpenSearch) - Graph database
+5. Pulsar            (90s startup) - Event streaming
+6. Consumers         (Wait for Pulsar + JanusGraph) - Event processors
+7. Applications      (Wait for JanusGraph) - API and analytics
 ```
+
+**Key HA Considerations:**
+- Services start in dependency order (infrastructure → core → application)
+- Health checks ensure dependencies are ready before dependent services start
+- Gate validation (G5-G6) ensures all services healthy before proceeding
+- See [Service Startup Sequence](service-startup-sequence.md) for detailed dependency graph
 
 ### Layer 4: Event-Sourced Architecture
 
@@ -467,6 +502,271 @@ telemetry {
 - Automatic credential rotation
 - Audit trail for all access
 - Encryption at rest and in transit
+
+---
+
+## Gate-Based Validation for HA Deployment
+
+High availability deployment uses a gate-based validation system (G0-G9) to ensure reliable deployment. Each gate must pass before proceeding to the next. This deterministic approach prevents deployment failures and ensures consistent HA setup.
+
+See [Deterministic Deployment Architecture](deterministic-deployment-architecture.md) for complete details.
+
+### Gate Sequence for HA Deployment
+
+| Gate | Name | Purpose | HA Impact |
+|------|------|---------|-----------|
+| **G0** | Precheck | Validate environment | Prevents deployment failures |
+| **G2** | Connection | Verify Podman connection | Ensures container runtime available |
+| **G3** | Reset | Clean state | Ensures deterministic deployment |
+| **G5** | Deploy/Vault | Deploy services + Vault | Core HA services |
+| **G6** | Runtime Contract | Verify runtime | Ensures services healthy |
+| **G7** | Seed | Load graph data | Ensures data availability |
+| **G8** | Notebooks | Validate analytics | Ensures business logic works |
+| **G9** | Determinism | Verify artifacts | Ensures reproducibility |
+
+### HA-Specific Gate Considerations
+
+#### G0: Precheck for HA
+- Verify sufficient resources (CPU, memory, disk)
+- Check network connectivity
+- Validate isolation (`COMPOSE_PROJECT_NAME=janusgraph-demo`)
+- Verify Podman machine running
+
+```bash
+# Precheck validation
+bash scripts/validation/preflight_check.sh --strict
+bash scripts/validation/validate_podman_isolation.sh --strict
+```
+
+#### G2: Connection for HA
+- Verify Podman connection active
+- Check Podman machine status
+- Validate network accessibility
+
+```bash
+# Connection validation
+podman machine list | grep "Running"
+podman ps --format "{{.Names}}"
+```
+
+#### G3: Reset for HA
+- Clean previous deployment state
+- Remove old containers/networks/volumes
+- Ensure fresh start for deterministic deployment
+
+```bash
+# Reset for clean state
+cd config/compose
+podman-compose -p janusgraph-demo down -v
+```
+
+#### G5: Deploy/Vault for HA
+- Deploy all 19 services with health checks
+- Initialize Vault with HA configuration
+- Verify service health checks passing
+- Configure connection pooling
+
+```bash
+# Deploy with gate validation
+cd config/compose
+podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+
+# Verify all services healthy
+podman ps --filter "label=project=janusgraph-demo" --filter "health=healthy"
+```
+
+#### G6: Runtime Contract for HA
+- Verify all services responding
+- Check connection pooling active
+- Validate circuit breakers configured
+- Test service endpoints
+
+```bash
+# Runtime contract validation
+bash scripts/testing/check_runtime_contracts.sh
+```
+
+#### G7: Seed for HA
+- Load graph data with deterministic seed
+- Verify data consistency
+- Validate replication
+
+```bash
+# Seed graph with deterministic data
+bash scripts/testing/seed_demo_graph.sh
+```
+
+#### G8: Notebooks for HA
+- Run all notebooks to validate analytics
+- Verify business logic works
+- Check deterministic outputs
+
+```bash
+# Validate notebooks
+bash scripts/testing/run_notebooks_live_repeatable.sh
+```
+
+#### G9: Determinism for HA
+- Verify all artifacts match baseline
+- Check deterministic behavior
+- Validate reproducibility
+
+```bash
+# Verify deterministic artifacts
+bash scripts/testing/verify_deterministic_artifacts.sh
+```
+
+### Using Gates for HA Deployment
+
+**Full Deterministic HA Deployment:**
+
+```bash
+# Single command for complete HA deployment with validation
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+
+# Check gate status
+cat exports/deterministic-status.json | jq '.gate_status'
+
+# Example output:
+# {
+#   "G0_PRECHECK": "PASS",
+#   "G2_CONNECTION": "PASS",
+#   "G3_RESET": "PASS",
+#   "G5_DEPLOY_VAULT": "PASS",
+#   "G6_RUNTIME_CONTRACT": "PASS",
+#   "G7_SEED": "PASS",
+#   "G8_NOTEBOOKS": "PASS",
+#   "G9_DETERMINISM": "PASS"
+# }
+```
+
+**Individual Gate Execution:**
+
+```bash
+# Run specific gate
+bash scripts/testing/run_demo_pipeline_repeatable.sh --gate G6
+
+# Skip specific gates (for testing)
+bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
+```
+
+### Gate Failure Recovery
+
+When a gate fails, follow gate-specific recovery procedures:
+
+| Gate | Common Failures | Recovery Procedure |
+|------|----------------|-------------------|
+| **G0** | Insufficient resources | Increase Podman machine resources |
+| **G2** | Podman not running | `podman machine start` |
+| **G3** | Cleanup failed | Manual cleanup: `podman system prune -af` |
+| **G5** | Service won't start | Check logs: `podman logs <container>` |
+| **G6** | Health check fails | Increase startup timeout, check dependencies |
+| **G7** | Data load fails | Check JanusGraph connectivity |
+| **G8** | Notebook fails | Check runtime environment, dependencies |
+| **G9** | Artifacts mismatch | Verify seed consistency, check for non-determinism |
+
+See [Troubleshooting Architecture](troubleshooting-architecture.md) for detailed gate-specific recovery procedures.
+
+### Gate Validation Benefits for HA
+
+1. **Reliability** - Catches issues before they impact HA
+2. **Reproducibility** - Same deployment every time
+3. **Auditability** - Complete deployment record
+4. **Testability** - Can test exact production setup
+5. **Debuggability** - Clear failure points
+
+---
+
+## Podman Isolation for High Availability
+
+High availability requires proper isolation to prevent conflicts and ensure reliability. See [Podman Isolation Architecture](podman-isolation-architecture.md) for complete details.
+
+### Five-Layer Isolation Model
+
+| Layer | Purpose | HA Impact |
+|-------|---------|-----------|
+| **L1: Machine** | Podman machine isolation | Prevents host conflicts |
+| **L2: Project** | COMPOSE_PROJECT_NAME | Prevents project conflicts |
+| **L3: Network** | Project-prefixed networks | Prevents network conflicts |
+| **L4: Volume** | Project-prefixed volumes | Prevents data mixing |
+| **L5: Container** | Project-prefixed containers | Prevents name conflicts |
+
+### HA Isolation Requirements
+
+#### L1: Machine Isolation
+- Dedicated Podman machine for production
+- Sufficient resources (4 CPU, 8GB RAM, 50GB disk)
+- No other projects on same machine
+
+```bash
+# Create dedicated machine
+podman machine init janusgraph-prod --cpus 4 --memory 8192 --disk-size 50
+podman machine start janusgraph-prod
+```
+
+#### L2: Project Isolation
+```bash
+# MANDATORY: Set project name for isolation
+export COMPOSE_PROJECT_NAME="janusgraph-demo"
+
+# Deploy with project name
+cd config/compose
+podman-compose -p $COMPOSE_PROJECT_NAME -f docker-compose.full.yml up -d
+```
+
+#### L3: Network Isolation
+- All networks prefixed: `janusgraph-demo_*`
+- No cross-project communication
+- Firewall rules enforced
+
+```bash
+# Verify network isolation
+podman network ls | grep janusgraph-demo
+```
+
+#### L4: Volume Isolation
+- All volumes prefixed: `janusgraph-demo_*`
+- No data sharing between projects
+- Backup/restore per project
+
+```bash
+# Verify volume isolation
+podman volume ls | grep janusgraph-demo
+```
+
+#### L5: Container Isolation
+- All containers prefixed: `janusgraph-demo_*`
+- No container name conflicts
+- Clear ownership
+
+```bash
+# Verify container isolation
+podman ps --filter "label=project=janusgraph-demo"
+```
+
+### Validating Isolation for HA
+
+```bash
+# Comprehensive isolation validation
+bash scripts/validation/validate_podman_isolation.sh --strict
+
+# Check project resources
+podman ps --filter "label=project=janusgraph-demo"
+podman network ls | grep janusgraph-demo
+podman volume ls | grep janusgraph-demo
+
+# Verify no conflicts
+podman ps -a | grep -v janusgraph-demo  # Should show no conflicts
+```
+
+### HA Isolation Best Practices
+
+1. **Always use project name** - Never deploy without `COMPOSE_PROJECT_NAME`
+2. **Verify isolation** - Run validation before deployment
+3. **Monitor resources** - Track per-project resource usage
+4. **Clean up properly** - Use project name for cleanup
+5. **Document ownership** - Clear project ownership and contacts
 
 ---
 
@@ -714,6 +1014,29 @@ Total:   Duration of network issue + 30s recovery
 ---
 
 ## Failure Scenarios & Recovery
+
+For complete incident response procedures, see [Operational Architecture](operational-architecture.md) and [Troubleshooting Architecture](troubleshooting-architecture.md).
+
+### HA-Specific Incident Response
+
+**Severity Levels:**
+
+| Severity | Definition | Response Time | HA Impact | Example |
+|----------|------------|---------------|-----------|---------|
+| **P0** | Complete outage | 15 minutes | All services down | JanusGraph cluster down |
+| **P1** | Degraded service | 1 hour | Some services affected | One HCD node down |
+| **P2** | Minor issue | 4 hours | Limited impact | Slow queries |
+| **P3** | Cosmetic | 1 day | No user impact | Dashboard display issue |
+
+**Incident Response Flow:**
+
+1. **Detect** - Monitoring alerts (Prometheus/Grafana/AlertManager)
+2. **Assess** - Check gate status, service health, failure mode
+3. **Respond** - Follow troubleshooting architecture procedures
+4. **Recover** - Use DR procedures if needed, validate with gates
+5. **Review** - Post-incident analysis, update runbooks
+
+See [Troubleshooting Architecture](troubleshooting-architecture.md) for detailed gate-specific recovery procedures.
 
 ### Failure Mode Analysis
 
@@ -974,6 +1297,141 @@ pulsar:
 ---
 
 ## Production Deployment
+
+### Deterministic HA Deployment
+
+Deterministic deployment ensures reproducible HA setup with complete validation. This approach combines gate-based validation with HA requirements for reliable, auditable deployments.
+
+See [Deterministic Deployment Architecture](deterministic-deployment-architecture.md) for complete details.
+
+#### Benefits for HA
+
+1. **Reproducibility** - Same deployment every time, eliminates configuration drift
+2. **Reliability** - Fewer deployment failures through gate validation
+3. **Testability** - Can test exact production setup in staging
+4. **Auditability** - Complete deployment record with gate status
+5. **Debuggability** - Clear failure points with gate-specific recovery
+
+#### Deterministic HA Deployment Process
+
+**Single-Command Deployment:**
+
+```bash
+# Complete deterministic HA deployment with validation
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+
+# This command:
+# 1. Runs all preflight checks (G0)
+# 2. Verifies Podman connection (G2)
+# 3. Resets to clean state (G3)
+# 4. Deploys all services with Vault (G5)
+# 5. Validates runtime contracts (G6)
+# 6. Seeds graph with deterministic data (G7)
+# 7. Runs all notebooks for validation (G8)
+# 8. Verifies deterministic artifacts (G9)
+```
+
+**Verify Deterministic Deployment:**
+
+```bash
+# Check overall status
+cat exports/deterministic-status.json | jq '.'
+
+# Example output:
+{
+  "exit_code": 0,
+  "gate_status": {
+    "G0_PRECHECK": "PASS",
+    "G2_CONNECTION": "PASS",
+    "G3_RESET": "PASS",
+    "G5_DEPLOY_VAULT": "PASS",
+    "G6_RUNTIME_CONTRACT": "PASS",
+    "G7_SEED": "PASS",
+    "G8_NOTEBOOKS": "PASS",
+    "G9_DETERMINISM": "PASS"
+  },
+  "services_healthy": 19,
+  "notebooks_passed": 11,
+  "determinism_verified": true
+}
+```
+
+#### Deterministic HA Validation
+
+**Gate-by-Gate Validation:**
+
+```bash
+# G0: Precheck - Environment validation
+bash scripts/validation/preflight_check.sh --strict
+bash scripts/validation/validate_podman_isolation.sh --strict
+
+# G2: Connection - Podman connectivity
+podman machine list | grep "Running"
+podman ps --format "{{.Names}}"
+
+# G3: Reset - Clean state
+cd config/compose
+podman-compose -p janusgraph-demo down -v
+
+# G5: Deploy/Vault - Service deployment
+podman-compose -p janusgraph-demo -f docker-compose.full.yml up -d
+bash scripts/security/init_vault.sh
+
+# G6: Runtime Contract - Service health
+bash scripts/testing/check_runtime_contracts.sh
+podman ps --filter "health=healthy" | wc -l  # Should be 19
+
+# G7: Seed - Deterministic data
+bash scripts/testing/seed_demo_graph.sh
+curl -X POST http://localhost:18182 -d '{"gremlin":"g.V().count()"}' \
+  -H "Content-Type: application/json"
+
+# G8: Notebooks - Business logic validation
+bash scripts/testing/run_notebooks_live_repeatable.sh
+
+# G9: Determinism - Artifact verification
+bash scripts/testing/verify_deterministic_artifacts.sh
+```
+
+#### Non-Deterministic Elements in HA
+
+Some elements cannot be fully deterministic but are managed:
+
+| Element | Non-Deterministic Aspect | Mitigation |
+|---------|-------------------------|------------|
+| **Timestamps** | System time varies | Use reference timestamp (2026-01-15T12:00:00Z) |
+| **UUIDs** | Random generation | Use seeded UUID generation (SHA-256 based) |
+| **Network Latency** | Variable response times | Use timeouts and retries |
+| **External Services** | Availability varies | Use mocks for testing |
+| **Resource Allocation** | System-dependent | Validate minimum requirements in G0 |
+
+#### Deterministic HA Best Practices
+
+1. **Always use gate validation** - Don't skip gates in production
+2. **Verify determinism** - Check artifacts match baseline
+3. **Document deviations** - Log any non-deterministic behavior
+4. **Test in staging** - Validate deterministic deployment before production
+5. **Monitor drift** - Track configuration changes over time
+
+#### Troubleshooting Deterministic Deployment
+
+**Common Issues:**
+
+| Issue | Symptom | Resolution |
+|-------|---------|------------|
+| **G0 Failure** | Insufficient resources | Increase Podman machine resources |
+| **G2 Failure** | Podman not running | `podman machine start` |
+| **G3 Failure** | Cleanup incomplete | Manual cleanup: `podman system prune -af` |
+| **G5 Failure** | Service won't start | Check logs: `podman logs <container>` |
+| **G6 Failure** | Health check fails | Increase startup timeout, check dependencies |
+| **G7 Failure** | Data load fails | Verify JanusGraph connectivity |
+| **G8 Failure** | Notebook fails | Check runtime environment, dependencies |
+| **G9 Failure** | Artifacts mismatch | Verify seed consistency, check for non-determinism |
+
+See [Troubleshooting Architecture](troubleshooting-architecture.md) for detailed recovery procedures.
+
+---
 
 ### Pre-Deployment Checklist
 

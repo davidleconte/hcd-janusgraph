@@ -19,7 +19,7 @@
 - Active supported deployment path is Podman Compose (not k8s): `README.md:7`, `AGENTS.md:161`, `scripts/deployment/deploy_full_stack.sh:43`.
 - Full runtime stack in compose is much broader (HCD, Pulsar, Vault, OpenSearch, consumers): `config/compose/docker-compose.full.yml:37`, `config/compose/docker-compose.full.yml:75`, `config/compose/docker-compose.full.yml:226`, `config/compose/docker-compose.full.yml:434`, `config/compose/docker-compose.full.yml:604`, `config/compose/docker-compose.full.yml:643`, `config/compose/docker-compose.full.yml:671`.
 - k8s secrets/config still include non-prod placeholders/defaults: `k8s/base/secrets.yml:10`, `k8s/base/secrets.yml:11`, `k8s/base/configmaps.yml:23`.
-- Docs claim “Production Ready” for OpenShift, but another repo doc flags critical gaps/partial conversion: `docs/architecture/openshift-migration-operations.md:5`, `docs/architecture/openshift-deployment-manifests.md:5`, `docs/architecture/OPENSHIFT_REVIEW_AND_IMPROVEMENTS.md:14`, `docs/architecture/OPENSHIFT_REVIEW_AND_IMPROVEMENTS.md:643`, `docs/architecture/OPENSHIFT_REVIEW_AND_IMPROVEMENTS.md:689`.
+- Docs claim “Production Ready” for OpenShift, but another repo doc flags critical gaps/partial conversion: `docs/architecture/openshift-migration-operations.md:5`, `docs/architecture/openshift-deployment-manifests.md:5`, `docs/architecture/openshift-review-and-improvements.md:14`, `docs/architecture/openshift-review-and-improvements.md:643`, `docs/architecture/openshift-review-and-improvements.md:689`.
 
 ## Conclusion
 

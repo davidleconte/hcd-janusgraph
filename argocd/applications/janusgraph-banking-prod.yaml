@@ -1,0 +1,79 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: janusgraph-banking-prod
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: janusgraph-banking
+    app.kubernetes.io/instance: prod
+    app.kubernetes.io/part-of: janusgraph-banking-platform
+    environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: production
+  
+  source:
+    repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+    targetRevision: v1.2.0  # Production: use tagged releases
+    path: helm/janusgraph-banking
+    helm:
+      releaseName: janusgraph-banking-prod
+      valueFiles:
+        - values-prod.yaml
+      parameters:
+        - name: global.namespace
+          value: janusgraph-banking-prod
+        - name: hcd.datacenterName
+          value: paris-dc
+        - name: hcd.size
+          value: "3"
+        - name: janusgraph.replicas
+          value: "3"
+        - name: api.replicas
+          value: "3"
+        - name: api.hpa.minReplicas
+          value: "3"
+        - name: api.hpa.maxReplicas
+          value: "20"
+        - name: missionControl.enabled
+          value: "true"
+        - name: missionControl.server.replicas
+          value: "2"
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: janusgraph-banking-prod
+  
+  syncPolicy:
+    # Production: Manual sync for safety
+    automated: null
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
+  
+  revisionHistoryLimit: 20
+  
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore HPA-managed replicas
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/replicas
+    - group: cassandra.datastax.com
+      kind: CassandraDatacenter
+      jsonPointers:
+        - /status  # Ignore status changes
+
+# Made with Bob

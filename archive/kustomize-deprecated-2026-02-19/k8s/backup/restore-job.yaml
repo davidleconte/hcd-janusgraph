@@ -1,0 +1,243 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hcd-restore
+  namespace: janusgraph-banking-prod
+  labels:
+    app: hcd-restore
+    component: restore
+spec:
+  # Job timeout: 4 hours
+  activeDeadlineSeconds: 14400
+  
+  # Don't retry automatically - restore is manual operation
+  backoffLimit: 0
+  
+  template:
+    metadata:
+      labels:
+        app: hcd-restore
+        component: restore
+    spec:
+      restartPolicy: Never
+      
+      serviceAccountName: hcd-backup
+      
+      initContainers:
+        # Pre-restore validation
+        - name: pre-restore-check
+          image: datastax/hcd-server:1.2.3
+          env:
+            - name: BACKUP_NAME
+              value: "REPLACE_WITH_BACKUP_NAME"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Running pre-restore validation..."
+              
+              # Verify backup name is set
+              if [ "$BACKUP_NAME" = "REPLACE_WITH_BACKUP_NAME" ]; then
+                echo "✗ ERROR: BACKUP_NAME not set"
+                echo "Edit this Job manifest and set BACKUP_NAME environment variable"
+                exit 1
+              fi
+              
+              echo "Backup to restore: $BACKUP_NAME"
+              
+              # Check if cluster is stopped
+              if nodetool status 2>/dev/null | grep -q "UN"; then
+                echo "⚠ WARNING: Cluster is still running"
+                echo "Stop the cluster before restoring:"
+                echo "  kubectl scale cassandradatacenter hcd-paris --replicas=0"
+                exit 1
+              fi
+              
+              echo "✓ Pre-restore validation passed"
+      
+      containers:
+        # Main restore container
+        - name: medusa-restore
+          image: k8ssandra/medusa:0.19.0
+          env:
+            - name: MEDUSA_MODE
+              value: "standalone"
+            
+            - name: BACKUP_NAME
+              value: "REPLACE_WITH_BACKUP_NAME"
+            
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: access-key-id
+            
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-backup-credentials
+                  key: secret-access-key
+            
+            - name: AWS_REGION
+              value: "eu-west-3"
+            
+            - name: S3_BUCKET
+              value: "janusgraph-banking-backups-prod"
+            
+            - name: RESTORE_MODE
+              value: "in-place"  # or "new-cluster"
+          
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              
+              echo "========================================="
+              echo "HCD Restore Operation"
+              echo "========================================="
+              echo "Backup name: $BACKUP_NAME"
+              echo "S3 bucket: s3://$S3_BUCKET"
+              echo "Restore mode: $RESTORE_MODE"
+              echo "========================================="
+              
+              # Verify backup exists
+              echo "Verifying backup exists..."
+              medusa list-backups | grep -q "$BACKUP_NAME" || {
+                echo "✗ Backup not found: $BACKUP_NAME"
+                echo "Available backups:"
+                medusa list-backups
+                exit 1
+              }
+              
+              echo "✓ Backup found"
+              
+              # Show backup details
+              echo "Backup details:"
+              medusa status --backup-name "$BACKUP_NAME"
+              
+              # Confirm restore (in production, require manual confirmation)
+              echo ""
+              echo "⚠ WARNING: This will restore data from backup"
+              echo "⚠ Current data will be replaced"
+              echo ""
+              read -p "Type 'RESTORE' to confirm: " CONFIRM
+              
+              if [ "$CONFIRM" != "RESTORE" ]; then
+                echo "Restore cancelled"
+                exit 1
+              fi
+              
+              # Perform restore
+              echo "Starting restore operation..."
+              medusa restore \
+                --backup-name "$BACKUP_NAME" \
+                --temp-dir /tmp/medusa \
+                --in-place
+              
+              # Verify restore
+              echo "Verifying restored data..."
+              medusa verify \
+                --backup-name "$BACKUP_NAME"
+              
+              echo ""
+              echo "========================================="
+              echo "✓ Restore completed successfully"
+              echo "========================================="
+              echo ""
+              echo "Next steps:"
+              echo "1. Start the HCD cluster:"
+              echo "   kubectl scale cassandradatacenter hcd-paris --replicas=5"
+              echo ""
+              echo "2. Wait for cluster to be ready:"
+              echo "   kubectl wait --for=condition=Ready cassandradatacenter/hcd-paris --timeout=600s"
+              echo ""
+              echo "3. Verify cluster health:"
+              echo "   kubectl exec -it hcd-paris-rack1-sts-0 -- nodetool status"
+              echo ""
+              echo "4. Run validation:"
+              echo "   ./scripts/k8s/validate-deployment.sh janusgraph-banking-prod"
+              echo ""
+          
+          volumeMounts:
+            - name: hcd-data
+              mountPath: /var/lib/cassandra
+            
+            - name: medusa-config
+              mountPath: /etc/medusa
+              readOnly: true
+            
+            - name: temp
+              mountPath: /tmp/medusa
+          
+          resources:
+            requests:
+              cpu: "2"
+              memory: "4Gi"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+        
+        # Post-restore validation
+        - name: post-restore-validation
+          image: datastax/hcd-server:1.2.3
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              
+              echo "Running post-restore validation..."
+              
+              # Wait for restore container to complete
+              sleep 60
+              
+              # Check data directory
+              if [ ! -d "/var/lib/cassandra/data" ]; then
+                echo "✗ Data directory not found"
+                exit 1
+              fi
+              
+              # Check data size
+              DATA_SIZE=$(du -sh /var/lib/cassandra/data | awk '{print $1}')
+              echo "Restored data size: $DATA_SIZE"
+              
+              # Verify keyspace directories exist
+              KEYSPACES=$(ls /var/lib/cassandra/data | grep -v system)
+              echo "Restored keyspaces:"
+              echo "$KEYSPACES"
+              
+              if [ -z "$KEYSPACES" ]; then
+                echo "⚠ WARNING: No user keyspaces found"
+              fi
+              
+              echo "✓ Post-restore validation passed"
+          
+          volumeMounts:
+            - name: hcd-data
+              mountPath: /var/lib/cassandra
+              readOnly: true
+          
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      
+      volumes:
+        - name: hcd-data
+          persistentVolumeClaim:
+            claimName: hcd-data-hcd-paris-rack1-sts-0
+        
+        - name: medusa-config
+          configMap:
+            name: medusa-config
+        
+        - name: temp
+          emptyDir:
+            sizeLimit: 20Gi
+
+# Made with Bob

@@ -1,0 +1,170 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: janusgraph-banking-staging
+  namespace: argocd
+  labels:
+    environment: staging
+    project: janusgraph-banking
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+    targetRevision: release/staging  # Use release branch for staging
+    path: helm/janusgraph-banking
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |
+        # Staging Environment Overrides
+        environment: staging
+        
+        # API Configuration
+        api:
+          replicaCount: 2
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+          autoscaling:
+            enabled: true
+            minReplicas: 2
+            maxReplicas: 10
+            targetCPUUtilizationPercentage: 70
+        
+        # HCD Configuration
+        hcd:
+          datacenters:
+            - name: dc1
+              size: 3
+              racks:
+                - name: rack1
+                  nodeCount: 1
+                - name: rack2
+                  nodeCount: 1
+                - name: rack3
+                  nodeCount: 1
+              storage:
+                storageClassName: hcd-storage
+                size: 500Gi
+              resources:
+                requests:
+                  cpu: 4000m
+                  memory: 16Gi
+                limits:
+                  cpu: 8000m
+                  memory: 32Gi
+        
+        # JanusGraph Configuration
+        janusgraph:
+          replicaCount: 2
+          storage:
+            storageClassName: janusgraph-storage
+            size: 100Gi
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 4Gi
+            limits:
+              cpu: 4000m
+              memory: 16Gi
+        
+        # OpenSearch Configuration
+        opensearch:
+          replicas: 2
+          storage:
+            storageClassName: opensearch-storage
+            size: 200Gi
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 4Gi
+            limits:
+              cpu: 2000m
+              memory: 8Gi
+        
+        # Pulsar Configuration
+        pulsar:
+          broker:
+            replicaCount: 2
+          bookkeeper:
+            replicaCount: 3
+            storage:
+              storageClassName: pulsar-storage
+              size: 100Gi
+        
+        # Mission Control Configuration
+        missionControl:
+          enabled: true
+          postgresql:
+            storage:
+              storageClassName: mission-control-storage
+              size: 50Gi
+        
+        # Monitoring Configuration
+        monitoring:
+          enabled: true
+          prometheus:
+            enabled: true
+          grafana:
+            enabled: true
+        
+        # Ingress Configuration
+        ingress:
+          enabled: true
+          className: nginx
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          hosts:
+            - host: api-staging.example.com
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: api-staging-tls
+              hosts:
+                - api-staging.example.com
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: janusgraph-banking-staging
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Health assessment
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore HPA-managed replicas
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates  # Ignore PVC template changes
+  
+  # Notification annotations
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: staging-deployments
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: staging-alerts
+
+# Made with Bob

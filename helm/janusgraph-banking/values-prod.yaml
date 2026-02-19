@@ -1,34 +1,349 @@
-namespace: janusgraph-banking-prod
+# Production Values for JanusGraph Banking Platform
+# Override values.yaml for production 3-site deployment
 
-janusgraph:
-  replicas: 1
+# Global settings
+global:
+  namespace: janusgraph-banking
+
+# HCD Configuration for Production
+hcd:
+  enabled: true
+  clusterName: hcd-cluster-global
+  datacenterName: paris-dc  # Change per site: paris-dc, london-dc, frankfurt-dc
+  serverType: hcd
+  serverVersion: "1.2.3"
+  serverImage: "datastax/hcd-server:1.2.3"
+  size: 3
+  storageClass: hcd-storage
+  storageSize: 500Gi
+  
   resources:
     requests:
-      cpu: "1"
+      cpu: 4000m
+      memory: 16Gi
+    limits:
+      cpu: 8000m
+      memory: 32Gi
+  
+  # Production rack configuration
+  racks:
+    - name: rack1
+      zone: us-east-1a  # Change per site
+      affinityLabels:
+        topology.kubernetes.io/zone: us-east-1a
+    - name: rack2
+      zone: us-east-1b
+      affinityLabels:
+        topology.kubernetes.io/zone: us-east-1b
+    - name: rack3
+      zone: us-east-1c
+      affinityLabels:
+        topology.kubernetes.io/zone: us-east-1c
+  
+  # Production Cassandra configuration
+  config:
+    authenticator: PasswordAuthenticator
+    authorizer: CassandraAuthorizer
+    numTokens: 16
+    concurrentReads: 32
+    concurrentWrites: 32
+    concurrentCounterWrites: 32
+    endpointSnitch: GossipingPropertyFileSnitch
+    # Multi-DC seed configuration
+    seedProvider:
+      - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+        parameters:
+          - seeds: "hcd-cluster-global-paris-dc-service.janusgraph-banking.svc.cluster.local,hcd-cluster-global-london-dc-service.janusgraph-banking.svc.cluster.local"
+  
+  # Production JVM configuration
+  jvm:
+    initialHeapSize: "8G"
+    maxHeapSize: "8G"
+    additionalJvmOpts:
+      - "-Dcassandra.system_distributed_replication_dc_names=paris-dc,london-dc,frankfurt-dc"
+      - "-Dcassandra.system_distributed_replication_per_dc=3"
+      - "-XX:+UseG1GC"
+      - "-XX:G1RSetUpdatingPauseTimePercent=5"
+      - "-XX:MaxGCPauseMillis=500"
+
+# JanusGraph Production Configuration
+janusgraph:
+  enabled: true
+  replicas: 3
+  
+  storage:
+    backend: cql
+    hostname: hcd-cluster-paris-dc-service  # Change per site
+    port: 9042
+    storageClass: janusgraph-storage
+    size: 100Gi
+  
+  index:
+    backend: opensearch
+    hostname: opensearch-cluster-master
+    port: 9200
+  
+  resources:
+    requests:
+      cpu: 2000m
       memory: 4Gi
     limits:
-      cpu: "4"
+      cpu: 4000m
       memory: 8Gi
-  javaOptions: "-Xms2g -Xmx6g"
+  
+  javaOptions: "-Xms2g -Xmx6g -XX:+UseG1GC"
 
+# API Production Configuration
 api:
+  enabled: true
   replicas: 3
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
   env:
     corsOrigins: "https://banking.example.com"
     useSSL: "true"
     authEnabled: "true"
-    logLevel: "WARNING"
+    logLevel: "INFO"
   hpa:
     enabled: true
     minReplicas: 3
     maxReplicas: 20
+    targetCPU: 70
+    targetMemory: 80
+  pdb:
+    enabled: true
+    minAvailable: 2
 
+# Mission Control Production Configuration
+missionControl:
+  enabled: true
+  
+  server:
+    replicas: 2
+    resources:
+      requests:
+        cpu: 2000m
+        memory: 4Gi
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+    service:
+      type: LoadBalancer
+  
+  agent:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+  
+  postgres:
+    enabled: true
+    storageClass: mission-control-storage
+    storageSize: 100Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+
+# Storage Classes for AWS Production
+storageClasses:
+  enabled: true
+  
+  hcd:
+    name: hcd-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      throughput: "125"
+      encrypted: "true"
+      kmsKeyId: ""  # Add KMS key ID
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  janusgraph:
+    name: janusgraph-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      throughput: "125"
+      encrypted: "true"
+      kmsKeyId: ""  # Add KMS key ID
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  opensearch:
+    name: opensearch-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      throughput: "125"
+      encrypted: "true"
+      kmsKeyId: ""  # Add KMS key ID
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  pulsar:
+    name: pulsar-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      throughput: "125"
+      encrypted: "true"
+      kmsKeyId: ""  # Add KMS key ID
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  missionControl:
+    name: mission-control-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      throughput: "125"
+      encrypted: "true"
+      kmsKeyId: ""  # Add KMS key ID
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+
+# OpenSearch Production
+opensearch:
+  enabled: true
+  replicas: 3
+  minimumMasterNodes: 2
+  resources:
+    requests:
+      cpu: 2000m
+      memory: 4Gi
+    limits:
+      cpu: 4000m
+      memory: 8Gi
+  persistence:
+    enabled: true
+    storageClass: opensearch-storage
+    size: 300Gi
+
+# Pulsar Production with Geo-Replication
+pulsar:
+  enabled: true
+  zookeeper:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+  bookkeeper:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+    persistence:
+      storageClass: pulsar-storage
+      size: 200Gi
+  broker:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+  geoReplication:
+    enabled: true
+    clusters:
+      - paris
+      - london
+      - frankfurt
+
+# Vault Production HA
+vault:
+  enabled: true
+  server:
+    ha:
+      enabled: true
+      replicas: 3
+      raft:
+        enabled: true
+        setNodeId: true
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    dataStorage:
+      enabled: true
+      storageClass: vault-storage
+      size: 50Gi
+
+# Network Policies (Strict)
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+
+# OpenShift Routes for Production
 route:
   enabled: true
-  host: banking-api.apps.example.com
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
+  api:
+    host: "api.banking.example.com"
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  missionControl:
+    host: "mission-control.banking.example.com"
+    tls:
+      termination: edge
 
+# Monitoring Production
 monitoring:
   enabled: true
+  prometheus:
+    retention: 30d
+    storageClass: prometheus-storage
+    size: 100Gi
+  grafana:
+    adminPassword: ""  # Set via secret
+    dashboards:
+      enabled: true
+
+# Backup Production Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 30  # days
+  storage:
+    provider: s3
+    bucket: "hcd-backups-prod"
+    region: us-east-1
+
+# Made with Bob

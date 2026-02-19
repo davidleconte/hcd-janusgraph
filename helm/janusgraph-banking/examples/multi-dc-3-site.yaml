@@ -1,0 +1,422 @@
+# Multi-DC 3-Site Production Configuration
+# Paris (Primary) + London (Secondary) + Frankfurt (DR)
+#
+# This configuration deploys a globally distributed JanusGraph Banking Platform
+# across three geographic regions with automatic failover capabilities.
+#
+# Architecture:
+# - Paris (eu-west-3): Primary site, 5 HCD nodes, 2 JanusGraph replicas
+# - London (eu-west-2): Secondary site, 5 HCD nodes, 2 JanusGraph replicas  
+# - Frankfurt (eu-central-1): DR site, 3 HCD nodes, 1 JanusGraph replica
+#
+# Usage:
+#   helm install janusgraph-banking ./helm/janusgraph-banking \
+#     -f helm/janusgraph-banking/examples/multi-dc-3-site.yaml \
+#     -n janusgraph-banking-prod
+
+global:
+  environment: production
+  multiDC:
+    enabled: true
+    sites:
+      - name: paris
+        region: eu-west-3
+        primary: true
+      - name: london
+        region: eu-west-2
+        primary: false
+      - name: frankfurt
+        region: eu-central-1
+        primary: false
+
+# HCD Multi-DC Configuration
+hcd:
+  enabled: true
+  clusterName: hcd-cluster-global
+  
+  # Paris Datacenter (Primary)
+  paris:
+    enabled: true
+    datacenterName: hcd-paris
+    size: 5
+    racks: 3
+    region: eu-west-3
+    availabilityZones:
+      - eu-west-3a
+      - eu-west-3b
+      - eu-west-3c
+    
+    resources:
+      requests:
+        cpu: "4"
+        memory: "16Gi"
+      limits:
+        cpu: "8"
+        memory: "32Gi"
+    
+    storage:
+      storageClassName: gp3-encrypted
+      size: 500Gi
+    
+    config:
+      cassandra-yaml:
+        num_tokens: 16
+        concurrent_reads: 32
+        concurrent_writes: 32
+        concurrent_counter_writes: 32
+        memtable_allocation_type: heap_buffers
+        commitlog_sync: periodic
+        commitlog_sync_period_in_ms: 10000
+        partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+        endpoint_snitch: GossipingPropertyFileSnitch
+        
+    jvmOptions:
+      heap_size: 16G
+      young_gen_size: 4G
+      additional_jvm_opts:
+        - "-XX:+UseG1GC"
+        - "-XX:G1RSetUpdatingPauseTimePercent=5"
+        - "-XX:MaxGCPauseMillis=500"
+        - "-XX:InitiatingHeapOccupancyPercent=70"
+  
+  # London Datacenter (Secondary)
+  london:
+    enabled: true
+    datacenterName: hcd-london
+    size: 5
+    racks: 3
+    region: eu-west-2
+    availabilityZones:
+      - eu-west-2a
+      - eu-west-2b
+      - eu-west-2c
+    
+    resources:
+      requests:
+        cpu: "4"
+        memory: "16Gi"
+      limits:
+        cpu: "8"
+        memory: "32Gi"
+    
+    storage:
+      storageClassName: gp3-encrypted
+      size: 500Gi
+    
+    config:
+      cassandra-yaml:
+        num_tokens: 16
+        concurrent_reads: 32
+        concurrent_writes: 32
+        concurrent_counter_writes: 32
+        memtable_allocation_type: heap_buffers
+        commitlog_sync: periodic
+        commitlog_sync_period_in_ms: 10000
+        partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+        endpoint_snitch: GossipingPropertyFileSnitch
+    
+    jvmOptions:
+      heap_size: 16G
+      young_gen_size: 4G
+      additional_jvm_opts:
+        - "-XX:+UseG1GC"
+        - "-XX:G1RSetUpdatingPauseTimePercent=5"
+        - "-XX:MaxGCPauseMillis=500"
+        - "-XX:InitiatingHeapOccupancyPercent=70"
+  
+  # Frankfurt Datacenter (DR)
+  frankfurt:
+    enabled: true
+    datacenterName: hcd-frankfurt
+    size: 3
+    racks: 3
+    region: eu-central-1
+    availabilityZones:
+      - eu-central-1a
+      - eu-central-1b
+      - eu-central-1c
+    
+    resources:
+      requests:
+        cpu: "2"
+        memory: "8Gi"
+      limits:
+        cpu: "4"
+        memory: "16Gi"
+    
+    storage:
+      storageClassName: gp3-encrypted
+      size: 300Gi
+    
+    config:
+      cassandra-yaml:
+        num_tokens: 16
+        concurrent_reads: 16
+        concurrent_writes: 16
+        concurrent_counter_writes: 16
+        memtable_allocation_type: heap_buffers
+        commitlog_sync: periodic
+        commitlog_sync_period_in_ms: 10000
+        partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+        endpoint_snitch: GossipingPropertyFileSnitch
+    
+    jvmOptions:
+      heap_size: 8G
+      young_gen_size: 2G
+      additional_jvm_opts:
+        - "-XX:+UseG1GC"
+        - "-XX:G1RSetUpdatingPauseTimePercent=5"
+        - "-XX:MaxGCPauseMillis=500"
+        - "-XX:InitiatingHeapOccupancyPercent=70"
+  
+  # Multi-DC Seed Configuration
+  seeds:
+    - hcd-paris-rack1-sts-0.hcd-paris-service.janusgraph-banking-prod.svc.cluster.local
+    - hcd-paris-rack2-sts-0.hcd-paris-service.janusgraph-banking-prod.svc.cluster.local
+    - hcd-london-rack1-sts-0.hcd-london-service.janusgraph-banking-prod.svc.cluster.local
+    - hcd-london-rack2-sts-0.hcd-london-service.janusgraph-banking-prod.svc.cluster.local
+    - hcd-frankfurt-rack1-sts-0.hcd-frankfurt-service.janusgraph-banking-prod.svc.cluster.local
+
+# JanusGraph Configuration
+janusgraph:
+  enabled: true
+  replicas: 5
+  
+  # Distribute replicas across sites
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - janusgraph
+          topologyKey: topology.kubernetes.io/zone
+  
+  resources:
+    requests:
+      cpu: "2"
+      memory: "8Gi"
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+  
+  storage:
+    size: 100Gi
+    storageClassName: gp3-encrypted
+  
+  config:
+    storage:
+      backend: cql
+      hostname: hcd-paris-service,hcd-london-service,hcd-frankfurt-service
+      cql:
+        cluster-name: hcd-cluster-global
+        keyspace: janusgraph
+        replication-factor: 3
+        replication-strategy-class: NetworkTopologyStrategy
+        replication-strategy-options: "hcd-paris:2,hcd-london:2,hcd-frankfurt:1"
+        local-datacenter: hcd-paris
+        read-consistency-level: LOCAL_QUORUM
+        write-consistency-level: LOCAL_QUORUM
+    
+    index:
+      search:
+        backend: elasticsearch
+        hostname: opensearch-cluster-master
+        elasticsearch:
+          bulk-refresh: true
+          bulk-chunk-size-limit-bytes: 10485760
+    
+    cache:
+      db-cache: true
+      db-cache-clean-wait: 20
+      db-cache-time: 180000
+      db-cache-size: 0.5
+
+# Mission Control Configuration
+missionControl:
+  enabled: true
+  
+  server:
+    replicas: 2
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2Gi"
+      limits:
+        cpu: "2"
+        memory: "4Gi"
+    
+    # Deploy servers in Paris and London
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - mission-control-server
+              topologyKey: topology.kubernetes.io/zone
+  
+  agent:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+  
+  postgres:
+    storage:
+      size: 50Gi
+      storageClassName: gp3-encrypted
+    resources:
+      requests:
+        cpu: "1"
+        memory: "2Gi"
+      limits:
+        cpu: "2"
+        memory: "4Gi"
+  
+  redis:
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+
+# OpenSearch Configuration (for vector search)
+opensearch:
+  enabled: true
+  replicas: 3
+  
+  resources:
+    requests:
+      cpu: "2"
+      memory: "8Gi"
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+  
+  storage:
+    size: 500Gi
+    storageClassName: gp3-encrypted
+  
+  # Distribute across availability zones
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - opensearch
+          topologyKey: topology.kubernetes.io/zone
+
+# Pulsar Configuration (for event streaming)
+pulsar:
+  enabled: true
+  
+  broker:
+    replicas: 3
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+  
+  bookkeeper:
+    replicas: 3
+    storage:
+      size: 200Gi
+      storageClassName: gp3-encrypted
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+  
+  zookeeper:
+    replicas: 3
+    storage:
+      size: 20Gi
+      storageClassName: gp3-encrypted
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  
+  prometheus:
+    retention: 30d
+    storage:
+      size: 100Gi
+      storageClassName: gp3-encrypted
+  
+  grafana:
+    enabled: true
+    adminPassword: "CHANGE_ME_IN_PRODUCTION"
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 30  # Keep 30 days of backups
+  
+  s3:
+    bucket: janusgraph-banking-backups-prod
+    region: eu-west-3
+    encryption: AES256
+
+# Security Configuration
+security:
+  tls:
+    enabled: true
+    certManager:
+      enabled: true
+      issuer: letsencrypt-prod
+  
+  networkPolicies:
+    enabled: true
+  
+  podSecurityPolicy:
+    enabled: true
+
+# High Availability Configuration
+highAvailability:
+  enabled: true
+  
+  # Pod Disruption Budgets
+  podDisruptionBudget:
+    janusgraph:
+      minAvailable: 3
+    hcd:
+      minAvailable: 3
+    opensearch:
+      minAvailable: 2
+    pulsar:
+      minAvailable: 2
+  
+  # Autoscaling
+  autoscaling:
+    enabled: false  # Manual scaling for production
+
+# Made with Bob

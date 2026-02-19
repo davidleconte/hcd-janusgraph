@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: janusgraph-banking
+  namespace: argocd
+  # Finalizer ensures cascade deletion
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # Project this application belongs to
+  project: default
+  
+  # Source repository configuration
+  source:
+    # Git repository URL
+    repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+    targetRevision: main
+    path: helm/janusgraph-banking
+    
+    # Helm-specific configuration
+    helm:
+      # Values file to use (default: values.yaml)
+      valueFiles:
+        - values.yaml
+      
+      # Additional parameters (override values.yaml)
+      parameters:
+        - name: global.environment
+          value: "dev"
+        - name: janusgraph.replicas
+          value: "2"
+      
+      # Release name
+      releaseName: janusgraph-banking
+  
+  # Destination cluster and namespace
+  destination:
+    # Kubernetes cluster (in-cluster or external)
+    server: https://kubernetes.default.svc
+    namespace: janusgraph-banking
+  
+  # Sync policy
+  syncPolicy:
+    # Automated sync configuration
+    automated:
+      # Automatically sync when Git changes detected
+      prune: true
+      # Automatically sync when cluster state differs
+      selfHeal: true
+      # Allow empty resources
+      allowEmpty: false
+    
+    # Sync options
+    syncOptions:
+      # Create namespace if it doesn't exist
+      - CreateNamespace=true
+      # Validate resources before applying
+      - Validate=true
+      # Use server-side apply
+      - ServerSideApply=true
+      # Respect ignore differences
+      - RespectIgnoreDifferences=true
+    
+    # Retry configuration
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Ignore differences in certain fields
+  ignoreDifferences:
+    # Ignore HCD operator-managed fields
+    - group: cassandra.datastax.com
+      kind: CassandraDatacenter
+      jsonPointers:
+        - /status
+        - /spec/stopped
+    
+    # Ignore StatefulSet rolling update fields
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates/0/status
+        - /status
+  
+  # Health assessment configuration
+  info:
+    - name: "Documentation"
+      value: "https://github.com/your-org/hcd-tarball-janusgraph/blob/main/helm/janusgraph-banking/README.md"
+    - name: "Support"
+      value: "platform-team@example.com"
+
+# Made with Bob

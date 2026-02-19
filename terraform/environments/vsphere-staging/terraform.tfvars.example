@@ -1,0 +1,17 @@
+# VMware vSphere Staging Environment Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# vSphere Connection
+vsphere_user                 = "administrator@vsphere.local"
+vsphere_password             = "your-vsphere-password"
+vsphere_server               = "vcenter.example.com"
+vsphere_allow_unverified_ssl = false  # Set to true for self-signed certs
+
+# vSphere Infrastructure
+vsphere_datacenter = "Datacenter1"
+vsphere_cluster    = "Cluster1"
+vsphere_datastore  = "datastore1"
+
+# Monitoring Configuration (Optional)
+slack_webhook_url = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+pagerduty_key     = "your-pagerduty-integration-key"

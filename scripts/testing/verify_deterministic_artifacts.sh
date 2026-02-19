@@ -18,6 +18,7 @@ fi
 CHECKSUM_FILE="${OUT_DIR}/checksums.txt"
 GATE_FILE="${OUT_DIR}/determinism_gate.json"
 BASELINE_DIR="${DEMO_BASELINE_DIR:-${PROJECT_ROOT}/exports/determinism-baselines}"
+REQUIRE_EXISTING_BASELINE="${DEMO_REQUIRE_EXISTING_BASELINE:-0}"
 
 hash_file() {
     local path="$1"
@@ -98,6 +99,14 @@ main() {
     baseline_file="${BASELINE_DIR}/${commit_sha}_${seed}.checksums"
 
     if [[ ! -f "${baseline_file}" ]]; then
+        if [[ "${REQUIRE_EXISTING_BASELINE}" == "1" ]]; then
+            echo "❌ Determinism baseline missing (strict mode): ${baseline_file}"
+            cat > "${GATE_FILE}" <<EOF
+{"result":"fail","mode":"baseline_missing","baseline":"${baseline_file}"}
+EOF
+            exit 1
+        fi
+
         cp "${CHECKSUM_FILE}" "${baseline_file}"
         gate_status="baseline_created"
         echo "ℹ️  Determinism baseline created: ${baseline_file}"

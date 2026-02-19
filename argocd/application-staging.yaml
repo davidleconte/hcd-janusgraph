@@ -1,0 +1,75 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: janusgraph-banking-staging
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    environment: staging
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+    targetRevision: staging
+    path: helm/janusgraph-banking
+    
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+      
+      parameters:
+        - name: global.environment
+          value: "staging"
+        - name: janusgraph.replicas
+          value: "3"
+        - name: hcd.size
+          value: "3"
+      
+      releaseName: janusgraph-banking-staging
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: janusgraph-banking-staging
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    
+    syncOptions:
+      - CreateNamespace=true
+      - Validate=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+    
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  ignoreDifferences:
+    - group: cassandra.datastax.com
+      kind: CassandraDatacenter
+      jsonPointers:
+        - /status
+        - /spec/stopped
+    
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates/0/status
+        - /status
+  
+  info:
+    - name: "Environment"
+      value: "Staging"
+    - name: "Documentation"
+      value: "https://github.com/your-org/hcd-tarball-janusgraph/blob/main/helm/janusgraph-banking/README.md"
+
+# Made with Bob

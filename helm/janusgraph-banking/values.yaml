@@ -1,39 +1,129 @@
+# Global settings
+global:
+  namespace: janusgraph-banking
+
+# Namespace
 namespace: janusgraph-banking
 
+# DataStax Cass Operator for HCD
+cassOperator:
+  enabled: true
+  image:
+    repository: datastax/cass-operator
+    tag: 1.18.0
+
+# IBM DataStax HCD (Hyper-Converged Database)
+hcd:
+  enabled: true
+  clusterName: hcd-cluster-global
+  datacenterName: dc1
+  serverType: hcd
+  serverVersion: "1.2.3"
+  serverImage: "datastax/hcd-server:1.2.3"
+  size: 3
+  storageClass: hcd-storage
+  storageSize: 500Gi
+  
+  resources:
+    requests:
+      cpu: 4000m
+      memory: 16Gi
+    limits:
+      cpu: 8000m
+      memory: 32Gi
+  
+  # Rack configuration for multi-AZ
+  racks:
+    - name: rack1
+      zone: zone-a
+      affinityLabels:
+        topology.kubernetes.io/zone: zone-a
+    - name: rack2
+      zone: zone-b
+      affinityLabels:
+        topology.kubernetes.io/zone: zone-b
+    - name: rack3
+      zone: zone-c
+      affinityLabels:
+        topology.kubernetes.io/zone: zone-c
+  
+  # Cassandra configuration
+  config:
+    authenticator: PasswordAuthenticator
+    authorizer: CassandraAuthorizer
+    numTokens: 16
+    concurrentReads: 32
+    concurrentWrites: 32
+    concurrentCounterWrites: 32
+    endpointSnitch: GossipingPropertyFileSnitch
+  
+  # JVM configuration
+  jvm:
+    initialHeapSize: "8G"
+    maxHeapSize: "8G"
+    additionalJvmOpts:
+      - "-Dcassandra.system_distributed_replication_dc_names=dc1"
+      - "-Dcassandra.system_distributed_replication_per_dc=3"
+  
+  # Networking
+  networking:
+    hostNetwork: false
+    nodePort:
+      native: 30042
+      internode: 30043
+
+# JanusGraph (StatefulSet)
 janusgraph:
+  enabled: true
+  replicas: 3
   image:
     repository: janusgraph/janusgraph
     tag: "1.0.0"
     pullPolicy: IfNotPresent
-  replicas: 1
+  
+  # Storage backend configuration
+  storage:
+    backend: cql
+    hostname: hcd-cluster-dc1-service
+    port: 9042
+    storageClass: janusgraph-storage
+    size: 100Gi
+  
+  # Index backend configuration
+  index:
+    backend: opensearch
+    hostname: opensearch-cluster-master
+    port: 9200
+  
   resources:
     requests:
-      cpu: 500m
-      memory: 2Gi
-    limits:
-      cpu: "2"
+      cpu: 2000m
       memory: 4Gi
-  javaOptions: "-Xms1g -Xmx3g"
+    limits:
+      cpu: 4000m
+      memory: 8Gi
+  
+  javaOptions: "-Xms2g -Xmx6g"
+  
   service:
     port: 8182
     type: ClusterIP
-  startupProbe:
-    failureThreshold: 30
-    periodSeconds: 10
 
+# API Deployment
 api:
+  enabled: true
   image:
     repository: janusgraph-banking/api
     tag: "1.2.0"
     pullPolicy: IfNotPresent
-  replicas: 2
+  replicas: 3
   resources:
     requests:
-      cpu: 250m
-      memory: 512Mi
-    limits:
-      cpu: "1"
+      cpu: 500m
       memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
   service:
     port: 8001
     type: ClusterIP
@@ -44,33 +134,272 @@ api:
     logLevel: "INFO"
   hpa:
     enabled: true
-    minReplicas: 2
-    maxReplicas: 10
+    minReplicas: 3
+    maxReplicas: 20
     targetCPU: 70
     targetMemory: 80
   pdb:
     enabled: true
-    minAvailable: 1
+    minAvailable: 2
 
+# Mission Control
+missionControl:
+  enabled: true
+  
+  # Mission Control Server
+  server:
+    replicas: 2
+    image:
+      repository: datastax/mission-control
+      tag: "1.0.0"
+    resources:
+      requests:
+        cpu: 2000m
+        memory: 4Gi
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+    service:
+      type: LoadBalancer
+  
+  # Mission Control Agent
+  agent:
+    image:
+      repository: datastax/mission-control-agent
+      tag: "1.0.0"
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+  
+  # PostgreSQL for Mission Control metadata
+  postgres:
+    enabled: true
+    image:
+      repository: postgres
+      tag: "13"
+    database: mission_control
+    storageClass: mission-control-storage
+    storageSize: 100Gi
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+  
+  # Redis for caching
+  redis:
+    enabled: true
+    image:
+      repository: redis
+      tag: "6"
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+
+# Storage Classes
+storageClasses:
+  enabled: true
+  
+  # HCD Storage Class
+  hcd:
+    name: hcd-storage
+    provisioner: ebs.csi.aws.com  # Change based on cloud provider
+    parameters:
+      type: gp3
+      iops: "3000"
+      encrypted: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  # JanusGraph Storage Class
+  janusgraph:
+    name: janusgraph-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      encrypted: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  # OpenSearch Storage Class
+  opensearch:
+    name: opensearch-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      encrypted: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  # Pulsar Storage Class
+  pulsar:
+    name: pulsar-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      encrypted: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+  
+  # Mission Control Storage Class
+  missionControl:
+    name: mission-control-storage
+    provisioner: ebs.csi.aws.com
+    parameters:
+      type: gp3
+      iops: "3000"
+      encrypted: "true"
+    reclaimPolicy: Retain
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+
+# OpenSearch
 opensearch:
   enabled: true
+  replicas: 3
+  minimumMasterNodes: 2
+  resources:
+    requests:
+      cpu: 2000m
+      memory: 4Gi
+    limits:
+      cpu: 4000m
+      memory: 8Gi
+  persistence:
+    enabled: true
+    storageClass: opensearch-storage
+    size: 300Gi
   service:
     port: 9200
 
+# Apache Pulsar
+pulsar:
+  enabled: true
+  zookeeper:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+  bookkeeper:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+    persistence:
+      storageClass: pulsar-storage
+      size: 200Gi
+  broker:
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+  geoReplication:
+    enabled: true
+    clusters:
+      - paris
+      - london
+      - frankfurt
+
+# HashiCorp Vault
+vault:
+  enabled: true
+  server:
+    ha:
+      enabled: true
+      replicas: 3
+      raft:
+        enabled: true
+        setNodeId: true
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    dataStorage:
+      enabled: true
+      storageClass: vault-storage
+      size: 50Gi
+
+# Network Policies
 networkPolicy:
   enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
 
+# OpenShift Routes
 route:
   enabled: false
-  host: ""
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
+  api:
+    host: ""
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+  missionControl:
+    host: ""
+    tls:
+      termination: edge
 
+# Secrets (should be overridden in production)
 secrets:
   janusgraphPassword: ""
   opensearchPassword: ""
   apiKey: ""
 
+# Monitoring
 monitoring:
-  enabled: false
+  enabled: true
+  prometheus:
+    retention: 30d
+    storageClass: prometheus-storage
+    size: 100Gi
+  grafana:
+    adminPassword: ""  # Override in production
+    dashboards:
+      enabled: true
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Pod Security Policy
+podSecurityPolicy:
+  enabled: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 30  # days
+  storage:
+    provider: s3
+    bucket: ""  # Override in production
+    region: us-east-1
+
+# Made with Bob

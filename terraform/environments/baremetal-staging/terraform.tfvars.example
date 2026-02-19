@@ -1,0 +1,128 @@
+# Bare Metal Staging Environment Configuration Example
+# Copy this file to terraform.tfvars and update with your actual values
+
+# ============================================================================
+# Control Plane Nodes
+# ============================================================================
+
+baremetal_control_plane_count = 1
+
+baremetal_control_plane_hosts = [
+  {
+    id           = "cp-01"
+    ipmi_address = "192.168.0.101"
+    ip_address   = "192.168.1.101"
+    hostname     = "k8s-cp-01"
+    mac_address  = "00:50:56:00:01:01"
+  }
+]
+
+# ============================================================================
+# Worker Nodes
+# ============================================================================
+
+baremetal_worker_count = 2
+
+baremetal_worker_hosts = [
+  {
+    id           = "worker-01"
+    ipmi_address = "192.168.0.111"
+    ip_address   = "192.168.2.111"
+    hostname     = "k8s-worker-01"
+    mac_address  = "00:50:56:00:02:01"
+  },
+  {
+    id           = "worker-02"
+    ipmi_address = "192.168.0.112"
+    ip_address   = "192.168.2.112"
+    hostname     = "k8s-worker-02"
+    mac_address  = "00:50:56:00:02:02"
+  }
+]
+
+# ============================================================================
+# HCD Nodes (also used as Ceph storage nodes)
+# ============================================================================
+
+baremetal_hcd_count = 3
+
+baremetal_hcd_hosts = [
+  {
+    id           = "hcd-01"
+    ipmi_address = "192.168.0.121"
+    ip_address   = "192.168.3.121"
+    hostname     = "k8s-hcd-01"
+    mac_address  = "00:50:56:00:03:01"
+  },
+  {
+    id           = "hcd-02"
+    ipmi_address = "192.168.0.122"
+    ip_address   = "192.168.3.122"
+    hostname     = "k8s-hcd-02"
+    mac_address  = "00:50:56:00:03:02"
+  },
+  {
+    id           = "hcd-03"
+    ipmi_address = "192.168.0.123"
+    ip_address   = "192.168.3.123"
+    hostname     = "k8s-hcd-03"
+    mac_address  = "00:50:56:00:03:03"
+  }
+]
+
+# ============================================================================
+# IPMI Credentials
+# ============================================================================
+
+baremetal_ipmi_user     = "admin"
+baremetal_ipmi_password = "CHANGE_ME_SECURE_PASSWORD"
+
+# ============================================================================
+# SSH Configuration
+# ============================================================================
+
+baremetal_ssh_user             = "root"
+baremetal_ssh_private_key_path = "~/.ssh/id_rsa"
+
+# ============================================================================
+# Network Configuration
+# ============================================================================
+
+baremetal_pod_network_cidr = "10.244.0.0/16"
+baremetal_service_cidr     = "10.96.0.0/12"
+baremetal_gateway          = "192.168.1.1"
+baremetal_dns_servers      = ["8.8.8.8", "8.8.4.4"]
+baremetal_domain           = "staging.local"
+baremetal_worker_cidr      = "192.168.2.0/24"
+baremetal_hcd_cidr         = "192.168.3.0/24"
+
+# ============================================================================
+# Load Balancer Configuration
+# ============================================================================
+
+baremetal_metallb_ip_range = "192.168.1.200-192.168.1.250"
+
+# Optional: Virtual IP for API HA (leave empty for single control plane)
+# baremetal_load_balancer_ip = "192.168.1.100"
+baremetal_load_balancer_ip = ""
+
+# ============================================================================
+# PXE Boot (Optional)
+# ============================================================================
+
+# Optional: PXE server for network boot (leave empty if not using)
+# baremetal_pxe_server = "192.168.1.10"
+baremetal_pxe_server = ""
+
+# ============================================================================
+# Time Synchronization
+# ============================================================================
+
+baremetal_ntp_servers = ["time.google.com", "time.cloudflare.com"]
+
+# ============================================================================
+# Storage Configuration
+# ============================================================================
+
+# Enable NFS in addition to Ceph (optional)
+baremetal_enable_nfs = false

@@ -1,0 +1,8 @@
+# GCP Production Environment Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# GCP Project
+gcp_project_id = "your-gcp-project-id"
+
+# Alerting
+alert_email = "platform-team@example.com"

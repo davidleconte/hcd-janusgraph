@@ -1,0 +1,99 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: janusgraph-banking-environments
+  namespace: argocd
+spec:
+  # Generator for multiple environments
+  generators:
+    - list:
+        elements:
+          - environment: dev
+            targetRevision: main
+            namespace: janusgraph-banking-dev
+            replicas: "2"
+            hcdSize: "3"
+            autoSync: "true"
+            project: default
+            
+          - environment: staging
+            targetRevision: staging
+            namespace: janusgraph-banking-staging
+            replicas: "3"
+            hcdSize: "3"
+            autoSync: "true"
+            project: default
+            
+          - environment: prod
+            targetRevision: v1.0.0
+            namespace: janusgraph-banking-prod
+            replicas: "5"
+            hcdSize: "5"
+            autoSync: "false"
+            project: production
+  
+  # Template for generating Applications
+  template:
+    metadata:
+      name: 'janusgraph-banking-{{environment}}'
+      labels:
+        environment: '{{environment}}'
+    spec:
+      project: '{{project}}'
+      
+      source:
+        repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+        targetRevision: '{{targetRevision}}'
+        path: helm/janusgraph-banking
+        
+        helm:
+          valueFiles:
+            - values.yaml
+            - 'values-{{environment}}.yaml'
+          
+          parameters:
+            - name: global.environment
+              value: '{{environment}}'
+            - name: janusgraph.replicas
+              value: '{{replicas}}'
+            - name: hcd.size
+              value: '{{hcdSize}}'
+          
+          releaseName: 'janusgraph-banking-{{environment}}'
+      
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      
+      syncPolicy:
+        automated:
+          prune: '{{autoSync}}'
+          selfHeal: '{{autoSync}}'
+          allowEmpty: false
+        
+        syncOptions:
+          - CreateNamespace=true
+          - Validate=true
+          - ServerSideApply=true
+        
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
+      
+      ignoreDifferences:
+        - group: cassandra.datastax.com
+          kind: CassandraDatacenter
+          jsonPointers:
+            - /status
+            - /spec/stopped
+        
+        - group: apps
+          kind: StatefulSet
+          jsonPointers:
+            - /spec/volumeClaimTemplates/0/status
+            - /status
+
+# Made with Bob

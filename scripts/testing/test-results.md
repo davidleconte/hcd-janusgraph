@@ -1,6 +1,6 @@
 # HCD + JanusGraph Test Results
 
-**Date**: Wed Jan 28 09:16:31 CET 2026
+**Date**: Mon Feb 16 14:04:17 CET 2026
 
 ---
 
@@ -21,62 +21,22 @@
 
 ## Test 3: Schema and Data Initialization
 
-Current vertices: 
+Current vertices: 306
 
-❌ **FAILED**: Schema initialization failed
+✅ **PASSED**: Graph already initialized (306 vertices)
 
-	at org.apache.tinkerpop.gremlin.console.Console$_executeInShell_closure17.doCall(Console.groovy:491)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
-	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
-	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
-	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:279)
-	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1007)
-	at groovy.lang.Closure.call(Closure.java:433)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2310)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2290)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2340)
-	at org.codehaus.groovy.runtime.dgm$220.doMethodInvoke(Unknown Source)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.executeInShell(Console.groovy:468)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.<init>(Console.groovy:170)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.main(Console.groovy:574)
-❌ **FAILED**: Data loading failed
+✅ **PASSED**: Validation sample data already present
 
-	at org.apache.tinkerpop.gremlin.console.Console$_executeInShell_closure17.doCall(Console.groovy:491)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
-	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
-	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
-	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
-	at org.codehaus.groovy.runtime.metaclass.ClosureMetaClass.invokeMethod(ClosureMetaClass.java:279)
-	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1007)
-	at groovy.lang.Closure.call(Closure.java:433)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2310)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2290)
-	at org.codehaus.groovy.runtime.DefaultGroovyMethods.eachWithIndex(DefaultGroovyMethods.java:2340)
-	at org.codehaus.groovy.runtime.dgm$220.doMethodInvoke(Unknown Source)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.executeInShell(Console.groovy:468)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.<init>(Console.groovy:170)
-	at org.codehaus.groovy.vmplugin.v8.IndyInterface.fromCache(IndyInterface.java:321)
-	at org.apache.tinkerpop.gremlin.console.Console.main(Console.groovy:574)
 
 ## Test 4: JanusGraph Queries
 
-❌ **FAILED**: Unexpected vertex count:  (expected 11)
+✅ **PASSED**: Vertex data present: 306
 
-❌ **FAILED**: Unexpected edge count:  (expected 19)
+✅ **PASSED**: Edge data present: 160
 
-❌ **FAILED**: Person vertices not found
+✅ **PASSED**: Person vertices found
 
-❌ **FAILED**: Traversal queries failed
+✅ **PASSED**: Traversal queries working
 
 
 ## Test 5: Python Client
@@ -90,8 +50,8 @@ Current vertices:
 
 ## Summary
 
-- **Passed**: 6
-- **Failed**: 6
+- **Passed**: 12
+- **Failed**: 0
 - **Total**: 12
 
-❌ 6 TEST(S) FAILED
+✅ ALL TESTS PASSED

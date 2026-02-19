@@ -2,14 +2,31 @@
 
 **File**: docs/architecture/system-architecture.md
 **Created**: 2026-01-28
-**Updated**: 2026-02-06
+**Updated**: 2026-02-19
 **Author**: David LECONTE - IBM Worldwide | Data & AI
 
 ---
 
 ## Overview
 
-This document describes the complete architecture of the HCD + JanusGraph + OpenSearch + Pulsar banking compliance platform.
+This document describes the **logical component architecture** of the HCD + JanusGraph + OpenSearch + Pulsar banking compliance platform. For deployment and operational architecture, see:
+
+- **[Deployment Architecture](deployment-architecture.md)** - Container orchestration, networking, and deployment topology
+- **[Podman Isolation Architecture](podman-isolation-architecture.md)** - Five-layer isolation model and project boundaries
+- **[Streaming Architecture](streaming-architecture.md)** - Pulsar-based event streaming architecture
+- **[Data Flow Unified](data-flow-unified.md)** - Complete data flow with diagrams
+
+---
+
+## Document Scope
+
+This document focuses on:
+- **Logical components** and their responsibilities
+- **Data flow** between components
+- **Integration patterns** and APIs
+- **Technology stack** and versions
+
+For operational concerns (deployment, networking, resource management), see [Deployment Architecture](deployment-architecture.md).
 
 ## High-Level Architecture
 

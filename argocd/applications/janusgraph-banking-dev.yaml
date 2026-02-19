@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: janusgraph-banking-dev
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: janusgraph-banking
+    app.kubernetes.io/instance: dev
+    app.kubernetes.io/part-of: janusgraph-banking-platform
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/your-org/hcd-tarball-janusgraph.git
+    targetRevision: main
+    path: helm/janusgraph-banking
+    helm:
+      releaseName: janusgraph-banking-dev
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: global.namespace
+          value: janusgraph-banking-dev
+        - name: hcd.size
+          value: "3"
+        - name: janusgraph.replicas
+          value: "3"
+        - name: api.replicas
+          value: "2"
+        - name: missionControl.enabled
+          value: "true"
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: janusgraph-banking-dev
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  revisionHistoryLimit: 10
+  
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/replicas
+
+# Made with Bob

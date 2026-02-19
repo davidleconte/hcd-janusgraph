@@ -1,0 +1,20 @@
+# VMware vSphere Production Environment Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# vSphere Connection
+vsphere_user                 = "administrator@vsphere.local"
+vsphere_password             = "your-secure-production-password"
+vsphere_server               = "vcenter-prod.example.com"
+vsphere_allow_unverified_ssl = false  # Must be false for production
+
+# vSphere Infrastructure
+vsphere_datacenter = "Production-Datacenter"
+vsphere_cluster    = "Production-Cluster"
+vsphere_datastore  = "production-datastore"
+
+# NFS Storage (Optional - for shared storage)
+vsphere_nfs_server = "nfs-prod.example.com"
+
+# Monitoring Configuration (Required for production)
+slack_webhook_url = "https://hooks.slack.com/services/YOUR/PRODUCTION/WEBHOOK"
+pagerduty_key     = "your-production-pagerduty-integration-key"

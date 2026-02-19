@@ -1,0 +1,259 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: janusgraph-banking-cd
+  namespace: tekton-pipelines
+  labels:
+    app: janusgraph-banking
+    pipeline: cd
+spec:
+  description: |
+    Continuous Deployment pipeline for JanusGraph Banking Platform.
+    Deploys to dev, runs tests, promotes to staging, and optionally to production.
+  
+  params:
+    - name: git-url
+      type: string
+      description: Git repository URL
+      default: https://github.com/your-org/hcd-tarball-janusgraph.git
+    
+    - name: git-revision
+      type: string
+      description: Git revision to deploy
+      default: main
+    
+    - name: target-environment
+      type: string
+      description: Target environment (dev/staging/prod)
+      default: dev
+    
+    - name: helm-chart-path
+      type: string
+      description: Path to Helm chart
+      default: helm/janusgraph-banking
+    
+    - name: argocd-app-name
+      type: string
+      description: ArgoCD Application name
+      default: janusgraph-banking-dev
+    
+    - name: run-tests
+      type: string
+      description: Run integration tests (true/false)
+      default: "true"
+    
+    - name: auto-promote
+      type: string
+      description: Auto-promote to next environment (true/false)
+      default: "false"
+  
+  workspaces:
+    - name: source
+      description: Git source code
+    
+    - name: kubeconfig
+      description: Kubernetes config for deployment
+  
+  tasks:
+    # Task 1: Clone repository
+    - name: git-clone
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: deleteExisting
+          value: "true"
+      workspaces:
+        - name: output
+          workspace: source
+    
+    # Task 2: Lint Helm chart
+    - name: helm-lint
+      runAfter:
+        - git-clone
+      taskRef:
+        name: helm-lint
+      params:
+        - name: chart-path
+          value: $(params.helm-chart-path)
+      workspaces:
+        - name: source
+          workspace: source
+    
+    # Task 3: Validate manifests
+    - name: validate-manifests
+      runAfter:
+        - helm-lint
+      taskRef:
+        name: kubernetes-validate
+      params:
+        - name: chart-path
+          value: $(params.helm-chart-path)
+        - name: environment
+          value: $(params.target-environment)
+      workspaces:
+        - name: source
+          workspace: source
+    
+    # Task 4: Security scan
+    - name: security-scan
+      runAfter:
+        - validate-manifests
+      taskRef:
+        name: trivy-scan
+      params:
+        - name: chart-path
+          value: $(params.helm-chart-path)
+      workspaces:
+        - name: source
+          workspace: source
+    
+    # Task 5: Deploy via ArgoCD
+    - name: argocd-sync
+      runAfter:
+        - security-scan
+      taskRef:
+        name: argocd-sync
+      params:
+        - name: application-name
+          value: $(params.argocd-app-name)
+        - name: revision
+          value: $(params.git-revision)
+        - name: flags
+          value: --prune --timeout 600
+      workspaces:
+        - name: kubeconfig
+          workspace: kubeconfig
+    
+    # Task 6: Wait for deployment
+    - name: wait-for-ready
+      runAfter:
+        - argocd-sync
+      taskRef:
+        name: wait-for-deployment
+      params:
+        - name: namespace
+          value: janusgraph-banking-$(params.target-environment)
+        - name: timeout
+          value: "600"
+      workspaces:
+        - name: kubeconfig
+          workspace: kubeconfig
+    
+    # Task 7: Run health checks
+    - name: health-check
+      runAfter:
+        - wait-for-ready
+      taskRef:
+        name: health-check
+      params:
+        - name: namespace
+          value: janusgraph-banking-$(params.target-environment)
+        - name: validation-script
+          value: scripts/k8s/validate-deployment.sh
+      workspaces:
+        - name: source
+          workspace: source
+        - name: kubeconfig
+          workspace: kubeconfig
+    
+    # Task 8: Run integration tests (conditional)
+    - name: integration-tests
+      runAfter:
+        - health-check
+      when:
+        - input: "$(params.run-tests)"
+          operator: in
+          values: ["true"]
+      taskRef:
+        name: run-integration-tests
+      params:
+        - name: namespace
+          value: janusgraph-banking-$(params.target-environment)
+        - name: test-suite
+          value: integration
+      workspaces:
+        - name: source
+          workspace: source
+        - name: kubeconfig
+          workspace: kubeconfig
+    
+    # Task 9: Promote to next environment (conditional)
+    - name: promote-to-staging
+      runAfter:
+        - integration-tests
+      when:
+        - input: "$(params.auto-promote)"
+          operator: in
+          values: ["true"]
+        - input: "$(params.target-environment)"
+          operator: in
+          values: ["dev"]
+      taskRef:
+        name: argocd-sync
+      params:
+        - name: application-name
+          value: janusgraph-banking-staging
+        - name: revision
+          value: $(params.git-revision)
+        - name: flags
+          value: --prune --timeout 600
+      workspaces:
+        - name: kubeconfig
+          workspace: kubeconfig
+    
+    # Task 10: Notify on completion
+    - name: notify-success
+      runAfter:
+        - integration-tests
+      taskRef:
+        name: send-notification
+      params:
+        - name: status
+          value: success
+        - name: message
+          value: "Deployment to $(params.target-environment) completed successfully"
+        - name: environment
+          value: $(params.target-environment)
+        - name: revision
+          value: $(params.git-revision)
+  
+  finally:
+    # Always run: Notify on failure
+    - name: notify-failure
+      when:
+        - input: "$(tasks.status)"
+          operator: in
+          values: ["Failed"]
+      taskRef:
+        name: send-notification
+      params:
+        - name: status
+          value: failure
+        - name: message
+          value: "Deployment to $(params.target-environment) failed"
+        - name: environment
+          value: $(params.target-environment)
+        - name: revision
+          value: $(params.git-revision)
+    
+    # Always run: Collect logs
+    - name: collect-logs
+      taskRef:
+        name: collect-deployment-logs
+      params:
+        - name: namespace
+          value: janusgraph-banking-$(params.target-environment)
+        - name: output-path
+          value: /workspace/logs/deployment-$(params.target-environment)-$(context.pipelineRun.name).log
+      workspaces:
+        - name: source
+          workspace: source
+        - name: kubeconfig
+          workspace: kubeconfig
+
+# Made with Bob

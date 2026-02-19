@@ -23,5 +23,5 @@ Historical and completed remediation documents have been archived to:
 ## Related Documentation
 
 - [Audit Reports](../audits/)
-- [Current Remediation Baseline](../remediation-plan-workingB-plus.md)
+- [Current Remediation Baseline](../remediation-plan-working-b-plus.md)
 - [Historical Archive](../../archive/2026-02/)

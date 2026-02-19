@@ -63,7 +63,7 @@ The audit used four obsolescence criteria:
 
 ## Canonical Active Docs Retained
 
-- `docs/implementation/remediation-plan-workingB-plus.md`
+- `docs/implementation/remediation-plan-working-b-plus.md`
 - `docs/implementation/comprehensive-technical-review-2026-02-12.md`
 - `docs/implementation/audits/comprehensive-project-audit-2026-02-16.md`
 - `docs/implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md`

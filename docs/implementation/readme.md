@@ -7,7 +7,7 @@ This directory contains current implementation baselines, audits, and remediatio
 
 ## Active Top-Level Documents
 
-- **[remediation-plan-workingB-plus.md](remediation-plan-workingB-plus.md)** - Current prioritized remediation baseline
+- **[remediation-plan-working-b-plus.md](remediation-plan-working-b-plus.md)** - Current prioritized remediation baseline
 - **[comprehensive-technical-review-2026-02-12.md](comprehensive-technical-review-2026-02-12.md)** - Consolidated technical review
 - **[exception-handling-audit.md](exception-handling-audit.md)** - Exception model and handling audit
 - **[production-hardening.md](production-hardening.md)** - Hardening guidance

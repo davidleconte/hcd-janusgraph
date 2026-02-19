@@ -193,7 +193,7 @@ docs/archive/2026-02/
 For current, actively maintained documentation, see:
 
 - **Main Index:** [`docs/index.md`](../../index.md)
-- **Current Remediation Baseline:** [`docs/implementation/remediation-plan-workingB-plus.md`](../../implementation/remediation-plan-workingB-plus.md)
+- **Current Remediation Baseline:** [`docs/implementation/remediation-plan-working-b-plus.md`](../../implementation/remediation-plan-working-b-plus.md)
 - **Current Audits:** [`docs/implementation/audits/readme.md`](../../implementation/audits/readme.md)
 - **Phase Summaries:** [`docs/implementation/phase2-completion-summary.md`](../../implementation/phase2-completion-summary.md), [`phase3-completion-summary.md`](../../implementation/phase3-completion-summary.md)
 - **User Guides:** [`docs/banking/guides/`](../../banking/guides/)

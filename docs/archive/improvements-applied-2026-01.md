@@ -288,7 +288,7 @@ After these fixes:
 5. **Verify results**:
 
    ```bash
-   cat TEST_RESULTS.md
+   cat test-results.md
    # Should show: "✅ ALL TESTS PASSED"
    ```
 
@@ -346,7 +346,7 @@ podman exec hcd-server java -version
 1. **Create .env file** from template if needed
 2. **Test deployment** on your setup
 3. **Run test suite** to verify all fixes
-4. **Review TEST_RESULTS.md** for any remaining issues
+4. **Review test-results.md** for any remaining issues
 5. **Consider production hardening**:
    - Enable authentication
    - Configure TLS

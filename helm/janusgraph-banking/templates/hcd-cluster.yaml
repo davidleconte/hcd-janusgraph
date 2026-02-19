@@ -1,0 +1,97 @@
+{{- if .Values.hcd.enabled }}
+apiVersion: cassandra.datastax.com/v1beta1
+kind: CassandraDatacenter
+metadata:
+  name: {{ .Values.hcd.datacenterName }}
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hcd
+spec:
+  clusterName: {{ .Values.hcd.clusterName }}
+  serverType: {{ .Values.hcd.serverType }}
+  serverVersion: {{ .Values.hcd.serverVersion | quote }}
+  serverImage: {{ .Values.hcd.serverImage }}
+  
+  # Cluster size
+  size: {{ .Values.hcd.size }}
+  
+  # Storage configuration
+  storageConfig:
+    cassandraDataVolumeClaimSpec:
+      storageClassName: {{ .Values.hcd.storageClass }}
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.hcd.storageSize }}
+  
+  # Resource limits
+  resources:
+    {{- toYaml .Values.hcd.resources | nindent 4 }}
+  
+  # Rack configuration for multi-AZ
+  {{- if .Values.hcd.racks }}
+  racks:
+    {{- range .Values.hcd.racks }}
+    - name: {{ .name }}
+      {{- if .zone }}
+      zone: {{ .zone }}
+      {{- end }}
+      {{- if .affinityLabels }}
+      affinityLabels:
+        {{- toYaml .affinityLabels | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  
+  # JVM configuration
+  config:
+    cassandra-yaml:
+      authenticator: {{ .Values.hcd.config.authenticator | default "PasswordAuthenticator" }}
+      authorizer: {{ .Values.hcd.config.authorizer | default "CassandraAuthorizer" }}
+      num_tokens: {{ .Values.hcd.config.numTokens | default 16 }}
+      concurrent_reads: {{ .Values.hcd.config.concurrentReads | default 32 }}
+      concurrent_writes: {{ .Values.hcd.config.concurrentWrites | default 32 }}
+      concurrent_counter_writes: {{ .Values.hcd.config.concurrentCounterWrites | default 32 }}
+      {{- if .Values.hcd.config.endpointSnitch }}
+      endpoint_snitch: {{ .Values.hcd.config.endpointSnitch }}
+      {{- end }}
+      {{- if .Values.hcd.config.seedProvider }}
+      seed_provider:
+        {{- toYaml .Values.hcd.config.seedProvider | nindent 8 }}
+      {{- end }}
+    jvm-server-options:
+      initial_heap_size: {{ .Values.hcd.jvm.initialHeapSize | default "8G" }}
+      max_heap_size: {{ .Values.hcd.jvm.maxHeapSize | default "8G" }}
+      {{- if .Values.hcd.jvm.additionalJvmOpts }}
+      additional-jvm-opts:
+        {{- range .Values.hcd.jvm.additionalJvmOpts }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+  
+  # Management API
+  managementApiAuth:
+    insecure: {}
+  
+  # Networking
+  {{- if .Values.hcd.networking }}
+  networking:
+    {{- if .Values.hcd.networking.hostNetwork }}
+    hostNetwork: {{ .Values.hcd.networking.hostNetwork }}
+    {{- end }}
+    {{- if .Values.hcd.networking.nodePort }}
+    nodePort:
+      {{- toYaml .Values.hcd.networking.nodePort | nindent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  # Pod template spec for additional customization
+  {{- if .Values.hcd.podTemplateSpec }}
+  podTemplateSpec:
+    {{- toYaml .Values.hcd.podTemplateSpec | nindent 4 }}
+  {{- end }}
+{{- end }}
+
+# Made with Bob

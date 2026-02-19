@@ -1558,8 +1558,8 @@ echo "=== DORA Compliance: PASSED ==="
 
 - **Deployment Manifests:** [`openshift-deployment-manifests.md`](openshift-deployment-manifests.md)
 - **Migration & Operations:** [`openshift-migration-operations.md`](openshift-migration-operations.md)
-- **Implementation Plan:** [`OPENSHIFT_IMPLEMENTATION_PLAN.md`](OPENSHIFT_IMPLEMENTATION_PLAN.md)
-- **Review & Improvements:** [`OPENSHIFT_REVIEW_AND_IMPROVEMENTS.md`](OPENSHIFT_REVIEW_AND_IMPROVEMENTS.md)
+- **Implementation Plan:** [`openshift-implementation-plan.md`](openshift-implementation-plan.md)
+- **Review & Improvements:** [`openshift-review-and-improvements.md`](openshift-review-and-improvements.md)
 
 ---
 

@@ -5,6 +5,8 @@ OVERRIDE_TOKEN="[determinism-override]"
 ALLOW_OVERRIDE="${ALLOW_DETERMINISM_SENSITIVE_CHANGES:-0}"
 
 PROTECTED_PATTERNS=(
+  "uv.lock"
+  "requirements*.txt"
   "requirements.lock.txt"
   "environment.yml"
   "config/compose/docker-compose.full.yml"
@@ -16,6 +18,9 @@ PROTECTED_PATTERNS=(
   "scripts/testing/check_notebook_determinism_contracts.sh"
   "scripts/testing/collect_run_manifest.sh"
   "scripts/testing/verify_deterministic_artifacts.sh"
+  "banking/notebooks/*.ipynb"
+  "banking/notebooks/*/*.ipynb"
+  "banking/notebooks/*/*/*.ipynb"
   "notebooks/*.ipynb"
   "notebooks/*/*.ipynb"
   "notebooks/*/*/*.ipynb"

@@ -1,0 +1,105 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: argocd-sync
+  namespace: tekton-pipelines
+  labels:
+    app: janusgraph-banking
+spec:
+  description: |
+    Sync an ArgoCD Application to deploy changes.
+    Waits for sync to complete and reports status.
+  
+  params:
+    - name: application-name
+      type: string
+      description: Name of the ArgoCD Application
+    
+    - name: revision
+      type: string
+      description: Git revision to sync to
+      default: HEAD
+    
+    - name: flags
+      type: string
+      description: Additional argocd sync flags
+      default: --prune
+    
+    - name: argocd-server
+      type: string
+      description: ArgoCD server address
+      default: argocd-server.argocd.svc.cluster.local:443
+  
+  workspaces:
+    - name: kubeconfig
+      description: Kubernetes config with ArgoCD access
+  
+  steps:
+    - name: sync-application
+      image: argoproj/argocd:v2.9.3
+      env:
+        - name: ARGOCD_SERVER
+          value: $(params.argocd-server)
+        - name: ARGOCD_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: argocd-token
+              key: token
+      script: |
+        #!/bin/sh
+        set -e
+        
+        echo "Syncing ArgoCD Application: $(params.application-name)"
+        echo "Revision: $(params.revision)"
+        
+        # Sync the application
+        argocd app sync $(params.application-name) \
+          --revision $(params.revision) \
+          $(params.flags) \
+          --insecure
+        
+        # Wait for sync to complete
+        argocd app wait $(params.application-name) \
+          --health \
+          --timeout 600 \
+          --insecure
+        
+        # Get application status
+        argocd app get $(params.application-name) --insecure
+        
+        echo "✓ Application synced successfully"
+    
+    - name: verify-sync
+      image: argoproj/argocd:v2.9.3
+      env:
+        - name: ARGOCD_SERVER
+          value: $(params.argocd-server)
+        - name: ARGOCD_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: argocd-token
+              key: token
+      script: |
+        #!/bin/sh
+        set -e
+        
+        # Check sync status
+        SYNC_STATUS=$(argocd app get $(params.application-name) -o json --insecure | jq -r '.status.sync.status')
+        HEALTH_STATUS=$(argocd app get $(params.application-name) -o json --insecure | jq -r '.status.health.status')
+        
+        echo "Sync Status: $SYNC_STATUS"
+        echo "Health Status: $HEALTH_STATUS"
+        
+        if [ "$SYNC_STATUS" != "Synced" ]; then
+          echo "✗ Application not synced"
+          exit 1
+        fi
+        
+        if [ "$HEALTH_STATUS" != "Healthy" ]; then
+          echo "⚠ Application not healthy yet"
+          exit 1
+        fi
+        
+        echo "✓ Application is synced and healthy"
+
+# Made with Bob

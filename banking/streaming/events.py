@@ -12,10 +12,69 @@ Week 2: Event Schema & Producers
 
 import hashlib
 import json
+import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from itertools import count
 from typing import Any, Dict, List, Optional
+
+
+DETERMINISTIC_IDS_ENV = "DEMO_STREAMING_DETERMINISTIC_IDS"
+_TRUTHY_VALUES = {"1", "true", "yes", "on"}
+_EVENT_ID_COUNTER = count(1)
+_BATCH_ID_COUNTER = count(1)
+
+
+def _deterministic_ids_enabled() -> bool:
+    """Return True when deterministic streaming IDs are explicitly enabled."""
+    return os.getenv(DETERMINISTIC_IDS_ENV, "0").strip().lower() in _TRUTHY_VALUES
+
+
+def _canonical_json(value: Any) -> str:
+    """Serialize arbitrary values with deterministic key ordering."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+
+
+def _generate_event_id(
+    entity_id: str,
+    event_type: str,
+    entity_type: str,
+    payload: Dict[str, Any],
+    version: int,
+    source: Optional[str],
+    metadata: Optional[Dict[str, Any]],
+) -> str:
+    """Generate an event ID, deterministic only when explicitly requested."""
+    if not _deterministic_ids_enabled():
+        return str(uuid.uuid4())
+
+    ordinal = next(_EVENT_ID_COUNTER)
+    seed = "|".join(
+        [
+            entity_id,
+            event_type,
+            entity_type,
+            str(version),
+            str(source or ""),
+            str(ordinal),
+            _canonical_json(payload),
+            _canonical_json(metadata or {}),
+        ]
+    )
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    return f"evt-{digest[:32]}"
+
+
+def _generate_batch_id(events: List["EntityEvent"]) -> str:
+    """Generate a batch ID, deterministic only when explicitly requested."""
+    if not _deterministic_ids_enabled():
+        return str(uuid.uuid4())
+
+    ordinal = next(_BATCH_ID_COUNTER)
+    event_ids = ",".join(event.event_id for event in events)
+    digest = hashlib.sha256(f"{ordinal}|{event_ids}".encode("utf-8")).hexdigest()
+    return f"batch-{digest[:24]}"
 
 
 @dataclass
@@ -60,7 +119,7 @@ class EntityEvent:
     text_for_embedding: Optional[str] = None
 
     # Metadata
-    event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     version: int = 1
     source: Optional[str] = None
@@ -96,6 +155,17 @@ class EntityEvent:
 
         if not isinstance(self.payload, dict):
             raise ValueError("payload must be a dictionary")
+
+        if not self.event_id:
+            self.event_id = _generate_event_id(
+                entity_id=self.entity_id,
+                event_type=self.event_type,
+                entity_type=self.entity_type,
+                payload=self.payload,
+                version=self.version,
+                source=self.source,
+                metadata=self.metadata,
+            )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert event to dictionary for serialization."""
@@ -188,7 +258,7 @@ class EntityEvent:
 
         return cls(
             entity_id=data["entity_id"],
-            event_id=data.get("event_id", str(uuid.uuid4())),
+            event_id=data.get("event_id", ""),
             event_type=data["event_type"],
             entity_type=data["entity_type"],
             payload=data["payload"],
@@ -222,8 +292,13 @@ class EntityEventBatch:
     """
 
     events: List[EntityEvent]
-    batch_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    batch_id: str = ""
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    def __post_init__(self):
+        """Populate batch defaults after dataclass initialization."""
+        if not self.batch_id:
+            self.batch_id = _generate_batch_id(self.events)
 
     def __len__(self) -> int:
         return len(self.events)

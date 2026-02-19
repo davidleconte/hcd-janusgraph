@@ -1,0 +1,251 @@
+{{- if .Values.missionControl.enabled }}
+---
+# PostgreSQL for Mission Control metadata
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mission-control-postgres
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mission-control-postgres
+spec:
+  serviceName: mission-control-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mission-control-postgres
+  template:
+    metadata:
+      labels:
+        app: mission-control-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.missionControl.postgres.image.repository }}:{{ .Values.missionControl.postgres.image.tag }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.missionControl.postgres.database }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: postgres-password
+          ports:
+            - containerPort: 5432
+              name: postgres
+          resources:
+            {{- toYaml .Values.missionControl.postgres.resources | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.missionControl.postgres.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.missionControl.postgres.storageSize }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mission-control-postgres
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  selector:
+    app: mission-control-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  type: ClusterIP
+---
+# Redis for Mission Control caching
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mission-control-redis
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mission-control-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mission-control-redis
+  template:
+    metadata:
+      labels:
+        app: mission-control-redis
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.missionControl.redis.image.repository }}:{{ .Values.missionControl.redis.image.tag }}
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources:
+            {{- toYaml .Values.missionControl.redis.resources | nindent 12 }}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mission-control-redis
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+spec:
+  selector:
+    app: mission-control-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis
+  type: ClusterIP
+---
+# Mission Control Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mission-control-server
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mission-control-server
+spec:
+  replicas: {{ .Values.missionControl.server.replicas }}
+  selector:
+    matchLabels:
+      app: mission-control-server
+  template:
+    metadata:
+      labels:
+        app: mission-control-server
+    spec:
+      containers:
+        - name: mission-control
+          image: {{ .Values.missionControl.server.image.repository }}:{{ .Values.missionControl.server.image.tag }}
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8443
+              name: https
+          env:
+            - name: MC_DATABASE_URL
+              value: "postgresql://mission-control-postgres:5432/{{ .Values.missionControl.postgres.database }}"
+            - name: MC_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: postgres-user
+            - name: MC_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: postgres-password
+            - name: MC_REDIS_URL
+              value: "redis://mission-control-redis:6379"
+            - name: MC_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: admin-user
+            - name: MC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: admin-password
+          resources:
+            {{- toYaml .Values.missionControl.server.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mission-control-server
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: mission-control-server
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+    - port: 8443
+      targetPort: 8443
+      name: https
+  type: {{ .Values.missionControl.server.service.type }}
+---
+# Mission Control Agent (DaemonSet)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mission-control-agent
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mission-control-agent
+spec:
+  selector:
+    matchLabels:
+      app: mission-control-agent
+  template:
+    metadata:
+      labels:
+        app: mission-control-agent
+    spec:
+      hostNetwork: true
+      containers:
+        - name: agent
+          image: {{ .Values.missionControl.agent.image.repository }}:{{ .Values.missionControl.agent.image.tag }}
+          env:
+            - name: MC_SERVER_URL
+              value: "http://mission-control-server:8080"
+            - name: MC_AGENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: mission-control-secrets
+                  key: agent-token
+            - name: CASSANDRA_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          resources:
+            {{- toYaml .Values.missionControl.agent.resources | nindent 12 }}
+          volumeMounts:
+            - name: cassandra-data
+              mountPath: /var/lib/cassandra
+              readOnly: true
+      volumes:
+        - name: cassandra-data
+          hostPath:
+            path: /var/lib/cassandra
+{{- end }}
+
+# Made with Bob

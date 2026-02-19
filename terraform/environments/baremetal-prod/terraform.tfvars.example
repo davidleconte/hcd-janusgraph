@@ -1,0 +1,233 @@
+# Bare Metal Production Environment Configuration Example
+# Copy this file to terraform.tfvars and update with your actual values
+# 
+# SECURITY WARNING: Never commit terraform.tfvars to version control!
+# Add terraform.tfvars to .gitignore
+
+# ============================================================================
+# Control Plane Nodes (3 for HA - MANDATORY)
+# ============================================================================
+
+baremetal_control_plane_count = 3
+
+baremetal_control_plane_hosts = [
+  {
+    id           = "cp-01"
+    ipmi_address = "10.0.0.101"
+    ip_address   = "10.10.1.101"
+    hostname     = "k8s-prod-cp-01"
+    mac_address  = "00:50:56:00:01:01"
+  },
+  {
+    id           = "cp-02"
+    ipmi_address = "10.0.0.102"
+    ip_address   = "10.10.1.102"
+    hostname     = "k8s-prod-cp-02"
+    mac_address  = "00:50:56:00:01:02"
+  },
+  {
+    id           = "cp-03"
+    ipmi_address = "10.0.0.103"
+    ip_address   = "10.10.1.103"
+    hostname     = "k8s-prod-cp-03"
+    mac_address  = "00:50:56:00:01:03"
+  }
+]
+
+# ============================================================================
+# Worker Nodes (5-10 for production)
+# ============================================================================
+
+baremetal_worker_count = 5
+
+baremetal_worker_hosts = [
+  {
+    id           = "worker-01"
+    ipmi_address = "10.0.0.111"
+    ip_address   = "10.10.2.111"
+    hostname     = "k8s-prod-worker-01"
+    mac_address  = "00:50:56:00:02:01"
+  },
+  {
+    id           = "worker-02"
+    ipmi_address = "10.0.0.112"
+    ip_address   = "10.10.2.112"
+    hostname     = "k8s-prod-worker-02"
+    mac_address  = "00:50:56:00:02:02"
+  },
+  {
+    id           = "worker-03"
+    ipmi_address = "10.0.0.113"
+    ip_address   = "10.10.2.113"
+    hostname     = "k8s-prod-worker-03"
+    mac_address  = "00:50:56:00:02:03"
+  },
+  {
+    id           = "worker-04"
+    ipmi_address = "10.0.0.114"
+    ip_address   = "10.10.2.114"
+    hostname     = "k8s-prod-worker-04"
+    mac_address  = "00:50:56:00:02:04"
+  },
+  {
+    id           = "worker-05"
+    ipmi_address = "10.0.0.115"
+    ip_address   = "10.10.2.115"
+    hostname     = "k8s-prod-worker-05"
+    mac_address  = "00:50:56:00:02:05"
+  }
+]
+
+# ============================================================================
+# HCD Nodes (3 for Ceph quorum - MANDATORY)
+# ============================================================================
+
+baremetal_hcd_count = 3
+
+baremetal_hcd_hosts = [
+  {
+    id           = "hcd-01"
+    ipmi_address = "10.0.0.121"
+    ip_address   = "10.10.3.121"
+    hostname     = "k8s-prod-hcd-01"
+    mac_address  = "00:50:56:00:03:01"
+  },
+  {
+    id           = "hcd-02"
+    ipmi_address = "10.0.0.122"
+    ip_address   = "10.10.3.122"
+    hostname     = "k8s-prod-hcd-02"
+    mac_address  = "00:50:56:00:03:02"
+  },
+  {
+    id           = "hcd-03"
+    ipmi_address = "10.0.0.123"
+    ip_address   = "10.10.3.123"
+    hostname     = "k8s-prod-hcd-03"
+    mac_address  = "00:50:56:00:03:03"
+  }
+]
+
+# ============================================================================
+# IPMI Credentials (CHANGE THESE!)
+# ============================================================================
+
+baremetal_ipmi_user     = "admin"
+baremetal_ipmi_password = "CHANGE_ME_MINIMUM_16_CHARACTERS_SECURE_PASSWORD"
+
+# ============================================================================
+# SSH Configuration
+# ============================================================================
+
+baremetal_ssh_user             = "root"
+baremetal_ssh_private_key_path = "~/.ssh/id_rsa_prod"
+
+# ============================================================================
+# Network Configuration
+# ============================================================================
+
+baremetal_pod_network_cidr = "10.244.0.0/16"
+baremetal_service_cidr     = "10.96.0.0/12"
+baremetal_gateway          = "10.10.1.1"
+baremetal_dns_servers      = ["10.0.0.10", "10.0.0.11"]  # Use internal DNS
+baremetal_domain           = "prod.example.com"
+baremetal_worker_cidr      = "10.10.2.0/24"
+baremetal_hcd_cidr         = "10.10.3.0/24"
+
+# ============================================================================
+# Load Balancer Configuration (MANDATORY for production)
+# ============================================================================
+
+baremetal_metallb_ip_range = "10.10.1.200-10.10.1.250"
+baremetal_load_balancer_ip = "10.10.1.100"  # REQUIRED for HA
+
+# ============================================================================
+# PXE Boot (Optional)
+# ============================================================================
+
+# Optional: PXE server for network boot (leave empty if not using)
+# baremetal_pxe_server = "10.10.1.10"
+baremetal_pxe_server = ""
+
+# ============================================================================
+# Time Synchronization (Use internal NTP)
+# ============================================================================
+
+baremetal_ntp_servers = ["ntp1.example.com", "ntp2.example.com"]
+
+# ============================================================================
+# Storage Configuration
+# ============================================================================
+
+# Enable NFS in addition to Ceph (optional, for legacy workloads)
+baremetal_enable_nfs = false
+
+# ============================================================================
+# Monitoring Configuration
+# ============================================================================
+
+enable_monitoring = true
+
+# Grafana admin password (CHANGE THIS!)
+grafana_admin_password = "CHANGE_ME_SECURE_PASSWORD_12_CHARS_MIN"
+
+# Slack webhook for alerts (optional)
+# alert_slack_webhook_url = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+alert_slack_webhook_url = ""
+
+# PagerDuty service key for critical alerts (optional)
+# alert_pagerduty_service_key = "YOUR_PAGERDUTY_SERVICE_KEY"
+alert_pagerduty_service_key = ""
+
+# ============================================================================
+# Backup Configuration
+# ============================================================================
+
+enable_automated_backups = true
+
+# S3 bucket for backups (create this bucket first)
+backup_s3_bucket = "janusgraph-prod-backups"
+backup_s3_region = "us-east-1"
+
+# S3 endpoint (for S3-compatible storage like MinIO)
+# backup_s3_endpoint = "https://minio.example.com"
+backup_s3_endpoint = ""
+
+# ============================================================================
+# Security Configuration
+# ============================================================================
+
+enable_security_hardening = true
+
+# ============================================================================
+# Compliance Configuration
+# ============================================================================
+
+compliance_standards = ["SOC2", "PCI-DSS"]
+
+# Audit log retention (minimum 90 days for production)
+audit_log_retention_days = 365
+
+# ============================================================================
+# High Availability Configuration
+# ============================================================================
+
+enable_pod_disruption_budgets      = true
+enable_horizontal_pod_autoscaling  = true
+enable_vertical_pod_autoscaling    = false
+
+# ============================================================================
+# Performance Configuration
+# ============================================================================
+
+enable_node_local_dns          = true
+enable_topology_aware_routing  = true
+
+# ============================================================================
+# Disaster Recovery Configuration
+# ============================================================================
+
+enable_disaster_recovery = true
+dr_backup_frequency      = "daily"
+dr_rpo_hours            = 4   # Recovery Point Objective
+dr_rto_hours            = 8   # Recovery Time Objective

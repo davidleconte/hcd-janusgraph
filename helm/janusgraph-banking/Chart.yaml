@@ -1,8 +1,8 @@
 apiVersion: v2
 name: janusgraph-banking
-description: Banking Fraud Detection & AML Compliance on JanusGraph
+description: Banking Fraud Detection & AML Compliance on JanusGraph with IBM DataStax HCD
 type: application
-version: 1.0.0
+version: 2.0.0
 appVersion: "1.2.0"
 keywords:
   - janusgraph
@@ -10,6 +10,33 @@ keywords:
   - fraud-detection
   - aml
   - compliance
+  - hcd
+  - datastax
 maintainers:
   - name: David Leconte
     email: david.leconte@ibm.com
+
+dependencies:
+  # DataStax Cass Operator for HCD (NOT K8ssandra)
+  - name: cass-operator
+    version: 1.18.0
+    repository: https://datastax.github.io/charts
+    condition: cassOperator.enabled
+  
+  # OpenSearch for indexing
+  - name: opensearch
+    version: 2.11.0
+    repository: https://opensearch-project.github.io/helm-charts
+    condition: opensearch.enabled
+  
+  # Apache Pulsar for event streaming
+  - name: pulsar
+    version: 3.1.0
+    repository: https://pulsar.apache.org/charts
+    condition: pulsar.enabled
+  
+  # HashiCorp Vault for secrets management
+  - name: vault
+    version: 0.27.0
+    repository: https://helm.releases.hashicorp.com
+    condition: vault.enabled

@@ -1,0 +1,151 @@
+{{- if .Values.janusgraph.enabled }}
+---
+# JanusGraph StatefulSet (replaces Deployment)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: janusgraph
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+    app: janusgraph
+    app.kubernetes.io/component: graph-database
+spec:
+  serviceName: janusgraph-headless
+  replicas: {{ .Values.janusgraph.replicas }}
+  selector:
+    matchLabels:
+      app: janusgraph
+  template:
+    metadata:
+      labels:
+        app: janusgraph
+        {{- include "janusgraph-banking.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: janusgraph-sa
+      automountServiceAccountToken: false
+      
+      # Pod anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - janusgraph
+              topologyKey: kubernetes.io/hostname
+      
+      containers:
+        - name: janusgraph
+          image: "{{ .Values.janusgraph.image.repository }}:{{ .Values.janusgraph.image.tag }}"
+          imagePullPolicy: {{ .Values.janusgraph.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.janusgraph.service.port }}
+              name: gremlin
+          
+          resources:
+            {{- toYaml .Values.janusgraph.resources | nindent 12 }}
+          
+          env:
+            - name: JAVA_OPTIONS
+              value: {{ .Values.janusgraph.javaOptions | quote }}
+            - name: JANUSGRAPH_STORAGE_BACKEND
+              value: {{ .Values.janusgraph.storage.backend | default "cql" }}
+            - name: JANUSGRAPH_STORAGE_HOSTNAME
+              value: {{ .Values.janusgraph.storage.hostname | default "hcd-cluster-dc1-service" }}.{{ include "janusgraph-banking.namespace" . }}.svc.cluster.local
+            - name: JANUSGRAPH_STORAGE_PORT
+              value: {{ .Values.janusgraph.storage.port | default "9042" | quote }}
+            - name: JANUSGRAPH_INDEX_BACKEND
+              value: {{ .Values.janusgraph.index.backend | default "opensearch" }}
+            - name: JANUSGRAPH_INDEX_HOSTNAME
+              value: {{ .Values.janusgraph.index.hostname | default "opensearch-cluster-master" }}.{{ include "janusgraph-banking.namespace" . }}.svc.cluster.local
+            - name: JANUSGRAPH_INDEX_PORT
+              value: {{ .Values.janusgraph.index.port | default "9200" | quote }}
+          
+          volumeMounts:
+            - name: data
+              mountPath: /opt/janusgraph/data
+            - name: config
+              mountPath: /opt/janusgraph/conf
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.janusgraph.service.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.janusgraph.service.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.janusgraph.service.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+      
+      volumes:
+        - name: config
+          configMap:
+            name: janusgraph-config
+  
+  # Persistent volume claim templates
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "janusgraph-banking.labels" . | nindent 10 }}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.janusgraph.storage.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.janusgraph.storage.size }}
+---
+# Headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: janusgraph-headless
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    app: janusgraph
+  ports:
+    - port: {{ .Values.janusgraph.service.port }}
+      targetPort: {{ .Values.janusgraph.service.port }}
+      name: gremlin
+---
+# Regular service for load balancing
+apiVersion: v1
+kind: Service
+metadata:
+  name: janusgraph
+  namespace: {{ include "janusgraph-banking.namespace" . }}
+  labels:
+    {{- include "janusgraph-banking.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: janusgraph
+  ports:
+    - port: {{ .Values.janusgraph.service.port }}
+      targetPort: {{ .Values.janusgraph.service.port }}
+      name: gremlin
+  type: {{ .Values.janusgraph.service.type }}
+{{- end }}
+
+# Made with Bob

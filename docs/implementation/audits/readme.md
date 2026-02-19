@@ -73,7 +73,7 @@ Historical and superseded audit documents have been archived to:
 
 - [Remediation Tracking](../remediation/)
 - [Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](../remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)
-- [Current Remediation Baseline](../remediation-plan-workingB-plus.md)
+- [Current Remediation Baseline](../remediation-plan-working-b-plus.md)
 - [Superseded Implementation Assessments Archive](../../archive/2026-02/implementation-superseded/README.md)
 - [Historical Archive](../../archive/2026-02/)
 

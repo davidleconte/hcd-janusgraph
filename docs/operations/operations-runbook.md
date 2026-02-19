@@ -2,58 +2,232 @@
 
 ## Document Information
 
-- **Document Version:** 1.0.0
-- **Last Updated:** 2026-02-18
+- **Document Version:** 2.0.0
+- **Last Updated:** 2026-02-19
 - **Owner:** Operations Team
 - **Review Cycle:** Quarterly
-- **On-Call Contact:** Local on-call roster (not stored in repo)
-- **Status:** Legacy narrative template reference (not canonical deterministic runtime runbook)
+- **Status:** Active - Canonical Deterministic Runtime Runbook
 - **Canonical Runtime Path:** `scripts/deployment/deterministic_setup_and_proof_wrapper.sh`
 - **Canonical Pipeline:** `scripts/testing/run_demo_pipeline_repeatable.sh`
-- **Authoritative Current State:** `docs/project-status.md`
+- **Authoritative Status:** `docs/project-status.md`
 
 ---
 
-> [!WARNING]
-> Procedures and snippets below include historical examples and may not reflect the current enforced deterministic setup.
-> Use the canonical scripts above for execution and validation.
-> Contact values in this file are placeholders/template references and must be replaced by your operating team roster.
-
 ## Executive Summary
 
-This runbook provides comprehensive operational procedures for the HCD JanusGraph system, including day-to-day operations, troubleshooting, maintenance, and escalation procedures.
+This runbook provides comprehensive operational procedures for the HCD JanusGraph Banking Compliance Platform, based on the **deterministic deployment system** and **gate-based validation framework**. All procedures align with the canonical scripts and architecture documentation.
 
 ### Quick Reference
 
 | Emergency | Contact | Response Time |
 |-----------|---------|---------------|
-| P0 - System Down | Local on-call roster | 15 minutes |
-| P1 - Critical Issue | Local on-call roster | 1 hour |
-| P2 - Major Issue | Local on-call roster | 4 hours |
-| P3 - Minor Issue | Local on-call roster | 1 business day |
+| P0 - System Down | ops-oncall@example.com | 15 minutes |
+| P1 - Critical Issue | ops-senior@example.com | 1 hour |
+| P2 - Major Issue | ops-lead@example.com | 4 hours |
+| P3 - Minor Issue | ops-team@example.com | 1 business day |
+
+### Canonical Commands
+
+| Task | Command |
+|------|---------|
+| **Deterministic Deployment** | `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` |
+| **Deploy Full Stack** | `cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh` |
+| **Stop Full Stack** | `cd config/compose && bash ../../scripts/deployment/stop_full_stack.sh` |
+| **Health Check** | `bash scripts/testing/check_graph_counts.sh` |
+| **Preflight Validation** | `bash scripts/validation/preflight_check.sh --strict` |
+| **Isolation Validation** | `bash scripts/validation/validate_podman_isolation.sh --strict` |
 
 ---
 
 ## Table of Contents
 
-1. [Daily Operations](#daily-operations)
-2. [Health Checks](#health-checks)
-3. [Monitoring and Alerting](#monitoring-and-alerting)
-4. [Troubleshooting Playbooks](#troubleshooting-playbooks)
-5. [Maintenance Procedures](#maintenance-procedures)
-6. [Backup and Recovery](#backup-and-recovery)
-7. [Scaling Operations](#scaling-operations)
-8. [Security Operations](#security-operations)
-9. [Incident Response](#incident-response)
-10. [Escalation Procedures](#escalation-procedures)
+1. [Deterministic Operations](#1-deterministic-operations)
+2. [Daily Operations](#2-daily-operations)
+3. [Health Checks](#3-health-checks)
+4. [Monitoring and Alerting](#4-monitoring-and-alerting)
+5. [Gate-Based Troubleshooting](#5-gate-based-troubleshooting)
+6. [Maintenance Procedures](#6-maintenance-procedures)
+7. [Backup and Recovery](#7-backup-and-recovery)
+8. [Scaling Operations](#8-scaling-operations)
+9. [Security Operations](#9-security-operations)
+10. [Incident Response](#10-incident-response)
 
 ---
 
-## 1. Daily Operations
+## 1. Deterministic Operations
 
-### 1.1 Morning Checklist
+### 1.1 Canonical Deployment Command
 
-**Time:** 9:00 AM daily
+**The single source of truth for deployment:**
+
+```bash
+# Full deterministic deployment with proof
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+**What this does:**
+1. Validates environment (G0: Preflight)
+2. Resets state deterministically (G3: Reset)
+3. Deploys full stack (G5: Deploy/Vault)
+4. Validates runtime contracts (G6: Runtime Contract)
+5. Seeds graph data (G7: Seed)
+6. Runs live notebooks (G8: Notebooks)
+7. Verifies deterministic artifacts (G9: Determinism)
+
+**Expected Duration:** 5-10 minutes (depending on hardware)
+
+**Success Criteria:**
+- Exit code: 0
+- Status report exists at `exports/deterministic-status.json`
+- All gates pass (G0-G9)
+- Notebook report shows all `PASS`
+
+### 1.2 Gate-Based Validation System
+
+The deployment uses a **10-gate validation system** (G0-G9):
+
+| Gate | Name | Purpose | Failure Code |
+|------|------|---------|--------------|
+| **G0** | Preflight | Environment validation | `G0_PRECHECK` |
+| **G1** | (Reserved) | Future use | - |
+| **G2** | Connection | Podman connectivity | `G2_CONNECTION` |
+| **G3** | Reset | State reset | `G3_RESET` |
+| **G4** | (Reserved) | Future use | - |
+| **G5** | Deploy/Vault | Service deployment | `G5_DEPLOY_VAULT` |
+| **G6** | Runtime Contract | Runtime validation | `G6_RUNTIME_CONTRACT` |
+| **G7** | Seed | Graph seeding | `G7_SEED` |
+| **G8** | Notebooks | Notebook execution | `G8_NOTEBOOKS` |
+| **G9** | Determinism | Artifact verification | `G9_DETERMINISM` |
+
+**See:** [`docs/architecture/deterministic-deployment-architecture.md`](../architecture/deterministic-deployment-architecture.md) for complete gate definitions.
+
+### 1.3 Deployment Profiles
+
+**Profile 1: Full Deterministic Proof (Production)**
+
+```bash
+# Complete deterministic deployment with all validations
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+  --status-report exports/deterministic-status.json
+```
+
+**Profile 2: Fast Development (Skip Notebooks)**
+
+```bash
+# Deploy services only, skip notebook execution
+bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-notebooks
+```
+
+**Profile 3: Service Restart (No Reset)**
+
+```bash
+# Restart services without state reset
+bash scripts/testing/run_demo_pipeline_repeatable.sh \
+  --skip-preflight \
+  --no-reset
+```
+
+**Profile 4: Validation Only (Services Running)**
+
+```bash
+# Validate running services without redeployment
+bash scripts/testing/run_demo_pipeline_repeatable.sh \
+  --skip-deploy \
+  --skip-preflight
+```
+
+### 1.4 Environment Variables
+
+**Required for deterministic operations:**
+
+```bash
+# Project isolation (MANDATORY)
+export COMPOSE_PROJECT_NAME="janusgraph-demo"
+
+# Podman connection (auto-resolved if not set)
+export PODMAN_CONNECTION="podman-wxd"
+
+# Deterministic seed (default: 42)
+export DEMO_SEED=42
+
+# Timeouts (seconds)
+export DEMO_NOTEBOOK_TOTAL_TIMEOUT=420
+export DEMO_NOTEBOOK_CELL_TIMEOUT=180
+export MAX_HEALTH_WAIT_SEC=300
+```
+
+**Optional for advanced control:**
+
+```bash
+# Disable state reset (use with caution)
+export DEMO_RESET_STATE=0
+
+# Disable determinism verification
+export DEMO_DETERMINISTIC_MODE=0
+
+# Custom baseline directory
+export DEMO_BASELINE_DIR="./exports/determinism-baselines"
+```
+
+### 1.5 Checking Deployment Status
+
+**Check if deployment succeeded:**
+
+```bash
+# Check status report
+cat exports/deterministic-status.json
+
+# Expected output:
+# {
+#   "timestamp_utc": "2026-02-19T12:00:00.000Z",
+#   "wrapper": "scripts/deployment/deterministic_setup_and_proof_wrapper.sh",
+#   "pipeline_script": "scripts/testing/run_demo_pipeline_repeatable.sh",
+#   "compose_project_name": "janusgraph-demo",
+#   "args": "",
+#   "exit_code": 0
+# }
+```
+
+**Check which gate failed (if any):**
+
+```bash
+# Find latest run directory
+LATEST_RUN=$(ls -t exports/ | grep "demo-" | head -1)
+
+# Check failed gate
+cat "exports/${LATEST_RUN}/failed_gate.txt"
+
+# Possible values:
+# - "none" = all gates passed
+# - "G0_PRECHECK" = preflight failed
+# - "G2_CONNECTION" = podman connection failed
+# - "G3_RESET" = state reset failed
+# - "G5_DEPLOY_VAULT" = deployment failed
+# - "G6_RUNTIME_CONTRACT" = runtime validation failed
+# - "G7_SEED" = graph seeding failed
+# - "G8_NOTEBOOKS" = notebook execution failed
+# - "G9_DETERMINISM" = determinism verification failed
+```
+
+**Check service status:**
+
+```bash
+# List all services in project
+podman --remote ps --filter "label=io.podman.compose.project=janusgraph-demo"
+
+# Check specific service health
+podman --remote inspect janusgraph-demo_hcd-server_1 --format '{{.State.Status}}'
+podman --remote inspect janusgraph-demo_jupyter_1 --format '{{.State.Status}}'
+```
+
+---
+
+## 2. Daily Operations
+
+### 2.1 Morning Checklist
+
+**Automated morning health check:**
 
 ```bash
 #!/bin/bash
@@ -62,473 +236,564 @@ This runbook provides comprehensive operational procedures for the HCD JanusGrap
 echo "=== Morning Health Check ==="
 echo "Date: $(date)"
 
-# 1. Check system status
-echo "\n1. System Status:"
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
+# 1. Check deterministic status
+echo "\n1. Last Deterministic Run:"
+if [[ -f exports/deterministic-status.json ]]; then
+    cat exports/deterministic-status.json | jq '.timestamp_utc, .exit_code'
+else
+    echo "   No recent deterministic run found"
+fi
 
-# 2. Check disk space
-echo "\n2. Disk Space:"
-df -h | grep -E '(Filesystem|janusgraph|cassandra)'
+# 2. Check service status
+echo "\n2. Service Status:"
+podman --remote ps --filter "label=io.podman.compose.project=janusgraph-demo" \
+    --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-# 3. Check memory usage
-echo "\n3. Memory Usage:"
-free -h
+# 3. Check disk space
+echo "\n3. Disk Space:"
+df -h | grep -E '(Filesystem|podman)'
 
-# 4. Check recent errors
-echo "\n4. Recent Errors (last hour):"
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 1h | grep -i error | tail -20
+# 4. Check recent errors (last hour)
+echo "\n4. Recent Errors:"
+podman --remote logs janusgraph-demo_hcd-server_1 --since 1h 2>&1 | grep -i error | tail -10
 
-# 5. Check backup status
-echo "\n5. Last Backup:"
-ls -lh /backups/ | tail -5
+# 5. Check graph health
+echo "\n5. Graph Health:"
+bash scripts/testing/check_graph_counts.sh
 
 # 6. Check certificate expiry
 echo "\n6. Certificate Status:"
-openssl x509 -in /etc/ssl/certs/janusgraph.crt -noout -enddate
-
-# 7. Query performance
-echo "\n7. Query Performance:"
-curl -s http://localhost:18182/health | jq '.metrics.avg_query_time_ms'
+if [[ -f config/ssl/janusgraph.crt ]]; then
+    openssl x509 -in config/ssl/janusgraph.crt -noout -enddate
+fi
 
 echo "\n=== Health Check Complete ==="
 ```
 
-### 1.2 Log Review
+### 2.2 Log Review
 
 **Daily log review procedure:**
 
 ```bash
 # Check for errors in last 24 hours
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep -i "error\|exception\|fatal"
+podman --remote logs janusgraph-demo_hcd-server_1 --since 24h 2>&1 | \
+    grep -i "error\|exception\|fatal" | tail -50
 
-# Check slow queries
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep "slow query" | wc -l
+# Check JanusGraph server logs
+podman --remote logs janusgraph-demo_jupyter_1 --since 24h 2>&1 | \
+    grep -i "error" | tail -50
 
 # Check authentication failures
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --since 24h janusgraph-server | grep "auth.*fail" | wc -l
+podman --remote logs janusgraph-demo_analytics-api_1 --since 24h 2>&1 | \
+    grep "auth.*fail" | wc -l
 
-# Generate daily report
-python scripts/operations/generate_daily_report.py
+# Check Vault logs
+podman --remote logs janusgraph-demo_vault_1 --since 24h 2>&1 | \
+    grep -i "error\|denied" | tail -20
 ```
 
-### 1.3 Metrics Review
+### 2.3 Metrics Review
 
 **Key metrics to review daily:**
 
-```promql
-# Query latency P95
-histogram_quantile(0.95, rate(query_duration_seconds_bucket[24h]))
+```bash
+# Query latency P95 (Prometheus)
+curl -s 'http://localhost:9090/api/v1/query?query=histogram_quantile(0.95,rate(query_duration_seconds_bucket[24h]))' | \
+    jq '.data.result[0].value[1]'
 
 # Error rate
-rate(query_errors_total[24h]) / rate(query_total[24h]) * 100
+curl -s 'http://localhost:9090/api/v1/query?query=rate(query_errors_total[24h])/rate(query_total[24h])*100' | \
+    jq '.data.result[0].value[1]'
 
 # Throughput
-rate(query_total[24h])
+curl -s 'http://localhost:9090/api/v1/query?query=rate(query_total[24h])' | \
+    jq '.data.result[0].value[1]'
 
 # Resource utilization
-avg_over_time(cpu_usage_percent[24h])
-avg_over_time(memory_usage_percent[24h])
+podman --remote stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
 ```
 
 ---
 
-## 2. Health Checks
+## 3. Health Checks
 
-### 2.1 System Health Check
+### 3.1 Automated Health Check Script
 
-**Automated health check script:**
+**Comprehensive health check:**
 
-```python
-#!/usr/bin/env python3
-# scripts/operations/health_check.py
+```bash
+#!/usr/bin/env bash
+# scripts/operations/health_check.sh
 
-import requests
-import sys
-from datetime import datetime
+set -euo pipefail
 
-def check_health():
-    """Comprehensive health check."""
-    checks = {
-        'janusgraph': check_janusgraph(),
-        'cassandra': check_cassandra(),
-        'prometheus': check_prometheus(),
-        'grafana': check_grafana()
-    }
+PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
+PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd}"
 
-    all_healthy = all(checks.values())
+echo "=== Health Check Report - $(date) ==="
+echo "Project: $PROJECT_NAME"
+echo "Connection: $PODMAN_CONNECTION"
+echo ""
 
-    print(f"Health Check Report - {datetime.now()}")
-    print("=" * 50)
-    for service, healthy in checks.items():
-        status = "✓ HEALTHY" if healthy else "✗ UNHEALTHY"
-        print(f"{service:20s}: {status}")
-    print("=" * 50)
+# Check Podman connection
+echo "1. Podman Connection:"
+if podman --remote --connection "$PODMAN_CONNECTION" ps >/dev/null 2>&1; then
+    echo "   ✅ Connected"
+else
+    echo "   ❌ Connection failed"
+    exit 1
+fi
 
-    return 0 if all_healthy else 1
+# Check services
+echo "2. Service Status:"
+SERVICES=(
+    "janusgraph-demo_hcd-server_1"
+    "janusgraph-demo_vault_1"
+    "janusgraph-demo_analytics-api_1"
+    "janusgraph-demo_jupyter_1"
+    "janusgraph-demo_pulsar_1"
+)
 
-def check_janusgraph():
-    """Check JanusGraph health."""
-    try:
-        response = requests.get('http://localhost:18182/health', timeout=5)
-        return response.status_code == 200
-    except Exception as e:
-        print(f"JanusGraph check failed: {e}")
-        return False
+ALL_HEALTHY=true
+for service in "${SERVICES[@]}"; do
+    STATUS=$(podman --remote inspect "$service" --format '{{.State.Status}}' 2>/dev/null || echo "missing")
+    if [[ "$STATUS" == "running" ]]; then
+        echo "   ✅ $service: running"
+    else
+        echo "   ❌ $service: $STATUS"
+        ALL_HEALTHY=false
+    fi
+done
 
-def check_cassandra():
-    """Check Cassandra health."""
-    import subprocess
-    try:
-        result = subprocess.run(
-            ['podman-compose', '-p', 'janusgraph-demo', 'exec', '-T', 'hcd-server', 'nodetool', 'status'],
-            capture_output=True,
-            timeout=10
-        )
-        return result.returncode == 0
-    except Exception as e:
-        print(f"Cassandra check failed: {e}")
-        return False
+# Check graph connectivity
+echo "3. Graph Connectivity:"
+if bash scripts/testing/check_graph_counts.sh >/dev/null 2>&1; then
+    echo "   ✅ Graph accessible"
+else
+    echo "   ❌ Graph not accessible"
+    ALL_HEALTHY=false
+fi
 
-def check_prometheus():
-    """Check Prometheus health."""
-    try:
-        response = requests.get('http://localhost:9090/-/healthy', timeout=5)
-        return response.status_code == 200
-    except Exception as e:
-        print(f"Prometheus check failed: {e}")
-        return False
+# Check Vault
+echo "4. Vault Status:"
+VAULT_STATUS=$(podman --remote exec janusgraph-demo_vault_1 vault status -format=json 2>/dev/null | jq -r '.sealed' || echo "error")
+if [[ "$VAULT_STATUS" == "false" ]]; then
+    echo "   ✅ Vault unsealed"
+elif [[ "$VAULT_STATUS" == "true" ]]; then
+    echo "   ⚠️  Vault sealed (needs unseal)"
+    ALL_HEALTHY=false
+else
+    echo "   ❌ Vault error"
+    ALL_HEALTHY=false
+fi
 
-def check_grafana():
-    """Check Grafana health."""
-    try:
-        response = requests.get('http://localhost:3000/api/health', timeout=5)
-        return response.status_code == 200
-    except Exception as e:
-        print(f"Grafana check failed: {e}")
-        return False
-
-if __name__ == '__main__':
-    sys.exit(check_health())
+echo ""
+if [[ "$ALL_HEALTHY" == "true" ]]; then
+    echo "✅ All systems healthy"
+    exit 0
+else
+    echo "❌ Some systems unhealthy"
+    exit 1
+fi
 ```
 
-### 2.2 Component Health Checks
+### 3.2 Component-Specific Health Checks
+
+**HCD/Cassandra:**
+
+```bash
+# Check node status
+podman --remote exec janusgraph-demo_hcd-server_1 nodetool status
+
+# Check if accepting connections
+podman --remote exec janusgraph-demo_hcd-server_1 \
+    cqlsh -e "SELECT now() FROM system.local;"
+
+# Check keyspace
+podman --remote exec janusgraph-demo_hcd-server_1 \
+    cqlsh -e "DESCRIBE KEYSPACES;"
+```
 
 **JanusGraph:**
 
 ```bash
-# Check if JanusGraph is responding
-curl -f http://localhost:18182/health || echo "JanusGraph unhealthy"
+# Check graph counts
+bash scripts/testing/check_graph_counts.sh
 
-# Check Gremlin server
-curl -X POST http://localhost:18182 \
-  -H "Content-Type: application/json" \
-  -d '{"gremlin":"g.V().count()"}' || echo "Gremlin server unhealthy"
+# Check via Gremlin console
+podman --remote exec janusgraph-demo_gremlin-console_1 \
+    bin/gremlin.sh -e "g.V().count()"
 ```
 
-**Cassandra/HCD:**
+**Vault:**
 
 ```bash
-# Check node status
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool status
+# Check seal status
+podman --remote exec janusgraph-demo_vault_1 vault status
 
-# Check if accepting connections
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server cqlsh -e "SELECT now() FROM system.local;"
+# Check secrets (requires VAULT_TOKEN)
+source .vault-keys
+podman --remote exec -e VAULT_TOKEN=$VAULT_ROOT_TOKEN \
+    janusgraph-demo_vault_1 vault kv list janusgraph/
 ```
 
-**Monitoring Stack:**
+**Pulsar:**
 
 ```bash
-# Prometheus
-curl -f http://localhost:9090/-/healthy
+# List topics
+podman --remote exec janusgraph-demo_pulsar-cli_1 \
+    bin/pulsar-admin topics list public/banking
 
-# Grafana
-curl -f http://localhost:3000/api/health
-
-# Loki
-curl -f http://localhost:3100/ready
+# Check topic stats
+podman --remote exec janusgraph-demo_pulsar-cli_1 \
+    bin/pulsar-admin topics stats persistent://public/banking/persons-events
 ```
 
 ---
 
-## 3. Monitoring and Alerting
+## 4. Monitoring and Alerting
 
-### 3.1 Alert Response Procedures
+### 4.1 Alert Response Procedures
 
 **Critical Alerts (P0):**
 
-1. **System Down**
+1. **System Down (G5_DEPLOY_VAULT failure)**
    - Acknowledge alert immediately
-   - Check system status: `PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps`
-   - Review recent logs: `PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs --tail=100`
-   - Attempt restart if safe
+   - Check service status: `podman --remote ps`
+   - Review deployment logs: `cat exports/demo-*/deploy.log`
+   - Attempt deterministic redeployment
    - Escalate if not resolved in 15 minutes
 
 2. **Data Loss Risk**
    - Stop all writes immediately
-   - Assess backup status
+   - Assess backup status: `ls -lh /backups/`
    - Contact database team
    - Do not attempt recovery without approval
 
 3. **Security Breach**
    - Isolate affected systems
-   - Preserve evidence
+   - Preserve evidence: `podman --remote logs > incident.log`
    - Contact security team immediately
    - Follow incident response plan
 
 **High Priority Alerts (P1):**
 
-1. **High Error Rate**
-   - Check error logs
-   - Identify error patterns
-   - Review recent deployments
-   - Rollback if necessary
+1. **High Error Rate (G8_NOTEBOOKS failure)**
+   - Check notebook report: `cat exports/demo-*/notebook_run_report.tsv`
+   - Identify failing notebooks
+   - Review notebook logs: `cat exports/demo-*/notebooks.log`
+   - Check for data issues or service degradation
 
 2. **Performance Degradation**
-   - Check resource utilization
+   - Check resource utilization: `podman --remote stats`
    - Review slow query log
    - Check for long-running queries
    - Consider scaling if needed
 
-### 3.2 Alert Acknowledgment
+### 4.2 Monitoring Stack Access
+
+**Access monitoring services:**
 
 ```bash
-# Acknowledge alert in Prometheus Alertmanager
-curl -X POST http://localhost:9093/api/v1/alerts \
-  -H "Content-Type: application/json" \
-  -d '{
-    "status": "resolved",
-    "labels": {"alertname": "HighQueryLatency"},
-    "annotations": {"summary": "Acknowledged by ops team"}
-  }'
+# Prometheus
+open http://localhost:9090
+
+# Grafana (admin/admin)
+open http://localhost:3001
+
+# AlertManager
+open http://localhost:9093
+
+# JanusGraph Exporter metrics
+curl http://localhost:9091/metrics
 ```
 
 ---
 
-## 4. Troubleshooting Playbooks
+## 5. Gate-Based Troubleshooting
 
-### 4.1 High CPU Usage
+### 5.1 Gate Failure Diagnosis
 
-**Symptoms:**
-
-- CPU utilization > 80%
-- Slow query response times
-- System unresponsive
-
-**Diagnosis:**
+**Identify which gate failed:**
 
 ```bash
-# Check CPU usage by container
-PODMAN_CONNECTION=podman-wxd podman --remote stats --no-stream
+# Find latest run
+LATEST_RUN=$(ls -t exports/ | grep "demo-" | head -1)
 
-# Check Java threads
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jstack 1 | grep -A 5 "runnable"
+# Check failed gate
+FAILED_GATE=$(cat "exports/${LATEST_RUN}/failed_gate.txt")
 
-# Check for CPU-intensive queries
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server | grep "execution time" | sort -k5 -n | tail -20
+echo "Failed gate: $FAILED_GATE"
+
+# View relevant log
+case "$FAILED_GATE" in
+    G0_PRECHECK)
+        cat "exports/${LATEST_RUN}/preflight.log"
+        ;;
+    G2_CONNECTION)
+        echo "Podman connection failed"
+        podman system connection list
+        ;;
+    G3_RESET)
+        cat "exports/${LATEST_RUN}/state_reset.log"
+        ;;
+    G5_DEPLOY_VAULT)
+        cat "exports/${LATEST_RUN}/deploy.log"
+        ;;
+    G6_RUNTIME_CONTRACT)
+        cat "exports/${LATEST_RUN}/runtime_contracts.log"
+        ;;
+    G7_SEED)
+        cat "exports/${LATEST_RUN}/seed_graph.log"
+        ;;
+    G8_NOTEBOOKS)
+        cat "exports/${LATEST_RUN}/notebooks.log"
+        cat "exports/${LATEST_RUN}/notebook_run_report.tsv"
+        ;;
+    G9_DETERMINISM)
+        cat "exports/${LATEST_RUN}/determinism.log"
+        ;;
+esac
 ```
 
-**Resolution:**
+### 5.2 Gate-Specific Recovery Procedures
 
-1. Identify CPU-intensive queries
-2. Kill long-running queries if necessary
-3. Optimize or cache problematic queries
-4. Scale horizontally if sustained high load
-5. Review and optimize indexes
-
-### 4.2 High Memory Usage
-
-**Symptoms:**
-
-- Memory utilization > 90%
-- OutOfMemoryError in logs
-- Frequent GC pauses
-
-**Diagnosis:**
+**G0: Preflight Failure**
 
 ```bash
-# Check memory usage
-PODMAN_CONNECTION=podman-wxd podman --remote stats --no-stream
+# Run preflight check manually
+bash scripts/validation/preflight_check.sh --strict
 
-# Check JVM heap usage
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jstat -gc 1 1000 5
-
-# Generate heap dump
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server jmap -dump:live,format=b,file=/tmp/heap.hprof 1
+# Common issues:
+# - uv not installed: curl -LsSf https://astral.sh/uv/install.sh | sh
+# - podman not installed: brew install podman podman-compose
+# - podman machine not running: podman machine start
+# - conda env not activated: conda activate janusgraph-analysis
 ```
 
-**Resolution:**
-
-1. Review heap dump for memory leaks
-2. Check for large transactions
-3. Review cache sizes
-4. Increase heap size if appropriate
-5. Restart service if memory leak confirmed
-
-### 4.3 Slow Queries
-
-**Symptoms:**
-
-- Query latency P95 > 1000ms
-- Timeout errors
-- User complaints
-
-**Diagnosis:**
+**G2: Connection Failure**
 
 ```bash
-# Enable query profiling
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server \
-  gremlin-console.sh -e "g.V().profile()"
+# Check podman connections
+podman system connection list
 
-# Check slow query log
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs janusgraph-server | grep "slow query"
+# Check podman machine
+podman machine list
 
-# Check for missing indexes
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server \
-  cqlsh -e "SELECT * FROM system_schema.indexes;"
+# Start machine if stopped
+podman machine start
+
+# Test connection
+podman --remote ps
 ```
 
-**Resolution:**
-
-1. Identify slow query patterns
-2. Add appropriate indexes
-3. Optimize query structure
-4. Implement caching
-5. Consider query result pagination
-
-### 4.4 Connection Pool Exhaustion
-
-**Symptoms:**
-
-- "No available connections" errors
-- Connection timeout errors
-- Increasing connection wait times
-
-**Diagnosis:**
+**G3: Reset Failure**
 
 ```bash
-# Check active connections
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server netstat -an | grep :8182 | wc -l
+# Manual state reset
+cd config/compose
+podman-compose -p janusgraph-demo -f docker-compose.full.yml down -v
 
-# Check connection pool metrics
-curl http://localhost:18182/metrics | grep connection_pool
+# Check for stuck containers
+podman --remote ps -a | grep janusgraph-demo
+
+# Force remove if needed
+podman --remote rm -f $(podman --remote ps -a -q --filter "label=io.podman.compose.project=janusgraph-demo")
 ```
 
-**Resolution:**
-
-1. Increase connection pool size
-2. Check for connection leaks
-3. Implement connection timeout
-4. Review application connection handling
-5. Scale if sustained high connection count
-
-### 4.5 Disk Space Issues
-
-**Symptoms:**
-
-- Disk usage > 85%
-- Write failures
-- "No space left on device" errors
-
-**Diagnosis:**
+**G5: Deploy/Vault Failure**
 
 ```bash
-# Check disk usage
-df -h
+# Check deployment logs
+cat exports/demo-*/deploy.log | tail -100
 
-# Find large files
-du -sh /var/lib/podman/volumes/* | sort -h | tail -20
+# Common issues:
+# - Port conflicts: Check if ports 8182, 9042, 8200 are in use
+# - Image build failure: Check docker/hcd/Dockerfile
+# - Volume permission issues: Check podman machine disk space
 
-# Check log sizes
-du -sh /var/log/* | sort -h | tail -10
+# Manual deployment
+cd config/compose
+bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
-**Resolution:**
+**G6: Runtime Contract Failure**
 
-1. Clean up old logs: `find /var/log -name "*.log" -mtime +30 -delete`
-2. Remove old backups: `find /backups -mtime +90 -delete`
-3. Compact Cassandra: `nodetool compact`
-4. Increase disk space if needed
-5. Implement log rotation
+```bash
+# Check runtime contracts
+bash scripts/testing/check_runtime_contracts.sh
+
+# Common issues:
+# - Missing API_JWT_SECRET: export API_JWT_SECRET="test-secret"
+# - Missing dependencies: conda activate janusgraph-analysis && uv pip install -r requirements.txt
+```
+
+**G7: Seed Failure**
+
+```bash
+# Check seed logs
+cat exports/demo-*/seed_graph.log
+
+# Manual seed
+bash scripts/testing/seed_demo_graph.sh
+
+# Verify graph data
+bash scripts/testing/check_graph_counts.sh
+```
+
+**G8: Notebooks Failure**
+
+```bash
+# Check notebook report
+cat exports/demo-*/notebook_run_report.tsv
+
+# Identify failing notebooks
+awk -F'\t' '$2 != "PASS" && NR>1 {print $1, $2, $3}' exports/demo-*/notebook_run_report.tsv
+
+# Run single notebook manually
+conda activate janusgraph-analysis
+jupyter nbconvert --to notebook --execute notebooks/01_Basic_Graph_Operations.ipynb
+```
+
+**G9: Determinism Failure**
+
+```bash
+# Check determinism logs
+cat exports/demo-*/determinism.log
+
+# Common issues:
+# - Baseline missing: First run creates baseline
+# - Artifact mismatch: Check for non-deterministic code
+# - Timing issues: Increase timeouts
+
+# Regenerate baseline
+rm -rf exports/determinism-baselines
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json
+```
+
+### 5.3 Troubleshooting Flowchart
+
+```
+Deployment Failed?
+    |
+    ├─> Check failed_gate.txt
+    |
+    ├─> G0_PRECHECK?
+    |   └─> Run preflight_check.sh --strict
+    |       └─> Fix environment issues
+    |
+    ├─> G2_CONNECTION?
+    |   └─> Check podman machine status
+    |       └─> Start machine or fix connection
+    |
+    ├─> G3_RESET?
+    |   └─> Manual cleanup: podman-compose down -v
+    |       └─> Remove stuck containers
+    |
+    ├─> G5_DEPLOY_VAULT?
+    |   └─> Check deploy.log
+    |       └─> Fix port conflicts or image issues
+    |
+    ├─> G6_RUNTIME_CONTRACT?
+    |   └─> Check runtime_contracts.log
+    |       └─> Fix missing secrets or dependencies
+    |
+    ├─> G7_SEED?
+    |   └─> Check seed_graph.log
+    |       └─> Verify graph connectivity
+    |
+    ├─> G8_NOTEBOOKS?
+    |   └─> Check notebook_run_report.tsv
+    |       └─> Debug failing notebooks
+    |
+    └─> G9_DETERMINISM?
+        └─> Check determinism.log
+            └─> Regenerate baseline or fix non-determinism
+```
+
+**See:** [`docs/architecture/deterministic-deployment-architecture.md`](../architecture/deterministic-deployment-architecture.md) for complete gate troubleshooting.
 
 ---
 
-## 5. Maintenance Procedures
+## 6. Maintenance Procedures
 
-### 5.1 Routine Maintenance Schedule
+### 6.1 Routine Maintenance Schedule
 
-| Task | Frequency | Day/Time | Duration |
-|------|-----------|----------|----------|
-| Log rotation | Daily | 2:00 AM | 10 min |
-| Backup verification | Daily | 3:00 AM | 30 min |
-| Security updates | Weekly | Sunday 2:00 AM | 2 hours |
-| Performance review | Weekly | Monday 10:00 AM | 1 hour |
-| Capacity planning | Monthly | 1st Monday | 2 hours |
-| DR test | Quarterly | TBD | 4 hours |
+| Task | Frequency | Day/Time | Duration | Command |
+|------|-----------|----------|----------|---------|
+| Health check | Daily | 9:00 AM | 5 min | `bash scripts/operations/health_check.sh` |
+| Log review | Daily | 10:00 AM | 15 min | Review logs for errors |
+| Backup verification | Daily | 3:00 AM | 30 min | `bash scripts/backup/test_backup.sh` |
+| Security updates | Weekly | Sunday 2:00 AM | 2 hours | Update images and redeploy |
+| Performance review | Weekly | Monday 10:00 AM | 1 hour | Review metrics in Grafana |
+| Deterministic proof | Weekly | Monday 11:00 AM | 10 min | Run full deterministic deployment |
+| Capacity planning | Monthly | 1st Monday | 2 hours | Review resource usage trends |
+| DR test | Quarterly | TBD | 4 hours | Full disaster recovery drill |
 
-### 5.2 Planned Maintenance Procedure
+### 6.2 Planned Maintenance Procedure
 
 **Pre-Maintenance:**
 
 1. Schedule maintenance window (off-peak hours)
 2. Notify stakeholders 48 hours in advance
-3. Create backup before maintenance
+3. Create backup: `bash scripts/backup/backup_volumes.sh`
 4. Prepare rollback plan
 5. Review maintenance steps
 
 **During Maintenance:**
 
 ```bash
-# 1. Enable maintenance mode
-curl -X POST http://localhost:18182/admin/maintenance/enable
+# 1. Stop services gracefully
+cd config/compose
+bash ../../scripts/deployment/stop_full_stack.sh
 
-# 2. Drain connections
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server nodetool drain
-
-# 3. Perform maintenance tasks
+# 2. Perform maintenance tasks
 # (updates, configuration changes, etc.)
 
-# 4. Restart services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart
+# 3. Deploy with deterministic validation
+cd ../..
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+    --status-report exports/deterministic-status.json
 
-# 5. Verify health
-./scripts/operations/health_check.py
+# 4. Verify health
+bash scripts/operations/health_check.sh
 
-# 6. Disable maintenance mode
-curl -X POST http://localhost:18182/admin/maintenance/disable
+# 5. Run smoke tests
+bash scripts/testing/check_graph_counts.sh
 ```
 
 **Post-Maintenance:**
 
 1. Verify all services healthy
-2. Run smoke tests
+2. Check deterministic status report
 3. Monitor for issues (1 hour)
 4. Update maintenance log
 5. Notify stakeholders of completion
 
-### 5.3 Certificate Renewal
+### 6.3 Certificate Renewal
 
 **Procedure:**
 
 ```bash
 # Check certificate expiry
-openssl x509 -in /etc/ssl/certs/janusgraph.crt -noout -enddate
+openssl x509 -in config/ssl/janusgraph.crt -noout -enddate
 
-# Renew certificate (Let's Encrypt example)
-certbot renew --dry-run
-certbot renew
+# Regenerate certificates
+bash scripts/security/generate_certificates.sh
 
-# Update certificate in containers
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart janusgraph-server
+# Redeploy services
+cd config/compose
+bash ../../scripts/deployment/deploy_full_stack.sh
 
 # Verify new certificate
-openssl s_client -connect localhost:18182 -showcerts
+openssl s_client -connect localhost:18182 -showcerts < /dev/null
 ```
 
 ---
 
-## 6. Backup and Recovery
+## 7. Backup and Recovery
 
-### 6.1 Backup Procedures
+### 7.1 Backup Procedures
 
 **Daily Backup:**
 
@@ -538,36 +803,41 @@ openssl s_client -connect localhost:18182 -showcerts
 
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_DIR="/backups/daily"
+PROJECT_NAME="janusgraph-demo"
 
 # Create backup directory
-mkdir -p $BACKUP_DIR
+mkdir -p "$BACKUP_DIR"
 
-# Backup JanusGraph data
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server nodetool snapshot
-
-# Backup Cassandra
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool snapshot
+# Backup Cassandra snapshots
+podman --remote exec janusgraph-demo_hcd-server_1 nodetool snapshot
 
 # Copy snapshots
-PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph-demo_janusgraph-server_1:/var/lib/janusgraph/snapshots $BACKUP_DIR/janusgraph_$DATE
-PODMAN_CONNECTION=podman-wxd podman --remote cp janusgraph-demo_hcd-server_1:/var/lib/cassandra/snapshots $BACKUP_DIR/cassandra_$DATE
+podman --remote cp janusgraph-demo_hcd-server_1:/var/lib/cassandra/data \
+    "$BACKUP_DIR/cassandra_$DATE"
+
+# Backup Vault data
+podman --remote cp janusgraph-demo_vault_1:/vault/data \
+    "$BACKUP_DIR/vault_$DATE"
 
 # Compress backups
-tar -czf $BACKUP_DIR/backup_$DATE.tar.gz $BACKUP_DIR/*_$DATE
+tar -czf "$BACKUP_DIR/backup_$DATE.tar.gz" \
+    "$BACKUP_DIR/cassandra_$DATE" \
+    "$BACKUP_DIR/vault_$DATE"
 
 # Encrypt backup
-gpg --encrypt --recipient ops@example.com $BACKUP_DIR/backup_$DATE.tar.gz
+gpg --encrypt --recipient ops@example.com \
+    "$BACKUP_DIR/backup_$DATE.tar.gz"
 
-# Upload to cloud storage
-aws s3 cp $BACKUP_DIR/backup_$DATE.tar.gz.gpg s3://backups/janusgraph/
+# Upload to cloud storage (if configured)
+# aws s3 cp "$BACKUP_DIR/backup_$DATE.tar.gz.gpg" s3://backups/janusgraph/
 
 # Clean up local files older than 7 days
-find $BACKUP_DIR -name "*.tar.gz*" -mtime +7 -delete
+find "$BACKUP_DIR" -name "*.tar.gz*" -mtime +7 -delete
 
 echo "Backup completed: backup_$DATE.tar.gz.gpg"
 ```
 
-### 6.2 Recovery Procedures
+### 7.2 Recovery Procedures
 
 **Full System Recovery:**
 
@@ -577,154 +847,184 @@ echo "Backup completed: backup_$DATE.tar.gz.gpg"
 
 BACKUP_FILE=$1
 
+if [[ -z "$BACKUP_FILE" ]]; then
+    echo "Usage: $0 <backup_file.tar.gz.gpg>"
+    exit 1
+fi
+
 # Stop services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo down
+cd config/compose
+bash ../../scripts/deployment/stop_full_stack.sh
 
 # Restore from backup
-gpg --decrypt $BACKUP_FILE | tar -xzf - -C /
+gpg --decrypt "$BACKUP_FILE" | tar -xzf - -C /tmp/restore
 
-# Start services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
+# Copy data back
+podman --remote cp /tmp/restore/cassandra_* \
+    janusgraph-demo_hcd-server_1:/var/lib/cassandra/data
+
+podman --remote cp /tmp/restore/vault_* \
+    janusgraph-demo_vault_1:/vault/data
+
+# Start services with deterministic validation
+cd ../..
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+    --status-report exports/deterministic-status.json
 
 # Verify recovery
-./scripts/operations/health_check.py
+bash scripts/operations/health_check.sh
 ```
-
-**Point-in-Time Recovery:**
-See [Disaster Recovery](disaster-recovery-plan.md) for detailed procedures.
 
 ---
 
-## 7. Scaling Operations
+## 8. Scaling Operations
 
-### 7.1 Horizontal Scaling
+### 8.1 Horizontal Scaling
 
-**Add JanusGraph Node:**
+**Not currently supported in single-node deployment.**
+
+For production horizontal scaling:
+- Deploy to Kubernetes/OpenShift using Helm charts in `helm/`
+- Use StatefulSets for Cassandra
+- Use Deployments for JanusGraph servers
+- Configure load balancer for API endpoints
+
+### 8.2 Vertical Scaling
+
+**Increase resources for Podman machine:**
 
 ```bash
-# Update compose scaling configuration
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
+# Stop machine
+podman machine stop
 
-# Verify new nodes
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps janusgraph-server
+# Remove machine
+podman machine rm
+
+# Create new machine with more resources
+podman machine init \
+    --cpus 8 \
+    --memory 16384 \
+    --disk-size 100 \
+    --now
+
+# Redeploy
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+    --status-report exports/deterministic-status.json
 ```
 
-**Add Cassandra Node:**
+**Increase container resources:**
 
-```bash
-# Add node to cluster
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale hcd-server=3
-
-# Check cluster status
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec hcd-server nodetool status
-```
-
-### 7.2 Vertical Scaling
-
-**Increase Resources:**
+Edit `config/compose/docker-compose.full.yml`:
 
 ```yaml
-# compose configuration
 services:
-  janusgraph-server:
+  hcd-server:
     deploy:
       resources:
         limits:
-          cpus: '8.0'
-          memory: 16G
+          cpus: '4.0'
+          memory: 8G
 ```
 
+Then redeploy:
+
 ```bash
-# Apply changes
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d
+cd config/compose
+bash ../../scripts/deployment/deploy_full_stack.sh
 ```
 
 ---
 
-## 8. Security Operations
+## 9. Security Operations
 
-### 8.1 Security Monitoring
+### 9.1 Security Monitoring
 
 **Daily Security Checks:**
 
 ```bash
 # Check for failed authentication attempts
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs | grep "authentication failed" | wc -l
+podman --remote logs janusgraph-demo_analytics-api_1 | \
+    grep "authentication failed" | wc -l
 
 # Check for suspicious activity
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs | grep -E "DROP|DELETE|TRUNCATE" | tail -20
+podman --remote logs janusgraph-demo_hcd-server_1 | \
+    grep -E "DROP|DELETE|TRUNCATE" | tail -20
 
-# Review access logs
-tail -100 /var/log/janusgraph/access.log
+# Review Vault audit log
+podman --remote exec janusgraph-demo_vault_1 \
+    cat /vault/logs/audit.log | tail -50
+
+# Check certificate expiry
+openssl x509 -in config/ssl/janusgraph.crt -noout -enddate
 ```
 
-### 8.2 Security Incident Response
+### 9.2 Security Incident Response
 
-See [Incident Response](../operations/disaster-recovery-plan.md) for detailed procedures.
+**Immediate Actions:**
+
+1. Isolate affected systems
+2. Preserve evidence: `podman --remote logs > incident-$(date +%Y%m%d).log`
+3. Contact security team
+4. Follow incident response plan in `SECURITY.md`
+
+**Post-Incident:**
+
+1. Conduct root cause analysis
+2. Update security procedures
+3. Rotate credentials: `bash scripts/security/rotate_credentials.sh`
+4. Update documentation
 
 ---
 
-## 9. Incident Response
+## 10. Incident Response
 
-### 9.1 Incident Classification
+### 10.1 Incident Classification
 
 | Priority | Description | Response Time | Examples |
 |----------|-------------|---------------|----------|
-| P0 | System down, data loss | 15 minutes | Complete outage, data corruption |
-| P1 | Critical functionality impaired | 1 hour | High error rate, security breach |
-| P2 | Major functionality degraded | 4 hours | Performance issues, partial outage |
-| P3 | Minor issues | 1 business day | UI bugs, minor errors |
+| **P0** | System down, data loss | 15 minutes | Complete outage, G5 failure |
+| **P1** | Critical functionality impaired | 1 hour | G8 failure, high error rate |
+| **P2** | Major functionality degraded | 4 hours | Performance issues, G7 failure |
+| **P3** | Minor issues | 1 business day | UI bugs, minor errors |
 
-### 9.2 Incident Response Steps
+### 10.2 Incident Response Steps
 
 1. **Detect and Alert**
    - Automated monitoring alerts
    - User reports
    - Health check failures
+   - Gate failures in deterministic deployment
 
 2. **Assess and Classify**
-   - Determine severity
-   - Identify affected systems
+   - Determine severity (P0-P3)
+   - Identify failed gate (G0-G9)
    - Estimate impact
+   - Check status report: `cat exports/deterministic-status.json`
 
 3. **Respond and Mitigate**
-   - Follow appropriate playbook
+   - Follow gate-specific recovery procedure
    - Implement workarounds
-   - Communicate status
+   - Communicate status to stakeholders
 
 4. **Resolve and Recover**
    - Fix root cause
-   - Verify resolution
+   - Run deterministic deployment to verify
    - Monitor for recurrence
 
 5. **Document and Learn**
    - Write incident report
    - Conduct post-mortem
-   - Update runbooks
+   - Update runbooks and procedures
 
----
-
-## 10. Escalation Procedures
-
-### 10.1 Escalation Matrix
+### 10.3 Escalation Matrix
 
 | Level | Role | Contact | When to Escalate |
 |-------|------|---------|------------------|
-| L1 | On-Call Engineer | <ops-oncall@example.com> | Initial response |
-| L2 | Senior Engineer | <ops-senior@example.com> | Not resolved in 30 min |
-| L3 | Team Lead | <ops-lead@example.com> | Not resolved in 2 hours |
-| L4 | Engineering Manager | <eng-manager@example.com> | Critical impact > 4 hours |
-| L5 | CTO | <cto@example.com> | Business-critical outage |
-
-### 10.2 Escalation Procedure
-
-```bash
-# Send escalation notification
-./scripts/operations/escalate.sh \
-  --level L2 \
-  --incident INC-12345 \
-  --summary "High CPU usage not resolved"
-```
+| **L1** | On-Call Engineer | ops-oncall@example.com | Initial response |
+| **L2** | Senior Engineer | ops-senior@example.com | Not resolved in 30 min |
+| **L3** | Team Lead | ops-lead@example.com | Not resolved in 2 hours |
+| **L4** | Engineering Manager | eng-manager@example.com | Critical impact > 4 hours |
+| **L5** | CTO | cto@example.com | Business-critical outage |
 
 ---
 
@@ -735,113 +1035,88 @@ See [Incident Response](../operations/disaster-recovery-plan.md) for detailed pr
 **Quick Commands:**
 
 ```bash
-# Restart all services
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo restart
+# Deterministic deployment
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
+    --status-report exports/deterministic-status.json
+
+# Deploy full stack
+cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
+
+# Stop full stack
+cd config/compose && bash ../../scripts/deployment/stop_full_stack.sh
+
+# Health check
+bash scripts/operations/health_check.sh
+
+# Check graph
+bash scripts/testing/check_graph_counts.sh
 
 # View logs
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo logs -f janusgraph-server
+podman --remote logs -f janusgraph-demo_hcd-server_1
 
 # Check status
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo ps
+podman --remote ps --filter "label=io.podman.compose.project=janusgraph-demo"
 
 # Execute command in container
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo exec janusgraph-server bash
+podman --remote exec janusgraph-demo_hcd-server_1 bash
 
-# Scale service
-PODMAN_CONNECTION=podman-wxd podman-compose -p janusgraph-demo up -d --scale janusgraph-server=3
+# Check failed gate
+cat exports/demo-*/failed_gate.txt
+
+# View deployment status
+cat exports/deterministic-status.json
 ```
 
 ### Appendix B: Contact Information
 
-- **Operations Team:** <ops-team@example.com>
-- **On-Call:** <ops-oncall@example.com> (24/7)
-- **Security Team:** <security@example.com>
-- **Database Team:** <dba@example.com>
+- **Operations Team:** ops-team@example.com
+- **On-Call:** ops-oncall@example.com (24/7)
+- **Security Team:** security@example.com
+- **Database Team:** dba@example.com
+- **Platform Team:** platform@example.com
 
 ### Appendix C: Related Documentation
 
-- [Architecture Documentation](../architecture/README.md)
-- [Disaster Recovery Plan](disaster-recovery-plan.md)
-- Incident Response (see Disaster Recovery Plan)
-- Monitoring Guide (see this runbook)
-- `SECURITY.md` (root) - Security guidelines
+- **Architecture:**
+  - [Deployment Architecture](../architecture/deployment-architecture.md)
+  - [Deterministic Deployment Architecture](../architecture/deterministic-deployment-architecture.md)
+  - [Podman Isolation Architecture](../architecture/podman-isolation-architecture.md)
+  - [Gate-Based Validation (ADR-016)](../architecture/adr-016-gate-based-validation.md)
+
+- **Operations:**
+  - [Disaster Recovery Plan](disaster-recovery-plan.md)
+  - [Security Monitoring](../monitoring/security-monitoring.md)
+  - [Project Status](../project-status.md)
+
+- **Development:**
+  - [AGENTS.md](../../.bob/rules-code/AGENTS.md) - Agent operational rules
+  - [QUICKSTART.md](../../QUICKSTART.md) - Quick start guide
+  - [README.md](../../README.md) - Project overview
 
 ---
 
-**Document Classification:** Internal - Operational
-**Next Review Date:** 2026-04-28
-**Document Owner:** Operations Team
-
-## Codex Fresh-Machine Recovery Chain (2026-02-17)
-
-Use this chain for incident recovery on new/reset Podman machine state.
-
-### Ordered recovery flow
-
-1. Confirm machine is running and connection is active.
-2. Build local `localhost/hcd:1.2.3` from repo root.
-3. Deploy stack in `janusgraph-demo` namespace.
-4. Initialize/unseal Vault if required.
-5. Confirm `analytics-api` and `jupyter` are healthy.
-6. Run deterministic live notebook proof.
-7. Archive notebook evidence artifact.
-
-### Canonical operational commands
-
-```bash
-podman machine list
-podman system connection list
-export PODMAN_CONNECTION=<active-connection>
-
-podman build -t localhost/hcd:1.2.3 -f docker/hcd/Dockerfile .
-
-cd config/compose
-COMPOSE_PROJECT_NAME=janusgraph-demo bash ../../scripts/deployment/deploy_full_stack.sh
-
-podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
-PODMAN_CONNECTION=$PODMAN_CONNECTION bash scripts/testing/run_notebooks_live_repeatable.sh
-```
-
-### Incident code mapping
-
-- R-01..R-04: machine/Vault/bootstrap blockers
-- R-05..R-13: analytics-api dependency/env startup blockers
-- R-14..R-18: notebook execution/path/data-handling blockers
-
-Primary reference: `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
+**Document Classification:** Internal - Operational  
+**Next Review Date:** 2026-05-19  
+**Document Owner:** Operations Team  
+**Version:** 2.0.0 (Deterministic Operations)
 
 ---
 
-## 11. Codex Deterministic Proof Status Check (Canonical)
+## Change Log
 
-### 11.1 Execute canonical deterministic wrapper
+### Version 2.0.0 (2026-02-19)
+- **Major rewrite** to align with deterministic deployment system
+- Added gate-based troubleshooting procedures (G0-G9)
+- Integrated canonical deployment commands
+- Added deterministic operation profiles
+- Updated all procedures to use podman commands
+- Added gate-specific recovery procedures
+- Removed legacy docker-compose references
+- Added comprehensive troubleshooting flowchart
+- Updated health checks to use deterministic scripts
+- Added deployment status checking procedures
 
-```bash
-export COMPOSE_PROJECT_NAME=janusgraph-demo
-bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
-  --status-report exports/deterministic-status.json
-```
-
-### 11.2 Validate live services status
-
-```bash
-podman --remote ps --format 'table {{.Names}}\t{{.Status}}'
-```
-
-Expected running set includes:
-- `janusgraph-demo_hcd-server_1`
-- `janusgraph-demo_vault_1`
-- `janusgraph-demo_analytics-api_1`
-- `janusgraph-demo_jupyter_1`
-
-### 11.3 Validate notebook run status evidence
-
-```bash
-test -f exports/deterministic-status.json && cat exports/deterministic-status.json
-find exports -name notebook_run_report.tsv | sort | tail -n 1
-```
-
-Acceptance:
-- wrapper status report exists
-- notebook report exists
-- notebook report shows all notebooks `PASS`
+### Version 1.0.0 (2026-02-18)
+- Initial version with legacy procedures
+- Basic health checks and monitoring
+- Traditional deployment procedures

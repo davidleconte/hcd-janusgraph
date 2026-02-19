@@ -457,6 +457,27 @@ Pre-loaded graph includes:
 | **[docs/INDEX.md](docs/INDEX.md)** | Central documentation index and navigation |
 | **[AGENTS.md](AGENTS.md)** | AI agent guidance and project patterns |
 
+### Business Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[Business Documentation Index](docs/business/README.md)** | Complete business documentation navigation |
+| **[Executive Summary](docs/business/executive-summary.md)** | 1-page investment overview (599% ROI, 1.2-month payback) |
+| **[Comprehensive Business Case](docs/business/comprehensive-business-case.md)** | Complete investment justification with financial analysis |
+| **[TCO Analysis](docs/business/tco-analysis.md)** | 3-year cost breakdown ($1.38M total) |
+| **[ROI Calculator](docs/business/roi-calculator.md)** | Financial returns analysis ($8.3M NPV, 985% IRR) |
+| **[Business User Guide](docs/business/business-user-guide.md)** | Complete user guide with 6 banking use cases |
+| **[Banking & Financial Services Guide](docs/business/banking-financial-services-guide.md)** | Industry-specific use cases and compliance |
+
+### Architecture Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[System Architecture](docs/architecture/system-architecture.md)** | Logical component architecture and data flow |
+| **[Deployment Architecture](docs/architecture/deployment-architecture.md)** | Container orchestration, networking, and deployment topology |
+| **[Podman Isolation Architecture](docs/architecture/podman-isolation-architecture.md)** | Five-layer isolation model and project boundaries |
+| **[Streaming Architecture](docs/architecture/streaming-architecture.md)** | Pulsar-based event streaming architecture |
+
 ### Production Readiness
 
 | Document | Description |
@@ -474,6 +495,9 @@ Pre-loaded graph includes:
 | **[Banking User Guide](docs/banking/USER_GUIDE.md)** | Complete banking system guide |
 | **[AML Setup](docs/banking/setup/01_AML_PHASE1_SETUP.md)** | Anti-Money Laundering configuration |
 | **[Technical Spec](docs/banking/planning/technical-spec-complete.md)** | Banking use cases specification |
+| **[Compliance Certifications Portfolio](docs/business/compliance-certifications-portfolio.md)** | GDPR, SOC 2, BSA/AML, PCI DSS (98/100 score) |
+| **[Risk Management Framework](docs/business/risk-management-framework.md)** | 77 risks identified, 100% mitigation |
+| **[Data Governance Framework](docs/business/data-governance-framework.md)** | Data quality, security, privacy (96.5/100 score) |
 
 ### Operations
 
@@ -482,6 +506,10 @@ Pre-loaded graph includes:
 | **[Operations Runbook](docs/operations/operations-runbook.md)** | Day-to-day operations guide |
 | **[Monitoring Guide](docs/operations/monitoring-guide.md)** | Monitoring and alerting setup |
 | **[Backup Procedures](docs/operations/backup-procedures.md)** | Backup and restore procedures |
+| **[SLA Documentation](docs/business/sla-documentation.md)** | Service level commitments (99.9% availability, <200ms response) |
+| **[Capacity Planning Guide](docs/business/capacity-planning-guide.md)** | 12-month forecast and 27% cost optimization |
+| **[Business Continuity & DR Plan](docs/business/business-continuity-disaster-recovery-plan.md)** | BC/DR procedures (4-hour RTO, 1-hour RPO) |
+| **[Business Value Dashboard](docs/business/business-value-dashboard.md)** | Real-time metrics and KPIs for all stakeholders |
 
 ---
 
