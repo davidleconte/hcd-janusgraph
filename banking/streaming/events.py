@@ -17,8 +17,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from itertools import count
-from typing import Any, Dict, List, Optional
-
+from typing import Any, Dict, Iterator, List, Optional
 
 DETERMINISTIC_IDS_ENV = "DEMO_STREAMING_DETERMINISTIC_IDS"
 _TRUTHY_VALUES = {"1", "true", "yes", "on"}
@@ -138,7 +137,7 @@ class EntityEvent:
         "document",
     }
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate event after initialization."""
         if self.event_type not in self.VALID_EVENT_TYPES:
             raise ValueError(
@@ -191,7 +190,7 @@ class EntityEvent:
         from datetime import date
         from decimal import Decimal
 
-        def json_serializer(obj):
+        def json_serializer(obj: Any) -> Any:
             if isinstance(obj, datetime):
                 return obj.isoformat()
             if isinstance(obj, date):
@@ -250,7 +249,7 @@ class EntityEvent:
     def from_dict(cls, data: Dict[str, Any]) -> "EntityEvent":
         """Create EntityEvent from dictionary."""
         # Handle timestamp conversion
-        timestamp = data.get("timestamp")
+        timestamp: Any = data.get("timestamp")
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         elif timestamp is None:
@@ -295,7 +294,7 @@ class EntityEventBatch:
     batch_id: str = ""
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Populate batch defaults after dataclass initialization."""
         if not self.batch_id:
             self.batch_id = _generate_batch_id(self.events)
@@ -303,12 +302,12 @@ class EntityEventBatch:
     def __len__(self) -> int:
         return len(self.events)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[EntityEvent]:
         return iter(self.events)
 
     def by_entity_type(self) -> Dict[str, List[EntityEvent]]:
         """Group events by entity type."""
-        grouped = {}
+        grouped: Dict[str, List[EntityEvent]] = {}
         for event in self.events:
             if event.entity_type not in grouped:
                 grouped[event.entity_type] = []
@@ -317,7 +316,7 @@ class EntityEventBatch:
 
     def by_topic(self) -> Dict[str, List[EntityEvent]]:
         """Group events by Pulsar topic."""
-        grouped = {}
+        grouped: Dict[str, List[EntityEvent]] = {}
         for event in self.events:
             topic = event.get_topic()
             if topic not in grouped:
@@ -332,7 +331,7 @@ def create_person_event(
     name: str,
     payload: Dict[str, Any],
     event_type: str = "create",
-    source: str = None,
+    source: Optional[str] = None,
 ) -> EntityEvent:
     """Create a person entity event."""
     return EntityEvent(
@@ -346,7 +345,10 @@ def create_person_event(
 
 
 def create_account_event(
-    account_id: str, payload: Dict[str, Any], event_type: str = "create", source: str = None
+    account_id: str,
+    payload: Dict[str, Any],
+    event_type: str = "create",
+    source: Optional[str] = None,
 ) -> EntityEvent:
     """Create an account entity event."""
     return EntityEvent(
@@ -360,7 +362,10 @@ def create_account_event(
 
 
 def create_transaction_event(
-    transaction_id: str, payload: Dict[str, Any], event_type: str = "create", source: str = None
+    transaction_id: str,
+    payload: Dict[str, Any],
+    event_type: str = "create",
+    source: Optional[str] = None,
 ) -> EntityEvent:
     """Create a transaction entity event."""
     return EntityEvent(
@@ -378,7 +383,7 @@ def create_company_event(
     name: str,
     payload: Dict[str, Any],
     event_type: str = "create",
-    source: str = None,
+    source: Optional[str] = None,
 ) -> EntityEvent:
     """Create a company entity event."""
     return EntityEvent(

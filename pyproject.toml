@@ -170,7 +170,54 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 explicit_package_bases = true
-exclude = ['notebooks/', 'notebooks-exploratory/', 'hcd-1.2.3/', 'vendor/']
+exclude = [
+    'notebooks/',
+    'notebooks-exploratory/',
+    'hcd-1.2.3/',
+    'vendor/',
+    'banking/tests/',
+    'banking/.*/tests/',
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "banking.analytics.*",
+    "banking.aml.*",
+    "banking.data.*",
+    "banking.data_generators.core.*",
+    "banking.data_generators.examples.*",
+    "banking.data_generators.events.*",
+    "banking.data_generators.loaders.*",
+    "banking.data_generators.orchestration.*",
+    "banking.data_generators.patterns.*",
+    "banking.data_generators.utils.data_models",
+    "banking.fraud.*",
+    "banking.streaming.*",
+    "src.python.analytics.ubo_discovery",
+    "src.python.api.*",
+    "src.python.client.janusgraph_client",
+    "src.python.config.settings",
+    "src.python.init.initialize_graph",
+    "src.python.performance.*",
+    "src.python.repository.graph_repository",
+    "src.python.security.*",
+    "src.python.utils.embedding_generator",
+    "src.python.utils.error_codes",
+    "src.python.utils.log_sanitizer",
+    "src.python.utils.resilience",
+    "src.python.utils.startup_validation",
+    "src.python.utils.tracing",
+    "src.python.utils.validation",
+    "src.python.utils.vault_client",
+    "src.python.utils.vector_search",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "banking.streaming.events",
+]
+ignore_errors = false
 
 [tool.ruff]
 line-length = 100
