@@ -74,9 +74,18 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 #### Architecture
 
-- **[System Architecture](architecture/system-architecture.md)** - Overall system design
+- **[System Architecture](architecture/system-architecture.md)** - Logical component architecture and data flow
+- **[Deployment Architecture](architecture/deployment-architecture.md)** - Container orchestration, networking, and deployment topology
+- **[Podman Isolation Architecture](architecture/podman-isolation-architecture.md)** - Five-layer isolation model and project boundaries
 - **[Banking Architecture](banking/architecture/architecture.md)** - Banking module architecture
 - **[Enterprise Patterns](banking/architecture/enterprise-advanced-patterns-plan.md)** - Advanced design patterns
+
+#### Infrastructure Architecture (NEW)
+
+- **[Terraform Multi-Cloud Architecture](architecture/terraform-multi-cloud-architecture.md)** - Multi-cloud IaC with 15 modules across 5 platforms (AWS, Azure, GCP, vSphere, Bare Metal)
+- **[Kubernetes & Helm Architecture](architecture/kubernetes-helm-architecture.md)** - Helm charts, ArgoCD GitOps, multi-environment deployment strategy
+- **[OpenShift Deployment Manifests](architecture/openshift-deployment-manifests.md)** - OpenShift-specific deployment configurations
+- **[Horizontal Scaling Strategy](architecture/horizontal-scaling-strategy.md)** - Multi-cloud scaling procedures with HPA/VPA
 
 #### Data Flow & Pipeline
 
@@ -104,8 +113,16 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 
 - **Changelog** - Version history and changes (see root `CHANGELOG.md`)
 - **[Implementation Phases](implementation/phases/)** - Phase completion summaries
-- **[Remediation Baseline](implementation/remediation-plan-workingB-plus.md)** - Current prioritized backlog and delivery plan
+- **[Remediation Baseline](implementation/remediation-plan-working-b-plus.md)** - Current prioritized backlog and delivery plan
 - **[Codex Program Tracker (2026-02-18)](codex-program-tracker.md)** - Master tracker for P0-P2 execution status and KPI progress
+
+#### Business Documentation
+
+- **[Business Documentation Index](business/README.md)** - Complete business documentation navigation
+- **[Executive Summary](business/executive-summary.md)** - 1-page investment overview (599% ROI, 1.2-month payback)
+- **[Comprehensive Business Case](business/comprehensive-business-case.md)** - Complete investment justification
+- **[TCO Analysis](business/tco-analysis.md)** - 3-year cost breakdown ($1.38M)
+- **[ROI Calculator](business/roi-calculator.md)** - Financial returns analysis ($8.3M NPV, 985% IRR)
 
 #### Audits & Reports
 
@@ -148,6 +165,12 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[AML Setup](banking/setup/01-aml-phase1-setup.md)** - Anti-Money Laundering setup
 - **[Banking Overview](banking/setup/00-overview.md)** - Banking module overview
 
+#### Business Compliance Documentation
+
+- **[Compliance Certifications Portfolio](business/compliance-certifications-portfolio.md)** - GDPR, SOC 2, BSA/AML, PCI DSS (98/100 score)
+- **[Risk Management Framework](business/risk-management-framework.md)** - 77 risks identified, 100% mitigation
+- **[Data Governance Framework](business/data-governance-framework.md)** - Data quality, security, privacy (96.5/100 score)
+
 ---
 
 ## 📖 Documentation by Topic
@@ -180,6 +203,16 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [Banking API Reference](banking/guides/api-reference.md)
 - [AML Setup](banking/setup/01-aml-phase1-setup.md)
 - [Advanced Analytics](banking/guides/advanced-analytics-olap-guide.md)
+
+### Business Documentation
+
+- [Business Documentation Index](business/README.md)
+- [Executive Summary](business/executive-summary.md)
+- [Business User Guide](business/business-user-guide.md)
+- [Banking & Financial Services Guide](business/banking-financial-services-guide.md)
+- [SLA Documentation](business/sla-documentation.md)
+- [Capacity Planning Guide](business/capacity-planning-guide.md)
+- [Business Continuity & DR Plan](business/business-continuity-disaster-recovery-plan.md)
 
 ### Architecture & Design
 
@@ -244,6 +277,23 @@ docs/
 │   ├── implementation/        # Implementation docs
 │   ├── planning/              # Planning documents
 │   └── setup/                 # Setup guides
+│
+├── business/                   # Business documentation (NEW)
+│   ├── README.md              # Business docs navigation
+│   ├── business-documentation-master-plan.md
+│   ├── executive-summary.md
+│   ├── tco-analysis.md
+│   ├── roi-calculator.md
+│   ├── comprehensive-business-case.md
+│   ├── compliance-certifications-portfolio.md
+│   ├── business-user-guide.md
+│   ├── sla-documentation.md
+│   ├── risk-management-framework.md
+│   ├── data-governance-framework.md
+│   ├── capacity-planning-guide.md
+│   ├── business-continuity-disaster-recovery-plan.md
+│   ├── banking-financial-services-guide.md
+│   └── business-value-dashboard.md
 │
 ├── compliance/                 # Compliance documentation
 │   ├── gdpr-compliance.md
