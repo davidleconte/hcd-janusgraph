@@ -33,7 +33,7 @@ class ErrorCode:
 
 
 # Error code registry
-ERROR_CODES = {
+ERROR_CODES: Dict[str, ErrorCode] = {
     # Validation errors (1xxx)
     "VAL_001": ErrorCode("VAL_001", ErrorCategory.VALIDATION, "Invalid input parameter", 400),
     "VAL_002": ErrorCode("VAL_002", ErrorCategory.VALIDATION, "Required field missing", 400),
@@ -62,10 +62,10 @@ class AppException(Exception):
         error_code: str,
         details: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None,
-    ):
-        self.error = ERROR_CODES.get(error_code)
-        if not self.error:
-            self.error = ErrorCode(error_code, ErrorCategory.INTERNAL, "Unknown error", 500)
+    ) -> None:
+        self.error: ErrorCode = ERROR_CODES.get(error_code) or ErrorCode(
+            error_code, ErrorCategory.INTERNAL, "Unknown error", 500
+        )
         self.details = details
         self.context = context or {}
         super().__init__(
@@ -87,14 +87,14 @@ class AppException(Exception):
 class ValidationError(AppException):
     """Validation error."""
 
-    def __init__(self, details: str = None, field: str = None):
+    def __init__(self, details: Optional[str] = None, field: Optional[str] = None) -> None:
         super().__init__("VAL_001", details, {"field": field} if field else None)
 
 
 class NotFoundError(AppException):
     """Entity not found error."""
 
-    def __init__(self, entity_type: str, entity_id: str):
+    def __init__(self, entity_type: str, entity_id: str) -> None:
         super().__init__(
             "DB_003",
             f"{entity_type} '{entity_id}' not found",
@@ -105,5 +105,5 @@ class NotFoundError(AppException):
 class ConnectionError(AppException):
     """Database connection error."""
 
-    def __init__(self, service: str, details: str = None):
+    def __init__(self, service: str, details: Optional[str] = None) -> None:
         super().__init__("DB_001", details, {"service": service})

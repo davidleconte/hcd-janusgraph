@@ -16,7 +16,7 @@ Week 2: Event Schema & Producers
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 try:
     import pulsar
@@ -160,7 +160,10 @@ class EntityProducer:
             if self.compression:
                 producer_config["compression_type"] = CompressionType.ZSTD
 
-            self.producers[topic] = self.client.create_producer(**producer_config)
+            client = self.client
+            if client is None:
+                raise RuntimeError("Pulsar client is not initialized")
+            self.producers[topic] = client.create_producer(**producer_config)
             logger.info("Created producer for topic: %s", topic)
 
         return self.producers[topic]
@@ -345,7 +348,7 @@ class MockEntityProducer:
     def __init__(self):
         self.events: List[EntityEvent] = []
         self.events_by_topic: Dict[str, List[EntityEvent]] = {}
-        self._connected = True
+        self._connected: bool = True
 
     def send(self, event: EntityEvent, callback=None):
         """Store event in memory."""
@@ -363,7 +366,7 @@ class MockEntityProducer:
 
     def send_batch(self, events: List[EntityEvent]) -> Dict[str, int]:
         """Store batch of events in memory."""
-        results = {}
+        results: Dict[str, int] = {}
         for event in events:
             self.send(event)
             topic = event.get_topic()
@@ -403,7 +406,7 @@ class MockEntityProducer:
         self.events_by_topic.clear()
 
 
-def get_producer(mock: bool = False, **kwargs) -> EntityProducer:
+def get_producer(mock: bool = False, **kwargs: Any) -> Union[EntityProducer, "MockEntityProducer"]:
     """
     Factory function to get the appropriate producer.
 

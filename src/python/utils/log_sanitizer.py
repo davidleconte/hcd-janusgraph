@@ -9,7 +9,8 @@ Phase: Week 1 Remediation - Security Hardening
 
 import logging
 import re
-from typing import Dict, Optional, Pattern, Tuple
+from types import TracebackType
+from typing import Any, Dict, List, Optional, Pattern, Tuple, Type
 
 
 class PIISanitizer(logging.Filter):
@@ -58,7 +59,7 @@ class PIISanitizer(logging.Filter):
         self,
         redact_ip: bool = False,
         additional_patterns: Optional[Dict[str, Tuple[str, str]]] = None,
-    ):
+    ) -> None:
         """
         Initialize PII sanitizer.
 
@@ -221,10 +222,10 @@ class AllowPIILogging:
         ...     logger.debug("Debug info with PII")
     """
 
-    def __init__(self):
-        self.original_filters = {}
+    def __init__(self) -> None:
+        self.original_filters: Dict[logging.Handler, List[Any]] = {}
 
-    def __enter__(self):
+    def __enter__(self) -> "AllowPIILogging":
         """Remove PII filters from all handlers."""
         root_logger = logging.getLogger()
         for handler in root_logger.handlers:
@@ -232,7 +233,12 @@ class AllowPIILogging:
             handler.filters = [f for f in handler.filters if not isinstance(f, PIISanitizer)]
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         """Restore PII filters."""
         for handler, filters in self.original_filters.items():
             handler.filters = filters

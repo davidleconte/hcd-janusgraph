@@ -9,7 +9,7 @@ Created: 2026-02-06
 Week 2: Event Schema & Producers
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from .events import EntityEvent
 
@@ -26,7 +26,7 @@ def entity_to_dict(entity: Any) -> Dict[str, Any]:
     """
     # Pydantic V2+ - use model_dump() directly (project requires pydantic>=2.0.0)
     if hasattr(entity, "model_dump"):
-        return entity.model_dump()
+        return cast(Dict[str, Any], entity.model_dump())
     elif hasattr(entity, "__dict__"):
         return {k: v for k, v in entity.__dict__.items() if not k.startswith("_")}
     else:
@@ -146,7 +146,7 @@ def get_text_for_embedding(entity: Any, entity_type: str) -> Optional[str]:
 def convert_entity_to_event(
     entity: Any,
     event_type: str = "create",
-    source: str = None,
+    source: Optional[str] = None,
     version: int = 1,
     metadata: Optional[Dict[str, Any]] = None,
 ) -> EntityEvent:
@@ -190,11 +190,11 @@ def convert_entity_to_event(
 
 
 def convert_entities_to_events(
-    entities: list,
+    entities: List[Any],
     event_type: str = "create",
-    source: str = None,
+    source: Optional[str] = None,
     metadata: Optional[Dict[str, Any]] = None,
-) -> list:
+) -> List[EntityEvent]:
     """
     Convert a list of entities to EntityEvents.
 

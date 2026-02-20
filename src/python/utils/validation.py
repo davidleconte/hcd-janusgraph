@@ -499,6 +499,7 @@ class Validator:
         Raises:
             ValidationError: If value is invalid
         """
+        num_value: Union[int, float]
         try:
             if isinstance(value, str):
                 # Try int first, then float

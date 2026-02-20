@@ -202,12 +202,9 @@ module = [
     "src.python.repository.graph_repository",
     "src.python.security.*",
     "src.python.utils.embedding_generator",
-    "src.python.utils.error_codes",
-    "src.python.utils.log_sanitizer",
     "src.python.utils.resilience",
     "src.python.utils.startup_validation",
     "src.python.utils.tracing",
-    "src.python.utils.validation",
     "src.python.utils.vault_client",
     "src.python.utils.vector_search",
 ]
@@ -216,6 +213,38 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = [
     "banking.streaming.events",
+]
+ignore_errors = false
+
+[[tool.mypy.overrides]]
+module = [
+    "banking.streaming.entity_converter",
+]
+ignore_errors = false
+
+[[tool.mypy.overrides]]
+module = [
+    "src.python.utils.error_codes",
+]
+ignore_errors = false
+
+[[tool.mypy.overrides]]
+module = [
+    "banking.streaming.producer",
+]
+ignore_errors = false
+disallow_untyped_defs = false
+no_implicit_optional = false
+
+[[tool.mypy.overrides]]
+module = [
+    "src.python.utils.validation",
+]
+ignore_errors = false
+
+[[tool.mypy.overrides]]
+module = [
+    "src.python.utils.log_sanitizer",
 ]
 ignore_errors = false
 
