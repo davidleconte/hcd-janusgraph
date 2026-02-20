@@ -164,6 +164,15 @@ class MasterOrchestrator:
     - Export data in multiple formats
     """
 
+    JSON_COLLECTION_EXPORTS = (
+        ("persons", "persons.json"),
+        ("companies", "companies.json"),
+        ("accounts", "accounts.json"),
+        ("transactions", "transactions.json"),
+        ("communications", "communications.json"),
+        ("patterns", "patterns.json"),
+    )
+
     def __init__(self, config: Optional[GenerationConfig] = None):
         """
         Initialize master orchestrator.
@@ -484,75 +493,80 @@ class MasterOrchestrator:
         else:
             logger.warning("Export format '%s' not yet implemented", self.config.output_format)
 
-    def _export_json(self):
-        """Export data as JSON files"""
-        # Export persons
-        if self.persons:
-            path = self.config.output_dir / "persons.json"
-            with open(path, "w") as f:
-                json.dump([p.model_dump() for p in self.persons], f, indent=2, default=str)
-            logger.info("✓ Exported %s persons to %s", len(self.persons), path)
+    @staticmethod
+    def _serialize_records(records: List[Any]) -> List[Dict[str, Any]]:
+        """Serialize model records into JSON-compatible dictionaries."""
+        return [record.model_dump() for record in records]
 
-        # Export companies
-        if self.companies:
-            path = self.config.output_dir / "companies.json"
-            with open(path, "w") as f:
-                json.dump([c.model_dump() for c in self.companies], f, indent=2, default=str)
-            logger.info("✓ Exported %s companies to %s", len(self.companies), path)
+    @staticmethod
+    def _write_json_file(path: Path, payload: Any) -> None:
+        """Write JSON payload to file with deterministic formatting."""
+        with open(path, "w") as file_handle:
+            json.dump(payload, file_handle, indent=2, default=str)
 
-        # Export accounts
-        if self.accounts:
-            path = self.config.output_dir / "accounts.json"
-            with open(path, "w") as f:
-                json.dump([a.model_dump() for a in self.accounts], f, indent=2, default=str)
-            logger.info("✓ Exported %s accounts to %s", len(self.accounts), path)
-
-        # Export transactions
-        if self.transactions:
-            path = self.config.output_dir / "transactions.json"
-            with open(path, "w") as f:
-                json.dump([t.model_dump() for t in self.transactions], f, indent=2, default=str)
-            logger.info("✓ Exported %s transactions to %s", len(self.transactions), path)
-
-        # Export communications
-        if self.communications:
-            path = self.config.output_dir / "communications.json"
-            with open(path, "w") as f:
-                json.dump([c.model_dump() for c in self.communications], f, indent=2, default=str)
-            logger.info("✓ Exported %s communications to %s", len(self.communications), path)
-
-        # Export patterns
-        if self.patterns:
-            path = self.config.output_dir / "patterns.json"
-            with open(path, "w") as f:
-                json.dump([p.model_dump() for p in self.patterns], f, indent=2, default=str)
-            logger.info("✓ Exported %s patterns to %s", len(self.patterns), path)
-
-        # Export statistics
-        stats_path = self.config.output_dir / "generation_stats.json"
-        with open(stats_path, "w") as f:
-            json.dump(
+    def _build_stats_payload(self, include_extended_fields: bool = False) -> Dict[str, Any]:
+        """Build stats payload for export outputs."""
+        stats_payload = {
+            "start_time": self.stats.start_time.isoformat() if self.stats.start_time else None,
+            "end_time": self.stats.end_time.isoformat() if self.stats.end_time else None,
+            "persons_generated": self.stats.persons_generated,
+            "companies_generated": self.stats.companies_generated,
+            "accounts_generated": self.stats.accounts_generated,
+            "transactions_generated": self.stats.transactions_generated,
+            "communications_generated": self.stats.communications_generated,
+            "trades_generated": self.stats.trades_generated,
+            "travels_generated": self.stats.travels_generated,
+            "documents_generated": self.stats.documents_generated,
+            "patterns_generated": self.stats.patterns_generated,
+            "total_records": self.stats.total_records,
+            "generation_time_seconds": self.stats.generation_time_seconds,
+        }
+        if include_extended_fields:
+            stats_payload.update(
                 {
-                    "start_time": self.stats.start_time.isoformat(),
-                    "end_time": self.stats.end_time.isoformat() if self.stats.end_time else None,
-                    "persons_generated": self.stats.persons_generated,
-                    "companies_generated": self.stats.companies_generated,
-                    "accounts_generated": self.stats.accounts_generated,
-                    "transactions_generated": self.stats.transactions_generated,
-                    "communications_generated": self.stats.communications_generated,
-                    "trades_generated": self.stats.trades_generated,
-                    "travels_generated": self.stats.travels_generated,
-                    "documents_generated": self.stats.documents_generated,
-                    "patterns_generated": self.stats.patterns_generated,
-                    "total_records": self.stats.total_records,
-                    "generation_time_seconds": self.stats.generation_time_seconds,
                     "records_per_second": self.stats.records_per_second,
                     "errors": self.stats.errors,
                     "warnings": self.stats.warnings,
-                },
-                f,
-                indent=2,
+                }
             )
+        return stats_payload
+
+    def _export_json_collection(self, collection_name: str, file_name: str) -> None:
+        """Export one named collection to JSON if it has records."""
+        collection = getattr(self, collection_name, [])
+        if not collection:
+            return
+
+        output_path = self.config.output_dir / file_name
+        payload = self._serialize_records(collection)
+        self._write_json_file(output_path, payload)
+        logger.info("✓ Exported %s %s to %s", len(collection), collection_name, output_path)
+
+    def _build_single_file_export_payload(self) -> Dict[str, Any]:
+        """Build payload for export_to_json single-file output."""
+        return {
+            "persons": self._serialize_records(self.persons),
+            "companies": self._serialize_records(self.companies),
+            "accounts": self._serialize_records(self.accounts),
+            "transactions": self._serialize_records(self.transactions),
+            "communications": self._serialize_records(self.communications),
+            "trades": self._serialize_records(self.trades),
+            "travels": self._serialize_records(self.travels),
+            "documents": self._serialize_records(self.documents),
+            "patterns": self._serialize_records(self.patterns),
+            "statistics": self._build_stats_payload(include_extended_fields=False),
+        }
+
+    def _export_json(self):
+        """Export data as JSON files"""
+        for collection_name, file_name in self.JSON_COLLECTION_EXPORTS:
+            self._export_json_collection(collection_name, file_name)
+
+        stats_path = self.config.output_dir / "generation_stats.json"
+        self._write_json_file(
+            stats_path,
+            self._build_stats_payload(include_extended_fields=True),
+        )
         logger.info("✓ Exported generation statistics to %s", stats_path)
 
     def export_to_json(self, output_path: str) -> Dict[str, Any]:
@@ -568,42 +582,12 @@ class MasterOrchestrator:
         Returns:
             Dictionary containing all generated data
         """
-        from pathlib import Path
-
-        # Prepare data dictionary
-        data = {
-            "persons": [p.model_dump() for p in self.persons],
-            "companies": [c.model_dump() for c in self.companies],
-            "accounts": [a.model_dump() for a in self.accounts],
-            "transactions": [t.model_dump() for t in self.transactions],
-            "communications": [c.model_dump() for c in self.communications],
-            "trades": [t.model_dump() for t in self.trades],
-            "travels": [t.model_dump() for t in self.travels],
-            "documents": [d.model_dump() for d in self.documents],
-            "patterns": [p.model_dump() for p in self.patterns],
-            "statistics": {
-                "start_time": self.stats.start_time.isoformat() if self.stats.start_time else None,
-                "end_time": self.stats.end_time.isoformat() if self.stats.end_time else None,
-                "persons_generated": self.stats.persons_generated,
-                "companies_generated": self.stats.companies_generated,
-                "accounts_generated": self.stats.accounts_generated,
-                "transactions_generated": self.stats.transactions_generated,
-                "communications_generated": self.stats.communications_generated,
-                "trades_generated": self.stats.trades_generated,
-                "travels_generated": self.stats.travels_generated,
-                "documents_generated": self.stats.documents_generated,
-                "patterns_generated": self.stats.patterns_generated,
-                "total_records": self.stats.total_records,
-                "generation_time_seconds": self.stats.generation_time_seconds,
-            },
-        }
+        data = self._build_single_file_export_payload()
 
         # Write to file
         output_file = Path(output_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(output_file, "w") as f:
-            json.dump(data, f, indent=2, default=str)
+        self._write_json_file(output_file, data)
 
         logger.info("✓ Exported all data to %s", output_path)
         return data

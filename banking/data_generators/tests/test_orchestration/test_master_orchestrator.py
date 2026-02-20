@@ -286,6 +286,38 @@ class TestMasterOrchestratorIntegration:
         assert "amount" in txn
         assert "currency" in txn
 
+    def test_export_to_json_returns_file_exact_payload(self, small_orchestrator, tmp_path):
+        """Test deterministic export I/O boundary: returned payload matches file payload."""
+        small_orchestrator.generate_all()
+
+        output_file = tmp_path / "boundary_output.json"
+        returned_data = small_orchestrator.export_to_json(output_file)
+
+        with open(output_file, "r") as f:
+            file_data = json.load(f)
+
+        normalized_returned = json.loads(json.dumps(returned_data, default=str))
+        assert normalized_returned == file_data
+
+    def test_generate_all_exports_expected_json_files(self, small_orchestrator, tmp_path):
+        """Test JSON export strategy emits expected phase-4 output files."""
+        output_dir = tmp_path / "phase4-output"
+        small_orchestrator.config.output_dir = output_dir
+        small_orchestrator.config.output_format = "json"
+
+        small_orchestrator.generate_all()
+
+        expected_files = {
+            "persons.json",
+            "companies.json",
+            "accounts.json",
+            "transactions.json",
+            "communications.json",
+            "generation_stats.json",
+        }
+        produced_files = {path.name for path in output_dir.glob("*.json")}
+        assert expected_files.issubset(produced_files)
+
     def test_pattern_injection(self):
         """Test that patterns are injected correctly"""
         from banking.data_generators.orchestration import GenerationConfig, MasterOrchestrator
