@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  opensearch:
+    environment:
+      - plugins.security.disabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD:?OPENSEARCH_INITIAL_ADMIN_PASSWORD must be set}
+
+  opensearch-dashboards:
+    environment:
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=false
+
+  grafana:
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER must be set}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD must be set}
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+  analytics-api:
+    environment:
+      - AUTH_ENABLED=true
+      - API_JWT_SECRET=${API_JWT_SECRET:?API_JWT_SECRET must be set}
+      - API_USER_PASSWORD=${API_USER_PASSWORD:?API_USER_PASSWORD must be set}

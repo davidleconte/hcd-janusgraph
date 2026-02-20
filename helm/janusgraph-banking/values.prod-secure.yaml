@@ -1,0 +1,19 @@
+# Production-secure overrides for janusgraph-banking Helm deployment.
+# Usage:
+#   helm upgrade --install janusgraph-banking ./helm/janusgraph-banking \
+#     -f helm/janusgraph-banking/values.yaml \
+#     -f helm/janusgraph-banking/values.prod-secure.yaml
+
+api:
+  image:
+    tag: "1.4.0"
+  env:
+    authEnabled: "true"
+    useSSL: "true"
+    corsOrigins: "https://app.example.com"
+
+# Explicitly fail deployment if these are not set by your secret management:
+#   API_JWT_SECRET
+#   API_USER_PASSWORD
+#   OPENSEARCH_INITIAL_ADMIN_PASSWORD
+#   GRAFANA_ADMIN_PASSWORD
