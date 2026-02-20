@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Last Verified**: 2026-02-17
+**Last Verified**: 2026-02-20
 **Applies To**: This repository runtime and contributor workflows
 **Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 
@@ -90,6 +90,7 @@ Authoritative runtime docs:
 - `README.md`
 - `QUICKSTART.md`
 - `docs/project-status.md`
+- `docs/prod-secure-overrides.md`
 - canonical scripts under `scripts/deployment/` and `scripts/testing/`
 
 Legacy/historical docs must be explicitly marked non-authoritative and/or archived.
