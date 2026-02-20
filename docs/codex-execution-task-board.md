@@ -137,6 +137,12 @@
 - Deliverable: Alert/runbook mapping for major gate failures (`G0-G9`).
 - Acceptance:
   - Every failure class has documented alert and deterministic triage steps.
+- Status Update (2026-02-20):
+  - Implemented.
+  - Artifacts:
+    - `docs/operations/deterministic-gate-alert-runbook-mapping.md`
+    - `config/monitoring/deterministic-gate-alert-map.yml`
+    - `docs/operations/operations-runbook.md` (canonical cross-link)
 
 ## Program-Level Milestones
 
@@ -149,4 +155,3 @@
 1. Weekly risk review: open blockers, quality metrics trend, decision log.
 2. Bi-weekly KPI publication to authoritative status doc.
 3. End-of-phase deterministic proof run and evidence attachment.
-

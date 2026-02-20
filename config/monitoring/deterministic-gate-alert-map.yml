@@ -1,0 +1,98 @@
+# Deterministic gate failure alert mapping
+# Purpose: map gate failures (G0-G9 used in deterministic pipeline) to
+# severity, ownership, and runbook references for operational response.
+
+version: 1
+updated_at: "2026-02-20T12:58:00Z"
+source:
+  pipeline: "scripts/testing/run_demo_pipeline_repeatable.sh"
+  status_report: "exports/deterministic-status.json"
+  failed_gate_file: "failed_gate.txt"
+
+defaults:
+  category: deterministic-gate
+  alert_channel: ops-oncall
+  ticket_label: deterministic-pipeline
+
+gates:
+  G0_PRECHECK:
+    alert_name: DeterministicGateG0PrecheckFailed
+    severity: warning
+    owner: platform-engineering
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g0_precheck
+    deterministic_commands:
+      - bash scripts/validation/preflight_check.sh --strict
+      - bash scripts/validation/validate_podman_isolation.sh --strict
+
+  G2_CONNECTION:
+    alert_name: DeterministicGateG2ConnectionFailed
+    severity: critical
+    owner: platform-engineering
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g2_connection
+    deterministic_commands:
+      - podman system connection list
+      - podman machine list
+      - bash scripts/validation/preflight_check.sh --strict
+
+  G3_RESET:
+    alert_name: DeterministicGateG3ResetFailed
+    severity: warning
+    owner: platform-engineering
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g3_reset
+    deterministic_commands:
+      - bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-preflight
+
+  G5_DEPLOY_VAULT:
+    alert_name: DeterministicGateG5DeployVaultFailed
+    severity: critical
+    owner: platform-engineering
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g5_deploy_vault
+    deterministic_commands:
+      - cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh
+      - podman ps
+
+  G6_RUNTIME_CONTRACT:
+    alert_name: DeterministicGateG6RuntimeContractFailed
+    severity: critical
+    owner: security-and-api
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g6_runtime_contract
+    deterministic_commands:
+      - python scripts/validation/validate_env_contract.py --env-file .env.example --compose-env-file config/compose/.env.example
+      - bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-preflight --skip-reset
+
+  G7_SEED:
+    alert_name: DeterministicGateG7SeedFailed
+    severity: warning
+    owner: data-platform
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g7_seed
+    deterministic_commands:
+      - bash scripts/testing/check_graph_counts.sh
+      - bash scripts/testing/run_demo_pipeline_repeatable.sh --skip-preflight --skip-reset --skip-deploy
+
+  G8_NOTEBOOKS:
+    alert_name: DeterministicGateG8NotebooksFailed
+    severity: warning
+    owner: qa-and-domain-engineering
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g8_notebooks
+    deterministic_commands:
+      - bash scripts/testing/run_notebooks_live_repeatable.sh
+
+  G9_DETERMINISM:
+    alert_name: DeterministicGateG9DeterminismFailed
+    severity: critical
+    owner: platform-and-qa
+    runbook_ref: docs/operations/deterministic-gate-alert-runbook-mapping.md#g9_determinism
+    deterministic_commands:
+      - bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json
+
+ci_quality_gates:
+  performance_slo:
+    alert_name: QualityGatePerformanceSLOFailed
+    severity: warning
+    owner: sre-and-qa
+    runbook_ref: docs/performance/performance-governance-runbook.md
+  startup_budget:
+    alert_name: QualityGateStartupBudgetFailed
+    severity: warning
+    owner: sre-and-qa
+    runbook_ref: docs/performance/performance-governance-runbook.md

@@ -10,6 +10,7 @@
 - **Canonical Runtime Path:** `scripts/deployment/deterministic_setup_and_proof_wrapper.sh`
 - **Canonical Pipeline:** `scripts/testing/run_demo_pipeline_repeatable.sh`
 - **Authoritative Status:** `docs/project-status.md`
+- **Alert Mapping:** `docs/operations/deterministic-gate-alert-runbook-mapping.md`
 
 ---
 
@@ -55,6 +56,15 @@ This runbook provides comprehensive operational procedures for the HCD JanusGrap
 ---
 
 ## 1. Deterministic Operations
+
+### 1.0 Alert-to-Runbook Mapping
+
+Use `docs/operations/deterministic-gate-alert-runbook-mapping.md` as the canonical response matrix for
+`G0_PRECHECK`, `G2_CONNECTION`, `G3_RESET`, `G5_DEPLOY_VAULT`, `G6_RUNTIME_CONTRACT`, `G7_SEED`,
+`G8_NOTEBOOKS`, and `G9_DETERMINISM`.
+
+Machine-readable mapping for monitoring integration is maintained at:
+`config/monitoring/deterministic-gate-alert-map.yml`.
 
 ### 1.1 Canonical Deployment Command
 

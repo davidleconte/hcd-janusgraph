@@ -52,7 +52,7 @@
 | CODEX-P2-001 | Performance SLO baseline and CI gate | P2 | SRE + QA/SDET | 5d | Planned |
 | CODEX-P2-002 | API versioning and deprecation policy | P2 | Backend Lead + Architect | 3d | Planned |
 | CODEX-P2-003 | Security negative-path test expansion | P2 | Security + QA/SDET | 4d | Planned |
-| CODEX-P2-004 | Observability and runbook mapping | P2 | SRE | 3d | Planned |
+| CODEX-P2-004 | Observability and runbook mapping | P2 | SRE | 3d | Completed (2026-02-20) |
 
 ## Weekly Update Template
 
@@ -70,4 +70,3 @@
   - Coverage floors:
   - Complexity hotspots:
   - Debt markers:
-

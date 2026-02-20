@@ -23,6 +23,7 @@ To prevent drift, root docs should link here instead of duplicating numeric pass
 - Coverage gate baseline: enforced `--cov-fail-under=70` in CI and local pytest defaults.
 - Type-check baseline: canonical mypy path is `mypy src/python banking/ --ignore-missing-imports`.
 - Performance governance baseline: deterministic CI gates for runtime SLO and startup/import budgets are configured in `.github/workflows/quality-gates.yml`.
+- Observability baseline: deterministic gate failures (`G0`/`G2`/`G3`/`G5`/`G6`/`G7`/`G8`/`G9`) are mapped to alert classes and triage runbooks in `docs/operations/deterministic-gate-alert-runbook-mapping.md` with machine mapping in `config/monitoring/deterministic-gate-alert-map.yml`.
 - Latest local performance gate baseline (2026-02-20):
   - runtime SLO gate: PASS (`rps=88.72`, `avg_ms=11.27`, `p95_ms=12.51`, `p99_ms=12.52`)
   - startup/import budget gate: PASS (`noop_ms=29.36`, `total_import_ms=290.83`, `max_single_import_ms=109.43`, `app_factory_ms=5.12`)
