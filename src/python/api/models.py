@@ -263,7 +263,7 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1, max_length=255)
     mfa_secret: Optional[str] = Field(
         None,
-        description="TOTP secret required when completing MFA login challenge",
+        description="Deprecated and ignored. Challenge flow no longer accepts raw secrets.",
     )
     mfa_token: Optional[str] = Field(None, description="TOTP or backup code")
     mfa_login_challenge: Optional[str] = None

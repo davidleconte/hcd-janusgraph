@@ -152,6 +152,34 @@ def clear_auth_session_manager() -> None:
     _session_manager = None
 
 
+def require_any_role(*allowed_roles: str):
+    """Return a dependency that requires one of the provided roles when auth is enabled."""
+    normalized_allowed = {
+        role.strip().lower() for role in allowed_roles if isinstance(role, str) and role.strip()
+    }
+
+    async def _require_role(request: Request) -> None:
+        if not normalized_allowed:
+            return
+
+        settings = get_settings()
+        if not settings.auth_enabled:
+            return
+
+        raw_roles = getattr(request.state, "user_roles", [])
+        user_roles = _normalize_roles(raw_roles)
+        if any(role in normalized_allowed for role in user_roles):
+            return
+
+        allowed_list = ", ".join(sorted(normalized_allowed))
+        raise HTTPException(
+            status_code=403,
+            detail=f"Insufficient role. Requires one of: {allowed_list}",
+        )
+
+    return _require_role
+
+
 limiter = Limiter(key_func=get_remote_address)
 
 

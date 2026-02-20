@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Header, HTTPException, Request
-from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from src.python.api.dependencies import get_auth_session_manager, get_settings, limiter
 from src.python.api.models import (
@@ -45,6 +45,18 @@ _challenge_ttl_seconds = 300
 def _split_roles(raw_roles: str) -> list[str]:
     """Split and normalize a comma-separated role list."""
     return [role.strip().lower() for role in raw_roles.split(",") if role.strip()]
+
+
+def _assert_supported_user(user_id: str) -> None:
+    """Restrict auth/MFA operations to configured API user in single-user mode."""
+    settings = get_settings()
+    if not settings.auth_enabled:
+        return
+    if user_id != settings.api_user:
+        raise HTTPException(
+            status_code=HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
 
 
 def get_mfa_manager() -> MFAManager:
@@ -201,22 +213,27 @@ def login(request: Request, body: LoginRequest):
         )
 
     enrollment = get_mfa_enrollment().get_user_enrollment(body.username)
-    stored_secret = None
-    stored_hashed_backup_codes = None
-    if enrollment:
-        stored_secret = enrollment.get("secret")
-        stored_hashed_backup_codes = enrollment.get("hashed_backup_codes")
-    challenge_id, secret, _ = _create_login_challenge(
+    if settings.auth_enabled and not enrollment:
+        raise HTTPException(
+            HTTP_403_FORBIDDEN,
+            "MFA enrollment required. Use /api/v1/auth/mfa/enroll before login.",
+        )
+    stored_secret = enrollment.get("secret") if enrollment else None
+    stored_hashed_backup_codes = enrollment.get("hashed_backup_codes") if enrollment else None
+    challenge_id, _, _ = _create_login_challenge(
         body.username,
         roles,
         secret=stored_secret,
         hashed_backup_codes=stored_hashed_backup_codes,
     )
+    exposed_secret: Optional[str] = None
+    if not settings.auth_enabled and challenge_id in _login_challenges:
+        exposed_secret = _login_challenges[challenge_id].get("secret")
     return LoginResponse(
         success=True,
         user_id=body.username,
         mfa_required=True,
-        mfa_secret=secret,
+        mfa_secret=exposed_secret,
         mfa_login_challenge=challenge_id,
         roles=roles,
         message="MFA required. Provide mfa_token with mfa_login_challenge.",
@@ -286,6 +303,7 @@ def enroll_mfa(request: Request, body: MFAEnrollRequest):
     Returns TOTP secret and QR code for authenticator app setup.
     User must verify with a valid token to complete enrollment.
     """
+    _assert_supported_user(body.user_id)
     enrollment = get_mfa_enrollment()
 
     try:
@@ -317,6 +335,7 @@ def verify_mfa(request: Request, body: MFAVerifyRequest):
     Accepts either a TOTP token or a backup code.
     """
     mgr = get_mfa_manager()
+    _assert_supported_user(body.user_id)
 
     if body.mfa_login_challenge:
         challenge = _get_login_challenge(body.mfa_login_challenge)
@@ -391,6 +410,7 @@ def verify_mfa(request: Request, body: MFAVerifyRequest):
 @limiter.limit(lambda: f"{get_settings().rate_limit_per_minute}/minute")
 def get_mfa_status(request: Request, user_id: str):
     """Get MFA enrollment status for a user."""
+    _assert_supported_user(user_id)
     mgr = get_mfa_manager()
     lockout = mgr.get_lockout_remaining(user_id)
     enrollment = get_mfa_enrollment().get_user_enrollment(user_id)
@@ -416,6 +436,7 @@ def disable_mfa(request: Request, body: MFADisableRequest):
     Requires a valid TOTP token or backup code for confirmation.
     """
     mgr = get_mfa_manager()
+    _assert_supported_user(body.user_id)
 
     enrollment = get_mfa_enrollment().get_user_enrollment(body.user_id)
     secret = enrollment.get("secret") if enrollment else body.secret

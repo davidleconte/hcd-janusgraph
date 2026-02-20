@@ -8,16 +8,20 @@ Exposes query profiling, cache stats, and benchmark endpoints.
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 
-from src.python.api.dependencies import get_settings, limiter
+from src.python.api.dependencies import get_settings, limiter, require_any_role
 from src.python.performance.query_cache import CacheStrategy, QueryCache
 from src.python.performance.query_profiler import QueryProfiler
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/performance", tags=["Performance"])
+router = APIRouter(
+    prefix="/api/v1/performance",
+    tags=["Performance"],
+    dependencies=[Depends(require_any_role("admin", "developer"))],
+)
 
 _profiler: Optional[QueryProfiler] = None
 _cache: Optional[QueryCache] = None
