@@ -429,7 +429,7 @@ class TestAPIMetadata:
         data = response.json()
 
         assert "version" in data["info"]
-        assert data["info"]["version"] == "1.0.0"
+        assert data["info"]["version"] == app.version
 
 
 class TestRequestValidation:

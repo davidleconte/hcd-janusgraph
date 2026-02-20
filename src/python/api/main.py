@@ -9,8 +9,12 @@ Date: 2026-02-04
 """
 
 import logging
+import tomllib
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,6 +53,19 @@ def _configure_logging(settings: Settings) -> None:
 
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_app_version() -> str:
+    """Resolve application version from installed package metadata or pyproject.toml."""
+    try:
+        return package_version("hcd-janusgraph-banking")
+    except PackageNotFoundError:
+        pyproject_path = Path(__file__).resolve().parents[3] / "pyproject.toml"
+        try:
+            pyproject_data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+            return str(pyproject_data.get("project", {}).get("version", "0.0.0"))
+        except Exception:
+            return "0.0.0"
 
 
 @asynccontextmanager
@@ -104,10 +121,11 @@ def _error_response(status_code: int, error: str, detail: str) -> JSONResponse:
 
 def create_app() -> FastAPI:
     """Application factory — creates and configures the FastAPI instance."""
+    app_version = _resolve_app_version()
     application = FastAPI(
         title="Graph Analytics API",
         description="REST API for graph-based analytics including UBO discovery, AML detection, and fraud analysis",
-        version="1.0.0",
+        version=app_version,
         lifespan=lifespan,
         docs_url="/docs",
         redoc_url="/redoc",
