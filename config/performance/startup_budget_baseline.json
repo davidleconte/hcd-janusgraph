@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "updated_at": "2026-02-20T12:41:00Z",
+  "methodology": "startup/import deterministic probes, median across samples",
+  "scenarios": {
+    "startup_import": {
+      "samples": 3,
+      "significant_breach_count": 2,
+      "import_targets": [
+        "src.python.config.settings",
+        "src.python.utils.startup_validation",
+        "src.python.repository.graph_repository",
+        "src.python.api.models",
+        "src.python.client.connection_pool"
+      ],
+      "app_factory_target": "src.python.config.settings:get_settings",
+      "budgets": {
+        "max_noop_startup_ms": 120.0,
+        "max_total_import_ms": 1000.0,
+        "max_single_import_ms": 400.0,
+        "max_app_factory_ms": 40.0
+      },
+      "baseline_medians": {
+        "noop_startup_ms": 26.69,
+        "total_import_ms": 282.01,
+        "max_single_import_ms": 102.39,
+        "app_factory_ms": 4.94
+      },
+      "regression_tolerances_pct": {
+        "max_noop_startup_increase_pct": 120.0,
+        "max_total_import_increase_pct": 100.0,
+        "max_single_import_increase_pct": 100.0,
+        "max_app_factory_increase_pct": 150.0
+      }
+    }
+  }
+}

@@ -22,6 +22,10 @@ To prevent drift, root docs should link here instead of duplicating numeric pass
 - Notebook determinism baseline: `15/15` PASS from `exports/demo-20260220T090523Z/notebook_run_report.tsv`.
 - Coverage gate baseline: enforced `--cov-fail-under=70` in CI and local pytest defaults.
 - Type-check baseline: canonical mypy path is `mypy src/python banking/ --ignore-missing-imports`.
+- Performance governance baseline: deterministic CI gates for runtime SLO and startup/import budgets are configured in `.github/workflows/quality-gates.yml`.
+- Latest local performance gate baseline (2026-02-20):
+  - runtime SLO gate: PASS (`rps=88.72`, `avg_ms=11.27`, `p95_ms=12.51`, `p99_ms=12.52`)
+  - startup/import budget gate: PASS (`noop_ms=29.36`, `total_import_ms=290.83`, `max_single_import_ms=109.43`, `app_factory_ms=5.12`)
 - Latest local CI-equivalent quality baseline (2026-02-20):
   - lock-sync export check: PASS
   - test gate: `2044 passed`, `18 deselected`, coverage `81.43%`
@@ -44,6 +48,8 @@ Authoritative implementation and planning docs:
 3. `exports/demo-20260220T090523Z/notebook_run_report.tsv`
 4. `exports/demo-20260220T090523Z/determinism.log`
 5. `coverage.xml` (generated from latest quality-gate-equivalent run)
+6. `exports/performance/slo_gate_local.json` (deterministic runtime SLO gate evidence)
+7. `exports/performance/startup_budget_gate_local.json` (startup/import-time budget gate evidence)
 
 ## Update Policy
 
