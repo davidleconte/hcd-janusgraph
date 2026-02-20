@@ -93,15 +93,26 @@ class PIISanitizer(logging.Filter):
         Returns:
             True (always allows record through after sanitization)
         """
-        # Sanitize message
-        record.msg = self.sanitize(str(record.msg))
+        # Sanitize message while preserving format-template semantics.
+        # If message is a format string with non-string args (e.g. %d), avoid
+        # coercing args to strings to prevent type-mismatch formatting errors.
+        if isinstance(record.msg, str):
+            record.msg = self.sanitize(record.msg)
+        else:
+            record.msg = self.sanitize(str(record.msg))
 
         # Sanitize args
         if record.args:
             if isinstance(record.args, dict):
-                record.args = {k: self.sanitize(str(v)) for k, v in record.args.items()}
+                record.args = {
+                    k: self.sanitize(v) if isinstance(v, str) else v for k, v in record.args.items()
+                }
+            elif isinstance(record.args, tuple):
+                record.args = tuple(
+                    self.sanitize(arg) if isinstance(arg, str) else arg for arg in record.args
+                )
             else:
-                record.args = tuple(self.sanitize(str(arg)) for arg in record.args)
+                record.args = self.sanitize(record.args) if isinstance(record.args, str) else record.args
 
         return True
 

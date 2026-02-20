@@ -69,6 +69,12 @@ class TestPIISanitizer:
         s.filter(record)
         assert "[EMAIL_REDACTED]" in record.args["email"]
 
+    def test_filter_preserves_numeric_tuple_args(self):
+        s = PIISanitizer()
+        record = logging.LogRecord("test", logging.INFO, "", 0, "status %d", (200,), None)
+        s.filter(record)
+        assert record.args[0] == 200
+
     def test_filter_returns_true(self):
         s = PIISanitizer()
         record = logging.LogRecord("test", logging.INFO, "", 0, "safe", None, None)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Tests for FastAPI Analytics API endpoints."""
 
+import logging
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -171,7 +172,41 @@ class TestConfigureLogging:
         settings = MagicMock()
         settings.log_level = "DEBUG"
         settings.log_json = True
+        settings.log_sanitization = True
+        settings.log_redact_ip = False
         _configure_logging(settings)
+
+    @patch("banking.compliance.audit_logger.Path.mkdir")
+    def test_configure_logging_adds_pii_filter_when_enabled(self, _mock_mkdir):
+        from src.python.api.main import _configure_logging
+        from src.python.utils.log_sanitizer import PIISanitizer
+
+        settings = MagicMock()
+        settings.log_level = "INFO"
+        settings.log_json = False
+        settings.log_sanitization = True
+        settings.log_redact_ip = True
+        _configure_logging(settings)
+
+        root = logging.getLogger()
+        assert len(root.handlers) >= 1
+        assert any(isinstance(f, PIISanitizer) for f in root.handlers[0].filters)
+
+    @patch("banking.compliance.audit_logger.Path.mkdir")
+    def test_configure_logging_skips_pii_filter_when_disabled(self, _mock_mkdir):
+        from src.python.api.main import _configure_logging
+        from src.python.utils.log_sanitizer import PIISanitizer
+
+        settings = MagicMock()
+        settings.log_level = "INFO"
+        settings.log_json = False
+        settings.log_sanitization = False
+        settings.log_redact_ip = False
+        _configure_logging(settings)
+
+        root = logging.getLogger()
+        assert len(root.handlers) >= 1
+        assert not any(isinstance(f, PIISanitizer) for f in root.handlers[0].filters)
 
 
 @patch("banking.compliance.audit_logger.Path.mkdir")

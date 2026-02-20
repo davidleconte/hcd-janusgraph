@@ -22,6 +22,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from src.python.config.settings import Settings, get_settings
+from src.python.utils.log_sanitizer import PIISanitizer
 
 from .dependencies import close_graph_connection, limiter, verify_auth
 from .models import ErrorResponse
@@ -49,6 +50,8 @@ def _configure_logging(settings: Settings) -> None:
         formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s - %(message)s")
 
     handler.setFormatter(formatter)
+    if settings.log_sanitization:
+        handler.addFilter(PIISanitizer(redact_ip=settings.log_redact_ip))
     root.addHandler(handler)
 
 

@@ -69,6 +69,14 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
     log_json: bool = Field(False, description="Emit structured JSON logs when True")
+    log_sanitization: bool = Field(
+        True,
+        description="Apply PII log sanitization filter when True",
+    )
+    log_redact_ip: bool = Field(
+        False,
+        description="Redact IP addresses when log sanitization is enabled",
+    )
 
     @field_validator("log_level")
     @classmethod
