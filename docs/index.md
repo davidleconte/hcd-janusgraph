@@ -130,6 +130,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Banking Domain Audit (2026-02-20)](implementation/audits/banking-domain-audit-2026-02-20.md)** - Comprehensive audit of banking modules, notebooks, and use cases (A-, 88/100) with retail/corporate coverage analysis
 - **[Skills Audit (2026-02-20)](implementation/audits/skills-audit-2026-02-20.md)** - Comprehensive audit of 9 repository-local skills (A, 92/100) with verification and recommendations
 - **[Comprehensive Ph.D.-Level Codebase Audit (2026-02-20)](implementation/audits/comprehensive-phd-level-codebase-audit-2026-02-20.md)** - Rigorous multi-dimensional analysis (A-, 90/100) with quantitative metrics and remediation plan
 - **[Codex Comprehensive Audit Report (2026-02-18)](codex-audit-report-2026-02-18.md)** - Full repository-wide technical and operational audit
