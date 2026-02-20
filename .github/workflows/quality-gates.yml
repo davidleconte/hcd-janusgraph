@@ -135,3 +135,29 @@ jobs:
 
       - name: Run isort
         run: isort --check-only src/ tests/ banking/
+
+  performance-slo:
+    name: Performance SLO Baseline Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Install dependencies
+        run: uv pip install --system -r requirements-dev.txt
+
+      - name: Run deterministic performance SLO gate
+        run: |
+          PYTHONPATH=. python -m src.python.performance.slo_gate \
+            --baseline config/performance/slo_baseline.json \
+            --scenario credential_rotation \
+            --output exports/performance/slo_gate_ci.json

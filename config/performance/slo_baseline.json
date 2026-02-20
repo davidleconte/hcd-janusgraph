@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "updated_at": "2026-02-20T11:52:00Z",
+  "methodology": "credential_rotation synthetic workload, median across samples",
+  "scenarios": {
+    "credential_rotation": {
+      "samples": 3,
+      "duration_seconds": 3,
+      "significant_breach_count": 2,
+      "budgets": {
+        "max_avg_response_time_ms": 30.0,
+        "max_p95_response_time_ms": 35.0,
+        "max_p99_response_time_ms": 40.0,
+        "min_success_rate_pct": 99.0,
+        "min_requests_per_second": 70.0
+      },
+      "baseline_medians": {
+        "avg_response_time_ms": 11.96,
+        "p95_response_time_ms": 12.54,
+        "p99_response_time_ms": 12.55,
+        "requests_per_second": 83.53,
+        "success_rate_pct": 100.0
+      },
+      "regression_tolerances_pct": {
+        "max_avg_response_time_increase_pct": 35.0,
+        "max_p95_response_time_increase_pct": 35.0,
+        "max_p99_response_time_increase_pct": 35.0,
+        "max_rps_drop_pct": 25.0,
+        "max_success_rate_drop_pct": 1.0
+      }
+    }
+  }
+}
