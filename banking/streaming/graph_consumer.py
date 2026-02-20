@@ -17,6 +17,7 @@ Week 3: Graph Consumer (Leg 1)
 import logging
 import os
 import time
+import json
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -137,10 +138,14 @@ class GraphConsumer:
 
     def connect(self):
         """Establish connections to Pulsar and JanusGraph."""
-        logger.info("Connecting to Pulsar at %s", self.pulsar_url)
+        self._log_event("graph_consumer_connect_pulsar", pulsar_url=self.pulsar_url)
         self.pulsar_client = pulsar.Client(self.pulsar_url)
 
-        logger.info("Subscribing to topics: %s", self.topics)
+        self._log_event(
+            "graph_consumer_subscribe_topics",
+            topics=self.topics,
+            subscription_name=self.subscription_name,
+        )
         self.consumer = self.pulsar_client.subscribe(
             self.topics,
             subscription_name=self.subscription_name,
@@ -150,15 +155,15 @@ class GraphConsumer:
 
         self.dlq_producer = self.pulsar_client.create_producer(self.dlq_topic)
 
-        logger.info("Connecting to JanusGraph at %s", self.janusgraph_url)
+        self._log_event("graph_consumer_connect_janusgraph", janusgraph_url=self.janusgraph_url)
         self.connection = DriverRemoteConnection(self.janusgraph_url, "g")
         self.g = traversal().with_remote(self.connection)
 
-        logger.info("GraphConsumer connected successfully")
+        self._log_event("graph_consumer_connected")
 
     def disconnect(self):
         """Close all connections."""
-        logger.info("Disconnecting GraphConsumer...")
+        self._log_event("graph_consumer_disconnect_start")
 
         if self.consumer:
             self.consumer.close()
@@ -169,7 +174,39 @@ class GraphConsumer:
         if self.connection:
             self.connection.close()
 
-        logger.info("GraphConsumer disconnected")
+        self._log_event("graph_consumer_disconnected")
+
+    @staticmethod
+    def _format_log_fields(**fields: Any) -> str:
+        """Format structured log fields as key=value pairs."""
+        formatted_fields: List[str] = []
+        for key, value in fields.items():
+            if value is None:
+                continue
+            if isinstance(value, (list, tuple, set)):
+                normalized = "[" + ",".join(str(item) for item in value) + "]"
+            elif isinstance(value, dict):
+                normalized = json.dumps(value, sort_keys=True, default=str)
+            else:
+                normalized = str(value)
+            formatted_fields.append(f"{key}={normalized}")
+        return " ".join(formatted_fields)
+
+    def _log_event(self, event: str, level: int = logging.INFO, **fields: Any) -> None:
+        """Emit a structured log event for runtime observability."""
+        fields_payload = self._format_log_fields(component="graph_consumer", **fields)
+        message = f"event={event}" + (f" {fields_payload}" if fields_payload else "")
+        logger.log(level, message)
+
+    def _log_exception(self, event: str, exc: Exception, **fields: Any) -> None:
+        """Emit standardized exception logs with context."""
+        self._log_event(
+            event,
+            level=logging.ERROR,
+            error_type=type(exc).__name__,
+            error=str(exc),
+            **fields,
+        )
 
     @staticmethod
     def _is_timestamp_like_key(key: str) -> bool:
@@ -217,7 +254,13 @@ class GraphConsumer:
 
         traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
         traversal_obj.iterate()
-        logger.debug("Created/updated vertex: %s:%s", entity_type, entity_id)
+        self._log_event(
+            "graph_consumer_create_processed",
+            level=logging.DEBUG,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            version=event.version,
+        )
         return True
 
     def _is_stale_update(self, entity_type: str, entity_id: str, version: int) -> bool:
@@ -228,11 +271,12 @@ class GraphConsumer:
 
         current_version = existing[0].get("version", [0])[0]
         if current_version >= version:
-            logger.warning(
-                "Skipping stale update for %s: current=%s, event=%s",
-                entity_id,
-                current_version,
-                version,
+            self._log_event(
+                "graph_consumer_update_stale",
+                level=logging.WARNING,
+                entity_id=entity_id,
+                current_version=current_version,
+                incoming_version=version,
             )
             return True
         return False
@@ -254,13 +298,24 @@ class GraphConsumer:
         traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
         traversal_obj.iterate()
 
-        logger.debug("Updated vertex: %s:%s", entity_type, entity_id)
+        self._log_event(
+            "graph_consumer_update_processed",
+            level=logging.DEBUG,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            version=event.version,
+        )
         return True
 
     def _process_delete_event(self, event: EntityEvent) -> bool:
         """Handle delete events."""
         self.g.V().has(event.entity_type, "entity_id", event.entity_id).drop().iterate()
-        logger.debug("Deleted vertex: %s:%s", event.entity_type, event.entity_id)
+        self._log_event(
+            "graph_consumer_delete_processed",
+            level=logging.DEBUG,
+            entity_type=event.entity_type,
+            entity_id=event.entity_id,
+        )
         return True
 
     def process_event(self, event: EntityEvent) -> bool:
@@ -287,11 +342,21 @@ class GraphConsumer:
             if event.event_type == "delete":
                 return self._process_delete_event(event)
 
-            logger.warning("Unknown event type '%s' for event %s", event.event_type, event.event_id)
+            self._log_event(
+                "graph_consumer_unknown_event_type",
+                level=logging.WARNING,
+                event_type=event.event_type,
+                event_id=event.event_id,
+            )
             return True
 
         except Exception as e:
-            logger.error("Failed to process event %s: %s", event.event_id, e)
+            self._log_exception(
+                "graph_consumer_event_process_failed",
+                e,
+                event_id=event.event_id,
+                event_type=event.event_type,
+            )
             return False
 
     def _collect_batch(self, timeout_ms: int) -> Tuple[List[EntityEvent], List[Any]]:
@@ -332,7 +397,12 @@ class GraphConsumer:
                 else:
                     failed.append((messages[index], event))
             except Exception as e:
-                logger.error("Error processing event %s: %s", event.event_id, e)
+                self._log_exception(
+                    "graph_consumer_batch_item_failed",
+                    e,
+                    event_id=event.event_id,
+                    event_type=event.event_type,
+                )
                 failed.append((messages[index], event))
 
         return processed, failed
@@ -347,7 +417,12 @@ class GraphConsumer:
                 )
                 self.consumer.acknowledge(message)
             except Exception as e:
-                logger.error("Failed to send to DLQ: %s", e)
+                self._log_exception(
+                    "graph_consumer_dlq_send_failed",
+                    e,
+                    event_id=event.event_id,
+                    topic=event.get_topic(),
+                )
                 self.consumer.negative_acknowledge(message)
 
     def _record_batch_metrics(self, processed: int, failed_count: int) -> None:
@@ -377,7 +452,12 @@ class GraphConsumer:
         self._route_failed_events_to_dlq(failed)
         self._record_batch_metrics(processed, len(failed))
 
-        logger.info("Processed batch: %d success, %d failed", processed, len(failed))
+        self._log_event(
+            "graph_consumer_batch_processed",
+            processed=processed,
+            failed=len(failed),
+            batch_size=len(batch),
+        )
         return processed
 
     def process_forever(self, on_batch: Callable[[int], None] = None):
@@ -388,7 +468,7 @@ class GraphConsumer:
             on_batch: Optional callback after each batch
         """
         self._running = True
-        logger.info("Starting continuous processing...")
+        self._log_event("graph_consumer_loop_started")
 
         while self._running:
             try:
@@ -396,13 +476,13 @@ class GraphConsumer:
                 if on_batch:
                     on_batch(processed)
             except KeyboardInterrupt:
-                logger.info("Received shutdown signal")
+                self._log_event("graph_consumer_loop_shutdown_signal")
                 break
             except Exception as e:
-                logger.error("Error in processing loop: %s", e)
+                self._log_exception("graph_consumer_loop_error", e)
                 time.sleep(1)  # Back off on error
 
-        logger.info("Stopped processing")
+        self._log_event("graph_consumer_loop_stopped")
 
     def stop(self):
         """Stop continuous processing."""
@@ -428,7 +508,7 @@ def main():
     consumer = GraphConsumer()
 
     def signal_handler(sig, frame):
-        logger.info("Shutdown signal received")
+        consumer._log_event("graph_consumer_signal_received", signal=str(sig))
         consumer.stop()
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -436,7 +516,7 @@ def main():
 
     try:
         consumer.connect()
-        logger.info("GraphConsumer started - processing events from Pulsar to JanusGraph")
+        consumer._log_event("graph_consumer_main_started")
         consumer.process_forever()
     finally:
         consumer.disconnect()

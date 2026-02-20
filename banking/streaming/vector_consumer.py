@@ -17,6 +17,7 @@ Week 4: Vector Consumer (Leg 2)
 import logging
 import os
 import time
+import json
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -155,11 +156,15 @@ class VectorConsumer:
     def connect(self):
         """Establish connections to Pulsar, OpenSearch, and load embedding model."""
         # Connect to Pulsar
-        logger.info("Connecting to Pulsar at %s", self.pulsar_url)
+        self._log_event("vector_consumer_connect_pulsar", pulsar_url=self.pulsar_url)
         self.pulsar_client = pulsar.Client(self.pulsar_url)
 
         # Subscribe to topics with Key_Shared
-        logger.info("Subscribing to topics: %s", self.topics)
+        self._log_event(
+            "vector_consumer_subscribe_topics",
+            topics=self.topics,
+            subscription_name=self.subscription_name,
+        )
         self.consumer = self.pulsar_client.subscribe(
             self.topics,
             subscription_name=self.subscription_name,
@@ -171,7 +176,11 @@ class VectorConsumer:
         self.dlq_producer = self.pulsar_client.create_producer(self.dlq_topic)
 
         # Connect to OpenSearch
-        logger.info("Connecting to OpenSearch at %s:%s", self.opensearch_host, self.opensearch_port)
+        self._log_event(
+            "vector_consumer_connect_opensearch",
+            opensearch_host=self.opensearch_host,
+            opensearch_port=self.opensearch_port,
+        )
         use_ssl = os.getenv("OPENSEARCH_USE_SSL", "false").lower() == "true"
         self.opensearch = OpenSearch(
             hosts=[{"host": self.opensearch_host, "port": self.opensearch_port}],
@@ -181,23 +190,29 @@ class VectorConsumer:
 
         # Verify OpenSearch connection
         info = self.opensearch.info()
-        logger.info("Connected to OpenSearch %s", info["version"]["number"])
+        self._log_event(
+            "vector_consumer_opensearch_connected",
+            version=info["version"]["number"],
+        )
 
         # Load embedding model
         if EMBEDDING_AVAILABLE:
-            logger.info("Loading embedding model: %s", self.embedding_model_name)
+            self._log_event("vector_consumer_embedding_model_loading", model=self.embedding_model_name)
             self.embedding_model = SentenceTransformer(self.embedding_model_name)
-            logger.info(
-                "Model loaded, dimension: %s",
-                self.embedding_model.get_sentence_embedding_dimension(),
+            self._log_event(
+                "vector_consumer_embedding_model_loaded",
+                dimension=self.embedding_model.get_sentence_embedding_dimension(),
             )
         else:
-            logger.warning("sentence-transformers not available, using placeholder embeddings")
+            self._log_event(
+                "vector_consumer_embedding_model_unavailable",
+                level=logging.WARNING,
+            )
 
         # Ensure indices exist
         self._ensure_indices()
 
-        logger.info("VectorConsumer connected successfully")
+        self._log_event("vector_consumer_connected")
 
     def _ensure_indices(self):
         """Create OpenSearch indices if they don't exist."""
@@ -228,12 +243,16 @@ class VectorConsumer:
 
         for entity_type, index_name in self.INDEX_MAPPING.items():
             if not self.opensearch.indices.exists(index=index_name):
-                logger.info("Creating index: %s", index_name)
+                self._log_event(
+                    "vector_consumer_index_create",
+                    entity_type=entity_type,
+                    index=index_name,
+                )
                 self.opensearch.indices.create(index=index_name, body=index_body)
 
     def disconnect(self):
         """Close all connections."""
-        logger.info("Disconnecting VectorConsumer...")
+        self._log_event("vector_consumer_disconnect_start")
 
         if self.consumer:
             self.consumer.close()
@@ -242,7 +261,39 @@ class VectorConsumer:
         if self.pulsar_client:
             self.pulsar_client.close()
 
-        logger.info("VectorConsumer disconnected")
+        self._log_event("vector_consumer_disconnected")
+
+    @staticmethod
+    def _format_log_fields(**fields: Any) -> str:
+        """Format structured log fields as key=value pairs."""
+        formatted_fields: List[str] = []
+        for key, value in fields.items():
+            if value is None:
+                continue
+            if isinstance(value, (list, tuple, set)):
+                normalized = "[" + ",".join(str(item) for item in value) + "]"
+            elif isinstance(value, dict):
+                normalized = json.dumps(value, sort_keys=True, default=str)
+            else:
+                normalized = str(value)
+            formatted_fields.append(f"{key}={normalized}")
+        return " ".join(formatted_fields)
+
+    def _log_event(self, event: str, level: int = logging.INFO, **fields: Any) -> None:
+        """Emit a structured log event for runtime observability."""
+        fields_payload = self._format_log_fields(component="vector_consumer", **fields)
+        message = f"event={event}" + (f" {fields_payload}" if fields_payload else "")
+        logger.log(level, message)
+
+    def _log_exception(self, event: str, exc: Exception, **fields: Any) -> None:
+        """Emit standardized exception logs with context."""
+        self._log_event(
+            event,
+            level=logging.ERROR,
+            error_type=type(exc).__name__,
+            error=str(exc),
+            **fields,
+        )
 
     def _generate_embedding(self, text: str) -> List[float]:
         """Generate embedding for text."""
@@ -319,7 +370,11 @@ class VectorConsumer:
             self.metrics["embeddings_generated"] += len(embeddings)
             return embeddings
         except Exception as e:
-            logger.error("Failed to generate embeddings: %s", e)
+            self._log_exception(
+                "vector_consumer_embedding_generation_failed",
+                e,
+                embeddable_count=len(embeddable),
+            )
             for index, _event in embeddable:
                 self.consumer.negative_acknowledge(messages[index])
             return None
@@ -366,12 +421,20 @@ class VectorConsumer:
             self.metrics["events_processed"] += success
             if errors:
                 self.metrics["events_failed"] += len(errors)
-                logger.warning("Bulk index errors: %s", errors)
+                self._log_event(
+                    "vector_consumer_bulk_index_partial_errors",
+                    level=logging.WARNING,
+                    error_count=len(errors),
+                )
 
-            logger.info("Indexed %d documents", success)
+            self._log_event("vector_consumer_bulk_index_success", indexed=success)
             return success
         except Exception as e:
-            logger.error("Bulk index failed: %s", e)
+            self._log_exception(
+                "vector_consumer_bulk_index_failed",
+                e,
+                action_count=len(actions),
+            )
             for index in processed_indices:
                 self.consumer.negative_acknowledge(messages[index])
             self.metrics["events_failed"] += len(processed_indices)
@@ -422,7 +485,7 @@ class VectorConsumer:
             on_batch: Optional callback after each batch
         """
         self._running = True
-        logger.info("Starting continuous processing...")
+        self._log_event("vector_consumer_loop_started")
 
         while self._running:
             try:
@@ -430,13 +493,13 @@ class VectorConsumer:
                 if on_batch:
                     on_batch(processed)
             except KeyboardInterrupt:
-                logger.info("Received shutdown signal")
+                self._log_event("vector_consumer_loop_shutdown_signal")
                 break
             except Exception as e:
-                logger.error("Error in processing loop: %s", e)
+                self._log_exception("vector_consumer_loop_error", e)
                 time.sleep(1)
 
-        logger.info("Stopped processing")
+        self._log_event("vector_consumer_loop_stopped")
 
     def stop(self):
         """Stop continuous processing."""
@@ -462,7 +525,7 @@ def main():
     consumer = VectorConsumer()
 
     def signal_handler(sig, frame):
-        logger.info("Shutdown signal received")
+        consumer._log_event("vector_consumer_signal_received", signal=str(sig))
         consumer.stop()
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -470,7 +533,7 @@ def main():
 
     try:
         consumer.connect()
-        logger.info("VectorConsumer started - processing events from Pulsar to OpenSearch")
+        consumer._log_event("vector_consumer_main_started")
         consumer.process_forever()
     finally:
         consumer.disconnect()
