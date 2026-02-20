@@ -18,7 +18,7 @@ import logging
 import os
 import time
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 try:
     import pulsar
@@ -267,22 +267,12 @@ class VectorConsumer:
         """Get OpenSearch index name for entity type."""
         return self.INDEX_MAPPING.get(entity_type, f"{entity_type}_vectors")
 
-    def process_batch(self, timeout_ms: int = None) -> int:
-        """
-        Collect and process a batch of events.
-
-        Args:
-            timeout_ms: Timeout for collecting events
-
-        Returns:
-            Number of events processed
-        """
-        timeout_ms = timeout_ms or self.batch_timeout_ms
-        batch = []
-        messages = []
-
-        # Collect batch
+    def _collect_batch(self, timeout_ms: int) -> Tuple[List[EntityEvent], List[Any]]:
+        """Collect events and raw messages from Pulsar."""
+        batch: List[EntityEvent] = []
+        messages: List[Any] = []
         start_time = time.time()
+
         while len(batch) < self.batch_size:
             elapsed_ms = (time.time() - start_time) * 1000
             if elapsed_ms >= timeout_ms and batch:
@@ -290,47 +280,59 @@ class VectorConsumer:
 
             remaining_ms = max(1, int(timeout_ms - elapsed_ms))
             try:
-                msg = self.consumer.receive(timeout_millis=remaining_ms)
-                event = EntityEvent.from_bytes(msg.data())
-                batch.append(event)
-                messages.append(msg)
+                message = self.consumer.receive(timeout_millis=remaining_ms)
+                event = EntityEvent.from_bytes(message.data())
             except Exception:
-                # Timeout or error - always break
                 break
 
-        if not batch:
-            return 0
+            batch.append(event)
+            messages.append(message)
 
-        # Filter events that need embeddings
-        embeddable = [(i, e) for i, e in enumerate(batch) if e.text_for_embedding]
-        non_embeddable = [(i, e) for i, e in enumerate(batch) if not e.text_for_embedding]
+        return batch, messages
 
-        # ACK non-embeddable events
-        for i, event in non_embeddable:
-            self.consumer.acknowledge(messages[i])
+    @staticmethod
+    def _split_embeddable_events(
+        batch: List[EntityEvent],
+    ) -> Tuple[List[Tuple[int, EntityEvent]], List[Tuple[int, EntityEvent]]]:
+        """Partition events into embeddable and non-embeddable lists."""
+        embeddable = [(index, event) for index, event in enumerate(batch) if event.text_for_embedding]
+        non_embeddable = [
+            (index, event) for index, event in enumerate(batch) if not event.text_for_embedding
+        ]
+        return embeddable, non_embeddable
+
+    def _ack_non_embeddable_events(
+        self, non_embeddable: List[Tuple[int, EntityEvent]], messages: List[Any]
+    ) -> None:
+        """Acknowledge events that have no embedding text."""
+        for index, _event in non_embeddable:
+            self.consumer.acknowledge(messages[index])
             self.metrics["events_skipped"] += 1
 
-        if not embeddable:
-            return 0
-
-        # Generate embeddings in batch
-        texts = [e.text_for_embedding for _, e in embeddable]
+    def _generate_embeddings_or_nack(
+        self, embeddable: List[Tuple[int, EntityEvent]], messages: List[Any]
+    ) -> Optional[List[List[float]]]:
+        """Generate embeddings for embeddable events or NACK on failure."""
+        texts = [event.text_for_embedding for _, event in embeddable]
         try:
             embeddings = self._generate_batch_embeddings(texts)
             self.metrics["embeddings_generated"] += len(embeddings)
+            return embeddings
         except Exception as e:
             logger.error("Failed to generate embeddings: %s", e)
-            for i, event in embeddable:
-                self.consumer.negative_acknowledge(messages[i])
-            return 0
+            for index, _event in embeddable:
+                self.consumer.negative_acknowledge(messages[index])
+            return None
 
-        # Prepare bulk actions
-        actions = []
-        processed_indices = []
+    def _build_bulk_actions(
+        self, embeddable: List[Tuple[int, EntityEvent]], embeddings: List[List[float]]
+    ) -> Tuple[List[Dict[str, Any]], List[int]]:
+        """Build OpenSearch bulk actions and matching message indexes."""
+        actions: List[Dict[str, Any]] = []
+        processed_indices: List[int] = []
 
         for (orig_idx, event), embedding in zip(embeddable, embeddings):
             index_name = self._get_index_name(event.entity_type)
-
             if event.event_type == "delete":
                 actions.append({"_op_type": "delete", "_index": index_name, "_id": event.entity_id})
             else:
@@ -338,7 +340,7 @@ class VectorConsumer:
                     {
                         "_op_type": "index",
                         "_index": index_name,
-                        "_id": event.entity_id,  # SAME ID as JanusGraph!
+                        "_id": event.entity_id,
                         "_source": {
                             "entity_id": event.entity_id,
                             "embedding": embedding,
@@ -352,13 +354,14 @@ class VectorConsumer:
                 )
             processed_indices.append(orig_idx)
 
-        # Bulk index
+        return actions, processed_indices
+
+    def _bulk_index_actions(self, actions: List[Dict[str, Any]], processed_indices: List[int], messages: List[Any]) -> int:
+        """Bulk index actions and ACK/NACK corresponding Pulsar messages."""
         try:
             success, errors = helpers.bulk(self.opensearch, actions, refresh=True)
-
-            # ACK successful
-            for idx in processed_indices:
-                self.consumer.acknowledge(messages[idx])
+            for index in processed_indices:
+                self.consumer.acknowledge(messages[index])
 
             self.metrics["events_processed"] += success
             if errors:
@@ -366,12 +369,43 @@ class VectorConsumer:
                 logger.warning("Bulk index errors: %s", errors)
 
             logger.info("Indexed %d documents", success)
-
+            return success
         except Exception as e:
             logger.error("Bulk index failed: %s", e)
-            for idx in processed_indices:
-                self.consumer.negative_acknowledge(messages[idx])
+            for index in processed_indices:
+                self.consumer.negative_acknowledge(messages[index])
             self.metrics["events_failed"] += len(processed_indices)
+            return 0
+
+    def process_batch(self, timeout_ms: int = None) -> int:
+        """
+        Collect and process a batch of events.
+
+        Args:
+            timeout_ms: Timeout for collecting events
+
+        Returns:
+            Number of events processed
+        """
+        timeout_ms = timeout_ms or self.batch_timeout_ms
+        batch, messages = self._collect_batch(timeout_ms)
+
+        if not batch:
+            return 0
+
+        embeddable, non_embeddable = self._split_embeddable_events(batch)
+        self._ack_non_embeddable_events(non_embeddable, messages)
+
+        if not embeddable:
+            return 0
+
+        embeddings = self._generate_embeddings_or_nack(embeddable, messages)
+        if embeddings is None:
+            return 0
+
+        actions, processed_indices = self._build_bulk_actions(embeddable, embeddings)
+        success = self._bulk_index_actions(actions, processed_indices, messages)
+        if success == 0:
             return 0
 
         # Update metrics
