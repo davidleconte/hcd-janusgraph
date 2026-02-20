@@ -18,7 +18,7 @@ import logging
 import os
 import time
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 try:
     import pulsar
@@ -171,6 +171,98 @@ class GraphConsumer:
 
         logger.info("GraphConsumer disconnected")
 
+    @staticmethod
+    def _is_timestamp_like_key(key: str) -> bool:
+        """Return True when a payload key likely contains a timestamp value."""
+        return "timestamp" in key or "date" in key or "_at" in key
+
+    def _to_graph_property_value(self, key: str, value: Any) -> Any:
+        """Normalize payload values for JanusGraph property storage."""
+        if isinstance(value, (int, float, bool)):
+            return value
+
+        if isinstance(value, str) and self._is_timestamp_like_key(key):
+            try:
+                parsed_dt = datetime.fromisoformat(value)
+                return int(parsed_dt.timestamp())
+            except (ValueError, TypeError):
+                return str(value)
+
+        return str(value)
+
+    def _apply_payload_properties(
+        self, traversal_obj: Any, payload: Dict[str, Any], skip_keys: set[str]
+    ) -> Any:
+        """Apply sanitized payload properties to a traversal."""
+        for key, value in payload.items():
+            if value is None or key in skip_keys:
+                continue
+            traversal_obj = traversal_obj.property(key, self._to_graph_property_value(key, value))
+        return traversal_obj
+
+    def _process_create_event(self, event: EntityEvent, skip_keys: set[str]) -> bool:
+        """Handle idempotent create events."""
+        entity_id = event.entity_id
+        entity_type = event.entity_type
+
+        traversal_obj = (
+            self.g.V()
+            .has(entity_type, "entity_id", entity_id)
+            .fold()
+            .coalesce(__.unfold(), __.add_v(entity_type).property("entity_id", entity_id))
+            .property("version", event.version)
+            .property("created_at", int(event.timestamp.timestamp()))
+            .property("source", event.source or "unknown")
+        )
+
+        traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
+        traversal_obj.iterate()
+        logger.debug("Created/updated vertex: %s:%s", entity_type, entity_id)
+        return True
+
+    def _is_stale_update(self, entity_type: str, entity_id: str, version: int) -> bool:
+        """Return True when an incoming update version is stale."""
+        existing = self.g.V().has(entity_type, "entity_id", entity_id).value_map("version").toList()
+        if not existing:
+            return False
+
+        current_version = existing[0].get("version", [0])[0]
+        if current_version >= version:
+            logger.warning(
+                "Skipping stale update for %s: current=%s, event=%s",
+                entity_id,
+                current_version,
+                version,
+            )
+            return True
+        return False
+
+    def _process_update_event(self, event: EntityEvent, skip_keys: set[str]) -> bool:
+        """Handle update events with optimistic concurrency checks."""
+        entity_id = event.entity_id
+        entity_type = event.entity_type
+
+        if self._is_stale_update(entity_type, entity_id, event.version):
+            return True
+
+        traversal_obj = (
+            self.g.V()
+            .has(entity_type, "entity_id", entity_id)
+            .property("version", event.version)
+            .property("updated_at", int(event.timestamp.timestamp()))
+        )
+        traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
+        traversal_obj.iterate()
+
+        logger.debug("Updated vertex: %s:%s", entity_type, entity_id)
+        return True
+
+    def _process_delete_event(self, event: EntityEvent) -> bool:
+        """Handle delete events."""
+        self.g.V().has(event.entity_type, "entity_id", event.entity_id).drop().iterate()
+        logger.debug("Deleted vertex: %s:%s", event.entity_type, event.entity_id)
+        return True
+
     def process_event(self, event: EntityEvent) -> bool:
         """
         Process a single event - create, update, or delete in JanusGraph.
@@ -187,107 +279,83 @@ class GraphConsumer:
             True if successful, False otherwise
         """
         try:
-            entity_id = event.entity_id
-            entity_type = event.entity_type
-            payload = event.payload
-            version = event.version
-
             skip_keys = {"created_at", "updated_at", "entity_id", "version", "source"}
-
             if event.event_type == "create":
-                # Idempotent create using fold/coalesce with anonymous traversal
-                t = (
-                    self.g.V()
-                    .has(entity_type, "entity_id", entity_id)
-                    .fold()
-                    .coalesce(__.unfold(), __.add_v(entity_type).property("entity_id", entity_id))
-                    .property("version", version)
-                    .property("created_at", int(event.timestamp.timestamp()))
-                    .property("source", event.source or "unknown")
-                )
+                return self._process_create_event(event, skip_keys)
+            if event.event_type == "update":
+                return self._process_update_event(event, skip_keys)
+            if event.event_type == "delete":
+                return self._process_delete_event(event)
 
-                # Chain all payload properties into the same traversal
-                for key, value in payload.items():
-                    if value is not None and key not in skip_keys:
-                        if isinstance(value, (int, float, bool)):
-                            prop_val = value
-                        elif isinstance(value, str) and (
-                            "timestamp" in key or "date" in key or "_at" in key
-                        ):
-                            try:
-                                from datetime import datetime
-
-                                dt = datetime.fromisoformat(value)
-                                prop_val = int(dt.timestamp())
-                            except (ValueError, TypeError):
-                                prop_val = str(value)
-                        else:
-                            prop_val = str(value)
-                        t = t.property(key, prop_val)
-
-                t.iterate()
-
-                logger.debug("Created/updated vertex: %s:%s", entity_type, entity_id)
-
-            elif event.event_type == "update":
-                # Check version for optimistic concurrency
-                existing = (
-                    self.g.V()
-                    .has(entity_type, "entity_id", entity_id)
-                    .value_map("version")
-                    .toList()
-                )
-
-                if existing:
-                    current_version = existing[0].get("version", [0])[0]
-                    if current_version >= version:
-                        logger.warning(
-                            "Skipping stale update for %s: current=%s, event=%s",
-                            entity_id,
-                            current_version,
-                            version,
-                        )
-                        return True
-
-                # Update all properties in a single traversal
-                t = (
-                    self.g.V()
-                    .has(entity_type, "entity_id", entity_id)
-                    .property("version", version)
-                    .property("updated_at", int(event.timestamp.timestamp()))
-                )
-
-                for key, value in payload.items():
-                    if value is not None and key not in skip_keys:
-                        if isinstance(value, (int, float, bool)):
-                            prop_val = value
-                        elif isinstance(value, str) and (
-                            "timestamp" in key or "date" in key or "_at" in key
-                        ):
-                            try:
-                                from datetime import datetime
-
-                                dt = datetime.fromisoformat(value)
-                                prop_val = int(dt.timestamp())
-                            except (ValueError, TypeError):
-                                prop_val = str(value)
-                        else:
-                            prop_val = str(value)
-                        t = t.property(key, prop_val)
-
-                t.iterate()
-
-                logger.debug("Updated vertex: %s:%s", entity_type, entity_id)
-
-            elif event.event_type == "delete":
-                self.g.V().has(entity_type, "entity_id", entity_id).drop().iterate()
-                logger.debug("Deleted vertex: %s:%s", entity_type, entity_id)
-
+            logger.warning("Unknown event type '%s' for event %s", event.event_type, event.event_id)
             return True
 
         except Exception as e:
             logger.error("Failed to process event %s: %s", event.event_id, e)
             return False
+
+    def _collect_batch(self, timeout_ms: int) -> Tuple[List[EntityEvent], List[Any]]:
+        """Collect a batch of events and matching Pulsar messages."""
+        batch: List[EntityEvent] = []
+        messages: List[Any] = []
+        start_time = time.time()
+
+        while len(batch) < self.batch_size:
+            elapsed_ms = (time.time() - start_time) * 1000
+            if elapsed_ms >= timeout_ms and batch:
+                break
+
+            remaining_ms = max(1, int(timeout_ms - elapsed_ms))
+            try:
+                message = self.consumer.receive(timeout_millis=remaining_ms)
+                event = EntityEvent.from_bytes(message.data())
+            except Exception:
+                break
+
+            batch.append(event)
+            messages.append(message)
+
+        return batch, messages
+
+    def _process_collected_batch(
+        self, batch: List[EntityEvent], messages: List[Any]
+    ) -> Tuple[int, List[Tuple[Any, EntityEvent]]]:
+        """Process collected events and ACK successful ones."""
+        processed = 0
+        failed: List[Tuple[Any, EntityEvent]] = []
+
+        for index, event in enumerate(batch):
+            try:
+                if self.process_event(event):
+                    self.consumer.acknowledge(messages[index])
+                    processed += 1
+                else:
+                    failed.append((messages[index], event))
+            except Exception as e:
+                logger.error("Error processing event %s: %s", event.event_id, e)
+                failed.append((messages[index], event))
+
+        return processed, failed
+
+    def _route_failed_events_to_dlq(self, failed: List[Tuple[Any, EntityEvent]]) -> None:
+        """Send failed events to DLQ, then ACK or NACK depending on outcome."""
+        for message, event in failed:
+            try:
+                self.dlq_producer.send(
+                    content=event.to_bytes(),
+                    properties={"error": "processing_failed", "original_topic": event.get_topic()},
+                )
+                self.consumer.acknowledge(message)
+            except Exception as e:
+                logger.error("Failed to send to DLQ: %s", e)
+                self.consumer.negative_acknowledge(message)
+
+    def _record_batch_metrics(self, processed: int, failed_count: int) -> None:
+        """Update consumer metrics after a batch run."""
+        self.metrics["events_processed"] += processed
+        self.metrics["events_failed"] += failed_count
+        self.metrics["batches_processed"] += 1
+        self.metrics["last_batch_time"] = datetime.now(timezone.utc).isoformat()
 
     def process_batch(self, timeout_ms: int = None) -> int:
         """
@@ -300,62 +368,14 @@ class GraphConsumer:
             Number of events processed
         """
         timeout_ms = timeout_ms or self.batch_timeout_ms
-        batch = []
-        messages = []
-
-        # Collect batch
-        start_time = time.time()
-        while len(batch) < self.batch_size:
-            elapsed_ms = (time.time() - start_time) * 1000
-            if elapsed_ms >= timeout_ms and batch:
-                break
-
-            remaining_ms = max(1, int(timeout_ms - elapsed_ms))
-            try:
-                msg = self.consumer.receive(timeout_millis=remaining_ms)
-                event = EntityEvent.from_bytes(msg.data())
-                batch.append(event)
-                messages.append(msg)
-            except Exception:
-                # Timeout or error - always break
-                break
+        batch, messages = self._collect_batch(timeout_ms)
 
         if not batch:
             return 0
 
-        # Process batch
-        processed = 0
-        failed = []
-
-        for i, event in enumerate(batch):
-            try:
-                if self.process_event(event):
-                    self.consumer.acknowledge(messages[i])
-                    processed += 1
-                else:
-                    failed.append((messages[i], event))
-            except Exception as e:
-                logger.error("Error processing event %s: %s", event.event_id, e)
-                failed.append((messages[i], event))
-
-        # Handle failures
-        for msg, event in failed:
-            try:
-                # Send to DLQ
-                self.dlq_producer.send(
-                    content=event.to_bytes(),
-                    properties={"error": "processing_failed", "original_topic": event.get_topic()},
-                )
-                self.consumer.acknowledge(msg)  # ACK after DLQ
-            except Exception as e:
-                logger.error("Failed to send to DLQ: %s", e)
-                self.consumer.negative_acknowledge(msg)  # NACK for retry
-
-        # Update metrics
-        self.metrics["events_processed"] += processed
-        self.metrics["events_failed"] += len(failed)
-        self.metrics["batches_processed"] += 1
-        self.metrics["last_batch_time"] = datetime.now(timezone.utc).isoformat()
+        processed, failed = self._process_collected_batch(batch, messages)
+        self._route_failed_events_to_dlq(failed)
+        self._record_batch_metrics(processed, len(failed))
 
         logger.info("Processed batch: %d success, %d failed", processed, len(failed))
         return processed
