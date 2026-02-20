@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Last Updated:** 2026-02-18
+**Last Updated:** 2026-02-20
 **Project:** HCD + JanusGraph Banking Compliance Platform
 
 Welcome to the comprehensive documentation index for the HCD + JanusGraph project. This index provides quick navigation to all project documentation organized by role and topic.
@@ -63,6 +63,8 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Monitoring Guide](operations/monitoring-guide.md)** - System monitoring and alerting
 - **[Backup Procedures](operations/backup-procedures.md)** - Backup and restore procedures
 - **[Disaster Recovery](operations/disaster-recovery.md)** - DR planning and execution
+- **[Dry-Run Validation Guide (2026-02-19)](operations/dry-run-validation-guide.md)** - Comprehensive validation for Terraform, Helm, Kubernetes, OpenShift (750 lines)
+- **[Horizontal Scaling Guide](operations/horizontal-scaling-guide.md)** - Scaling strategies for 100M+ vertices (1,050 lines)
 
 #### Security
 
@@ -123,10 +125,12 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - **[Comprehensive Business Case](business/comprehensive-business-case.md)** - Complete investment justification
 - **[TCO Analysis](business/tco-analysis.md)** - 3-year cost breakdown ($1.38M)
 - **[ROI Calculator](business/roi-calculator.md)** - Financial returns analysis ($8.3M NPV, 985% IRR)
+- **[Workshop Readiness Assessment (2026-02-19)](business/workshop-readiness-assessment.md)** - Bank workshop suitability analysis (95/100, highly suitable for POC acceleration)
 
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Comprehensive Ph.D.-Level Codebase Audit (2026-02-20)](implementation/audits/comprehensive-phd-level-codebase-audit-2026-02-20.md)** - Rigorous multi-dimensional analysis (A-, 90/100) with quantitative metrics and remediation plan
 - **[Codex Comprehensive Audit Report (2026-02-18)](codex-audit-report-2026-02-18.md)** - Full repository-wide technical and operational audit
 - **[Codex Implementation Plan P0-P2 (2026-02-18)](codex-implementation-plan-p0-p2.md)** - Prioritized delivery roadmap with timelines and ownership model
 - **[Codex Execution Task Board (2026-02-18)](codex-execution-task-board.md)** - Ticketized workplan with acceptance criteria
@@ -146,6 +150,12 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 - [codex-program-tracker.md](codex-program-tracker.md)
 - [codex-github-issues-drafts-2026-02-18.md](codex-github-issues-drafts-2026-02-18.md)
 - [codes_mcp_fraud_pilot_plan_1771491238767.md](codes_mcp_fraud_pilot_plan_1771491238767.md)
+
+#### Implementation Summaries
+
+- **[Dry-Run Validation Complete (2026-02-19)](implementation/dry-run-validation-complete-2026-02-19.md)** - Comprehensive validation implementation (308-line script, 750-line guide)
+- **[Codebase Review & Infrastructure Complete (2026-02-19)](implementation/codebase-review-and-infrastructure-complete-2026-02-19.md)** - Multi-cloud infrastructure completion summary
+- **[Terraform Bare Metal Fixes Complete (2026-02-19)](implementation/audits/terraform-baremetal-fixes-complete-2026-02-19.md)** - All 7 critical issues resolved
 
 #### Gap Analysis
 
