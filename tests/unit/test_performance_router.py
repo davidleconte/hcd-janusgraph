@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from src.python.config import settings as settings_module
 from src.python.api.routers.performance import (
     CacheInvalidateRequest,
     CacheStatsResponse,
@@ -136,6 +137,34 @@ class TestCacheEndpoints:
         assert resp.status_code == 200
         assert resp.json()["success"] is True
         assert "cleared" in resp.json()["message"].lower()
+
+    def test_forbidden_for_non_privileged_role_when_auth_enabled(self):
+        from fastapi import FastAPI, Request
+
+        settings = settings_module.get_settings()
+        original_auth_enabled = settings.auth_enabled
+        try:
+            settings.auth_enabled = True
+
+            app = FastAPI()
+            app.state.limiter = MagicMock()
+
+            @app.middleware("http")
+            async def inject_non_privileged_role(request: Request, call_next):
+                request.state.user_roles = ["user"]
+                return await call_next(request)
+
+            app.include_router(router)
+
+            with patch("src.python.api.routers.performance.limiter") as mock_limiter:
+                mock_limiter.limit.return_value = lambda f: f
+                with TestClient(app) as test_client:
+                    resp = test_client.get("/api/v1/performance/cache/stats")
+
+            assert resp.status_code == 403
+            assert "Insufficient role" in resp.json()["detail"]
+        finally:
+            settings.auth_enabled = original_auth_enabled
 
 
 class TestResponseModels:

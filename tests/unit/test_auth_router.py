@@ -118,6 +118,39 @@ class TestAuthFlow:
         assert data["refresh_token"] is not None
         assert data["session_id"] is not None
 
+    def test_login_with_auth_enabled_does_not_expose_mfa_secret(self, client):
+        _require_pyotp()
+        settings = settings_module.get_settings()
+        original_auth_enabled = settings.auth_enabled
+        original_roles = settings.api_user_roles
+        original_user = settings.api_user
+
+        try:
+            settings.auth_enabled = True
+            settings.api_user_roles = "admin"
+            settings.api_user = "admin"
+
+            enroll_resp = client.post(
+                "/api/v1/auth/mfa/enroll",
+                json={
+                    "user_id": "admin",
+                    "email": "admin@example.com",
+                    "method": "totp",
+                },
+            )
+            assert enroll_resp.status_code == 200
+
+            resp = client.post("/api/v1/auth/login", json={"username": "admin", "password": "ignored"})
+            assert resp.status_code == 200
+            challenge = resp.json()
+            assert challenge["mfa_required"] is True
+            assert challenge["mfa_secret"] is None
+            assert challenge["mfa_login_challenge"] is not None
+        finally:
+            settings.auth_enabled = original_auth_enabled
+            settings.api_user_roles = original_roles
+            settings.api_user = original_user
+
     def test_refresh_session(self, client):
         settings = settings_module.get_settings()
         settings.api_user_roles = "user"
