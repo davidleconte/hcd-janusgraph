@@ -130,6 +130,7 @@ Welcome to the comprehensive documentation index for the HCD + JanusGraph projec
 #### Audits & Reports
 
 - **[Audit Reports](implementation/audits/)** - Security and code audits
+- **[Skills Audit (2026-02-20)](implementation/audits/skills-audit-2026-02-20.md)** - Comprehensive audit of 9 repository-local skills (A, 92/100) with verification and recommendations
 - **[Comprehensive Ph.D.-Level Codebase Audit (2026-02-20)](implementation/audits/comprehensive-phd-level-codebase-audit-2026-02-20.md)** - Rigorous multi-dimensional analysis (A-, 90/100) with quantitative metrics and remediation plan
 - **[Codex Comprehensive Audit Report (2026-02-18)](codex-audit-report-2026-02-18.md)** - Full repository-wide technical and operational audit
 - **[Codex Implementation Plan P0-P2 (2026-02-18)](codex-implementation-plan-p0-p2.md)** - Prioritized delivery roadmap with timelines and ownership model
