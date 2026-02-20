@@ -18,8 +18,8 @@ To prevent drift, root docs should link here instead of duplicating numeric pass
 - Deployment standard: run from `config/compose` with explicit project isolation (`COMPOSE_PROJECT_NAME=janusgraph-demo`).
 - Podman connection standard: set `PODMAN_CONNECTION` to the active machine connection in your environment.
 - Determinism status: canonical deterministic setup/proof is enforced via `scripts/deployment/deterministic_setup_and_proof_wrapper.sh` with strict notebook determinism checks enabled by default.
-- Latest deterministic proof run: `exports/deterministic-status.json` reports `exit_code=0` (timestamp `2026-02-20T09:19:41.3NZ`), pipeline run id `demo-20260220T090523Z`.
-- Notebook determinism baseline: `15/15` PASS from `exports/demo-20260220T090523Z/notebook_run_report.tsv`.
+- Latest deterministic proof run: `exports/deterministic-status.json` reports `exit_code=0` (timestamp `2026-02-20T11:29:02.3NZ`), pipeline run id `demo-20260220T111637Z`.
+- Notebook determinism baseline: `15/15` PASS from `exports/demo-20260220T111637Z/notebook_run_report.tsv`.
 - Coverage gate baseline: enforced `--cov-fail-under=70` in CI and local pytest defaults.
 - Type-check baseline: canonical mypy path is `mypy src/python banking/ --ignore-missing-imports`.
 - Performance governance baseline: deterministic CI gates for runtime SLO and startup/import budgets are configured in `.github/workflows/quality-gates.yml`.
@@ -45,9 +45,9 @@ Authoritative implementation and planning docs:
 ## Latest Verification Evidence (2026-02-20)
 
 1. `exports/deterministic-status.json`
-2. `exports/demo-20260220T090523Z/pipeline_summary.txt`
-3. `exports/demo-20260220T090523Z/notebook_run_report.tsv`
-4. `exports/demo-20260220T090523Z/determinism.log`
+2. `exports/demo-20260220T111637Z/pipeline_summary.txt`
+3. `exports/demo-20260220T111637Z/notebook_run_report.tsv`
+4. `exports/demo-20260220T111637Z/determinism.log`
 5. `coverage.xml` (generated from latest quality-gate-equivalent run)
 6. `exports/performance/slo_gate_local.json` (deterministic runtime SLO gate evidence)
 7. `exports/performance/startup_budget_gate_local.json` (startup/import-time budget gate evidence)
