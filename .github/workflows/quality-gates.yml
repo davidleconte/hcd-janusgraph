@@ -104,6 +104,10 @@ jobs:
       - name: Run mypy
         run: mypy src/python banking/ --ignore-missing-imports
 
+      - name: Mypy changed-files ratchet (no new errors)
+        run: |
+          python scripts/validation/mypy_changed_files_guard.py
+
   code-quality:
     name: Code Quality (Ruff/Black/Isort)
     runs-on: ubuntu-latest
