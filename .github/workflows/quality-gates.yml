@@ -29,6 +29,13 @@ jobs:
           scripts/deps/export_locked_requirements.sh
           git diff --exit-code uv.lock requirements.txt requirements-dev.txt requirements-security.txt requirements-tracing.txt
 
+      - name: Validate env contract (prod secure profile)
+        run: |
+          python scripts/validation/validate_env_contract.py \
+            --env-file .env.example \
+            --compose-env-file config/compose/.env.example \
+            --prod-override config/compose/docker-compose.prod-secure.override.yml
+
       - name: Cache uv
         uses: actions/cache@v4
         with:
