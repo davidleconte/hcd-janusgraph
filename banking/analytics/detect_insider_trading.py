@@ -91,6 +91,8 @@ class InsiderTradingDetector:
     COORDINATION_TIME_WINDOW_HOURS = 4  # Hours for trades to be considered coordinated
     MIN_SUSPICIOUS_TRADES = 3  # Minimum trades to flag pattern
     COMMUNICATION_WINDOW_HOURS = 48  # Hours before trade to check communications
+    ALERT_TYPE_ORDER = ("timing", "coordinated", "communication", "network", "volume", "asymmetry")
+    ALERT_SEVERITY_ORDER = ("critical", "high", "medium", "low")
 
     def __init__(self, url: str = "ws://localhost:18182/gremlin"):
         """Initialize insider trading detector with JanusGraph connection."""
@@ -763,40 +765,56 @@ class InsiderTradingDetector:
         else:
             return "low"
 
+    def _count_alerts_by_type(self) -> Dict[str, int]:
+        """Count alerts grouped by alert_type using deterministic key order."""
+        return {
+            alert_type: len([alert for alert in self.alerts if alert.alert_type == alert_type])
+            for alert_type in self.ALERT_TYPE_ORDER
+        }
+
+    def _count_alerts_by_severity(self) -> Dict[str, int]:
+        """Count alerts grouped by severity using deterministic key order."""
+        return {
+            severity: len([alert for alert in self.alerts if alert.severity == severity])
+            for severity in self.ALERT_SEVERITY_ORDER
+        }
+
+    def _total_value_at_risk(self) -> float:
+        """Compute total value exposed by all alerts."""
+        return sum(alert.total_value for alert in self.alerts)
+
+    def _unique_trader_count(self) -> int:
+        """Compute number of unique traders across alerts."""
+        return len({trader for alert in self.alerts for trader in alert.traders})
+
+    @staticmethod
+    def _serialize_alert(alert: InsiderTradingAlert) -> Dict[str, Any]:
+        """Serialize one alert in report summary format."""
+        return {
+            "alert_id": alert.alert_id,
+            "type": alert.alert_type,
+            "severity": alert.severity,
+            "risk_score": alert.risk_score,
+            "traders": alert.traders,
+            "symbol": alert.symbol,
+            "total_value": alert.total_value,
+            "indicators": alert.indicators,
+        }
+
+    def _serialize_alerts(self) -> List[Dict[str, Any]]:
+        """Serialize all alerts in deterministic insertion order."""
+        return [self._serialize_alert(alert) for alert in self.alerts]
+
     def generate_report(self) -> Dict[str, Any]:
         """Generate comprehensive insider trading detection report."""
         return {
             "report_date": datetime.now(timezone.utc).isoformat(),
             "total_alerts": len(self.alerts),
-            "alerts_by_type": {
-                "timing": len([a for a in self.alerts if a.alert_type == "timing"]),
-                "coordinated": len([a for a in self.alerts if a.alert_type == "coordinated"]),
-                "communication": len([a for a in self.alerts if a.alert_type == "communication"]),
-                "network": len([a for a in self.alerts if a.alert_type == "network"]),
-                "volume": len([a for a in self.alerts if a.alert_type == "volume"]),
-                "asymmetry": len([a for a in self.alerts if a.alert_type == "asymmetry"]),
-            },
-            "alerts_by_severity": {
-                "critical": len([a for a in self.alerts if a.severity == "critical"]),
-                "high": len([a for a in self.alerts if a.severity == "high"]),
-                "medium": len([a for a in self.alerts if a.severity == "medium"]),
-                "low": len([a for a in self.alerts if a.severity == "low"]),
-            },
-            "total_value_at_risk": sum(a.total_value for a in self.alerts),
-            "unique_traders": len(set(t for a in self.alerts for t in a.traders)),
-            "alerts": [
-                {
-                    "alert_id": a.alert_id,
-                    "type": a.alert_type,
-                    "severity": a.severity,
-                    "risk_score": a.risk_score,
-                    "traders": a.traders,
-                    "symbol": a.symbol,
-                    "total_value": a.total_value,
-                    "indicators": a.indicators,
-                }
-                for a in self.alerts
-            ],
+            "alerts_by_type": self._count_alerts_by_type(),
+            "alerts_by_severity": self._count_alerts_by_severity(),
+            "total_value_at_risk": self._total_value_at_risk(),
+            "unique_traders": self._unique_trader_count(),
+            "alerts": self._serialize_alerts(),
         }
 
     def run_full_scan(self) -> Dict[str, Any]:
