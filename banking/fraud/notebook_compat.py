@@ -8,7 +8,7 @@ These wrap the core FraudDetector methods with notebook-friendly APIs.
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
@@ -17,6 +17,79 @@ logger = logging.getLogger(__name__)
 
 class NotebookCompatMixin:
     """Mixin providing simplified notebook-friendly methods for FraudDetector."""
+
+    @staticmethod
+    def _risk_level_from_score(
+        score: float, *, high_threshold: float = 0.8, medium_threshold: float = 0.5
+    ) -> str:
+        """Map a numeric score to notebook-friendly risk levels."""
+        if score >= high_threshold:
+            return "high"
+        if score >= medium_threshold:
+            return "medium"
+        return "low"
+
+    @staticmethod
+    def _resolve_account_id(transaction: Dict[str, Any], account_id: str = None) -> str:
+        """Resolve account identifier with notebook fallback behavior."""
+        return account_id or transaction.get("account_id", "unknown")
+
+    @staticmethod
+    def _extract_behavior_inputs(
+        transactions: List[Dict[str, Any]] = None, transaction: Dict[str, Any] = None
+    ) -> Tuple[float, str, str]:
+        """Extract amount/merchant/description for behavior checks."""
+        if transaction:
+            return (
+                transaction.get("amount", 0),
+                transaction.get("merchant", ""),
+                transaction.get("description", ""),
+            )
+
+        if transactions and len(transactions) > 0:
+            first_tx = transactions[0]
+            return (
+                first_tx.get("amount", 0),
+                first_tx.get("merchant", ""),
+                first_tx.get("description", ""),
+            )
+
+        return 0, "", ""
+
+    @staticmethod
+    def _actual_label_from_transaction(transaction: Dict[str, Any]) -> int:
+        """Return binary actual label using notebook-compatible fields."""
+        return 1 if transaction.get("is_fraud", transaction.get("suspicious_pattern", False)) else 0
+
+    @staticmethod
+    def _classification_counts(predictions: List[int], actuals: List[int]) -> Dict[str, int]:
+        """Compute confusion-matrix counts."""
+        return {
+            "true_positives": sum(
+                1 for prediction, actual in zip(predictions, actuals) if prediction == 1 and actual == 1
+            ),
+            "false_positives": sum(
+                1 for prediction, actual in zip(predictions, actuals) if prediction == 1 and actual == 0
+            ),
+            "true_negatives": sum(
+                1 for prediction, actual in zip(predictions, actuals) if prediction == 0 and actual == 0
+            ),
+            "false_negatives": sum(
+                1 for prediction, actual in zip(predictions, actuals) if prediction == 0 and actual == 1
+            ),
+        }
+
+    @staticmethod
+    def _safe_divide(numerator: float, denominator: float) -> float:
+        """Return safe division result for notebook metrics."""
+        return numerator / denominator if denominator > 0 else 0.0
+
+    def _average_confidence(self, transactions: List[Dict[str, Any]]) -> float:
+        """Compute average fraud confidence using compatibility scoring path."""
+        if not transactions:
+            return 0.0
+        confidence_scores = [self.detect_fraud(tx)["fraud_score"] for tx in transactions]
+        return self._safe_divide(sum(confidence_scores), len(transactions))
 
     def train_anomaly_model(self, transactions: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Train anomaly detection model on historical transactions."""
@@ -39,7 +112,7 @@ class NotebookCompatMixin:
 
     def detect_fraud(self, transaction: Dict[str, Any], account_id: str = None) -> Dict[str, Any]:
         """Detect fraud for a single transaction."""
-        acc_id = account_id or transaction.get("account_id", "unknown")
+        acc_id = self._resolve_account_id(transaction, account_id)
         score = self.score_transaction(
             transaction_id=transaction.get("transaction_id", "unknown"),
             account_id=acc_id,
@@ -73,9 +146,7 @@ class NotebookCompatMixin:
             velocity_score = self._check_velocity(account_id, 0.0, datetime.now(timezone.utc))
 
         is_anomaly = velocity_score >= 0.7
-        risk_level = (
-            "high" if velocity_score >= 0.8 else ("medium" if velocity_score >= 0.5 else "low")
-        )
+        risk_level = self._risk_level_from_score(velocity_score)
 
         return {
             "is_velocity_anomaly": is_anomaly,
@@ -105,12 +176,13 @@ class NotebookCompatMixin:
             distance_km = 8000
 
         is_anomaly = geo_score >= 0.6
+        risk_level = self._risk_level_from_score(geo_score)
 
         return {
             "is_geographic_anomaly": is_anomaly,
             "is_anomalous": is_anomaly,
             "geographic_score": geo_score,
-            "risk_level": "high" if geo_score >= 0.7 else ("medium" if geo_score >= 0.5 else "low"),
+            "risk_level": risk_level,
             "location": location,
             "merchant": merchant,
             "distance_km": distance_km,
@@ -128,33 +200,22 @@ class NotebookCompatMixin:
         if historical_transactions and not transactions:
             transactions = historical_transactions
 
-        amount = 0
-        merchant = ""
-        description = ""
-        if transaction:
-            amount = transaction.get("amount", 0)
-            merchant = transaction.get("merchant", "")
-            description = transaction.get("description", "")
-        elif transactions and len(transactions) > 0:
-            amount = transactions[0].get("amount", 0)
-            merchant = transactions[0].get("merchant", "")
-            description = transactions[0].get("description", "")
+        amount, merchant, description = self._extract_behavior_inputs(transactions, transaction)
 
         behavioral_score = self._check_behavior(
             account_id=account_id, amount=amount, merchant=merchant, description=description
         )
 
         is_anomaly = behavioral_score >= 0.6
+        risk_level = self._risk_level_from_score(
+            behavioral_score, high_threshold=0.7, medium_threshold=0.5
+        )
 
         return {
             "is_behavioral_anomaly": is_anomaly,
             "is_anomalous": is_anomaly,
             "behavioral_score": behavioral_score,
-            "risk_level": (
-                "high"
-                if behavioral_score >= 0.7
-                else ("medium" if behavioral_score >= 0.5 else "low")
-            ),
+            "risk_level": risk_level,
             "account_id": account_id,
             "pattern_type": "unusual_activity" if is_anomaly else "normal",
             "deviation_score": behavioral_score * 100,
@@ -173,23 +234,25 @@ class NotebookCompatMixin:
         for tx in test_transactions:
             result = self.detect_fraud(tx)
             predictions.append(1 if result["is_fraud"] else 0)
-            actuals.append(1 if tx.get("is_fraud", tx.get("suspicious_pattern", False)) else 0)
+            actuals.append(self._actual_label_from_transaction(tx))
 
         if not predictions:
             return {"error": "No predictions made"}
 
-        true_pos = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 1)
-        false_pos = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 0)
-        true_neg = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 0)
-        false_neg = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 1)
+        counts = self._classification_counts(predictions, actuals)
+        true_pos = counts["true_positives"]
+        false_pos = counts["false_positives"]
+        true_neg = counts["true_negatives"]
+        false_neg = counts["false_negatives"]
 
-        precision = true_pos / (true_pos + false_pos) if (true_pos + false_pos) > 0 else 0
-        recall = true_pos / (true_pos + false_neg) if (true_pos + false_neg) > 0 else 0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-        accuracy = (true_pos + true_neg) / len(predictions) if predictions else 0
+        precision = self._safe_divide(true_pos, true_pos + false_pos)
+        recall = self._safe_divide(true_pos, true_pos + false_neg)
+        f1 = self._safe_divide(2 * precision * recall, precision + recall)
+        accuracy = self._safe_divide(true_pos + true_neg, len(predictions))
 
         anomalies = sum(predictions)
-        anomaly_rate = anomalies / len(predictions) if predictions else 0
+        anomaly_rate = self._safe_divide(anomalies, len(predictions))
+        avg_confidence = self._average_confidence(test_transactions)
 
         return {
             "total_samples": len(predictions),
@@ -204,10 +267,5 @@ class NotebookCompatMixin:
             "accuracy": accuracy,
             "anomalies_detected": anomalies,
             "anomaly_rate": anomaly_rate,
-            "avg_confidence": (
-                sum(r["fraud_score"] for r in [self.detect_fraud(tx) for tx in test_transactions])
-                / len(test_transactions)
-                if test_transactions
-                else 0.0
-            ),
+            "avg_confidence": avg_confidence,
         }
