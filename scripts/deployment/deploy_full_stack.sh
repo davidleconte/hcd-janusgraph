@@ -14,6 +14,7 @@ set -e
 
 # Source common deployment functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 source "$SCRIPT_DIR/common.sh"
 init_common
 
@@ -23,6 +24,7 @@ init_common
 
 main() {
     CORE_SERVICES_WAIT_SEC="${CORE_SERVICES_WAIT_SEC:-90}"
+    RUN_NOTEBOOK_PREREQ_BOOTSTRAP="${RUN_NOTEBOOK_PREREQ_BOOTSTRAP:-1}"
 
     log_header "HCD + JanusGraph Full Stack Deployment"
     
@@ -55,6 +57,23 @@ main() {
     sleep "${CORE_SERVICES_WAIT_SEC}"
     log_success "Core services should be ready (check health with: podman --remote --connection $PODMAN_CONNECTION ps)"
     echo ""
+
+    if [[ "${RUN_NOTEBOOK_PREREQ_BOOTSTRAP}" == "1" ]]; then
+        log_step "Deterministic Notebook Prerequisite Bootstrap"
+        log_info "Seeding baseline graph data and validating HCD/JanusGraph/OpenSearch readiness."
+        log_info "Disable with: RUN_NOTEBOOK_PREREQ_BOOTSTRAP=0"
+        echo ""
+
+        bash "${PROJECT_ROOT}/scripts/testing/seed_demo_graph.sh"
+        bash "${PROJECT_ROOT}/scripts/testing/prove_notebook_prerequisites.sh" \
+            --report "${PROJECT_ROOT}/exports/notebook-prereq-proof-latest.json"
+
+        log_success "Notebook prerequisite bootstrap complete"
+        echo ""
+    else
+        log_info "Notebook prerequisite bootstrap skipped (RUN_NOTEBOOK_PREREQ_BOOTSTRAP=0)"
+        echo ""
+    fi
     
     # Display access information
     display_access_info "$COMPOSE_PROJECT_NAME"

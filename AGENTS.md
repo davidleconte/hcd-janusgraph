@@ -291,7 +291,7 @@ brew install podman-desktop
 brew install podman podman-compose
 
 # Initialize Podman machine
-podman machine init --cpus 4 --memory 8192 --disk-size 50
+podman machine init --cpus 12 --memory 24576 --disk-size 250
 podman machine start
 
 # Verify
@@ -330,9 +330,9 @@ podman machine rm
 
 # Create new machine with proper resources
 podman machine init \
-  --cpus 4 \
-  --memory 8192 \
-  --disk-size 50 \
+  --cpus 12 \
+  --memory 24576 \
+  --disk-size 250 \
   --now
 
 # Verify machine is running

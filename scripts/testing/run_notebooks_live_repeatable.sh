@@ -157,7 +157,7 @@ run_notebook() {
     -e "LANG=C.UTF-8"
     -e "LC_ALL=C.UTF-8"
     -e "PYTHONPATH=/workspace:/workspace/banking:/workspace/src/python"
-    -e "MPLBACKEND=Agg"
+    -e "MPLBACKEND=module://matplotlib_inline.backend_inline"
     -e "OPENSEARCH_USE_SSL=false"
     -e "VAULT_ADDR=http://vault:8200"
     -e "PULSAR_INTEGRATION=1"

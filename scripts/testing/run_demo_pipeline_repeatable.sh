@@ -157,13 +157,13 @@ run_cmd() {
             "Deploy Full Stack")
                 echo "G5_DEPLOY_VAULT" > "${FAILED_GATE_FILE}"
                 ;;
-            "Runtime Contracts Validation"|"Runtime Package Fingerprint Capture"|"Notebook Determinism Static Sweep")
+            "Runtime Contracts Validation"|"Runtime Package Fingerprint Capture"|"Notebook Determinism Static Sweep"|"Notebook Prerequisite Proof (HCD/JanusGraph/OpenSearch)")
                 echo "G6_RUNTIME_CONTRACT" > "${FAILED_GATE_FILE}"
                 ;;
             "Seed/Validate Demo Graph Data")
                 echo "G7_SEED" > "${FAILED_GATE_FILE}"
                 ;;
-            "Run Live Notebooks (Repeatable)")
+            "Run Live Notebooks (Repeatable)"|"Notebook Output Integrity Validation")
                 echo "G8_NOTEBOOKS" > "${FAILED_GATE_FILE}"
                 ;;
             "Determinism Artifact Verification")
@@ -300,8 +300,13 @@ if [[ "$SKIP_GRAPH_SEED" == "false" ]]; then
         "scripts/testing/seed_demo_graph.sh" \
         "${REPORT_DIR}/seed_graph.log" \
         bash scripts/testing/seed_demo_graph.sh
+
+    run_cmd "Notebook Prerequisite Proof (HCD/JanusGraph/OpenSearch)" \
+        "scripts/testing/prove_notebook_prerequisites.sh --report ${REPORT_DIR}/notebook_prereq_proof.json" \
+        "${REPORT_DIR}/notebook_prereq_proof.log" \
+        bash scripts/testing/prove_notebook_prerequisites.sh --report "${REPORT_DIR}/notebook_prereq_proof.json"
 else
-    echo "⏭️  Skipping graph seed check"
+    echo "⏭️  Skipping graph seed check and notebook prerequisite proof"
 fi
 
 if [[ "$SKIP_NOTEBOOKS" == "false" ]]; then
@@ -334,6 +339,13 @@ if [[ "$SKIP_NOTEBOOKS" == "false" ]]; then
             exit 1
         fi
         echo "✅ All notebooks passed in repeatable run"
+
+        run_cmd "Notebook Output Integrity Validation" \
+            "python3 scripts/testing/validate_notebook_outputs.py --report ${notebook_report} --summary ${REPORT_DIR}/notebook_output_validation.json" \
+            "${REPORT_DIR}/notebook_output_validation.log" \
+            python3 scripts/testing/validate_notebook_outputs.py \
+                --report "${notebook_report}" \
+                --summary "${REPORT_DIR}/notebook_output_validation.json"
     else
         echo "⏭️  Dry-run mode: skipping notebook report validation."
     fi
@@ -354,7 +366,7 @@ SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"
     echo "Project: ${PROJECT_NAME}"
     echo "Podman connection: ${PODMAN_CONNECTION}"
     echo "Report directory: ${REPORT_DIR}"
-    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, notebooks, data-generators, manifest, determinism"
+    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, graph-seed, notebook-prereq-proof, notebooks, notebook-output-validation, data-generators, manifest, determinism"
     echo "SKIP_PREFLIGHT=${SKIP_PREFLIGHT}"
     echo "SKIP_DEPLOY=${SKIP_DEPLOY}"
     echo "SKIP_NOTEBOOKS=${SKIP_NOTEBOOKS}"

@@ -9,9 +9,9 @@ source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 RUN_ID="fresh-clone-$(date -u +%Y%m%dT%H%M%SZ)"
 SEED="42"
 PODMAN_MACHINE="podman-wxd"
-PODMAN_CPUS="4"
-PODMAN_MEMORY_MB="8192"
-PODMAN_DISK_GB="50"
+PODMAN_CPUS="12"
+PODMAN_MEMORY_MB="24576"
+PODMAN_DISK_GB="250"
 STRICT_DETERMINISM="1"
 RESET_STATE="1"
 SKIP_NOTEBOOKS="0"
@@ -78,9 +78,9 @@ Options:
   --run-id <id>             Set run id for artifacts.
   --seed <int>              Deterministic seed (default: 42).
   --podman-machine <name>   Podman machine name (default: podman-wxd).
-  --podman-cpus <int>       Podman machine CPU count (default: 4).
-  --podman-memory-mb <int>  Podman memory MB (default: 8192).
-  --podman-disk-gb <int>    Podman disk size GB (default: 50).
+  --podman-cpus <int>       Podman machine CPU count (default: 12).
+  --podman-memory-mb <int>  Podman memory MB (default: 24576).
+  --podman-disk-gb <int>    Podman disk size GB (default: 250).
   --strict-determinism      Enable strict deterministic mode (default).
   --no-reset                Disable state reset before pipeline run.
   --skip-notebooks          Skip notebook execution.
