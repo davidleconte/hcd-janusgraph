@@ -37,17 +37,20 @@ EXCEPTIONS=(
 # Directories to exclude
 EXCLUDE_DIRS=(
     ".venv"
+    ".venv.disabled"
     "vendor"
     ".bob"
     ".git"
     "node_modules"
+    ".terraform"
 )
 
 # Function to check if path should be excluded
 should_exclude() {
     local path="$1"
     for exclude in "${EXCLUDE_DIRS[@]}"; do
-        if [[ "$path" == *"/$exclude/"* ]] || [[ "$path" == "$exclude/"* ]]; then
+        # Match /exclude/ anywhere in path OR exclude at start of path
+        if [[ "$path" == *"/$exclude/"* ]] || [[ "$path" == "$exclude/"* ]] || [[ "$path" == "$exclude"* ]]; then
             return 0
         fi
     done
