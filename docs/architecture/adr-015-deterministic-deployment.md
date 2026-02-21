@@ -33,6 +33,24 @@ We need a deployment strategy that ensures:
 - Team will follow deterministic practices
 - Tooling can enforce deterministic behavior
 
+### Infrastructure Requirements
+
+**MANDATORY Podman Machine Configuration for Deterministic Deployment:**
+
+```bash
+podman machine init \
+  --cpus 12 \
+  --memory 24576 \   # 24 GB
+  --disk-size 250 \  # 250 GB
+  --now
+```
+
+**Why this configuration is required:**
+- Deterministic pipeline runs 15+ notebooks simultaneously
+- All services (JanusGraph, HCD, OpenSearch, Pulsar, Grafana, etc.) must run concurrently
+- Insufficient resources cause timing variations → non-deterministic results
+- This is the ONLY supported configuration for deterministic deployment
+
 ## Decision Drivers
 
 - **Reproducibility**: Same inputs → same outputs
