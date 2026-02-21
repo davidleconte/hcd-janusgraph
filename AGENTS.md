@@ -23,6 +23,29 @@ Use the commands below as the primary operational source of truth.
 | Local CI-equivalent quality gates | See `.github/workflows/quality-gates.yml` and run equivalent commands in order |
 | Podman preflight/isolation checks | `bash scripts/validation/preflight_check.sh --strict` and `bash scripts/validation/validate_podman_isolation.sh --strict` |
 
+### Deterministic Deployment Podman Requirements
+
+**MANDATORY for deterministic deployment:** The following Podman machine configuration is REQUIRED:
+
+```bash
+# Create Podman machine with deterministic-ready resources
+podman machine init \
+  --cpus 12 \
+  --memory 24576 \   # 24 GB
+  --disk-size 250 \  # 250 GB
+  --now
+
+# Verify
+podman machine list
+# Should show: Running
+```
+
+**Why 12 CPUs / 24 GB / 250 GB?**
+- Deterministic pipeline runs 15+ notebooks simultaneously
+- All services (JanusGraph, HCD, OpenSearch, Pulsar, Grafana, etc.) must run concurrently
+- Insufficient resources cause timing variations → non-deterministic results
+- This is the ONLY supported configuration for deterministic deployment
+
 ### 2) Execution profiles
 
 | Profile | Purpose | Command/Entry Point |
