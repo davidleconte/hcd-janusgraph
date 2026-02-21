@@ -112,7 +112,7 @@ class PIISanitizer(logging.Filter):
                     self.sanitize(arg) if isinstance(arg, str) else arg for arg in record.args
                 )
             else:
-                record.args = self.sanitize(record.args) if isinstance(record.args, str) else record.args
+                record.args = self.sanitize(str(record.args)) if isinstance(record.args, str) else record.args
 
         return True
 
