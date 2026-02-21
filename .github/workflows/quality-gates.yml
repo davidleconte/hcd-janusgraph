@@ -66,6 +66,16 @@ jobs:
           file: ./coverage.xml
           fail_ci_if_error: true
 
+  kebab-case-validation:
+    name: Kebab-Case Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate kebab-case naming
+        run: |
+          bash scripts/validation/validate-kebab-case.sh
+
   docstring-coverage:
     name: Docstring Coverage
     runs-on: ubuntu-latest
