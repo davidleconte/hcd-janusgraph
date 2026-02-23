@@ -184,6 +184,15 @@ run_seed_step() {
   else
     echo "[INFO] Banking data loaded successfully"
   fi
+
+  # Load sanctions data into OpenSearch
+  echo "[INFO] Loading sanctions data into OpenSearch"
+  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 python /workspace/scripts/init/load_sanctions_data.py 2>&1)"; then
+    echo "${data_output}"
+    echo "[WARN] Sanctions data load had issues, continuing..."
+  else
+    echo "[INFO] Sanctions data loaded successfully"
+  fi
 }
 
 main() {
