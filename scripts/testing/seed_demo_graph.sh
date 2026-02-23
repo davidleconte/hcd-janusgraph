@@ -176,18 +176,18 @@ run_seed_step() {
 
   echo "${data_output}"
 
-  # Load comprehensive banking data into JanusGraph (includes persons, companies, accounts, etc.)
+  # Load comprehensive banking data into JanusGraph (using jupyter container which has Python)
   echo "[INFO] Loading comprehensive banking data into JanusGraph"
-  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_hcd-server_1 python /workspace/scripts/init/load_comprehensive_banking_data.py 2>&1)"; then
+  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 bash -c "cd /workspace && python scripts/init/load_comprehensive_banking_data.py" 2>&1)"; then
     echo "${data_output}"
     echo "[WARN] Banking data load had issues, continuing..."
   else
     echo "[INFO] Banking data loaded successfully"
   fi
 
-  # Load sanctions data into OpenSearch
+  # Load sanctions data into OpenSearch (using jupyter container)
   echo "[INFO] Loading sanctions data into OpenSearch"
-  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 python /workspace/scripts/init/load_sanctions_data.py 2>&1)"; then
+  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 bash -c "cd /workspace && python scripts/init/load_sanctions_data.py" 2>&1)"; then
     echo "${data_output}"
     echo "[WARN] Sanctions data load had issues, continuing..."
   else
