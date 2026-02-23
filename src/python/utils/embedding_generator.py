@@ -10,7 +10,18 @@ Phase: 5 (Vector/AI Foundation)
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import List, Optional, Union
+
+# Suppress sentence-transformers model load warnings
+try:
+    from transformers import logging as transformers_logging
+    transformers_logging.set_verbosity_error()
+except ImportError:
+    pass
+
+# Suppress general warnings for cleaner output
+warnings.filterwarnings('ignore', category=UserWarning, module='sentence_transformers')
 
 try:
     import numpy as np

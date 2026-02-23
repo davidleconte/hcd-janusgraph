@@ -55,11 +55,19 @@ def _serialize_value(value: Any) -> Any:
         return int(value.timestamp())
     if isinstance(value, date):
         from calendar import timegm
-
         return timegm(value.timetuple())
+    # Handle date strings from JSON (e.g., "2007-05-21")
+    if isinstance(value, str):
+        # Try parsing ISO date format
+        for fmt in ["%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ"]:
+            try:
+                dt = datetime.strptime(value, fmt)
+                return int(dt.timestamp())
+            except ValueError:
+                pass
+        return value  # Return as string if not a date
     if isinstance(value, (list, dict)):
         import json
-
         return json.dumps(value, default=str)
     return str(value)
 
@@ -334,13 +342,14 @@ class JanusGraphLoader:
 
                 if owner_id:
                     if owner_type == "person" and owner_id in person_id_map:
+                        since_value = _serialize_value(account_dict.get("opened_date", ""))
                         owner_vertex_id = person_id_map[owner_id]
                         self._submit(
                             "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
                             {
                                 "oid": owner_vertex_id,
                                 "aid": vertex_id,
-                                "since": str(account_dict.get("opened_date", "")),
+                                "since": since_value,
                             },
                         )
                         self.stats["edges_created"] += 1
@@ -351,7 +360,7 @@ class JanusGraphLoader:
                             {
                                 "oid": owner_vertex_id,
                                 "aid": vertex_id,
-                                "since": str(account_dict.get("opened_date", "")),
+                                "since": since_value,
                             },
                         )
                         self.stats["edges_created"] += 1

@@ -65,7 +65,7 @@ class VectorSearchClient:
             auth = (username, password)
             logger.info("Using authenticated OpenSearch connection")
         else:
-            logger.warning(
+            logger.info(
                 "No authentication configured - using unauthenticated connection (development mode)"
             )
 

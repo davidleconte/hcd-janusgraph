@@ -44,6 +44,7 @@ class ScreeningResult:
     customer_id: str
     customer_name: str
     is_match: bool
+    is_fuzzy_match: bool  # True if match is fuzzy (>=FUZZY_THRESHOLD but <MEDIUM_RISK_THRESHOLD)
     matches: List[SanctionMatch]
     screening_timestamp: str
     confidence: float
@@ -58,8 +59,9 @@ class SanctionsScreener:
     """
 
     # Risk thresholds
-    HIGH_RISK_THRESHOLD = 0.95  # Very similar names
+    HIGH_RISK_THRESHOLD = 0.95  # Very similar names (exact match)
     MEDIUM_RISK_THRESHOLD = 0.85  # Moderately similar
+    FUZZY_THRESHOLD = 0.60  # Fuzzy match threshold (typos, abbreviations)
     LOW_RISK_THRESHOLD = 0.75  # Possibly similar
 
     def __init__(
@@ -210,12 +212,12 @@ class SanctionsScreener:
                 customer_name=customer_name,
                 sanctioned_name=source["name"],
                 similarity_score=score,
-                sanctions_list=source.get("list_type", "UNKNOWN"),
-                entity_id=source.get("id", "UNKNOWN"),
+                sanctions_list=source.get("list", source.get("list_type", "UNKNOWN")),
+                entity_id=source.get("entity_id", source.get("id", "UNKNOWN")),
                 match_type=match_type,
                 risk_level=risk_level,
                 metadata={
-                    "entity_type": source.get("entity_type", ""),
+                    "entity_type": source.get("type", source.get("entity_type", "")),
                     "country": source.get("country", ""),
                     "aliases": source.get("aliases", ""),
                     "date_added": source.get("added_date", ""),
@@ -223,23 +225,28 @@ class SanctionsScreener:
             )
             matches.append(match)
 
-        # Determine if there's a match
-        is_match = len(matches) > 0 and matches[0].similarity_score >= self.MEDIUM_RISK_THRESHOLD
+        # Determine if there's a match (flagged for review)
+        # Include fuzzy matches (>= FUZZY_THRESHOLD) as matches
+        is_match = len(matches) > 0 and matches[0].similarity_score >= self.FUZZY_THRESHOLD
+        # Track if it's a fuzzy match (between FUZZY and MEDIUM threshold)
+        is_fuzzy_match = len(matches) > 0 and self.FUZZY_THRESHOLD <= matches[0].similarity_score < self.MEDIUM_RISK_THRESHOLD
         confidence = matches[0].similarity_score if matches else 0.0
 
         result = ScreeningResult(
             customer_id=customer_id,
             customer_name=customer_name,
             is_match=is_match,
+            is_fuzzy_match=is_fuzzy_match,
             matches=matches,
             screening_timestamp=datetime.now(timezone.utc).isoformat(),
             confidence=confidence,
         )
 
         if is_match:
+            match_type = "FUZZY" if is_fuzzy_match else "EXACT"
             logger.warning(
                 f"⚠️  SANCTIONS MATCH: {customer_name} -> {matches[0].sanctioned_name} "
-                f"(score: {matches[0].similarity_score:.4f}, risk: {matches[0].risk_level})"
+                f"(score: {matches[0].similarity_score:.4f}, risk: {matches[0].risk_level}, type: {match_type})"
             )
         else:
             logger.info("✅ No sanctions match for: %s", customer_name)
