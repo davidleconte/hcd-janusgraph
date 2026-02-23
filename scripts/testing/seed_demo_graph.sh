@@ -168,13 +168,22 @@ run_seed_step() {
     echo "[INFO] Schema init raised an 'already' condition, continuing."
   fi
 
-  echo "[INFO] Loading sample data"
+  echo "[INFO] Loading sample data via Gremlin"
   if ! data_output="$(run_gremlin_file "${data_file}")"; then
     echo "${data_output}"
     return 1
   fi
 
   echo "${data_output}"
+
+  # Load comprehensive banking data into JanusGraph (includes persons, companies, accounts, etc.)
+  echo "[INFO] Loading comprehensive banking data into JanusGraph"
+  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_hcd-server_1 python /workspace/scripts/init/load_comprehensive_banking_data.py 2>&1)"; then
+    echo "${data_output}"
+    echo "[WARN] Banking data load had issues, continuing..."
+  else
+    echo "[INFO] Banking data loaded successfully"
+  fi
 }
 
 main() {
