@@ -321,6 +321,7 @@ services:
       - ../../banking:/workspace/banking
       - ../../src/python:/workspace/src/python
       - ../../exports:/workspace/exports
+      - ../../scripts:/workspace/scripts
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - GREMLIN_URL=ws://janusgraph-server:8182/gremlin

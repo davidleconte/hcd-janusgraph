@@ -38,7 +38,7 @@ COPY pyproject.toml uv.lock requirements.txt /workspace/
 WORKDIR /workspace
 RUN awk '!/^numpy==/ && !/^pandas==/ && !/^matplotlib==/' /workspace/requirements.txt > /tmp/requirements.jupyter.txt && \
     conda run -n janusgraph-analysis uv pip install --system -r /tmp/requirements.jupyter.txt && \
-    conda run -n janusgraph-analysis uv pip install --system email-validator==2.3.0 && \
+    conda run -n janusgraph-analysis uv pip install --system "email-validator>=2.0.0" "opensearch-py>=2.0.0" && \
     conda run -n janusgraph-analysis python -c "import numpy, pandas, matplotlib, email_validator"
 
 # Create workspace directories

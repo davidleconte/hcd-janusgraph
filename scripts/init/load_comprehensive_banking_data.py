@@ -35,7 +35,7 @@ from banking.data_generators.utils.data_models import Person, Company, Account, 
 from src.python.utils.embedding_generator import EmbeddingGenerator
 from opensearchpy import OpenSearch
 
-OPENSEARCH_HOST = "localhost"
+OPENSEARCH_HOST = "opensearch"
 OPENSEARCH_PORT = 9200
 SANCTIONS_INDEX = "sanctions_list"
 
@@ -201,7 +201,7 @@ def generate_and_load_janusgraph():
     # Load to JanusGraph
     print("\n📊 Loading to JanusGraph...")
     loader = JanusGraphLoader(
-        url="ws://localhost:18182/gremlin"
+        url="ws://janusgraph-server:8182/gremlin"
     )
     loader.connect()
     

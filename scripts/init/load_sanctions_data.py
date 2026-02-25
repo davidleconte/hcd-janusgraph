@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src/python"))
 from utils.embedding_generator import EmbeddingGenerator
 from opensearchpy import OpenSearch
 
-OPENSEARCH_HOST = "localhost"
+OPENSEARCH_HOST = "opensearch"
 OPENSEARCH_PORT = 9200
 INDEX_NAME = "sanctions_list"
 
