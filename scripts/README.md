@@ -71,10 +71,14 @@ Scripts for deploying and managing the full stack.
 
 #### [`deploy_full_stack.sh`](deployment/deploy_full_stack.sh)
 
-- **Purpose:** Deploy complete HCD + JanusGraph stack
+- **Purpose:** Deploy complete HCD + JanusGraph stack (deterministic)
 - **Usage:** `cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh`
-- **Components:** HCD, OpenSearch, JanusGraph, Jupyter, monitoring
-- **Requirements:** Docker Compose, sufficient system resources
+- **Components:** HCD, OpenSearch, JanusGraph, Jupyter, monitoring, Vault
+- **Requirements:** Podman machine with sufficient resources (12 CPUs, 24GB RAM, 250GB disk)
+- **Deterministic Features:**
+  - Automatically builds all local Docker images before deployment
+  - Automatically initializes and unseals Vault
+  - No manual intervention required for new Podman machines
 - **Note:** Must be run from `config/compose/` directory
 
 #### [`deploy_aml_production.sh`](deployment/deploy_aml_production.sh)
