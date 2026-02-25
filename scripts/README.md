@@ -2,6 +2,7 @@
 
 This directory contains operational scripts for managing, deploying, and maintaining the HCD + JanusGraph banking compliance system.
 
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 **Date:** 2026-01-28
 **Version:** 1.0
 **Status:** Active
