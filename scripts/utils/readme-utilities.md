@@ -31,4 +31,4 @@ When adding new utility scripts:
 
 ---
 
-**Co-Authored-By:** David Leconte <team@example.com>
+**Author:** David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
