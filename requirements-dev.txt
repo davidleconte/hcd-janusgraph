@@ -249,7 +249,7 @@ packaging==26.0
     #   transformers
 pandas==2.0.0
     # via hcd-janusgraph-banking
-parso==0.8.5
+parso==0.8.6
     # via jedi
 pathspec==1.0.4
     # via
