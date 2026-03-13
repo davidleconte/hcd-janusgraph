@@ -52,12 +52,17 @@ jobs:
           PYTHONPATH=. pytest tests/ -v \
             --cov=src --cov=banking \
             --cov-report=xml \
+            --cov-report=json \
             --cov-fail-under=70 \
             --timeout=120 \
             --ignore=tests/integration \
             --ignore=tests/benchmarks \
             --ignore=tests/performance \
             -k "not slow and not integration"
+
+      - name: Check per-package coverage thresholds
+        run: |
+          python scripts/validation/check_package_coverage.py --coverage-file coverage.json
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

@@ -1,0 +1,36 @@
+{
+  "package_thresholds": {
+    "banking/streaming": {
+      "minimum": 75,
+      "target": 85,
+      "current": 85,
+      "description": "Streaming module - event producers, consumers, DLQ handling"
+    },
+    "banking/compliance": {
+      "minimum": 90,
+      "target": 95,
+      "current": 93,
+      "description": "Compliance module - audit logging, reporting"
+    },
+    "banking/aml": {
+      "minimum": 75,
+      "target": 85,
+      "current": 78,
+      "description": "AML module - sanctions screening, structuring detection"
+    },
+    "banking/fraud": {
+      "minimum": 85,
+      "target": 95,
+      "current": 91,
+      "description": "Fraud module - fraud detection, models"
+    }
+  },
+  "global_threshold": {
+    "minimum": 70,
+    "target": 80
+  },
+  "enforcement": {
+    "fail_on_below_minimum": true,
+    "warn_on_below_target": true
+  }
+}

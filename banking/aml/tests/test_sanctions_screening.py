@@ -101,6 +101,7 @@ class TestScreeningResult:
             customer_id="CUST-456",
             customer_name="John Smith",
             is_match=True,
+            is_fuzzy_match=False,
             matches=[match],
             screening_timestamp=datetime.now(timezone.utc).isoformat(),
             confidence=0.92,
@@ -117,6 +118,7 @@ class TestScreeningResult:
             customer_id="CUST-789",
             customer_name="Jane Doe",
             is_match=False,
+            is_fuzzy_match=False,
             matches=[],
             screening_timestamp=datetime.now(timezone.utc).isoformat(),
             confidence=0.0,
@@ -461,7 +463,8 @@ class TestCustomerScreening:
         screener = SanctionsScreener()
         result = screener.screen_customer("CUST-123", "John Doe")
 
-        assert result.is_match is False  # Below medium threshold
+        assert result.is_match is True  # >= FUZZY_THRESHOLD (0.60)
+        assert result.is_fuzzy_match is True  # Below MEDIUM_RISK_THRESHOLD (0.85)
         assert len(result.matches) == 1
         assert result.matches[0].risk_level == "low"
         assert result.matches[0].match_type == "phonetic"
