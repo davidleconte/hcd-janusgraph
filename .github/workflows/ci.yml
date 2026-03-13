@@ -15,6 +15,45 @@ jobs:
     uses: ./.github/workflows/determinism-guard.yml
     secrets: inherit
 
+  determinism-verify:
+    needs: [determinism-guard]
+    runs-on: ubuntu-latest
+    env:
+      DEMO_REQUIRE_EXISTING_BASELINE: "1"
+      DEMO_BASELINE_DIR: "exports/determinism-baselines"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Verify canonical baseline exists
+        run: |
+          if [[ ! -f "exports/determinism-baselines/CANONICAL_42.checksums" ]]; then
+            echo "::error::Canonical baseline missing. See exports/determinism-baselines/CANONICAL_BASELINE.md"
+            exit 1
+          fi
+          echo "✅ Canonical baseline verified"
+      
+      - name: Check for baseline drift
+        run: |
+          # Get current commit SHA
+          COMMIT_SHA=$(git rev-parse HEAD)
+          SEED="42"
+          CURRENT_BASELINE="exports/determinism-baselines/${COMMIT_SHA}_${SEED}.checksums"
+          
+          if [[ -f "${CURRENT_BASELINE}" ]]; then
+            if ! cmp -s "${CURRENT_BASELINE}" "exports/determinism-baselines/CANONICAL_42.checksums"; then
+              echo "::error::Determinism drift detected!"
+              echo "Current: ${CURRENT_BASELINE}"
+              echo "Canonical: exports/determinism-baselines/CANONICAL_42.checksums"
+              diff -u exports/determinism-baselines/CANONICAL_42.checksums "${CURRENT_BASELINE}" || true
+              exit 1
+            fi
+            echo "✅ No drift detected - checksums match canonical baseline"
+          else
+            echo "ℹ️ No baseline for current commit yet - will be verified on pipeline run"
+          fi
+
   quality-gates:
     needs: [determinism-guard]
     uses: ./.github/workflows/quality-gates.yml

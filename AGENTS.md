@@ -57,11 +57,22 @@ podman machine list
 
 ### 3) Determinism contract
 
+**Canonical Baseline:** `exports/determinism-baselines/CANONICAL_42.checksums`
+**Strict Mode:** Enabled in CI (`DEMO_REQUIRE_EXISTING_BASELINE=1`)
+
 Deterministic pass criteria:
 - Wrapper status file exists at `exports/deterministic-status.json`.
 - `exit_code` is `0`.
 - Notebook report exists and all notebooks are `PASS`.
 - Determinism artifact verification passes (checksums/baseline behavior).
+- **No drift from canonical baseline** (checked by `detect_determinism_drift.sh`).
+
+Protected determinism-sensitive files (require `[determinism-override]` token):
+- `requirements.lock.txt`, `environment.yml`, `uv.lock`
+- `config/compose/docker-compose.full.yml`
+- `scripts/testing/*.sh` (pipeline scripts)
+- `exports/determinism-baselines/CANONICAL_*` (canonical baselines)
+- All notebook files (`*.ipynb`)
 
 Gate code semantics (from pipeline behavior):
 - `G0_PRECHECK`: preflight/isolation failure
@@ -72,6 +83,7 @@ Gate code semantics (from pipeline behavior):
 - `G7_SEED`: graph seed/validation failure
 - `G8_NOTEBOOKS`: notebook run/report failure
 - `G9_DETERMINISM`: deterministic artifact mismatch/failure
+- `G10_DRIFT`: canonical baseline drift detected
 
 ### 4) Secrets and test runtime contract
 

@@ -18,6 +18,7 @@ PROTECTED_PATTERNS=(
   "scripts/testing/check_notebook_determinism_contracts.sh"
   "scripts/testing/collect_run_manifest.sh"
   "scripts/testing/verify_deterministic_artifacts.sh"
+  "scripts/testing/detect_determinism_drift.sh"
   "banking/notebooks/*.ipynb"
   "banking/notebooks/*/*.ipynb"
   "banking/notebooks/*/*/*.ipynb"
@@ -27,6 +28,8 @@ PROTECTED_PATTERNS=(
   "notebooks-exploratory/*.ipynb"
   "notebooks-exploratory/*/*.ipynb"
   "notebooks-exploratory/*/*/*.ipynb"
+  "exports/determinism-baselines/CANONICAL_*.checksums"
+  "exports/determinism-baselines/CANONICAL_BASELINE.md"
 )
 
 resolve_base_ref() {

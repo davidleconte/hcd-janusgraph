@@ -416,7 +416,7 @@ SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"
     echo "Project: ${PROJECT_NAME}"
     echo "Podman connection: ${PODMAN_CONNECTION}"
     echo "Report directory: ${REPORT_DIR}"
-    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, graph-seed, notebook-prereq-proof, notebooks, notebook-output-validation, data-generators, manifest, determinism"
+    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, graph-seed, notebook-prereq-proof, notebooks, notebook-output-validation, data-generators, manifest, determinism, drift-detection"
     echo "SKIP_PREFLIGHT=${SKIP_PREFLIGHT}"
     echo "SKIP_DEPLOY=${SKIP_DEPLOY}"
     echo "SKIP_NOTEBOOKS=${SKIP_NOTEBOOKS}"
@@ -440,6 +440,12 @@ if [[ "$DRY_RUN" == "false" ]]; then
             "scripts/testing/verify_deterministic_artifacts.sh ${REPORT_DIR}" \
             "${REPORT_DIR}/determinism.log" \
             bash -lc "DEMO_BASELINE_DIR='${DEMO_BASELINE_DIR}' DEMO_REQUIRE_EXISTING_BASELINE='${DEMO_REQUIRE_EXISTING_BASELINE}' bash scripts/testing/verify_deterministic_artifacts.sh '${REPORT_DIR}'"
+
+        # Drift detection against canonical baseline
+        run_cmd "Determinism Drift Detection" \
+            "scripts/testing/detect_determinism_drift.sh ${REPORT_DIR}" \
+            "${REPORT_DIR}/drift_detection.log" \
+            bash scripts/testing/detect_determinism_drift.sh "${REPORT_DIR}"
     fi
 fi
 
