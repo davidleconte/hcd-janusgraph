@@ -344,24 +344,17 @@ class JanusGraphLoader:
                     if owner_type == "person" and owner_id in person_id_map:
                         since_value = _serialize_value(account_dict.get("opened_date", ""))
                         owner_vertex_id = person_id_map[owner_id]
+                        # Use string interpolation with iterate() to avoid serialization issues
+                        since_prop = f".property('since', '{since_value}')" if since_value else ""
                         self._submit(
-                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
-                            {
-                                "oid": owner_vertex_id,
-                                "aid": vertex_id,
-                                "since": since_value,
-                            },
+                            f"g.V({owner_vertex_id}).addE('owns_account').to(V({vertex_id})){since_prop}.iterate()"
                         )
                         self.stats["edges_created"] += 1
                     elif owner_type == "company" and owner_id in company_id_map:
                         owner_vertex_id = company_id_map[owner_id]
+                        since_prop = f".property('since', '{since_value}')" if since_value else ""
                         self._submit(
-                            "g.addE('owns_account').from(__.V(oid)).to(__.V(aid)).property('since', since)",
-                            {
-                                "oid": owner_vertex_id,
-                                "aid": vertex_id,
-                                "since": since_value,
-                            },
+                            f"g.V({owner_vertex_id}).addE('owns_account').to(V({vertex_id})){since_prop}.iterate()"
                         )
                         self.stats["edges_created"] += 1
 
@@ -405,25 +398,19 @@ class JanusGraphLoader:
 
                 from_account_id = tx_dict.get("from_account_id")
                 if from_account_id and from_account_id in account_id_map:
+                    from_vid = account_id_map[from_account_id]
+                    ts_val = _serialize_value(tx_dict.get("transaction_date")) or 0
                     self._submit(
-                        "g.addE('sent_transaction').from(__.V(fid)).to(__.V(tid)).property('timestamp', ts)",
-                        {
-                            "fid": account_id_map[from_account_id],
-                            "tid": vertex_id,
-                            "ts": _serialize_value(tx_dict.get("transaction_date")) or 0,
-                        },
+                        f"g.V({from_vid}).addE('sent_transaction').to(V({vertex_id})).property('timestamp', '{ts_val}').iterate()"
                     )
                     self.stats["edges_created"] += 1
 
                 to_account_id = tx_dict.get("to_account_id")
                 if to_account_id and to_account_id in account_id_map:
+                    to_vid = account_id_map[to_account_id]
+                    ts_val = _serialize_value(tx_dict.get("transaction_date")) or 0
                     self._submit(
-                        "g.addE('received_by').from(__.V(tid)).to(__.V(toid)).property('timestamp', ts)",
-                        {
-                            "tid": vertex_id,
-                            "toid": account_id_map[to_account_id],
-                            "ts": _serialize_value(tx_dict.get("transaction_date")) or 0,
-                        },
+                        f"g.V({vertex_id}).addE('received_by').to(V({to_vid})).property('timestamp', '{ts_val}').iterate()"
                     )
                     self.stats["edges_created"] += 1
 
@@ -495,26 +482,20 @@ class JanusGraphLoader:
                 # Link to Account (account -> executed_trade -> trade)
                 acc_id = trade_dict.get("account_id")
                 if acc_id and acc_id in account_id_map:
+                    acc_vid = account_id_map[acc_id]
+                    ts_val = str(trade_dict.get("trade_date", ""))
                     self._submit(
-                        "g.addE('executed_trade').from(__.V(aid)).to(__.V(tid)).property('timestamp', ts)",
-                        {
-                            "aid": account_id_map[acc_id],
-                            "tid": trade_vertex_id,
-                            "ts": str(trade_dict.get("trade_date", "")),
-                        },
+                        f"g.V({acc_vid}).addE('executed_trade').to(V({trade_vertex_id})).property('timestamp', '{ts_val}').iterate()"
                     )
                     self.stats["edges_created"] += 1
 
                 # Link to Trader (person -> performed_trade -> trade)
                 trader_id = trade_dict.get("trader_id")
                 if trader_id and trader_id in person_id_map:
+                    trader_vid = person_id_map[trader_id]
+                    ts_val = str(trade_dict.get("trade_date", ""))
                     self._submit(
-                        "g.addE('performed_trade').from(__.V(pid)).to(__.V(tid)).property('timestamp', ts)",
-                        {
-                            "pid": person_id_map[trader_id],
-                            "tid": trade_vertex_id,
-                            "ts": str(trade_dict.get("trade_date", "")),
-                        },
+                        f"g.V({trader_vid}).addE('performed_trade').to(V({trade_vertex_id})).property('timestamp', '{ts_val}').iterate()"
                     )
                     self.stats["edges_created"] += 1
 
@@ -559,19 +540,14 @@ class JanusGraphLoader:
                     to_vertex = person_id_map[to_id]
 
                 if from_vertex and to_vertex:
+                    ctype = comm_dict.get("communication_type", "email")
+                    ts_val = _serialize_value(comm_dict.get("timestamp")) or 0
+                    suspicious = bool(comm_dict.get("is_suspicious", False))
                     self._submit(
-                        """g.addE('communicated_with')
-                            .from(__.V(fid)).to(__.V(tid))
-                            .property('comm_type', ctype)
-                            .property('timestamp', ts)
-                            .property('is_suspicious', suspicious)""",
-                        {
-                            "fid": from_vertex,
-                            "tid": to_vertex,
-                            "ctype": comm_dict.get("communication_type", "email"),
-                            "ts": _serialize_value(comm_dict.get("timestamp")) or 0,
-                            "suspicious": bool(comm_dict.get("is_suspicious", False)),
-                        },
+                        f"g.V({from_vertex}).addE('communicated_with').to(V({to_vertex}))"
+                        f".property('comm_type', '{ctype}')"
+                        f".property('timestamp', '{ts_val}')"
+                        f".property('is_suspicious', {str(suspicious).lower()}).iterate()"
                     )
                     edges_created += 1
                     self.stats["edges_created"] += 1
