@@ -31,7 +31,7 @@ echo "===================================="
 echo ""
 
 # Check if Vault container is running
-if ! podman_cmd ps | grep -q vault-server; then
+if ! podman_cmd ps | grep -q "vault_1"; then
     echo -e "${RED}❌ Vault container is not running${NC}"
     echo "Start the full stack first:"
     echo "  cd config/compose && podman-compose -f docker-compose.full.yml up -d vault"
@@ -44,14 +44,14 @@ echo ""
 # Wait for Vault to be ready
 echo "⏳ Waiting for Vault to be ready..."
 for i in {1..30}; do
-    if podman_exec vault-server vault status >/dev/null 2>&1 || [ $? -eq 2 ]; then
+    if podman_exec janusgraph-demo_vault_1 vault status >/dev/null 2>&1 || [ $? -eq 2 ]; then
         break
     fi
     sleep 1
 done
 
 # Check if Vault is already initialized
-if podman_exec vault-server vault status 2>&1 | grep -q "Initialized.*true"; then
+if podman_exec janusgraph-demo_vault_1 vault status 2>&1 | grep -q "Initialized.*true"; then
     echo -e "${YELLOW}⚠️  Vault is already initialized${NC}"
     echo ""
     echo "To re-initialize Vault:"
@@ -63,7 +63,7 @@ if podman_exec vault-server vault status 2>&1 | grep -q "Initialized.*true"; the
 fi
 
 echo -e "${BLUE}1️⃣  Initializing Vault...${NC}"
-INIT_OUTPUT=$(podman_exec vault-server vault operator init -key-shares=5 -key-threshold=3 -format=json)
+INIT_OUTPUT=$(podman_exec janusgraph-demo_vault_1 vault operator init -key-shares=5 -key-threshold=3 -format=json)
 
 # Extract keys and root token
 UNSEAL_KEY_1=$(echo "$INIT_OUTPUT" | jq -r '.unseal_keys_b64[0]')
@@ -107,9 +107,9 @@ echo ""
 
 # Unseal Vault
 echo -e "${BLUE}2️⃣  Unsealing Vault...${NC}"
-podman_exec vault-server vault operator unseal "$UNSEAL_KEY_1" >/dev/null
-podman_exec vault-server vault operator unseal "$UNSEAL_KEY_2" >/dev/null
-podman_exec vault-server vault operator unseal "$UNSEAL_KEY_3" >/dev/null
+podman_exec janusgraph-demo_vault_1 vault operator unseal "$UNSEAL_KEY_1" >/dev/null
+podman_exec janusgraph-demo_vault_1 vault operator unseal "$UNSEAL_KEY_2" >/dev/null
+podman_exec janusgraph-demo_vault_1 vault operator unseal "$UNSEAL_KEY_3" >/dev/null
 
 echo -e "${GREEN}✅ Vault unsealed${NC}"
 echo ""
@@ -120,7 +120,7 @@ export VAULT_TOKEN=$ROOT_TOKEN
 
 # Enable KV secrets engine
 echo -e "${BLUE}3️⃣  Enabling KV secrets engine...${NC}"
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault secrets enable -path=janusgraph kv-v2
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault secrets enable -path=janusgraph kv-v2
 
 echo -e "${GREEN}✅ KV secrets engine enabled at: janusgraph/${NC}"
 echo ""
@@ -134,19 +134,19 @@ HCD_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-20)
 GRAFANA_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-20)
 
 # Store secrets in Vault
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault kv put janusgraph/admin \
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault kv put janusgraph/admin \
     username=admin \
     password="$ADMIN_PASSWORD"
 
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault kv put janusgraph/hcd \
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault kv put janusgraph/hcd \
     username=cassandra \
     password="$HCD_PASSWORD"
 
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault kv put janusgraph/grafana \
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault kv put janusgraph/grafana \
     username=admin \
     password="$GRAFANA_PASSWORD"
 
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault kv put janusgraph/opensearch \
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault kv put janusgraph/opensearch \
     username=admin \
     password="$ADMIN_PASSWORD"
 
@@ -170,8 +170,8 @@ path "auth/token/renew-self" {
 POLICY_EOF
 
 # Copy policy to container and apply
-podman_cmd cp /tmp/janusgraph-policy.hcl vault-server:/tmp/janusgraph-policy.hcl
-podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault policy write janusgraph-policy /tmp/janusgraph-policy.hcl
+podman_cmd cp /tmp/janusgraph-policy.hcl janusgraph-demo_vault_1:/tmp/janusgraph-policy.hcl
+podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault policy write janusgraph-policy /tmp/janusgraph-policy.hcl
 rm /tmp/janusgraph-policy.hcl
 
 echo -e "${GREEN}✅ Policy created: janusgraph-policy${NC}"
@@ -179,7 +179,7 @@ echo ""
 
 # Create application token
 echo -e "${BLUE}6️⃣  Creating application token...${NC}"
-APP_TOKEN=$(podman_exec -e VAULT_TOKEN=$ROOT_TOKEN vault-server vault token create \
+APP_TOKEN=$(podman_exec -e VAULT_TOKEN=$ROOT_TOKEN janusgraph-demo_vault_1 vault token create \
     -policy=janusgraph-policy \
     -ttl=720h \
     -renewable=true \

@@ -140,12 +140,45 @@ check_python_environment() {
     # Check conda env is active
     log_subsection "Checking conda environment activation"
     if [[ -z "${CONDA_DEFAULT_ENV:-}" ]]; then
-        log_error "No conda environment is active"
-        log_info "Activate: conda activate $REQUIRED_CONDA_ENV"
-        ((ERRORS += 1))
+        # Check if direnv is available but not hooked
+        if command -v direnv &> /dev/null; then
+            log_warning "direnv is installed but conda environment not active"
+            log_info "Run 'direnv allow' in project root, or ensure shell has direnv hook"
+        fi
+        
+        if [[ "$AUTO_FIX" == "true" ]]; then
+            log_info "Auto-fixing: Activating conda environment..."
+            # shellcheck disable=SC1090
+            eval "$(conda shell.bash hook)"
+            conda activate "$REQUIRED_CONDA_ENV" 2>/dev/null || true
+            
+            if [[ "${CONDA_DEFAULT_ENV:-}" == "$REQUIRED_CONDA_ENV" ]]; then
+                log_success "Activated conda environment: $REQUIRED_CONDA_ENV"
+            else
+                log_error "Failed to auto-activate conda environment"
+                log_info "Manual fix: conda activate $REQUIRED_CONDA_ENV"
+                ((ERRORS += 1))
+            fi
+        else
+            log_error "No conda environment is active"
+            log_info "Fix: conda activate $REQUIRED_CONDA_ENV"
+            log_info "Or: direnv allow (if using direnv)"
+            ((ERRORS += 1))
+        fi
     elif [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
         log_error "Wrong conda environment: $CONDA_DEFAULT_ENV (expected: $REQUIRED_CONDA_ENV)"
-        ((ERRORS += 1))
+        if [[ "$AUTO_FIX" == "true" ]]; then
+            log_info "Auto-fixing: Switching to correct environment..."
+            conda activate "$REQUIRED_CONDA_ENV" 2>/dev/null || true
+            if [[ "${CONDA_DEFAULT_ENV:-}" == "$REQUIRED_CONDA_ENV" ]]; then
+                log_success "Switched to conda environment: $REQUIRED_CONDA_ENV"
+            else
+                ((ERRORS += 1))
+            fi
+        else
+            log_info "Fix: conda activate $REQUIRED_CONDA_ENV"
+            ((ERRORS += 1))
+        fi
     else
         log_success "Correct conda environment active: $CONDA_DEFAULT_ENV"
     fi

@@ -51,7 +51,7 @@ build_local_images() {
         # Determine Dockerfile name (some have different names)
         local actual_dockerfile="$dockerfile_path"
         if [[ "$image_name" == "janusgraph-exporter" ]] && [[ ! -f "$dockerfile_path" ]]; then
-            actual_dockerfile="$docker_file_dir/Dockerfile.exporter"
+            actual_dockerfile="$dockerfile_dir/Dockerfile.exporter"
         fi
         
         if [[ -f "$actual_dockerfile" ]]; then
@@ -62,7 +62,7 @@ build_local_images() {
                 "$PROJECT_ROOT" 2>&1 | tail -3
             log_success "Built localhost/$image_name"
         else
-            log_warn "Dockerfile not found: $actual_dockerfile for $image_name"
+            log_warning "Dockerfile not found: $actual_dockerfile for $image_name"
         fi
     done
     
@@ -79,50 +79,80 @@ init_vault_deterministic() {
     echo ""
     
     local vault_container="${COMPOSE_PROJECT_NAME}_vault_1"
+    local vault_keys_file="$PROJECT_ROOT/.vault-keys"
     
-    # Check if Vault container is running
-    if ! podman --remote --connection "$PODMAN_CONNECTION" ps | grep -q "vault_1"; then
-        log_warn "Vault container not running, skipping initialization"
+    # Check if Vault container is running (use format for reliable detection)
+    if ! podman --remote --connection "$PODMAN_CONNECTION" ps --format "{{.Names}}" | grep -q "^${vault_container}$"; then
+        log_warning "Vault container not running, skipping initialization"
         return 0
     fi
     
     # Check if Vault is already initialized and unsealed
     local vault_status
-    vault_status=$(podman --remote --connection "$PODMAN_CONNECTION" exec "$vault_container" vault status 2>&1 || true)
+    vault_status=$(podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" vault status 2>&1 || true)
     
     if echo "$vault_status" | grep -q "Sealed.*false"; then
         log_info "Vault already unsealed"
         return 0
     fi
     
+    # Try to unseal with keys from .vault-keys file
+    if [[ -f "$vault_keys_file" ]]; then
+        log_info "Loading Vault keys from $vault_keys_file"
+        source "$vault_keys_file" 2>/dev/null || true
+        
+        if [[ -n "${VAULT_UNSEAL_KEY_1:-}" ]] && [[ -n "${VAULT_UNSEAL_KEY_2:-}" ]] && [[ -n "${VAULT_UNSEAL_KEY_3:-}" ]]; then
+            log_info "Unsealing Vault with stored keys..."
+            podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
+                vault operator unseal "$VAULT_UNSEAL_KEY_1" >/dev/null 2>&1 || true
+            podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
+                vault operator unseal "$VAULT_UNSEAL_KEY_2" >/dev/null 2>&1 || true
+            podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
+                vault operator unseal "$VAULT_UNSEAL_KEY_3" >/dev/null 2>&1 || true
+            
+            # Verify unseal
+            vault_status=$(podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" vault status 2>&1 || true)
+            if echo "$vault_status" | grep -q "Sealed.*false"; then
+                log_success "Vault unsealed from stored keys"
+                return 0
+            fi
+        fi
+    fi
+    
+    # Check if already initialized
     if echo "$vault_status" | grep -q "Initialized.*true"; then
-        log_info "Vault initialized but sealed, unsealing..."
-        
-        # Unseal with stored keys (3 of 5)
-        podman --remote --connection "$PODMAN_CONNECTION" exec "$vault_container" \
-            vault operator unseal "BZCM/BxZ79JWMnb+fbQHIhWOgvjNLdImq2EFmInANsiv" >/dev/null 2>&1 || true
-        podman --remote --connection "$PODMAN_CONNECTION" exec "$vault_container" \
-            vault operator unseal "cTSJkHANFF6/ZpOoViV1hn2CxClBOoIZlD1IewM9lsLC" >/dev/null 2>&1 || true
-        podman --remote --connection "$PODMAN_CONNECTION" exec "$vault_container" \
-            vault operator unseal "GK6GwkIb579aa6ORck/z5gv8gOjCQw50PAbFIcsZLMb6" >/dev/null 2>&1 || true
-        
-        log_success "Vault unsealed"
+        log_warning "Vault initialized but sealed, and no valid unseal keys found"
+        log_info "Run: scripts/security/init_vault.sh to initialize or provide VAULT_UNSEAL_KEY_1/2/3 in .vault-keys"
         return 0
     fi
     
     # Initialize Vault
-    log_info "Initializing Vault..."
+    log_info "Initializing Vault for the first time..."
     
     local vault_init
     vault_init=$(podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
         vault operator init -key-shares=5 -key-threshold=3 -format=json 2>&1)
     
-    # Extract and apply unseal keys
+    # Extract and save unseal keys
     local key1=$(echo "$vault_init" | python3 -c "import sys,json; print(json.load(sys.stdin)['unseal_keys_b64'][0])" 2>/dev/null || echo "")
     local key2=$(echo "$vault_init" | python3 -c "import sys,json; print(json.load(sys.stdin)['unseal_keys_b64'][1])" 2>/dev/null || echo "")
     local key3=$(echo "$vault_init" | python3 -c "import sys,json; print(json.load(sys.stdin)['unseal_keys_b64'][2])" 2>/dev/null || echo "")
+    local root_token=$(echo "$vault_init" | python3 -c "import sys,json; print(json.load(sys.stdin)['root_token'])" 2>/dev/null || echo "")
     
     if [[ -n "$key1" ]] && [[ -n "$key2" ]] && [[ -n "$key3" ]]; then
+        # Save keys to .vault-keys for future use
+        cat > "$vault_keys_file" <<VAULT_EOF
+# Vault keys generated on $(date -u +%Y-%m-%dT%H:%M:%SZ)
+# DO NOT COMMIT THIS FILE
+export VAULT_UNSEAL_KEY_1="$key1"
+export VAULT_UNSEAL_KEY_2="$key2"
+export VAULT_UNSEAL_KEY_3="$key3"
+export VAULT_ROOT_TOKEN="$root_token"
+export VAULT_ADDR="http://localhost:8200"
+VAULT_EOF
+        chmod 600 "$vault_keys_file"
+        
+        # Unseal with new keys
         podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
             vault operator unseal "$key1" >/dev/null 2>&1 || true
         podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
@@ -130,9 +160,10 @@ init_vault_deterministic() {
         podman --remote --connection "$PODMAN_CONNECTION" exec -e "VAULT_ADDR=http://vault:8200" "$vault_container" \
             vault operator unseal "$key3" >/dev/null 2>&1 || true
         
-        log_success "Vault initialized and unsealed"
+        log_success "Vault initialized and unsealed (keys saved to $vault_keys_file)"
     else
-        log_warn "Could not extract Vault keys - manual intervention may be needed"
+        log_error "Could not extract Vault keys - manual intervention required"
+        return 1
     fi
     
     echo ""

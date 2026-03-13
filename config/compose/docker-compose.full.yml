@@ -459,11 +459,13 @@ services:
       - IPC_LOCK
     command: server
     healthcheck:
-      test: ["CMD", "vault", "status"]
+      # Vault status returns exit code 2 when sealed (which is normal for initialized Vault)
+      # We consider Vault healthy if it's running and initialized (sealed or unsealed is fine)
+      test: ["CMD-SHELL", "vault status || test $$? -eq 2"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 10s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
 
   # ============================================================================

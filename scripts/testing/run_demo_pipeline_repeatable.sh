@@ -29,6 +29,56 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "${PROJECT_ROOT}/scripts/utils/podman_connection.sh"
 
+# =============================================================================
+# PREREQUISITE CHECK - User-friendly validation BEFORE any operations
+# =============================================================================
+# Run prerequisite check first to give clear guidance before errors
+PREREQ_SCRIPT="${PROJECT_ROOT}/scripts/validation/check_prerequisites.sh"
+if [[ -x "$PREREQ_SCRIPT" ]]; then
+    echo ""
+    echo "🔍 Running prerequisite check..."
+    PREREQ_EXIT=0
+    "$PREREQ_SCRIPT" || PREREQ_EXIT=$?
+    if [[ $PREREQ_EXIT -eq 1 ]]; then
+        echo ""
+        echo "❌ Prerequisites NOT met. Fix the errors above before continuing."
+        echo "   Run: ./scripts/validation/check_prerequisites.sh"
+        exit 1
+    elif [[ $PREREQ_EXIT -eq 2 ]]; then
+        echo ""
+        echo "⚠️  Prerequisites met with warnings. Continuing..."
+    fi
+    echo ""
+fi
+
+# =============================================================================
+# Auto-activate conda environment (CRITICAL for deterministic pipeline)
+# =============================================================================
+REQUIRED_CONDA_ENV="janusgraph-analysis"
+if [[ -z "${CONDA_DEFAULT_ENV:-}" ]] || [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
+    echo "[SETUP] Conda environment not active. Auto-activating '$REQUIRED_CONDA_ENV'..."
+    # Initialize conda for this shell
+    # shellcheck disable=SC1090
+    eval "$(conda shell.bash hook 2>/dev/null)" || true
+    conda activate "$REQUIRED_CONDA_ENV" 2>/dev/null || {
+        echo "❌ Failed to activate conda environment '$REQUIRED_CONDA_ENV'"
+        echo "   Ensure the environment exists: conda create -n $REQUIRED_CONDA_ENV python=3.11"
+        exit 1
+    }
+    if [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
+        echo "❌ Conda environment activation failed"
+        exit 1
+    fi
+    echo "✅ Activated conda environment: $REQUIRED_CONDA_ENV"
+fi
+
+# Verify Python version
+PYTHON_VER=$(python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || echo "unknown")
+if [[ "$PYTHON_VER" != "3.11" ]]; then
+    echo "❌ Wrong Python version: $PYTHON_VER (expected: 3.11)"
+    exit 1
+fi
+
 RUN_ID="${DEMO_PIPELINE_RUN_ID:-demo-$(date -u +%Y%m%dT%H%M%SZ)}"
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-janusgraph-demo}"
 DEMO_SEED="${DEMO_SEED:-42}"

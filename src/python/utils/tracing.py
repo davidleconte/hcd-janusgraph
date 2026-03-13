@@ -12,13 +12,21 @@ from typing import Any, Dict, Optional
 
 # OpenTelemetry imports
 from opentelemetry import trace
-from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import Status, StatusCode
+
+# Jaeger exporter is deprecated in newer OTEL SDK versions - make import optional
+try:
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter as _JaegerExporter
+
+    JAEGER_AVAILABLE = True
+except ImportError:
+    _JaegerExporter = None  # type: ignore
+    JAEGER_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -81,12 +89,16 @@ class TracingManager:
             # Create tracer provider
             self.tracer_provider = TracerProvider(resource=resource)
 
-            # Add Jaeger exporter
-            jaeger_exporter = JaegerExporter(
-                agent_host_name=self.config.jaeger_host,
-                agent_port=self.config.jaeger_port,
-            )
-            self.tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+            # Add Jaeger exporter (optional - deprecated in newer OTEL SDK)
+            if JAEGER_AVAILABLE and _JaegerExporter is not None:
+                jaeger_exporter = _JaegerExporter(
+                    agent_host_name=self.config.jaeger_host,
+                    agent_port=self.config.jaeger_port,
+                )
+                self.tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
+                logger.info("Jaeger exporter initialized (deprecated)")
+            else:
+                logger.info("Jaeger exporter not available - using OTLP only")
 
             # Add OTLP exporter
             try:

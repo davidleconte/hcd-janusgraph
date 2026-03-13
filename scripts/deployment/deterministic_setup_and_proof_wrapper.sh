@@ -3,6 +3,28 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PIPELINE_SCRIPT="${ROOT_DIR}/scripts/testing/run_demo_pipeline_repeatable.sh"
+
+# =============================================================================
+# Auto-activate conda environment (CRITICAL for deterministic pipeline)
+# =============================================================================
+REQUIRED_CONDA_ENV="janusgraph-analysis"
+if [[ -z "${CONDA_DEFAULT_ENV:-}" ]] || [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
+    echo "[SETUP] Conda environment not active. Auto-activating '$REQUIRED_CONDA_ENV'..."
+    # shellcheck disable=SC1090
+    eval "$(conda shell.bash hook 2>/dev/null)" || true
+    conda activate "$REQUIRED_CONDA_ENV" 2>/dev/null || {
+        echo "❌ Failed to activate conda environment '$REQUIRED_CONDA_ENV'"
+        echo "   Ensure the environment exists: conda create -n $REQUIRED_CONDA_ENV python=3.11"
+        exit 1
+    }
+    if [[ "$CONDA_DEFAULT_ENV" != "$REQUIRED_CONDA_ENV" ]]; then
+        echo "❌ Conda environment activation failed"
+        exit 1
+    fi
+    echo "✅ Activated conda environment: $REQUIRED_CONDA_ENV"
+fi
+
+PIPELINE_SCRIPT="${ROOT_DIR}/scripts/testing/run_demo_pipeline_repeatable.sh"
 STATUS_REPORT=""
 PASSTHRU_ARGS=()
 DRY_RUN=0
