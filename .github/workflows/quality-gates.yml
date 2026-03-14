@@ -123,6 +123,11 @@ jobs:
         run: |
           python scripts/validation/mypy_changed_files_guard.py
 
+      - name: Check for new untyped public functions
+        run: |
+          python scripts/validation/check_untyped_functions.py --all \
+            --baseline config/coverage/untyped_functions_baseline.txt
+
   code-quality:
     name: Code Quality (Ruff/Black/Isort)
     runs-on: ubuntu-latest
