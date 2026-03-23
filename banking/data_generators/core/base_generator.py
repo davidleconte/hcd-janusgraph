@@ -65,7 +65,8 @@ class BaseGenerator(ABC, Generic[T]):
             random.seed(seed)
             from banking.data_generators.utils.deterministic import reset_counter
 
-            reset_counter(0)
+            reset_counter(0, seed=seed)  # Pass seed for guaranteed determinism
+        # Always create fresh Faker instance after global seed is set
         self.faker = Faker(locale)
         if seed is not None:
             self.faker.seed_instance(seed)
