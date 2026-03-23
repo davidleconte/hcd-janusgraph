@@ -128,6 +128,25 @@ def generate_fraud_communities_deterministic(
             "member_count": 6,
             "pattern_type": "temporal",
             "risk_score": 0.78
+        },
+        # Extended fraud patterns for comprehensive coverage
+        "ponzi_scheme": {
+            "description": "Ponzi/pyramid scheme with hierarchical recruitment",
+            "member_count": 12,
+            "pattern_type": "tree",
+            "risk_score": 0.90
+        },
+        "invoice_fraud_network": {
+            "description": "Invoice fraud with fake vendor network",
+            "member_count": 8,
+            "pattern_type": "bipartite",
+            "risk_score": 0.78
+        },
+        "bec_chain": {
+            "description": "Business email compromise impersonation chain",
+            "member_count": 6,
+            "pattern_type": "directed_chain",
+            "risk_score": 0.85
         }
     }
     
@@ -342,6 +361,121 @@ def generate_fraud_communities_deterministic(
                     "inV": member_id,
                     "label": "knows",
                     "properties": {"strength": 0.3}  # Weak = dormant
+                })
+        
+        # === Extended patterns for comprehensive coverage ===
+        
+        elif pattern_type == "tree":
+            # Ponzi/Pyramid scheme: hierarchical recruitment tree
+            # Level 0: orchestrator (root)
+            # Level 1: first recruiters (connected to orchestrator)
+            # Level 2+: victims recruited by recruiters
+            levels = [[orchestrator_id]]  # Level 0
+            remaining = list(members)
+            branching_factor = 3  # Each recruiter brings in 3 victims
+            
+            # Build tree levels
+            level_idx = 0
+            while remaining and level_idx < 3:
+                current_level = levels[level_idx]
+                next_level = []
+                for parent in current_level:
+                    for _ in range(branching_factor):
+                        if remaining:
+                            child = remaining.pop(0)
+                            next_level.append(child)
+                            edges.append({
+                                "outV": parent,
+                                "inV": child,
+                                "label": "knows",
+                                "properties": {"strength": random.uniform(0.7, 0.95)}
+                            })
+                if next_level:
+                    levels.append(next_level)
+                level_idx += 1
+            # Connect any remaining members to last level
+            last_level = levels[-1] if levels else [orchestrator_id]
+            for member_id in remaining:
+                parent = random.choice(last_level)
+                edges.append({
+                    "outV": parent,
+                    "inV": member_id,
+                    "label": "knows",
+                    "properties": {"strength": random.uniform(0.5, 0.7)}
+                })
+        
+        elif pattern_type == "bipartite":
+            # Invoice fraud: two sets - fake vendors and complicit insiders
+            # First half are vendors, second half are company insiders
+            mid_point = len(members) // 2
+            vendors = members[:mid_point]
+            insiders = members[mid_point:]
+            
+            # Connect orchestrator to all
+            for member_id in members:
+                edges.append({
+                    "outV": orchestrator_id,
+                    "inV": member_id,
+                    "label": "knows",
+                    "properties": {"strength": 0.85}
+                })
+            
+            # Each vendor connects to specific insiders (fake invoices)
+            for vendor in vendors:
+                # Each vendor works with 2-3 insiders
+                insider_targets = random.sample(insiders, min(3, len(insiders)))
+                for insider in insider_targets:
+                    edges.append({
+                        "outV": vendor,
+                        "inV": insider,
+                        "label": "knows",
+                        "properties": {"strength": random.uniform(0.6, 0.9)}
+                    })
+            
+            # Insiders also connect to each other (collusion)
+            for i, ins1 in enumerate(insiders):
+                for ins2 in insiders[i+1:]:
+                    edges.append({
+                        "outV": ins1,
+                        "inV": ins2,
+                        "label": "knows",
+                        "properties": {"strength": random.uniform(0.4, 0.7)}
+                    })
+        
+        elif pattern_type == "directed_chain":
+            # BEC chain: Impersonator -> Compromised Account -> Target
+            # Uses directed edges to show attack flow
+            # First member is impersonator, last is target, middle are compromised
+            if len(members) >= 2:
+                impersonator = members[0]
+                target = members[-1]
+                compromised = members[1:-1] if len(members) > 2 else []
+                
+                # Orchestrator controls impersonator
+                edges.append({
+                    "outV": orchestrator_id,
+                    "inV": impersonator,
+                    "label": "knows",
+                    "properties": {"strength": 0.95}
+                })
+                
+                # Attack chain: impersonator -> compromised accounts -> target
+                prev_id = impersonator
+                for comp_id in compromised:
+                    edges.append({
+                        "outV": prev_id,
+                        "inV": comp_id,
+                        "label": "knows",
+                        "properties": {"strength": 0.8}
+                    })
+                    prev_id = comp_id
+                
+                # Final link to target
+                edges.append({
+                    "outV": prev_id,
+                    "inV": target,
+                    "label": "knows",
+                    "properties": {"strength": 0.7}
                 })
         
         # Store community data
