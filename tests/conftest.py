@@ -21,6 +21,11 @@ import pytest
 os.environ.setdefault("api_jwt_secret", "test-jwt-secret-not-for-production")
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
+# Enforce deterministic SSL settings for tests (local dev mode)
+# This prevents shell environment variables from overriding test expectations
+os.environ["JANUSGRAPH_USE_SSL"] = "false"
+os.environ["OPENSEARCH_USE_SSL"] = "false"
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
