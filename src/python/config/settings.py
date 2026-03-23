@@ -5,12 +5,17 @@ Centralised Settings
 Single source of truth for all environment configuration.
 Uses pydantic-settings so every value is validated at startup.
 
+Environment-specific configuration:
+- Development: loads .env.development (SSL disabled)
+- Production: loads .env (SSL enabled)
+
 Usage:
     from src.python.config.settings import get_settings
     settings = get_settings()
     print(settings.janusgraph_host)
 """
 
+import os
 from functools import lru_cache
 from typing import List, Optional
 
@@ -18,11 +23,31 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _get_env_file() -> str:
+    """Determine which .env file to load based on environment.
+    
+    Priority:
+    1. .env.development (if ENVIRONMENT=development or file exists)
+    2. .env (fallback for production)
+    
+    Returns:
+        Path to the env file to load.
+    """
+    env = os.getenv("ENVIRONMENT", "development")
+    
+    # For development, prefer .env.development
+    if env == "development" and os.path.exists(".env.development"):
+        return ".env.development"
+    
+    # Fallback to .env (production or if .env.development doesn't exist)
+    return ".env"
+
+
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_get_env_file(),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
