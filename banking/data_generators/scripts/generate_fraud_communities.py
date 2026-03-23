@@ -97,6 +97,37 @@ def generate_fraud_communities_deterministic(
             "member_count": 7,
             "pattern_type": "hub_and_spoke",
             "risk_score": 0.80
+        },
+        # Additional fraud patterns for exhaustive coverage
+        "circular_ownership_ring": {
+            "description": "Circular company ownership for UBI hiding",
+            "member_count": 5,
+            "pattern_type": "cycle",
+            "risk_score": 0.88
+        },
+        "cross_border_layering": {
+            "description": "Multi-jurisdictional money laundering layering",
+            "member_count": 10,
+            "pattern_type": "multi_hub",
+            "risk_score": 0.92
+        },
+        "smurfing_network": {
+            "description": "Distributed small-amount structuring network",
+            "member_count": 15,
+            "pattern_type": "distributed",
+            "risk_score": 0.72
+        },
+        "shell_company_chain": {
+            "description": "Long ownership chain for obfuscation",
+            "member_count": 8,
+            "pattern_type": "chain",
+            "risk_score": 0.85
+        },
+        "burst_dormancy_pattern": {
+            "description": "Time-based burst activity followed by dormancy",
+            "member_count": 6,
+            "pattern_type": "temporal",
+            "risk_score": 0.78
         }
     }
     
@@ -221,6 +252,97 @@ def generate_fraud_communities_deterministic(
                     "properties": {"strength": 0.8}
                 })
                 prev_id = member_id
+        
+        # === Additional patterns for exhaustive coverage ===
+        
+        elif pattern_type == "cycle":
+            # Circular ownership: A -> B -> C -> ... -> A (loops back to start)
+            all_ids = [orchestrator_id] + members
+            for i in range(len(all_ids)):
+                next_idx = (i + 1) % len(all_ids)
+                edges.append({
+                    "outV": all_ids[i],
+                    "inV": all_ids[next_idx],
+                    "label": "knows",
+                    "properties": {"strength": 0.95}
+                })
+        
+        elif pattern_type == "multi_hub":
+            # Multiple hubs (cross-border layering): orchestrator + regional coordinators
+            # First 3 members are regional coordinators
+            regional_coordinators = members[:3] if len(members) >= 3 else members
+            # Connect orchestrator to all regional coordinators
+            for coord_id in regional_coordinators:
+                edges.append({
+                    "outV": orchestrator_id,
+                    "inV": coord_id,
+                    "label": "knows",
+                    "properties": {"strength": 0.9}
+                })
+            # Each regional coordinator connects to their local members
+            remaining_members = members[3:] if len(members) > 3 else []
+            members_per_region = len(remaining_members) // len(regional_coordinators) if regional_coordinators else 0
+            for idx, coord_id in enumerate(regional_coordinators):
+                start = idx * members_per_region
+                end = start + members_per_region if idx < len(regional_coordinators) - 1 else len(remaining_members)
+                for member_id in remaining_members[start:end]:
+                    edges.append({
+                        "outV": coord_id,
+                        "inV": member_id,
+                        "label": "knows",
+                        "properties": {"strength": random.uniform(0.7, 0.9)}
+                    })
+            # Connect regional coordinators to each other
+            for i, c1 in enumerate(regional_coordinators):
+                for c2 in regional_coordinators[i+1:]:
+                    edges.append({
+                        "outV": c1,
+                        "inV": c2,
+                        "label": "knows",
+                        "properties": {"strength": random.uniform(0.5, 0.7)}
+                    })
+        
+        elif pattern_type == "chain":
+            # Long ownership chain: Orchestrator -> A -> B -> C -> ... (no loop)
+            all_ids = [orchestrator_id] + members
+            for i in range(len(all_ids) - 1):
+                edges.append({
+                    "outV": all_ids[i],
+                    "inV": all_ids[i + 1],
+                    "label": "knows",
+                    "properties": {"strength": 0.85}
+                })
+        
+        elif pattern_type == "temporal":
+            # Burst/dormancy pattern: tight cluster with dormant connections
+            # Core active group (first 3 members)
+            active_members = members[:3] if len(members) >= 3 else members
+            for m1 in active_members:
+                # Connect orchestrator to all active members
+                edges.append({
+                    "outV": orchestrator_id,
+                    "inV": m1,
+                    "label": "knows",
+                    "properties": {"strength": 0.9}
+                })
+                # Dense connections among active members
+                for m2 in active_members:
+                    if m1 != m2:
+                        edges.append({
+                            "outV": m1,
+                            "inV": m2,
+                            "label": "knows",
+                            "properties": {"strength": random.uniform(0.8, 1.0)}
+                        })
+            # Dormant members (weak connections)
+            dormant_members = members[3:] if len(members) > 3 else []
+            for member_id in dormant_members:
+                edges.append({
+                    "outV": orchestrator_id,
+                    "inV": member_id,
+                    "label": "knows",
+                    "properties": {"strength": 0.3}  # Weak = dormant
+                })
         
         # Store community data
         community_data[scenario_name] = {
