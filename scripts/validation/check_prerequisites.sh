@@ -13,7 +13,7 @@
 #   1 = Missing critical prerequisite (blocking)
 #   2 = Warning (non-blocking but recommended)
 #
-# Co-Authored-By: AdaL <adal@sylph.ai>
+# Author: David LECONTE, IBM WW | Tiger Team - Watsonx.Data, Global Product Specialist
 # =============================================================================
 
 set -euo pipefail

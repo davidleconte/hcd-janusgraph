@@ -64,7 +64,7 @@ git commit -m "security: remove .env from git tracking, add .env.example
 BREAKING: .env is no longer tracked. Copy .env.example to .env
 and fill in your credentials before running.
 
-Co-Authored-By: AdaL <adal@sylph.ai>"
+Author: David LECONTE, IBM WW | Tiger Team - Watsonx.Data, Global Product Specialist"
 
 # 6. Force-push to rewrite history (OPTIONAL - only if repo is private)
 # git filter-branch --force --index-filter \
