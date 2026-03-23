@@ -60,6 +60,11 @@ class CircuitBreaker:
             return self._state
 
     def record_success(self) -> None:
+        """Record a successful operation, resetting failure count.
+
+        If in HALF_OPEN state, transitions to CLOSED state.
+        Should be called after a successful operation completes.
+        """
         with self._lock:
             if self._state == CircuitState.HALF_OPEN:
                 self._state = CircuitState.CLOSED
@@ -67,6 +72,11 @@ class CircuitBreaker:
             self._failure_count = 0
 
     def record_failure(self) -> None:
+        """Record a failed operation, incrementing failure count.
+
+        Transitions to OPEN state if failure threshold is reached.
+        Should be called when an operation fails.
+        """
         with self._lock:
             self._failure_count += 1
             self._last_failure_time = time.monotonic()
@@ -79,6 +89,12 @@ class CircuitBreaker:
                 )
 
     def allow_request(self) -> bool:
+        """Check if a request should be allowed through.
+
+        Returns:
+            True if the circuit is CLOSED or in HALF_OPEN with capacity,
+            False if OPEN or HALF_OPEN at max calls.
+        """
         state = self.state
         if state == CircuitState.CLOSED:
             return True
@@ -91,6 +107,10 @@ class CircuitBreaker:
         return False
 
     def reset(self) -> None:
+        """Reset the circuit breaker to CLOSED state.
+
+        Clears all failure tracking and returns to normal operation.
+        """
         with self._lock:
             self._state = CircuitState.CLOSED
             self._failure_count = 0

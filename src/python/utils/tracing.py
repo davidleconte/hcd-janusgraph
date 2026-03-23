@@ -43,6 +43,16 @@ class TracingConfig:
         enabled: bool = True,
         sample_rate: float = 1.0,
     ):
+        """Initialize tracing configuration.
+
+        Args:
+            service_name: Service identifier for traces.
+            jaeger_host: Jaeger agent hostname (deprecated, use OTLP).
+            jaeger_port: Jaeger agent UDP port.
+            otlp_endpoint: OTLP collector endpoint URL.
+            enabled: Whether to enable tracing.
+            sample_rate: Sampling rate (0.0 to 1.0).
+        """
         self.service_name = service_name
         self.jaeger_host = jaeger_host
         self.jaeger_port = jaeger_port
@@ -67,6 +77,11 @@ class TracingManager:
     """Manager for distributed tracing"""
 
     def __init__(self, config: Optional[TracingConfig] = None):
+        """Initialize the tracing manager.
+
+        Args:
+            config: Tracing configuration. If None, loaded from environment.
+        """
         self.config = config or TracingConfig.from_env()
         self.tracer_provider: Optional[TracerProvider] = None
         self.tracer: Optional[trace.Tracer] = None
@@ -75,7 +90,12 @@ class TracingManager:
             self._initialize_tracing()
 
     def _initialize_tracing(self):
-        """Initialize OpenTelemetry tracing"""
+        """Initialize OpenTelemetry tracing with Jaeger and OTLP exporters.
+
+        Sets up the tracer provider, configures span processors for both
+        Jaeger (deprecated) and OTLP exporters, and instruments HTTP requests.
+        Falls back to disabled tracing if initialization fails.
+        """
         try:
             # Create resource with service information
             resource = Resource(
@@ -251,6 +271,11 @@ class TracedGremlinClient:
     """Wrapper for Gremlin client with tracing"""
 
     def __init__(self, client):
+        """Wrap a Gremlin client with tracing instrumentation.
+
+        Args:
+            client: The underlying Gremlin client to wrap.
+        """
         self.client = client
         self.tracer = get_tracer()
 

@@ -1,3 +1,18 @@
+"""
+Sample Data Loader for JanusGraph
+==================================
+
+Loads sample people, companies, products, and relationships into JanusGraph
+for demonstration and testing purposes.
+
+Usage:
+    python -m src.python.init.load_data
+    
+Requirements:
+    - JanusGraph running on localhost:18182
+    - gremlin-python package installed
+"""
+
 # File: load_data.py
 # Created: 2026-01-28T08:34:23.3N
 # Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)

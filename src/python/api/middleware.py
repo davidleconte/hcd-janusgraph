@@ -14,6 +14,15 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Adds security headers to every response per OWASP recommendations."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
+        """Process request and add security headers to response.
+
+        Args:
+            request: The incoming HTTP request.
+            call_next: The next middleware or route handler in the chain.
+
+        Returns:
+            Response with OWASP-recommended security headers attached.
+        """
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"

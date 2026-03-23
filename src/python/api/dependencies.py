@@ -110,7 +110,14 @@ async def verify_auth(
 
 
 def _normalize_roles(raw_roles: str | List[str]) -> List[str]:
-    """Normalize role input to a list of lowercase role names."""
+    """Normalize role input to a list of lowercase role names.
+
+    Args:
+        raw_roles: Either a comma-separated string or list of role names.
+
+    Returns:
+        List of normalized lowercase role names.
+    """
     if isinstance(raw_roles, list):
         return [str(role).strip().lower() for role in raw_roles if str(role).strip()]
     if not raw_roles:
@@ -159,6 +166,14 @@ def require_any_role(*allowed_roles: str):
     }
 
     async def _require_role(request: Request) -> None:
+        """FastAPI dependency that validates user has one of the allowed roles.
+        
+        Args:
+            request: FastAPI request object with user_roles in state.
+        
+        Raises:
+            HTTPException: 403 if user lacks required role and auth is enabled.
+        """
         if not normalized_allowed:
             return
 

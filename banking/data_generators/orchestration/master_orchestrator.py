@@ -305,6 +305,40 @@ class MasterOrchestrator:
         self.stats.accounts_generated = len(self.accounts)
         logger.info("✓ Generated %s accounts", self.stats.accounts_generated)
 
+    def _generate_batch(
+        self,
+        count: int,
+        generator_func: callable,
+        target_list: List[Any],
+        entity_name: str,
+        log_interval: int = 100,
+    ) -> int:
+        """
+        Generic batch generator with progress logging.
+
+        Args:
+            count: Number of items to generate
+            generator_func: Function that generates a single item
+            target_list: List to append generated items to
+            entity_name: Name for logging (plural)
+            log_interval: Log progress every N items
+
+        Returns:
+            Number of items generated
+        """
+        if count <= 0:
+            return 0
+
+        logger.info("Generating %s %s...", count, entity_name)
+        for i in range(count):
+            item = generator_func()
+            target_list.append(item)
+            if (i + 1) % log_interval == 0:
+                logger.info("  Generated %s/%s %s", i + 1, count, entity_name)
+
+        logger.info("✓ Generated %s %s", len(target_list), entity_name)
+        return len(target_list)
+
     def _generate_events(self):
         """Generate events (transactions, communications, etc.)"""
         logger.info("\n" + "=" * 80)
@@ -312,87 +346,139 @@ class MasterOrchestrator:
         logger.info("=" * 80)
 
         # Generate transactions
-        if self.config.transaction_count > 0:
-            logger.info("Generating %s transactions...", self.config.transaction_count)
-            for i in range(self.config.transaction_count):
-                # Select random accounts
-                from_account = random.choice(self.accounts)
-                to_account = random.choice(self.accounts)
+        def gen_transaction():
+            """Generate a random transaction between two accounts."""
+            from_account = random.choice(self.accounts)
+            to_account = random.choice(self.accounts)
+            return self.transaction_gen.generate(
+                from_account_id=from_account.id, to_account_id=to_account.id
+            )
 
-                transaction = self.transaction_gen.generate(
-                    from_account_id=from_account.id, to_account_id=to_account.id
-                )
-                self.transactions.append(transaction)
-
-                if (i + 1) % 1000 == 0:
-                    logger.info(
-                        "  Generated %s/%s transactions", i + 1, self.config.transaction_count
-                    )
-            self.stats.transactions_generated = len(self.transactions)
-            logger.info("✓ Generated %s transactions", self.stats.transactions_generated)
+        self.stats.transactions_generated = self._generate_batch(
+            self.config.transaction_count,
+            gen_transaction,
+            self.transactions,
+            "transactions",
+            log_interval=1000,
+        )
 
         # Generate communications
-        if self.config.communication_count > 0:
-            logger.info("\nGenerating %s communications...", self.config.communication_count)
-            for i in range(self.config.communication_count):
-                # Select random sender and recipient from generated persons
-                sender = random.choice(self.persons)
+        def gen_communication():
+            """Generate a random communication between two distinct persons."""
+            sender = random.choice(self.persons)
+            recipient = random.choice(self.persons)
+            while recipient.id == sender.id and len(self.persons) > 1:
                 recipient = random.choice(self.persons)
-                # Avoid self-communication
-                while recipient.id == sender.id and len(self.persons) > 1:
-                    recipient = random.choice(self.persons)
+            return self.communication_gen.generate(sender_id=sender.id, recipient_id=recipient.id)
 
-                communication = self.communication_gen.generate(
-                    sender_id=sender.id, recipient_id=recipient.id
-                )
-                self.communications.append(communication)
-
-                if (i + 1) % 1000 == 0:
-                    logger.info(
-                        "  Generated %s/%s communications", i + 1, self.config.communication_count
-                    )
-            self.stats.communications_generated = len(self.communications)
-            logger.info("✓ Generated %s communications", self.stats.communications_generated)
+        self.stats.communications_generated = self._generate_batch(
+            self.config.communication_count,
+            gen_communication,
+            self.communications,
+            "communications",
+            log_interval=1000,
+        )
 
         # Generate trades
-        if self.config.trade_count > 0:
-            logger.info("\nGenerating %s trades...", self.config.trade_count)
-            for i in range(self.config.trade_count):
-                trade = self.trade_gen.generate()
-                self.trades.append(trade)
-
-                if (i + 1) % 100 == 0:
-                    logger.info("  Generated %s/%s trades", i + 1, self.config.trade_count)
-            self.stats.trades_generated = len(self.trades)
-            logger.info("✓ Generated %s trades", self.stats.trades_generated)
+        self.stats.trades_generated = self._generate_batch(
+            self.config.trade_count,
+            self.trade_gen.generate,
+            self.trades,
+            "trades",
+        )
 
         # Generate travel records
-        if self.config.travel_count > 0:
-            logger.info("\nGenerating %s travel records...", self.config.travel_count)
-            for i in range(self.config.travel_count):
-                traveler = random.choice(self.persons)
-                travel = self.travel_gen.generate(traveler_id=traveler.person_id)
-                self.travels.append(travel)
+        def gen_travel():
+            """Generate a random travel record for a person."""
+            traveler = random.choice(self.persons)
+            return self.travel_gen.generate(traveler_id=traveler.person_id)
 
-                if (i + 1) % 100 == 0:
-                    logger.info("  Generated %s/%s travel records", i + 1, self.config.travel_count)
-            self.stats.travels_generated = len(self.travels)
-            logger.info("✓ Generated %s travel records", self.stats.travels_generated)
+        self.stats.travels_generated = self._generate_batch(
+            self.config.travel_count, gen_travel, self.travels, "travel records"
+        )
 
         # Generate documents
-        if self.config.document_count > 0:
-            logger.info("\nGenerating %s documents...", self.config.document_count)
-            for i in range(self.config.document_count):
-                document = self.document_gen.generate()
-                self.documents.append(document)
+        self.stats.documents_generated = self._generate_batch(
+            self.config.document_count, self.document_gen.generate, self.documents, "documents"
+        )
 
-                if (i + 1) % 100 == 0:
-                    logger.info("  Generated %s/%s documents", i + 1, self.config.document_count)
-            self.stats.documents_generated = len(self.documents)
-            logger.info("✓ Generated %s documents", self.stats.documents_generated)
+    def _generate_insider_trading_patterns(self, person_ids: List[str]) -> None:
+        """Generate insider trading patterns."""
+        if self.config.insider_trading_patterns <= 0:
+            return
+
+        logger.info(
+            "Generating %s insider trading patterns...", self.config.insider_trading_patterns
+        )
+        for _ in range(self.config.insider_trading_patterns):
+            pattern, trades, communications = self.insider_trading_gen.generate(
+                pattern_type="pre_announcement",
+                entity_count=random.randint(2, 5),
+                existing_entity_ids=person_ids,
+            )
+            self.patterns.append(pattern)
+            self.trades.extend(trades)
+            self.communications.extend(communications)
+        logger.info("✓ Generated %s insider trading patterns", self.config.insider_trading_patterns)
+
+    def _generate_tbml_patterns(self, company_ids: List[str]) -> None:
+        """Generate TBML (Trade-Based Money Laundering) patterns."""
+        if self.config.tbml_patterns <= 0:
+            return
+
+        logger.info("\nGenerating %s TBML patterns...", self.config.tbml_patterns)
+        for _ in range(self.config.tbml_patterns):
+            pattern, transactions, documents = self.tbml_gen.generate(
+                pattern_type="over_invoicing",
+                entity_count=random.randint(3, 7),
+                existing_entity_ids=company_ids,
+            )
+            self.patterns.append(pattern)
+            self.transactions.extend(transactions)
+            self.documents.extend(documents)
+        logger.info("✓ Generated %s TBML patterns", self.config.tbml_patterns)
+
+    def _generate_fraud_ring_patterns(self) -> None:
+        """Generate fraud ring patterns."""
+        if self.config.fraud_ring_patterns <= 0:
+            return
+
+        logger.info("\nGenerating %s fraud ring patterns...", self.config.fraud_ring_patterns)
+        for _ in range(self.config.fraud_ring_patterns):
+            pattern = self.fraud_ring_gen.generate(
+                pattern_type="money_mule_network", ring_size=random.randint(5, 10)
+            )
+            self.patterns.append(pattern)
+        logger.info("✓ Generated %s fraud ring patterns", self.config.fraud_ring_patterns)
+
+    def _generate_structuring_patterns(self) -> None:
+        """Generate structuring (smurfing) patterns."""
+        if self.config.structuring_patterns <= 0:
+            return
+
+        logger.info("\nGenerating %s structuring patterns...", self.config.structuring_patterns)
+        for _ in range(self.config.structuring_patterns):
+            pattern = self.structuring_gen.generate(
+                pattern_type="smurfing", smurf_count=random.randint(5, 15)
+            )
+            self.patterns.append(pattern)
+        logger.info("✓ Generated %s structuring patterns", self.config.structuring_patterns)
+
+    def _generate_cato_patterns(self) -> None:
+        """Generate CATO (Customer Account Takeover) patterns."""
+        if self.config.cato_patterns <= 0:
+            return
+
+        logger.info("\nGenerating %s CATO patterns...", self.config.cato_patterns)
+        for _ in range(self.config.cato_patterns):
+            pattern = self.cato_gen.generate(
+                pattern_type="credential_stuffing", victim_count=random.randint(5, 15)
+            )
+            self.patterns.append(pattern)
+        logger.info("✓ Generated %s CATO patterns", self.config.cato_patterns)
 
     def _generate_patterns(self):
-        """Generate financial crime patterns"""
+        """Generate financial crime patterns."""
         logger.info("\n" + "=" * 80)
         logger.info("Phase 3: Generating Patterns")
         logger.info("=" * 80)
@@ -413,67 +499,12 @@ class MasterOrchestrator:
         person_ids = [p.id for p in self.persons]
         company_ids = [c.id for c in self.companies]
 
-        # Generate insider trading patterns
-        if self.config.insider_trading_patterns > 0:
-            logger.info(
-                "Generating %s insider trading patterns...", self.config.insider_trading_patterns
-            )
-            for i in range(self.config.insider_trading_patterns):
-                pattern, trades, communications = self.insider_trading_gen.generate(
-                    pattern_type="pre_announcement",
-                    entity_count=random.randint(2, 5),
-                    existing_entity_ids=person_ids,
-                )
-                self.patterns.append(pattern)
-                self.trades.extend(trades)
-                self.communications.extend(communications)
-            logger.info(
-                "✓ Generated %s insider trading patterns", self.config.insider_trading_patterns
-            )
-
-        # Generate TBML patterns
-        if self.config.tbml_patterns > 0:
-            logger.info("\nGenerating %s TBML patterns...", self.config.tbml_patterns)
-            for i in range(self.config.tbml_patterns):
-                pattern, transactions, documents = self.tbml_gen.generate(
-                    pattern_type="over_invoicing",
-                    entity_count=random.randint(3, 7),
-                    existing_entity_ids=company_ids,
-                )
-                self.patterns.append(pattern)
-                self.transactions.extend(transactions)
-                self.documents.extend(documents)
-            logger.info("✓ Generated %s TBML patterns", self.config.tbml_patterns)
-
-        # Generate fraud ring patterns
-        if self.config.fraud_ring_patterns > 0:
-            logger.info("\nGenerating %s fraud ring patterns...", self.config.fraud_ring_patterns)
-            for i in range(self.config.fraud_ring_patterns):
-                pattern = self.fraud_ring_gen.generate(
-                    pattern_type="money_mule_network", ring_size=random.randint(5, 10)
-                )
-                self.patterns.append(pattern)
-            logger.info("✓ Generated %s fraud ring patterns", self.config.fraud_ring_patterns)
-
-        # Generate structuring patterns
-        if self.config.structuring_patterns > 0:
-            logger.info("\nGenerating %s structuring patterns...", self.config.structuring_patterns)
-            for i in range(self.config.structuring_patterns):
-                pattern = self.structuring_gen.generate(
-                    pattern_type="smurfing", smurf_count=random.randint(5, 15)
-                )
-                self.patterns.append(pattern)
-            logger.info("✓ Generated %s structuring patterns", self.config.structuring_patterns)
-
-        # Generate CATO patterns
-        if self.config.cato_patterns > 0:
-            logger.info("\nGenerating %s CATO patterns...", self.config.cato_patterns)
-            for i in range(self.config.cato_patterns):
-                pattern = self.cato_gen.generate(
-                    pattern_type="credential_stuffing", victim_count=random.randint(5, 15)
-                )
-                self.patterns.append(pattern)
-            logger.info("✓ Generated %s CATO patterns", self.config.cato_patterns)
+        # Generate each pattern type
+        self._generate_insider_trading_patterns(person_ids)
+        self._generate_tbml_patterns(company_ids)
+        self._generate_fraud_ring_patterns()
+        self._generate_structuring_patterns()
+        self._generate_cato_patterns()
 
         self.stats.patterns_generated = len(self.patterns)
         logger.info("\n✓ Total patterns generated: %s", self.stats.patterns_generated)

@@ -116,7 +116,11 @@ class EntityProducer:
         self._connect()
 
     def _connect(self):
-        """Establish connection to Pulsar broker."""
+        """Establish connection to Pulsar broker.
+        
+        Raises:
+            RuntimeError: If connection fails after timeout.
+        """
         try:
             logger.info("Connecting to Pulsar at %s", self.pulsar_url)
             self.client = pulsar.Client(
@@ -129,7 +133,14 @@ class EntityProducer:
             raise RuntimeError(f"Failed to connect to Pulsar at {self.pulsar_url}: {e}")
 
     def _get_topic(self, entity_type: str) -> str:
-        """Get the topic name for an entity type."""
+        """Get the topic name for an entity type.
+        
+        Args:
+            entity_type: Type of entity (person, company, account, etc.)
+            
+        Returns:
+            Full Pulsar topic path in the configured namespace.
+        """
         if entity_type == "company":
             topic_suffix = "companies-events"
         else:
@@ -142,6 +153,12 @@ class EntityProducer:
         Get or create a producer for the given entity type.
 
         Producers are lazily created and cached by topic.
+        
+        Args:
+            entity_type: Type of entity to produce events for.
+            
+        Returns:
+            Pulsar Producer instance for the entity's topic.
         """
         topic = self._get_topic(entity_type)
 
@@ -256,6 +273,7 @@ class EntityProducer:
         import threading
 
         def _do_flush():
+            """Internal function to flush all producers in background thread."""
             for producer in self.producers.values():
                 try:
                     producer.flush()
@@ -281,6 +299,7 @@ class EntityProducer:
         logger.info("Closing EntityProducer...")
 
         def _do_close():
+            """Internal function to close all producers in background thread."""
             for topic, producer in list(self.producers.items()):
                 try:
                     producer.flush()
@@ -346,12 +365,18 @@ class MockEntityProducer:
     """
 
     def __init__(self):
+        """Initialize mock producer with empty event storage."""
         self.events: List[EntityEvent] = []
         self.events_by_topic: Dict[str, List[EntityEvent]] = {}
         self._connected: bool = True
 
     def send(self, event: EntityEvent, callback=None):
-        """Store event in memory."""
+        """Store event in memory for testing verification.
+
+        Args:
+            event: The entity event to store.
+            callback: Optional callback (invoked with None, None for success).
+        """
         self.events.append(event)
 
         topic = event.get_topic()
@@ -365,7 +390,14 @@ class MockEntityProducer:
             callback(None, None)  # Simulate successful send
 
     def send_batch(self, events: List[EntityEvent]) -> Dict[str, int]:
-        """Store batch of events in memory."""
+        """Store a batch of events in memory.
+
+        Args:
+            events: List of entity events to store.
+
+        Returns:
+            Dictionary mapping topic names to event counts.
+        """
         results: Dict[str, int] = {}
         for event in events:
             self.send(event)
@@ -374,26 +406,34 @@ class MockEntityProducer:
         return results
 
     def flush(self):
-        """No-op for mock."""
+        """No-op for mock producer - nothing to flush."""
 
     def close(self):
-        """Clear stored events."""
+        """Clear stored events and mark as disconnected."""
         self.events.clear()
         self.events_by_topic.clear()
         self._connected = False
 
     def __enter__(self):
+        """Enter context manager, returning self."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing all resources."""
         self.close()
         return False
 
     @property
     def is_connected(self) -> bool:
+        """Check if mock producer is connected."""
         return self._connected
 
     def get_stats(self) -> Dict[str, Any]:
+        """Get mock producer statistics.
+        
+        Returns:
+            Dictionary with connection status, event count, and topic list.
+        """
         return {
             "connected": self._connected,
             "events_count": len(self.events),
@@ -401,7 +441,10 @@ class MockEntityProducer:
         }
 
     def clear(self):
-        """Clear all stored events."""
+        """Clear all stored events without disconnecting.
+
+        Useful for resetting state between test cases.
+        """
         self.events.clear()
         self.events_by_topic.clear()
 

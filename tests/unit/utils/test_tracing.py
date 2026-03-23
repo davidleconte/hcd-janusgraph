@@ -52,7 +52,7 @@ class TestTracingManager:
 
     @patch("src.python.utils.tracing.RequestsInstrumentor")
     @patch("src.python.utils.tracing.OTLPSpanExporter")
-    @patch("src.python.utils.tracing.JaegerExporter")
+    @patch("src.python.utils.tracing._JaegerExporter")
     @patch("src.python.utils.tracing.BatchSpanProcessor")
     @patch("src.python.utils.tracing.TracerProvider")
     @patch("src.python.utils.tracing.trace")

@@ -14,6 +14,11 @@ class ImprovedAMLLoader:
     """Load AML data with robust error handling"""
 
     def __init__(self, url="ws://localhost:18182/gremlin"):
+        """Initialize AML data loader with connection URL.
+        
+        Args:
+            url: JanusGraph Gremlin server URL (default: ws://localhost:18182/gremlin).
+        """
         self.url = url
         self.gc = None
         self.stats = {"loaded": 0, "skipped": 0, "errors": 0}

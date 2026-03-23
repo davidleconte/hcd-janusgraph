@@ -39,6 +39,11 @@ class AMLStructuringDetector:
     """
 
     def __init__(self, url: str = "ws://localhost:18182/gremlin"):
+        """Initialize AML structuring detector with connection URL.
+        
+        Args:
+            url: JanusGraph Gremlin server URL (default: ws://localhost:18182/gremlin).
+        """
         self.url = url
         self.client = None
         self.findings = {

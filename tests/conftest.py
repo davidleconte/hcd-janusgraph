@@ -8,6 +8,7 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 Date: 2026-02-06
 """
 
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -15,6 +16,10 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock
 
 import pytest
+
+# Set required environment variables before any imports that might use settings
+os.environ.setdefault("api_jwt_secret", "test-jwt-secret-not-for-production")
+os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent

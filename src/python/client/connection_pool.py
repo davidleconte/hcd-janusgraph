@@ -59,9 +59,18 @@ class _PooledConnection:
 
     @property
     def age(self) -> float:
+        """Get the age of this connection in seconds since creation."""
         return time.time() - self.created_at
 
     def is_stale(self, recycle_seconds: int) -> bool:
+        """Check if connection has exceeded the recycle threshold.
+        
+        Args:
+            recycle_seconds: Maximum allowed age in seconds.
+        
+        Returns:
+            True if connection should be recycled.
+        """
         return self.age > recycle_seconds
 
 
@@ -98,6 +107,7 @@ class ConnectionPool:
         )
 
     def _initialize_pool(self) -> None:
+        """Pre-create connections to fill the pool to configured size."""
         for _ in range(self._config.pool_size):
             try:
                 conn = self._create_connection()
@@ -106,6 +116,14 @@ class ConnectionPool:
                 logger.warning("Failed to pre-create connection: %s", e)
 
     def _create_connection(self) -> _PooledConnection:
+        """Create and establish a new JanusGraph client connection.
+
+        Returns:
+            Wrapped connection with metadata for pool tracking.
+
+        Raises:
+            ConnectionError: If connection cannot be established.
+        """
         client = JanusGraphClient(
             host=self._config.host,
             port=self._config.port,
@@ -121,6 +139,11 @@ class ConnectionPool:
         return _PooledConnection(client=client)
 
     def _destroy_connection(self, conn: _PooledConnection) -> None:
+        """Safely close and remove a pooled connection.
+
+        Args:
+            conn: The pooled connection to destroy.
+        """
         try:
             conn.client.close()
         except Exception as e:
@@ -146,6 +169,14 @@ class ConnectionPool:
             self._release(conn)
 
     def _acquire(self) -> _PooledConnection:
+        """Acquire a connection from the pool, creating overflow if needed.
+
+        Returns:
+            An available pooled connection.
+
+        Raises:
+            ConnectionError: If pool exhausted and max overflow reached.
+        """
         try:
             conn = self._pool.get(timeout=self._config.pool_timeout)
             if conn.is_stale(self._config.recycle_seconds):
@@ -172,6 +203,11 @@ class ConnectionPool:
         )
 
     def _release(self, conn: _PooledConnection) -> None:
+        """Return a connection to the pool after use.
+
+        Args:
+            conn: The connection to return to the pool.
+        """
         with self._lock:
             self._total_returned += 1
 
@@ -211,13 +247,20 @@ class ConnectionPool:
 
     @property
     def size(self) -> int:
+        """Current number of available connections in the pool."""
         return self._pool.qsize()
 
     @property
     def overflow_count(self) -> int:
+        """Current number of overflow connections in use."""
         return self._overflow_count
 
     def stats(self) -> dict[str, Any]:
+        """Return pool statistics for monitoring.
+
+        Returns:
+            Dictionary with pool_size, available, overflow, and usage counts.
+        """
         return {
             "pool_size": self._config.pool_size,
             "available": self._pool.qsize(),
@@ -229,7 +272,9 @@ class ConnectionPool:
         }
 
     def __enter__(self) -> "ConnectionPool":
+        """Enter context manager, returning the pool instance."""
         return self
 
     def __exit__(self, *args: Any) -> None:
+        """Exit context manager, closing all connections."""
         self.close()

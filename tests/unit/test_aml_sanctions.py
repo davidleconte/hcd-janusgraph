@@ -3,6 +3,7 @@ Tests for AML Sanctions Screening module.
 """
 
 from datetime import datetime, timezone
+from typing import Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -65,6 +66,7 @@ class TestDataclasses:
             customer_id="C1",
             customer_name="John",
             is_match=False,
+            is_fuzzy_match=False,
             matches=[],
             screening_timestamp=datetime.now(timezone.utc).isoformat(),
             confidence=0.0,
@@ -130,7 +132,9 @@ class TestScreenCustomer:
             {"score": 0.78, "source": {"name": "Jane Doe", "list_type": "EU", "id": "E3"}},
         ]
         result = screener.screen_customer("C1", "John Doe")
-        assert result.is_match is False
+        # 0.78 >= FUZZY_THRESHOLD (0.75) so it IS a fuzzy match
+        assert result.is_match is True
+        assert result.is_fuzzy_match is True
         assert result.matches[0].risk_level == "low"
 
     def test_exact_match(self, screener, mock_deps):

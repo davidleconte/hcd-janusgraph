@@ -85,11 +85,21 @@ class Settings(BaseSettings):
 
     @property
     def janusgraph_ws_url(self) -> str:
+        """Return the WebSocket URL for JanusGraph Gremlin server.
+
+        Returns:
+            WebSocket URL string (ws:// or wss://).
+        """
         protocol = "wss" if self.janusgraph_use_ssl else "ws"
         return f"{protocol}://{self.janusgraph_host}:{self.janusgraph_port}/gremlin"
 
     @property
     def cors_origins_list(self) -> List[str]:
+        """Parse CORS origins string into a list.
+
+        Returns:
+            List of allowed CORS origin URLs.
+        """
         if self.api_cors_origins == "*":
             return ["*"]
         return [o.strip() for o in self.api_cors_origins.split(",")]

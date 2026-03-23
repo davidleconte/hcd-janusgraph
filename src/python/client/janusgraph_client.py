@@ -60,6 +60,8 @@ class JanusGraphClient:
         use_ssl: bool = True,
         verify_certs: bool = True,
         ca_certs: Optional[str] = None,
+        pool_size: int = 8,
+        max_workers: int = 12,
     ) -> None:
         """
         Initialize JanusGraph client with security.
@@ -74,6 +76,8 @@ class JanusGraphClient:
             use_ssl: Use SSL/TLS (wss://) - default True
             verify_certs: Verify SSL certificates - default True
             ca_certs: Path to CA certificate bundle
+            pool_size: Connection pool size (default: 8 for 12-CPU machines)
+            max_workers: Maximum worker threads (default: 12 for 12-CPU machines)
 
         Raises:
             ValidationError: If parameters are invalid or authentication missing
@@ -126,6 +130,8 @@ class JanusGraphClient:
         self.use_ssl = use_ssl
         self.verify_certs = verify_certs
         self.ca_certs = ca_certs
+        self.pool_size = pool_size
+        self.max_workers = max_workers
 
         # Build URL with SSL
         protocol = "wss" if use_ssl else "ws"
@@ -134,10 +140,12 @@ class JanusGraphClient:
         self._client: Optional[client.Client] = None
 
         logger.info(
-            "Initialized JanusGraphClient: host=%s, port=%d, ssl=%s",
+            "Initialized JanusGraphClient: host=%s, port=%d, ssl=%s, pool_size=%d, max_workers=%d",
             host,
             port,
             use_ssl,
+            pool_size,
+            max_workers,
         )
 
     def connect(self) -> None:
@@ -165,7 +173,9 @@ class JanusGraphClient:
                     ssl_context.check_hostname = False
                     ssl_context.verify_mode = ssl.CERT_NONE
 
-            # Create client with authentication
+            # Create client with authentication and pool configuration
+            # Note: gremlin_python manages its own connection pool internally
+            # pool_size and max_workers are stored for monitoring/metrics purposes
             connect_kwargs = {
                 "username": self.username,
                 "password": self.password,

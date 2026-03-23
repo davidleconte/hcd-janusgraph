@@ -5,6 +5,7 @@ import os
 import pytest
 
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
+os.environ.setdefault("api_jwt_secret", "test-jwt-secret-not-for-production")
 
 from unittest.mock import MagicMock
 from unittest.mock import MagicMock as _MagicMock

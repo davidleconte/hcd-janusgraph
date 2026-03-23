@@ -493,10 +493,21 @@ class GraphConsumer:
         return self.metrics.copy()
 
     def __enter__(self):
+        """Enter context manager, establishing connections."""
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing all connections.
+
+        Args:
+            exc_type: Exception type if raised.
+            exc_val: Exception value if raised.
+            exc_tb: Exception traceback if raised.
+
+        Returns:
+            False to not suppress exceptions.
+        """
         self.disconnect()
         return False
 
@@ -508,6 +519,12 @@ def main():
     consumer = GraphConsumer()
 
     def signal_handler(sig, frame):
+        """Handle shutdown signals (SIGINT, SIGTERM) gracefully.
+        
+        Args:
+            sig: Signal number received.
+            frame: Current stack frame.
+        """
         consumer._log_event("graph_consumer_signal_received", signal=str(sig))
         consumer.stop()
 

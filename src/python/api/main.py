@@ -111,6 +111,16 @@ async def lifespan(app: FastAPI):
 
 
 def _error_response(status_code: int, error: str, detail: str) -> JSONResponse:
+    """Create a standardized JSON error response.
+
+    Args:
+        status_code: HTTP status code for the response.
+        error: Short error identifier string.
+        detail: Human-readable error description.
+
+    Returns:
+        JSONResponse with structured error payload.
+    """
     return JSONResponse(
         status_code=status_code,
         content=ErrorResponse(
@@ -155,14 +165,17 @@ def create_app() -> FastAPI:
 
     @application.exception_handler(RateLimitExceeded)
     async def _rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+        """Handle rate limit exceeded errors with a 429 response."""
         return _error_response(429, "rate_limit_exceeded", "Too many requests. Slow down.")
 
     @application.exception_handler(HTTPException)
     async def _http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+        """Handle HTTP exceptions with standardized error response format."""
         return _error_response(exc.status_code, "http_error", str(exc.detail))
 
     @application.exception_handler(Exception)
     async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        """Handle unhandled exceptions with a generic 500 error response."""
         logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
         return _error_response(500, "internal_error", "An unexpected error occurred.")
 

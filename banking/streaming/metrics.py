@@ -47,7 +47,14 @@ def _init_metrics():
     from prometheus_client import REGISTRY
 
     def _get_existing(name):
-        """Get existing metric from registry by name."""
+        """Get existing metric from registry by name.
+
+        Args:
+            name: Metric name to look up.
+
+        Returns:
+            Existing collector or None if not found.
+        """
         # Counters create multiple entries: name, name_total, name_created
         # Check if any of these exist
         check_names = [name, f"{name}_total", f"{name}_created"]
@@ -58,7 +65,16 @@ def _init_metrics():
         return None
 
     def _safe_counter(name, desc, labels):
-        """Create counter or return existing one from registry."""
+        """Create counter or return existing one from registry.
+
+        Args:
+            name: Metric name.
+            desc: Metric description.
+            labels: Label names for the metric.
+
+        Returns:
+            Counter metric instance.
+        """
         existing = _get_existing(name)
         if existing:
             return existing
@@ -69,7 +85,17 @@ def _init_metrics():
             return _get_existing(name)
 
     def _safe_histogram(name, desc, labels, buckets):
-        """Create histogram or return existing one from registry."""
+        """Create histogram or return existing one from registry.
+
+        Args:
+            name: Metric name.
+            desc: Metric description.
+            labels: Label names for the metric.
+            buckets: Histogram bucket boundaries.
+
+        Returns:
+            Histogram metric instance.
+        """
         existing = _get_existing(name)
         if existing:
             return existing
@@ -79,7 +105,16 @@ def _init_metrics():
             return _get_existing(name)
 
     def _safe_gauge(name, desc, labels):
-        """Create gauge or return existing one from registry."""
+        """Create gauge or return existing one from registry.
+
+        Args:
+            name: Metric name.
+            desc: Metric description.
+            labels: Label names for the metric.
+
+        Returns:
+            Gauge metric instance.
+        """
         existing = _get_existing(name)
         if existing:
             return existing
@@ -89,7 +124,15 @@ def _init_metrics():
             return _get_existing(name)
 
     def _safe_info(name, desc):
-        """Create info or return existing one from registry."""
+        """Create info metric or return existing one from registry.
+
+        Args:
+            name: Metric name.
+            desc: Metric description.
+
+        Returns:
+            Info metric instance.
+        """
         existing = _get_existing(name)
         if existing:
             return existing

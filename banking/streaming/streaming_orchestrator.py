@@ -112,7 +112,10 @@ class StreamingOrchestrator(MasterOrchestrator):
             self._init_producer()
 
     def _init_producer(self):
-        """Initialize the Pulsar producer."""
+        """Initialize the Pulsar producer for event publishing.
+
+        Falls back to MockEntityProducer if Pulsar connection fails.
+        """
         try:
             self.producer = get_producer(
                 mock=self.config.use_mock_producer,
@@ -184,7 +187,7 @@ class StreamingOrchestrator(MasterOrchestrator):
         return published
 
     def _generate_core_entities(self):
-        """Generate core entities with streaming."""
+        """Generate persons, companies, and accounts with streaming to Pulsar."""
         logger.info("\n" + "=" * 80)
         logger.info("Phase 1: Generating Core Entities (with Streaming)")
         logger.info("=" * 80)
@@ -247,7 +250,7 @@ class StreamingOrchestrator(MasterOrchestrator):
             logger.info("Flushed producer after core entities phase")
 
     def _generate_events(self):
-        """Generate events with streaming."""
+        """Generate transactions, communications, trades, travels, and documents with streaming."""
         logger.info("\n" + "=" * 80)
         logger.info("Phase 2: Generating Events (with Streaming)")
         logger.info("=" * 80)
@@ -415,9 +418,11 @@ class StreamingOrchestrator(MasterOrchestrator):
             logger.info("Closed producer")
 
     def __enter__(self):
+        """Enter context manager, returning self."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing producer resources."""
         self.close()
         return False
 

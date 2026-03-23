@@ -14,6 +14,7 @@ Tests cover:
 
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Optional
 from unittest.mock import Mock, patch
 
 from banking.aml.structuring_detection import (

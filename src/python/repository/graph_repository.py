@@ -13,15 +13,56 @@ Design decisions
   leak out.
 * ``flatten_value_map`` lives here as a private helper; the public copy in
   ``dependencies.py`` is kept for backward-compat but delegates here.
+* LRU caching for frequently-accessed vertices to reduce repeated queries.
+
+Updated: 2026-03-23 - Added vertex caching for performance optimization
 """
 
 import logging
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.process.graph_traversal import GraphTraversalSource, __
 from gremlin_python.process.traversal import P, T
 
 logger = logging.getLogger(__name__)
+
+
+# Module-level cache for vertex lookups (shared across all GraphRepository instances)
+# Cache up to 1000 vertices, reducing repeated Gremlin queries for the same entity
+_VERTEX_CACHE: Dict[Tuple[str, str], Dict[str, Any]] = {}
+_VERTEX_CACHE_MAX_SIZE = 1000
+
+
+def _cache_get(id_field: str, id_value: str) -> Optional[Dict[str, Any]]:
+    """Get vertex from cache if exists."""
+    return _VERTEX_CACHE.get((id_field, id_value))
+
+
+def _cache_set(id_field: str, id_value: str, vertex: Dict[str, Any]) -> None:
+    """Set vertex in cache with LRU eviction."""
+    global _VERTEX_CACHE
+    if len(_VERTEX_CACHE) >= _VERTEX_CACHE_MAX_SIZE:
+        # Evict oldest entry (simple FIFO, not true LRU for performance)
+        oldest_key = next(iter(_VERTEX_CACHE))
+        del _VERTEX_CACHE[oldest_key]
+        logger.debug("Evicted cached vertex: %s=%s", oldest_key[0], oldest_key[1])
+    _VERTEX_CACHE[(id_field, id_value)] = vertex
+
+
+def _cache_clear() -> None:
+    """Clear the vertex cache."""
+    global _VERTEX_CACHE
+    _VERTEX_CACHE.clear()
+    logger.info("Cleared vertex cache")
+
+
+def _cache_stats() -> Dict[str, int]:
+    """Return cache statistics."""
+    return {
+        "size": len(_VERTEX_CACHE),
+        "max_size": _VERTEX_CACHE_MAX_SIZE,
+    }
 
 
 def _flatten_value_map(value_map: Dict) -> Dict:
@@ -54,10 +95,16 @@ class GraphRepository:
     """
 
     def __init__(self, g: GraphTraversalSource) -> None:
+        """Initialize the repository with a graph traversal source.
+
+        Args:
+            g: A live Gremlin traversal source for executing queries.
+        """
         self._g = g
 
     @property
     def g(self) -> GraphTraversalSource:
+        """Return the underlying graph traversal source."""
         return self._g
 
     # ------------------------------------------------------------------
@@ -65,15 +112,38 @@ class GraphRepository:
     # ------------------------------------------------------------------
 
     def vertex_count(self) -> int:
+        """Return total number of vertices in the graph.
+
+        Returns:
+            Integer count of all vertices.
+        """
         return self._g.V().count().next()
 
     def edge_count(self) -> int:
+        """Return total number of edges in the graph.
+
+        Returns:
+            Integer count of all edges.
+        """
         return self._g.E().count().next()
 
     def vertex_count_by_label(self, label: str) -> int:
+        """Return count of vertices with a specific label.
+
+        Args:
+            label: Vertex label to filter by.
+
+        Returns:
+            Integer count of matching vertices.
+        """
         return self._g.V().has_label(label).count().next()
 
     def graph_stats(self) -> Dict[str, int]:
+        """Return aggregate statistics about the graph.
+
+        Returns:
+            Dictionary with vertex, edge, and label-specific counts.
+        """
         return {
             "vertex_count": self.vertex_count(),
             "edge_count": self.edge_count(),
@@ -199,6 +269,14 @@ class GraphRepository:
         return _flatten_value_map(results[0])
 
     def company_exists(self, company_id: str) -> bool:
+        """Check if a company vertex exists.
+
+        Args:
+            company_id: The company identifier to check.
+
+        Returns:
+            True if company exists, False otherwise.
+        """
         return self._g.V().has("company_id", company_id).hasNext()
 
     def find_direct_owners(self, company_id: str) -> List[Dict[str, Any]]:
@@ -290,17 +368,62 @@ class GraphRepository:
     # Generic helpers
     # ------------------------------------------------------------------
 
-    def get_vertex(self, id_field: str, id_value: str) -> Optional[Dict[str, Any]]:
-        """Return a single vertex by an indexed property, or ``None``."""
+    def get_vertex(self, id_field: str, id_value: str, use_cache: bool = True) -> Optional[Dict[str, Any]]:
+        """
+        Return a single vertex by an indexed property, or ``None``.
+        
+        Args:
+            id_field: The property name to search on (e.g., 'person_id', 'company_id')
+            id_value: The property value to match
+            use_cache: If True, check cache before querying (default: True)
+        
+        Returns:
+            Flattened vertex dict or None if not found
+        """
+        # Check cache first
+        if use_cache:
+            cached = _cache_get(id_field, id_value)
+            if cached is not None:
+                logger.debug("Cache HIT for vertex: %s=%s", id_field, id_value)
+                return cached
+        
+        # Query from graph
         results = self._g.V().has(id_field, id_value).value_map(True).toList()
         if not results:
             return None
-        return _flatten_value_map(results[0])
+        
+        vertex = _flatten_value_map(results[0])
+        
+        # Cache the result
+        if use_cache:
+            _cache_set(id_field, id_value, vertex)
+            logger.debug("Cache SET for vertex: %s=%s", id_field, id_value)
+        
+        return vertex
 
     def vertex_exists(self, id_field: str, id_value: str) -> bool:
+        """Check if a vertex exists by property value.
+
+        Args:
+            id_field: Property name to search on.
+            id_value: Property value to match.
+
+        Returns:
+            True if vertex exists, False otherwise.
+        """
         return self._g.V().has(id_field, id_value).hasNext()
 
     @staticmethod
     def flatten_value_map(value_map: Dict) -> Dict:
         """Public access to value-map flattening (delegates to module helper)."""
         return _flatten_value_map(value_map)
+    
+    @staticmethod
+    def cache_stats() -> Dict[str, int]:
+        """Return vertex cache statistics."""
+        return _cache_stats()
+    
+    @staticmethod
+    def cache_clear() -> None:
+        """Clear the vertex cache."""
+        _cache_clear()

@@ -120,10 +120,21 @@ class FraudDetector(NotebookCompatMixin):
         return self._g
 
     def __enter__(self):
+        """Enter context manager, establishing connections to graph and search services."""
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing all service connections.
+        
+        Args:
+            exc_type: Exception type if an exception occurred.
+            exc_val: Exception value if an exception occurred.
+            exc_tb: Exception traceback if an exception occurred.
+        
+        Returns:
+            False to propagate any exception.
+        """
         self.disconnect()
         return False
 

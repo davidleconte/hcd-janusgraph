@@ -12,6 +12,7 @@ Tests cover:
 """
 
 from datetime import datetime, timezone
+from typing import Optional
 from unittest.mock import Mock, patch
 
 from banking.aml.sanctions_screening import (

@@ -133,10 +133,21 @@ class StructuringDetector:
         return self._g
 
     def __enter__(self):
+        """Enter context manager, establishing connection to graph database."""
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing connection to graph database.
+        
+        Args:
+            exc_type: Exception type if an exception occurred.
+            exc_val: Exception value if an exception occurred.
+            exc_tb: Exception traceback if an exception occurred.
+        
+        Returns:
+            False to propagate any exception.
+        """
         self.disconnect()
         return False
 

@@ -37,6 +37,14 @@ _KNOWN_WEAK_SECRETS = {
 
 
 def _is_weak_secret(secret: str) -> bool:
+    """Check if a secret is weak or commonly used.
+    
+    Args:
+        secret: The secret string to validate.
+        
+    Returns:
+        True if secret is weak (short, empty, or known weak value).
+    """
     if len(secret) < _MIN_SECRET_LENGTH:
         return True
     normalized = secret.strip()
@@ -53,6 +61,17 @@ def _is_weak_secret(secret: str) -> bool:
 
 @dataclass
 class SessionConfig:
+    """Configuration for JWT session management.
+    
+    Attributes:
+        secret_key: Secret key for JWT signing (must be >=32 chars).
+        algorithm: JWT signing algorithm (default: HS256).
+        access_token_ttl_minutes: Access token lifetime in minutes.
+        refresh_token_ttl_minutes: Refresh token lifetime in minutes.
+        max_concurrent_sessions: Maximum sessions per user.
+        rotate_refresh_on_use: Whether to rotate refresh token on use.
+        issuer: JWT issuer claim.
+    """
     secret_key: str = _DEFAULT_SECRET
     algorithm: str = "HS256"
     access_token_ttl_minutes: int = 15
@@ -64,6 +83,21 @@ class SessionConfig:
 
 @dataclass
 class Session:
+    """Represents an active user session.
+    
+    Attributes:
+        session_id: Unique session identifier.
+        user_id: User identifier for this session.
+        refresh_token_hash: Hashed refresh token for validation.
+        created_at: Session creation timestamp.
+        last_active: Last activity timestamp.
+        expires_at: Session expiration timestamp.
+        roles: User roles for this session.
+        mfa_verified: Whether MFA was completed.
+        ip_address: Client IP address.
+        user_agent: Client user agent string.
+        revoked: Whether session is revoked.
+    """
     session_id: str
     user_id: str
     refresh_token_hash: str
@@ -81,6 +115,14 @@ class SessionManager:
     """In-memory session store. Swap with Redis for production clustering."""
 
     def __init__(self, config: SessionConfig | None = None):
+        """Initialize the session manager.
+        
+        Args:
+            config: Session configuration. If None, uses defaults.
+            
+        Raises:
+            ValueError: If secret key is missing or weak.
+        """
         self.config = config or SessionConfig()
         if not self.config.secret_key:
             raise ValueError("Session secret key must be configured and non-empty.")
@@ -98,6 +140,18 @@ class SessionManager:
         ip_address: str | None = None,
         user_agent: str | None = None,
     ) -> dict:
+        """Create a new session for a user.
+        
+        Args:
+            user_id: Unique user identifier.
+            roles: User roles for authorization.
+            mfa_verified: Whether MFA was completed.
+            ip_address: Client IP address.
+            user_agent: Client user agent string.
+            
+        Returns:
+            Dictionary with access_token, refresh_token, and session_id.
+        """
         with self._lock:
             self._enforce_concurrent_limit(user_id)
 
@@ -139,6 +193,18 @@ class SessionManager:
             }
 
     def refresh_session(self, refresh_token: str, session_id: str) -> dict:
+        """Refresh an existing session with new access token.
+
+        Args:
+            refresh_token: The refresh token from the original session.
+            session_id: The session identifier to refresh.
+
+        Returns:
+            Dictionary with new access_token, refresh_token, and session_id.
+
+        Raises:
+            SessionError: If session not found, revoked, or token invalid.
+        """
         with self._lock:
             session = self._sessions.get(session_id)
             if session is None:
@@ -185,6 +251,17 @@ class SessionManager:
             }
 
     def verify_access_token(self, token: str) -> dict:
+        """Verify and decode a JWT access token.
+
+        Args:
+            token: The JWT access token to verify.
+
+        Returns:
+            Decoded token payload as dictionary.
+
+        Raises:
+            SessionError: If token is expired, invalid, or session revoked.
+        """
         try:
             payload = jwt.decode(
                 token,
@@ -206,6 +283,14 @@ class SessionManager:
         return payload
 
     def revoke_session(self, session_id: str) -> bool:
+        """Revoke a specific session.
+
+        Args:
+            session_id: The session identifier to revoke.
+
+        Returns:
+            True if session was revoked, False if not found.
+        """
         with self._lock:
             session = self._sessions.get(session_id)
             if session is None:
@@ -215,6 +300,14 @@ class SessionManager:
             return True
 
     def revoke_all_user_sessions(self, user_id: str) -> int:
+        """Revoke all sessions for a user.
+
+        Args:
+            user_id: The user identifier whose sessions should be revoked.
+
+        Returns:
+            Number of sessions that were revoked.
+        """
         with self._lock:
             ids = self._user_sessions.get(user_id, [])
             count = 0
@@ -227,6 +320,14 @@ class SessionManager:
             return count
 
     def get_active_sessions(self, user_id: str) -> List[dict]:
+        """Get all active (non-revoked, non-expired) sessions for a user.
+
+        Args:
+            user_id: The user identifier to look up sessions for.
+
+        Returns:
+            List of session dictionaries with session_id, timestamps, and metadata.
+        """
         now = datetime.now(timezone.utc)
         result = []
         for sid in self._user_sessions.get(user_id, []):
@@ -244,6 +345,11 @@ class SessionManager:
         return result
 
     def cleanup_expired(self) -> int:
+        """Remove all expired and revoked sessions from memory.
+
+        Returns:
+            Number of sessions removed.
+        """
         with self._lock:
             now = datetime.now(timezone.utc)
             expired = [sid for sid, s in self._sessions.items() if s.revoked or now > s.expires_at]
@@ -252,6 +358,11 @@ class SessionManager:
             return len(expired)
 
     def _enforce_concurrent_limit(self, user_id: str) -> None:
+        """Evict oldest sessions if user exceeds max_concurrent_sessions limit.
+
+        Args:
+            user_id: The user identifier to check and enforce limits for.
+        """
         now = datetime.now(timezone.utc)
         active_ids = [
             sid
@@ -272,6 +383,11 @@ class SessionManager:
             )
 
     def _remove_session(self, session_id: str) -> None:
+        """Remove a session from internal storage and user index.
+
+        Args:
+            session_id: The session identifier to remove.
+        """
         session = self._sessions.pop(session_id, None)
         if session:
             user_ids = self._user_sessions.get(session.user_id, [])
@@ -286,6 +402,17 @@ class SessionManager:
         *,
         mfa_verified: bool = False,
     ) -> str:
+        """Create and sign a JWT access token.
+
+        Args:
+            user_id: Subject identifier for the token.
+            session_id: Session identifier linked to this token.
+            roles: User roles for authorization.
+            mfa_verified: Whether MFA was completed for this session.
+
+        Returns:
+            Encoded JWT access token string.
+        """
         now = datetime.now(timezone.utc)
         payload = {
             "sub": user_id,
@@ -300,8 +427,17 @@ class SessionManager:
 
     @staticmethod
     def _hash(value: str) -> str:
+        """Hash a value using SHA-256.
+
+        Args:
+            value: The string value to hash.
+
+        Returns:
+            Hexadecimal hash digest.
+        """
         return hashlib.sha256(value.encode()).hexdigest()
 
 
 class SessionError(Exception):
+    """Raised when session operations fail (invalid token, expired, revoked, etc.)."""
     pass

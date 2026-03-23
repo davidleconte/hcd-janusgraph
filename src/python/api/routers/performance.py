@@ -28,6 +28,11 @@ _cache: Optional[QueryCache] = None
 
 
 def get_profiler() -> QueryProfiler:
+    """Get or create the singleton QueryProfiler instance.
+    
+    Returns:
+        QueryProfiler instance with slow query threshold of 1000ms.
+    """
     global _profiler
     if _profiler is None:
         _profiler = QueryProfiler(slow_query_threshold_ms=1000.0)
@@ -35,6 +40,11 @@ def get_profiler() -> QueryProfiler:
 
 
 def get_cache() -> QueryCache:
+    """Get or create the singleton QueryCache instance.
+    
+    Returns:
+        QueryCache instance with 100MB max size and LRU strategy.
+    """
     global _cache
     if _cache is None:
         _cache = QueryCache(max_size_mb=100, default_ttl_seconds=300, strategy=CacheStrategy.LRU)
@@ -42,6 +52,7 @@ def get_cache() -> QueryCache:
 
 
 class ProfileReportResponse(BaseModel):
+    """Response model for profiler report endpoint."""
     summary: Dict[str, Any]
     top_slow_queries: List[Dict[str, Any]]
     top_frequent_queries: List[Dict[str, Any]]
@@ -49,6 +60,7 @@ class ProfileReportResponse(BaseModel):
 
 
 class CacheStatsResponse(BaseModel):
+    """Response model for cache statistics endpoint."""
     hits: int
     misses: int
     hit_rate: str
@@ -61,20 +73,24 @@ class CacheStatsResponse(BaseModel):
 
 
 class CacheInvalidateRequest(BaseModel):
+    """Request model for cache invalidation endpoint."""
     resource: str = Field(..., description="Resource dependency key to invalidate")
 
 
 class CacheInvalidateResponse(BaseModel):
+    """Response model for cache invalidation endpoints."""
     success: bool
     message: str
 
 
 class ProfilerConfigRequest(BaseModel):
+    """Request model for updating profiler configuration."""
     slow_query_threshold_ms: Optional[float] = None
     expensive_query_threshold_scans: Optional[int] = None
 
 
 class ProfilerConfigResponse(BaseModel):
+    """Response model for profiler configuration endpoint."""
     slow_query_threshold_ms: float
     expensive_query_threshold_scans: int
     total_profiled_queries: int

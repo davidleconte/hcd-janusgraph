@@ -5,6 +5,7 @@ Fuzzy name matching using vector embeddings for sanctions list screening
 Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 Created: 2026-01-28
 Phase: 6 (Complete AML Implementation)
+Updated: 2026-03-23 - Performance optimization: Added LRU cache with TTL for screening results
 """
 
 import logging
@@ -12,7 +13,11 @@ import os
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from functools import lru_cache
+from threading import Lock
+from typing import Any, Dict, List, Optional, Tuple
+import hashlib
+import time
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src/python"))
@@ -48,6 +53,96 @@ class ScreeningResult:
     matches: List[SanctionMatch]
     screening_timestamp: str
     confidence: float
+
+
+class TTLCache:
+    """
+    Thread-safe LRU cache with time-to-live support.
+    
+    Used to cache screening results for customers who have been recently checked,
+    reducing OpenSearch load for repeated lookups.
+    
+    Attributes:
+        maxsize: Maximum number of entries in cache
+        ttl_seconds: Time-to-live in seconds (default: 3600 = 1 hour)
+    """
+    
+    def __init__(self, maxsize: int = 10000, ttl_seconds: int = 3600):
+        """Initialize TTL cache with specified size and time-to-live.
+        
+        Args:
+            maxsize: Maximum number of entries to store in cache.
+            ttl_seconds: Time-to-live in seconds for cache entries.
+        """
+        self._cache: Dict[str, Tuple[Any, float]] = {}
+        self._maxsize = maxsize
+        self._ttl_seconds = ttl_seconds
+        self._lock = Lock()
+        self._hits = 0
+        self._misses = 0
+    
+    def _make_key(self, customer_id: str, customer_name: str) -> str:
+        """Generate cache key from customer ID and name."""
+        combined = f"{customer_id}:{customer_name.lower().strip()}"
+        return hashlib.sha256(combined.encode()).hexdigest()
+    
+    def get(self, customer_id: str, customer_name: str) -> Tuple[Optional[ScreeningResult], bool]:
+        """
+        Get cached result if exists and not expired.
+        
+        Returns:
+            Tuple of (result, found) where result is None if not found/expired
+        """
+        key = self._make_key(customer_id, customer_name)
+        
+        with self._lock:
+            entry = self._cache.get(key)
+            if entry is None:
+                self._misses += 1
+                return None, False
+            
+            result, timestamp = entry
+            if time.time() - timestamp > self._ttl_seconds:
+                # Entry expired
+                del self._cache[key]
+                self._misses += 1
+                return None, False
+            
+            self._hits += 1
+            return result, True
+    
+    def set(self, customer_id: str, customer_name: str, result: ScreeningResult) -> None:
+        """Cache a screening result."""
+        key = self._make_key(customer_id, customer_name)
+        
+        with self._lock:
+            # Evict oldest entries if at capacity
+            if len(self._cache) >= self._maxsize:
+                oldest_key = min(self._cache.keys(), key=lambda k: self._cache[k][1])
+                del self._cache[oldest_key]
+            
+            self._cache[key] = (result, time.time())
+    
+    def clear(self) -> None:
+        """Clear all cached entries."""
+        with self._lock:
+            self._cache.clear()
+            self._hits = 0
+            self._misses = 0
+    
+    def stats(self) -> Dict[str, Any]:
+        """Return cache statistics."""
+        with self._lock:
+            total = self._hits + self._misses
+            hit_rate = self._hits / total if total > 0 else 0.0
+            return {
+                "size": len(self._cache),
+                "maxsize": self._maxsize,
+                "ttl_seconds": self._ttl_seconds,
+                "hits": self._hits,
+                "misses": self._misses,
+                "hit_rate": hit_rate,
+            }
 
 
 class SanctionsScreener:
@@ -89,6 +184,10 @@ class SanctionsScreener:
         # Initialize vector search client
         logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
         self.search_client = VectorSearchClient(host=opensearch_host, port=opensearch_port)
+
+        # Initialize screening cache (1-hour TTL for "clean" status)
+        self._cache = TTLCache(maxsize=10000, ttl_seconds=3600)
+        logger.info("Initialized sanctions screening cache (maxsize=10000, ttl=3600s)")
 
         # Create index if not exists
         self._ensure_index_exists()
@@ -181,7 +280,13 @@ class SanctionsScreener:
         if min_score is None:
             min_score = self.LOW_RISK_THRESHOLD
 
-        logger.info("Screening customer: %s (ID: %s)", customer_name, customer_id)
+        # Check cache first
+        cached_result, found = self._cache.get(customer_id, customer_name)
+        if found:
+            logger.info("Cache HIT for customer: %s (ID: %s)", customer_name, customer_id)
+            return cached_result
+
+        logger.info("Cache MISS - Screening customer: %s (ID: %s)", customer_name, customer_id)
 
         # Generate embedding for customer name
         customer_embedding = encode_person_name(customer_name, self.generator)
@@ -242,6 +347,11 @@ class SanctionsScreener:
             confidence=confidence,
         )
 
+        # Cache the result (cache "clean" customers longer by not caching matches)
+        if not is_match:
+            self._cache.set(customer_id, customer_name, result)
+            logger.debug("Cached screening result for: %s", customer_id)
+
         if is_match:
             match_type = "FUZZY" if is_fuzzy_match else "EXACT"
             logger.warning(
@@ -298,7 +408,7 @@ class SanctionsScreener:
         }
 
     def get_statistics(self) -> Dict[str, Any]:
-        """Get sanctions list statistics."""
+        """Get sanctions list statistics including cache metrics."""
         stats = self.search_client.get_index_stats(self.index_name)
 
         return {
@@ -306,7 +416,13 @@ class SanctionsScreener:
             "index_size_bytes": stats["total"]["store"]["size_in_bytes"],
             "index_name": self.index_name,
             "embedding_dimensions": self.generator.dimensions,
+            "cache_stats": self._cache.stats(),
         }
+    
+    def clear_cache(self) -> None:
+        """Clear the screening cache."""
+        self._cache.clear()
+        logger.info("Cleared sanctions screening cache")
 
 
 # Example usage and testing

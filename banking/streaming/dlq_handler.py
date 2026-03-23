@@ -81,6 +81,11 @@ class DLQStats:
     errors: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert statistics to dictionary for serialization.
+        
+        Returns:
+            Dictionary with all DLQ statistics fields.
+        """
         return asdict(self)
 
 
@@ -163,7 +168,17 @@ class DLQHandler:
         logger.info("Connected to DLQ topic: %s", self.dlq_topic)
 
     def _parse_dlq_message(self, msg) -> DLQMessage:
-        """Parse a Pulsar message into DLQMessage."""
+        """Parse a Pulsar message into DLQMessage.
+        
+        Args:
+            msg: Raw Pulsar message from DLQ topic.
+            
+        Returns:
+            DLQMessage with parsed failure details.
+            
+        Raises:
+            Exception: If message parsing fails completely.
+        """
         try:
             data = msg.data()
             properties = msg.properties()
@@ -193,11 +208,25 @@ class DLQHandler:
             raise
 
     def _should_retry(self, dlq_msg: DLQMessage) -> bool:
-        """Determine if message should be retried."""
+        """Determine if message should be retried.
+        
+        Args:
+            dlq_msg: The DLQ message to evaluate.
+            
+        Returns:
+            True if failure count is below max retries threshold.
+        """
         return dlq_msg.failure_count < self.max_retries
 
     def _retry_message(self, dlq_msg: DLQMessage) -> bool:
-        """Attempt to retry a failed message."""
+        """Attempt to retry a failed message.
+        
+        Args:
+            dlq_msg: The DLQ message to retry.
+            
+        Returns:
+            True if retry succeeded, False otherwise.
+        """
         if self.retry_handler and dlq_msg.original_event:
             try:
                 success = self.retry_handler(dlq_msg.original_event)
@@ -211,7 +240,11 @@ class DLQHandler:
         return False
 
     def _archive_message(self, dlq_msg: DLQMessage):
-        """Archive a permanently failed message."""
+        """Archive a permanently failed message to disk.
+        
+        Args:
+            dlq_msg: The DLQ message to archive.
+        """
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"dlq_{timestamp}_{dlq_msg.message_id[-8:]}.json"
         filepath = self.archive_dir / filename
@@ -227,7 +260,13 @@ class DLQHandler:
             self.stats.errors.append(str(e))
 
     def _handle_permanent_failure(self, dlq_msg: DLQMessage):
-        """Handle a message that has permanently failed."""
+        """Handle a message that has permanently failed.
+        
+        Archives the message and invokes custom failure handler if provided.
+        
+        Args:
+            dlq_msg: The DLQ message that exceeded retry limit.
+        """
         self.stats.messages_failed_permanently += 1
 
         # Archive the message
@@ -350,48 +389,109 @@ class DLQHandler:
         return self.stats.to_dict()
 
     def __enter__(self):
+        """Enter context manager, establishing Pulsar connection."""
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager, closing Pulsar connection.
+        
+        Args:
+            exc_type: Exception type if an exception occurred.
+            exc_val: Exception value if an exception occurred.
+            exc_tb: Exception traceback if an exception occurred.
+        
+        Returns:
+            False to propagate any exception.
+        """
         self.close()
         return False
 
 
 class MockDLQHandler:
-    """Mock DLQ handler for testing."""
+    """Mock DLQ handler for testing without Pulsar.
+
+    Provides a no-op implementation that tracks messages and statistics
+    for unit testing purposes.
+    """
 
     def __init__(self, **kwargs):
+        """Initialize mock handler with empty message list and stats.
+
+        Args:
+            **kwargs: Ignored keyword arguments (for interface compatibility).
+        """
         self.messages: List[DLQMessage] = []
         self.stats = DLQStats()
         self._running = False
 
     def connect(self):
+        """Mock connection - no-op for testing."""
         pass
 
     def process_message(self, msg) -> bool:
+        """Mock message processing - always succeeds.
+
+        Args:
+            msg: The message to process (ignored).
+
+        Returns:
+            Always returns True for testing.
+        """
         self.stats.messages_processed += 1
         return True
 
     def process_batch(self, max_messages: int = 100, timeout_ms: int = 5000) -> int:
+        """Mock batch processing - returns 0 for testing.
+
+        Args:
+            max_messages: Maximum messages to process (ignored).
+            timeout_ms: Timeout in milliseconds (ignored).
+
+        Returns:
+            Always returns 0 (no messages processed).
+        """
         return 0
 
     def start(self, poll_interval_ms: int = 1000):
+        """Start mock processing loop.
+
+        Args:
+            poll_interval_ms: Polling interval (ignored in mock).
+        """
         self._running = True
 
     def stop(self):
+        """Stop mock processing loop."""
         self._running = False
 
     def close(self):
+        """Close mock handler and stop processing."""
         self.stop()
 
     def get_stats(self) -> Dict[str, Any]:
+        """Get mock DLQ processing statistics.
+
+        Returns:
+            Dictionary with messages_processed count.
+        """
         return self.stats.to_dict()
 
     def __enter__(self):
+        """Enter context manager - returns self."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context manager - no cleanup needed.
+
+        Args:
+            exc_type: Exception type if raised.
+            exc_val: Exception value if raised.
+            exc_tb: Exception traceback if raised.
+
+        Returns:
+            False to not suppress exceptions.
+        """
         return False
 
 

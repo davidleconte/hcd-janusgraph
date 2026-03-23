@@ -49,6 +49,13 @@ class ValidationResult:
     def add_error(
         self, message: str, variable: Optional[str] = None, recommendation: Optional[str] = None
     ):
+        """Add an error-level validation issue.
+
+        Args:
+            message: Description of the validation error.
+            variable: Optional environment variable name that caused the error.
+            recommendation: Optional suggested fix for the error.
+        """
         self.issues.append(
             ValidationIssue(message, ValidationSeverity.ERROR, variable, recommendation)
         )
@@ -56,6 +63,13 @@ class ValidationResult:
     def add_warning(
         self, message: str, variable: Optional[str] = None, recommendation: Optional[str] = None
     ):
+        """Add a warning-level validation issue.
+
+        Args:
+            message: Description of the validation warning.
+            variable: Optional environment variable name that caused the warning.
+            recommendation: Optional suggested improvement.
+        """
         self.issues.append(
             ValidationIssue(message, ValidationSeverity.WARNING, variable, recommendation)
         )

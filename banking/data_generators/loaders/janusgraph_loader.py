@@ -351,6 +351,7 @@ class JanusGraphLoader:
                         )
                         self.stats["edges_created"] += 1
                     elif owner_type == "company" and owner_id in company_id_map:
+                        since_value = _serialize_value(account_dict.get("opened_date", ""))
                         owner_vertex_id = company_id_map[owner_id]
                         since_prop = f".property('since', '{since_value}')" if since_value else ""
                         self._submit(

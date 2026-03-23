@@ -104,6 +104,16 @@ class WAFConfig:
 
 
 def _check_patterns(value: str, categories: dict, enabled: FrozenSet[str]) -> str | None:
+    """Check a string against enabled attack pattern categories.
+    
+    Args:
+        value: String to check for attack patterns.
+        categories: Dictionary mapping category names to regex patterns.
+        enabled: Set of enabled category names to check.
+        
+    Returns:
+        Category name if a pattern matches, None otherwise.
+    """
     for category, patterns in categories.items():
         if category not in enabled:
             continue
@@ -114,6 +124,15 @@ def _check_patterns(value: str, categories: dict, enabled: FrozenSet[str]) -> st
 
 
 def _blocked_response(category: str, detail: str) -> JSONResponse:
+    """Create a JSON response for blocked requests.
+    
+    Args:
+        category: The attack category that triggered the block.
+        detail: Additional details about the violation.
+        
+    Returns:
+        JSONResponse with 403 status and error details.
+    """
     return JSONResponse(
         status_code=403,
         content={
@@ -128,15 +147,35 @@ class WAFMiddleware(BaseHTTPMiddleware):
     """OWASP-aligned Web Application Firewall middleware."""
 
     def __init__(self, app, config: WAFConfig | None = None):
+        """Initialize the WAF middleware.
+        
+        Args:
+            app: The ASGI application to wrap.
+            config: WAF configuration, uses defaults if None.
+        """
         super().__init__(app)
         self.config = config or WAFConfig()
         self._stats: dict = {"blocked": 0, "allowed": 0}
 
     @property
     def stats(self) -> dict:
+        """Return a copy of the WAF statistics.
+        
+        Returns:
+            Dictionary with 'blocked' and 'allowed' counts.
+        """
         return dict(self._stats)
 
     async def dispatch(self, request: Request, call_next) -> Response:
+        """Process request through WAF inspection pipeline.
+
+        Args:
+            request: Incoming HTTP request to inspect.
+            call_next: Next middleware or handler in chain.
+
+        Returns:
+            Either a 403 blocked response or proceeds to next handler.
+        """
         if request.url.path in self.config.exempt_paths:
             self._stats["allowed"] += 1
             return await call_next(request)
@@ -180,6 +219,14 @@ class WAFMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
     def _inspect_request(self, request: Request) -> tuple[str, str] | None:
+        """Inspect request URL, query params, and headers for attack patterns.
+
+        Args:
+            request: HTTP request to inspect.
+
+        Returns:
+            Tuple of (category, detail) if violation found, None otherwise.
+        """
         url_str = str(request.url)
         if len(url_str) > self.config.max_url_length:
             return ("request_limit", "URL exceeds maximum length")
@@ -210,6 +257,14 @@ class WAFMiddleware(BaseHTTPMiddleware):
         return None
 
     async def _inspect_body(self, request: Request) -> tuple[str, str] | None:
+        """Inspect request body for attack patterns.
+
+        Args:
+            request: HTTP request with body to inspect.
+
+        Returns:
+            Tuple of (category, detail) if violation found, None otherwise.
+        """
         if request.method not in ("POST", "PUT", "PATCH"):
             return None
 

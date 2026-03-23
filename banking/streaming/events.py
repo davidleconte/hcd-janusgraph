@@ -191,6 +191,17 @@ class EntityEvent:
         from decimal import Decimal
 
         def json_serializer(obj: Any) -> Any:
+            """Custom JSON serializer for datetime, Decimal, and Pydantic models.
+            
+            Args:
+                obj: Object to serialize.
+            
+            Returns:
+                JSON-serializable representation of the object.
+            
+            Raises:
+                TypeError: If object type is not JSON serializable.
+            """
             if isinstance(obj, datetime):
                 return obj.isoformat()
             if isinstance(obj, date):
@@ -300,9 +311,19 @@ class EntityEventBatch:
             self.batch_id = _generate_batch_id(self.events)
 
     def __len__(self) -> int:
+        """Return the number of events in the batch.
+
+        Returns:
+            Integer count of events.
+        """
         return len(self.events)
 
     def __iter__(self) -> Iterator[EntityEvent]:
+        """Iterate over events in the batch.
+
+        Yields:
+            EntityEvent instances from the batch.
+        """
         return iter(self.events)
 
     def by_entity_type(self) -> Dict[str, List[EntityEvent]]:
