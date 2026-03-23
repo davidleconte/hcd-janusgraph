@@ -14,7 +14,6 @@ Comprehensive test suite covering:
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Optional
 
 from banking.aml.structuring_detection import StructuringDetector, StructuringPattern
 

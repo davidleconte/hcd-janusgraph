@@ -19,7 +19,6 @@ Updated: 2026-03-23 - Added vertex caching for performance optimization
 """
 
 import logging
-from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.process.graph_traversal import GraphTraversalSource, __
