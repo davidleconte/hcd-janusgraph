@@ -361,7 +361,7 @@ class StructuringDetector:
 
         # Calculate metrics
         amounts = [Decimal(str(tx["amount"])) for tx in transactions]
-        total_amount: Decimal = sum(amounts)  # type: ignore
+        total_amount: Decimal = sum(amounts, Decimal("0"))
         avg_amount: Decimal = total_amount / Decimal(str(len(amounts)))
 
         # Calculate confidence score
@@ -377,7 +377,7 @@ class StructuringDetector:
             confidence += 0.3
 
         # Indicator 2: Similar amounts (low variance)
-        amount_variance: Decimal = sum((amt - avg_amount) ** 2 for amt in amounts) / Decimal(str(len(amounts)))  # type: ignore
+        amount_variance: Decimal = sum(((amt - avg_amount) ** 2 for amt in amounts), Decimal("0")) / Decimal(str(len(amounts)))
         threshold_variance: Decimal = (avg_amount * Decimal("0.1")) ** 2
         if amount_variance < threshold_variance:
             indicators.append("Similar transaction amounts (low variance)")

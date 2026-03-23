@@ -187,7 +187,9 @@ def retry_with_backoff(
                             e,
                         )
 
-            raise last_exception  # type: ignore[misc]
+            # At this point, last_exception must be set (we exhausted retries)
+            assert last_exception is not None
+            raise last_exception
 
         return wrapper
 
