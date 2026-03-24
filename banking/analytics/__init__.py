@@ -14,13 +14,30 @@ from .community_detection import (
     CommunityDetectionResult,
     create_community_detection_report,
 )
+from .graph_ml import (
+    EmbeddingMethod,
+    RiskPrediction,
+    NodeEmbedding,
+    GraphEmbeddingResult,
+    Node2Vec,
+    GraphMLEngine,
+)
 
 __all__ = [
+    # AML
     "AMLStructuringDetector",
+    # Community Detection
     "CommunityDetector",
     "CommunityRiskLevel",
     "CommunityMember",
     "FraudCommunity",
     "CommunityDetectionResult",
     "create_community_detection_report",
+    # Graph ML
+    "EmbeddingMethod",
+    "RiskPrediction",
+    "NodeEmbedding",
+    "GraphEmbeddingResult",
+    "Node2Vec",
+    "GraphMLEngine",
 ]
