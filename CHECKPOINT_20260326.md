@@ -121,3 +121,23 @@ A business + technical summary of notebook scenarios has been saved and checkpoi
 - Summary creation timestamp: `2026-03-26 20:20:26 CET`
 - Includes scenario-by-scenario business context, high-level implementation, expected outputs/results, and visualization expectations.
 
+---
+
+## 🧾 Checkpoint Update (Time-to-Notebook-Ready SLA Saved)
+
+A formal SLA and phase-budget model for notebook readiness timing has been saved and checkpointed.
+
+- SLA file: `docs/operations/time-to-notebook-ready-sla.md`
+- SLA creation timestamp: `2026-03-26 20:28:11 CET`
+- Defines target/warning/breach thresholds (`<=17m`, `17–20m`, `>20m`) and runbook actions for timing regressions.
+
+---
+
+## 🧾 Checkpoint Update (Runbook Improvement Plan 30-60-90 Saved)
+
+A business-oriented runbook transformation plan has been saved and checkpointed.
+
+- Plan file: `docs/operations/runbook-improvement-plan-30-60-90.md`
+- Plan creation timestamp: `2026-03-26 20:32:58 CET`
+- Covers 30/60/90-day milestones, owners, KPI/SLI targets, and governance model to align operational runbooks with business outcomes.
+
