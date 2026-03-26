@@ -111,3 +111,13 @@ A live graph density/storage-profile snapshot has been saved and checkpointed.
 - Snapshot creation timestamp: `2026-03-26 20:14:59 CET`
 - Includes live counts for JanusGraph vertices/edges/properties, HCD tables/core row counts, and derived density metrics.
 
+---
+
+## 🧾 Checkpoint Update (Notebook Scenarios Summary Saved)
+
+A business + technical summary of notebook scenarios has been saved and checkpointed.
+
+- Summary file: `docs/banking/guides/notebook-scenarios-business-technical-summary.md`
+- Summary creation timestamp: `2026-03-26 20:20:26 CET`
+- Includes scenario-by-scenario business context, high-level implementation, expected outputs/results, and visualization expectations.
+
