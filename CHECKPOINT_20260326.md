@@ -86,3 +86,18 @@ A standalone summary of the stabilization and validation work has been saved.
 - Summary creation timestamp: `2026-03-26 20:00:49 CET`
 - Checkpoint updated to reference this summary artifact.
 
+---
+
+## 🧾 Checkpoint Update (Determinism Docs + PR Release Gate)
+
+Determinism documentation and release-gate checklist artifacts were added and checkpointed.
+
+- Acceptance criteria checklist (release gate):  
+  `docs/operations/determinism-acceptance-criteria-checklist.md`  
+  Created at: `2026-03-26 20:06:37 CET`
+- Deterministic behavior explainer (expected outputs, schemas, diagrams):  
+  `docs/operations/deterministic-behavior-expected-outputs.md`  
+  Created at: `2026-03-26 20:08:42 CET`
+- PR template updated with determinism release-gate checklist section:  
+  `.github/pull-request-template.md`
+
