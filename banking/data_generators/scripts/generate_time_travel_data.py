@@ -261,7 +261,29 @@ def save_manifest(data: Dict[str, Any]) -> Path:
     return MANIFEST_PATH
 
 
-def load_into_janusgraph(data: Dict[str, Any], host: str = "localhost", port: int = 18182) -> Dict[str, int]:
+def _detect_janusgraph_host_port() -> tuple:
+    """Auto-detect JanusGraph host and port based on environment."""
+    import os
+    import socket
+    
+    # Check environment variables first
+    env_host = os.getenv("JANUSGRAPH_HOST")
+    env_port = os.getenv("JANUSGRAPH_PORT")
+    if env_host and env_port:
+        return env_host, int(env_port)
+    
+    # Try to detect container environment
+    try:
+        socket.gethostbyname("janusgraph-server")
+        return "janusgraph-server", 8182  # Internal container port
+    except socket.gaierror:
+        pass
+    
+    # Fallback to localhost with mapped port
+    return "localhost", 18182
+
+
+def load_into_janusgraph(data: Dict[str, Any], host: str = None, port: int = None) -> Dict[str, int]:
     """
     Load time-travel data into JanusGraph.
     
@@ -269,6 +291,12 @@ def load_into_janusgraph(data: Dict[str, Any], host: str = "localhost", port: in
         Dict with vertex and edge counts
     """
     from src.python.client.janusgraph_client import JanusGraphClient
+    
+    # Auto-detect host/port if not provided
+    if host is None or port is None:
+        detected_host, detected_port = _detect_janusgraph_host_port()
+        host = host or detected_host
+        port = port or detected_port
     
     vertices_created = 0
     edges_created = 0

@@ -19,6 +19,7 @@ Updated: 2026-03-23 - Added vertex caching for performance optimization
 """
 
 import logging
+import threading
 from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.process.graph_traversal import GraphTraversalSource, __
@@ -27,41 +28,125 @@ from gremlin_python.process.traversal import P, T
 logger = logging.getLogger(__name__)
 
 
-# Module-level cache for vertex lookups (shared across all GraphRepository instances)
-# Cache up to 1000 vertices, reducing repeated Gremlin queries for the same entity
-_VERTEX_CACHE: Dict[Tuple[str, str], Dict[str, Any]] = {}
-_VERTEX_CACHE_MAX_SIZE = 1000
+# Module-level cache for vertex lookups using proper LRU eviction
+# Thread-safe implementation with hit/miss metrics
+class _VertexCache:
+    """Thread-safe LRU cache for vertex lookups with metrics tracking."""
+    
+    def __init__(self, max_size: int = 1000):
+        self._cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
+        self._access_order: List[Tuple[str, str]] = []  # Track LRU order
+        self._max_size = max_size
+        self._lock = threading.RLock()
+        
+        # Metrics
+        self._hits = 0
+        self._misses = 0
+        self._evictions = 0
+    
+    def get(self, key: Tuple[str, str]) -> Optional[Dict[str, Any]]:
+        """Get vertex from cache, updating LRU order."""
+        with self._lock:
+            if key in self._cache:
+                # Move to end (most recently used)
+                self._access_order.remove(key)
+                self._access_order.append(key)
+                self._hits += 1
+                logger.debug("Cache HIT for vertex: %s=%s", key[0], key[1])
+                return self._cache[key]
+            self._misses += 1
+            return None
+    
+    def set(self, key: Tuple[str, str], value: Dict[str, Any]) -> None:
+        """Set vertex in cache with LRU eviction."""
+        with self._lock:
+            if key in self._cache:
+                # Update existing, move to end
+                self._access_order.remove(key)
+                self._access_order.append(key)
+                self._cache[key] = value
+            else:
+                # Evict least recently used if at capacity
+                if len(self._cache) >= self._max_size:
+                    lru_key = self._access_order.pop(0)
+                    del self._cache[lru_key]
+                    self._evictions += 1
+                    logger.debug("Evicted cached vertex (LRU): %s=%s", lru_key[0], lru_key[1])
+                
+                self._cache[key] = value
+                self._access_order.append(key)
+                logger.debug("Cache SET for vertex: %s=%s", key[0], key[1])
+    
+    def invalidate(self, key: Tuple[str, str]) -> bool:
+        """Invalidate a specific cache entry."""
+        with self._lock:
+            if key in self._cache:
+                del self._cache[key]
+                self._access_order.remove(key)
+                logger.debug("Invalidated cached vertex: %s=%s", key[0], key[1])
+                return True
+            return False
+    
+    def invalidate_pattern(self, id_field: str) -> int:
+        """Invalidate all cache entries matching an id_field pattern."""
+        with self._lock:
+            keys_to_remove = [k for k in self._cache if k[0] == id_field]
+            for key in keys_to_remove:
+                del self._cache[key]
+                self._access_order.remove(key)
+            if keys_to_remove:
+                logger.debug("Invalidated %d vertices with field: %s", len(keys_to_remove), id_field)
+            return len(keys_to_remove)
+    
+    def clear(self) -> None:
+        """Clear the entire cache."""
+        with self._lock:
+            self._cache.clear()
+            self._access_order.clear()
+            logger.info("Cleared vertex cache")
+    
+    def stats(self) -> Dict[str, Any]:
+        """Return cache statistics including hit ratio."""
+        with self._lock:
+            total_requests = self._hits + self._misses
+            hit_ratio = self._hits / total_requests if total_requests > 0 else 0.0
+            return {
+                "size": len(self._cache),
+                "max_size": self._max_size,
+                "hits": self._hits,
+                "misses": self._misses,
+                "evictions": self._evictions,
+                "hit_ratio": round(hit_ratio, 4),
+            }
+
+
+# Global cache instance
+_VERTEX_CACHE = _VertexCache(max_size=1000)
 
 
 def _cache_get(id_field: str, id_value: str) -> Optional[Dict[str, Any]]:
-    """Get vertex from cache if exists."""
+    """Get vertex from cache if exists (backward-compatible wrapper)."""
     return _VERTEX_CACHE.get((id_field, id_value))
 
 
 def _cache_set(id_field: str, id_value: str, vertex: Dict[str, Any]) -> None:
-    """Set vertex in cache with LRU eviction."""
-    global _VERTEX_CACHE
-    if len(_VERTEX_CACHE) >= _VERTEX_CACHE_MAX_SIZE:
-        # Evict oldest entry (simple FIFO, not true LRU for performance)
-        oldest_key = next(iter(_VERTEX_CACHE))
-        del _VERTEX_CACHE[oldest_key]
-        logger.debug("Evicted cached vertex: %s=%s", oldest_key[0], oldest_key[1])
-    _VERTEX_CACHE[(id_field, id_value)] = vertex
+    """Set vertex in cache with LRU eviction (backward-compatible wrapper)."""
+    _VERTEX_CACHE.set((id_field, id_value), vertex)
+
+
+def _cache_invalidate(id_field: str, id_value: str) -> bool:
+    """Invalidate a specific cache entry."""
+    return _VERTEX_CACHE.invalidate((id_field, id_value))
 
 
 def _cache_clear() -> None:
     """Clear the vertex cache."""
-    global _VERTEX_CACHE
     _VERTEX_CACHE.clear()
-    logger.info("Cleared vertex cache")
 
 
-def _cache_stats() -> Dict[str, int]:
-    """Return cache statistics."""
-    return {
-        "size": len(_VERTEX_CACHE),
-        "max_size": _VERTEX_CACHE_MAX_SIZE,
-    }
+def _cache_stats() -> Dict[str, Any]:
+    """Return cache statistics with hit ratio."""
+    return _VERTEX_CACHE.stats()
 
 
 def _flatten_value_map(value_map: Dict) -> Dict:
@@ -418,11 +503,60 @@ class GraphRepository:
         return _flatten_value_map(value_map)
     
     @staticmethod
-    def cache_stats() -> Dict[str, int]:
-        """Return vertex cache statistics."""
+    def cache_stats() -> Dict[str, Any]:
+        """Return vertex cache statistics with hit ratio."""
         return _cache_stats()
     
     @staticmethod
     def cache_clear() -> None:
         """Clear the vertex cache."""
         _cache_clear()
+    
+    @staticmethod
+    def cache_invalidate(id_field: str, id_value: str) -> bool:
+        """Invalidate a specific cached vertex.
+        
+        Call this after mutating a vertex to ensure cache consistency.
+        
+        Args:
+            id_field: The property name the vertex was cached under.
+            id_value: The property value to invalidate.
+        
+        Returns:
+            True if the entry was found and removed, False otherwise.
+        """
+        return _cache_invalidate(id_field, id_value)
+    
+    @staticmethod
+    def cache_invalidate_pattern(id_field: str) -> int:
+        """Invalidate all cached vertices matching an id_field pattern.
+        
+        Useful when a bulk operation affects all vertices of a certain type.
+        
+        Args:
+            id_field: The property name pattern to match (e.g., 'person_id').
+        
+        Returns:
+            Number of entries invalidated.
+        """
+        return _VERTEX_CACHE.invalidate_pattern(id_field)
+    
+    def invalidate_vertex(self, id_field: str, id_value: str) -> bool:
+        """Invalidate a cached vertex after a mutation operation.
+        
+        This is an instance method convenience wrapper for cache_invalidate.
+        Should be called after any create/update/delete operation on a vertex.
+        
+        Args:
+            id_field: The property name the vertex was cached under.
+            id_value: The property value to invalidate.
+        
+        Returns:
+            True if the entry was found and removed, False otherwise.
+        
+        Example:
+            >>> repo = GraphRepository(g)
+            >>> # After updating a person vertex:
+            >>> repo.invalidate_vertex('person_id', 'person-123')
+        """
+        return _cache_invalidate(id_field, id_value)

@@ -293,21 +293,21 @@ def generate_entity_resolution_data_deterministic(
         "outV": identity_uk_id,
         "inV": company_uk_id,
         "label": "director_of",
-        "properties": {"since": "2020-01-15"}
+        "properties": {"since": 2020}  # Year as integer
     })
     
     edges.append({
         "outV": identity_bvi_id,
         "inV": company_bvi_id,
         "label": "director_of",
-        "properties": {"since": "2021-03-20"}
+        "properties": {"since": 2021}  # Year as integer
     })
     
     edges.append({
         "outV": identity_cyprus_id,
         "inV": company_cyprus_id,
         "label": "director_of",
-        "properties": {"since": "2022-06-10"}
+        "properties": {"since": 2022}  # Year as integer
     })
     
     # Company ownership through trust
@@ -345,7 +345,7 @@ def generate_entity_resolution_data_deterministic(
         "outV": lawfirm_id,
         "inV": trust_id,
         "label": "trustee_of",
-        "properties": {"since": "2020-06-01"}
+        "properties": {"since": 2020}  # Year as integer
     })
     
     # ========================================
@@ -415,7 +415,7 @@ def generate_entity_resolution_data_deterministic(
             "outV": synth_id,
             "inV": address_id,
             "label": "has_address",
-            "properties": {"since": "2025-06-01"}
+            "properties": {"since": 2025}  # Year as integer
         })
     
     # Device fingerprint (shared)
@@ -497,9 +497,37 @@ def save_manifest(data: Dict[str, Any]) -> Path:
     return MANIFEST_PATH
 
 
-def load_into_janusgraph(data: Dict[str, Any], host: str = "localhost", port: int = 18182) -> Dict[str, int]:
+def _detect_janusgraph_host_port() -> tuple:
+    """Auto-detect JanusGraph host and port based on environment."""
+    import os
+    import socket
+    
+    # Check environment variables first
+    env_host = os.getenv("JANUSGRAPH_HOST")
+    env_port = os.getenv("JANUSGRAPH_PORT")
+    if env_host and env_port:
+        return env_host, int(env_port)
+    
+    # Try to detect container environment
+    try:
+        socket.gethostbyname("janusgraph-server")
+        return "janusgraph-server", 8182  # Internal container port
+    except socket.gaierror:
+        pass
+    
+    # Fallback to localhost with mapped port
+    return "localhost", 18182
+
+
+def load_into_janusgraph(data: Dict[str, Any], host: str = None, port: int = None) -> Dict[str, int]:
     """Load entity resolution data into JanusGraph."""
     from src.python.client.janusgraph_client import JanusGraphClient
+    
+    # Auto-detect host/port if not provided
+    if host is None or port is None:
+        detected_host, detected_port = _detect_janusgraph_host_port()
+        host = host or detected_host
+        port = port or detected_port
     
     vertices_created = 0
     edges_created = 0

@@ -44,7 +44,8 @@ MANIFEST_PATH = OUTPUT_DIR / "graph_ml_manifest.json"
 
 def generate_graph_ml_data_deterministic(
     seed: int = DETERMINISTIC_SEED,
-    counter_start: int = DETERMINISTIC_COUNTER_START
+    counter_start: int = DETERMINISTIC_COUNTER_START,
+    max_vertices: int = 500
 ) -> Dict[str, Any]:
     """
     Generate graph data for ML training and testing.
@@ -58,10 +59,19 @@ def generate_graph_ml_data_deterministic(
     Args:
         seed: Random seed
         counter_start: Starting counter for UUIDs
+        max_vertices: Maximum vertices to generate (scales clusters down)
         
     Returns:
         Dict with vertices, edges, and ground truth
     """
+    import os
+    
+    # Allow environment override for deterministic pipeline
+    max_vertices = int(os.getenv('ML_MAX_VERTICES', str(max_vertices)))
+    
+    # Scale factor: default full graph is ~100 vertices
+    # For smaller limits, reduce cluster sizes proportionally
+    scale_factor = min(1.0, max_vertices / 100.0)
     reset_counter(counter_start, seed=seed)
     random.seed(seed)
     Faker.seed(seed)
@@ -84,9 +94,10 @@ def generate_graph_ml_data_deterministic(
     # ========================================
     cluster_1_members = []
     
-    # Create a cohesive group of retail customers
+    # Create a cohesive group of retail customers (scaled)
+    persons_per_cluster = max(3, int(12 * scale_factor))
     cluster_1_base_id = seeded_uuid_hex("gml-c1-")
-    for i in range(12):
+    for i in range(persons_per_cluster):
         person_id = seeded_uuid_hex(f"gml-c1-p{i}-")
         name = faker.name()
         
@@ -108,7 +119,8 @@ def generate_graph_ml_data_deterministic(
         ground_truth["risk_labels"][person_id] = "low"
     
     # Create accounts for cluster 1
-    for i, person_id in enumerate(cluster_1_members):
+    # Iterate over a copy to avoid infinite loop when appending
+    for i, person_id in enumerate(list(cluster_1_members)):
         account_id = seeded_uuid_hex(f"gml-c1-a{i}-")
         vertices.append({
             "id": account_id,
@@ -166,8 +178,9 @@ def generate_graph_ml_data_deterministic(
     cluster_2_members.append(sme_company_id)
     ground_truth["risk_labels"][sme_company_id] = "medium"
     
-    # Directors and employees
-    for i in range(8):
+    # Directors and employees (scaled)
+    employees_per_cluster = max(2, int(8 * scale_factor))
+    for i in range(employees_per_cluster):
         person_id = seeded_uuid_hex(f"gml-c2-p{i}-")
         name = faker.name()
         role = "director" if i < 2 else "employee"
@@ -228,8 +241,9 @@ def generate_graph_ml_data_deterministic(
     # ========================================
     cluster_3_members = []
     
-    # Multiple shell companies
-    for i in range(3):
+    # Multiple shell companies (scaled)
+    companies_per_cluster = max(1, int(3 * scale_factor))
+    for i in range(companies_per_cluster):
         company_id = seeded_uuid_hex(f"gml-c3-co{i}-")
         jurisdictions = ["VG", "KY", "SC"]
         names = ["Global Trade Ventures Ltd", "Oceanic Holdings International", "Pacific Commerce Group"]

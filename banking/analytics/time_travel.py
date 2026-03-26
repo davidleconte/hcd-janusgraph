@@ -124,17 +124,18 @@ class TimeTravelQuery:
         ts_str = timestamp.isoformat()
         
         # Query vertices valid at timestamp
+        # Using valueMap() without WithOptions for compatibility (returns properties as maps)
         vertex_query = f"""
             g.V().has('{self.valid_from_property}', lte('{ts_str}')).
                 has('{self.valid_to_property}', gte('{ts_str}')).
-                valueMap().with('~tinkerpop.valueMap.tokens', '~all')
+                valueMap()
         """
         
         # Query edges valid at timestamp
         edge_query = f"""
             g.E().has('{self.valid_from_property}', lte('{ts_str}')).
                 has('{self.valid_to_property}', gte('{ts_str}')).
-                valueMap().with('~tinkerpop.valueMap.tokens', '~all')
+                valueMap()
         """
         
         vertices = self.client.execute(vertex_query)
@@ -159,7 +160,7 @@ class TimeTravelQuery:
             List of temporal changes for the vertex
         """
         query = f"""
-            g.V('{vertex_id}').valueMap().with('~tinkerpop.valueMap.tokens', '~all')
+            g.V('{vertex_id}').valueMap()
         """
         
         result = self.client.execute(query)
@@ -210,11 +211,18 @@ class TimeTravelQuery:
         snapshot1 = self.get_snapshot(timestamp1)
         snapshot2 = self.get_snapshot(timestamp2)
         
-        # Extract vertex IDs
-        ids1 = {v.get("id") or v.get("vertexId") or v.get("personId") 
-                for v in snapshot1.vertices if v}
-        ids2 = {v.get("id") or v.get("vertexId") or v.get("personId") 
-                for v in snapshot2.vertices if v}
+        # Extract vertex IDs (valueMap returns lists, extract first element)
+        def _extract_id(v):
+            """Extract scalar ID from valueMap result (handles list values)."""
+            for key in ("id", "vertexId", "personId"):
+                val = v.get(key)
+                if val:
+                    # valueMap returns lists; extract first element
+                    return val[0] if isinstance(val, list) else val
+            return None
+        
+        ids1 = {_extract_id(v) for v in snapshot1.vertices if v}
+        ids2 = {_extract_id(v) for v in snapshot2.vertices if v}
         
         added = ids2 - ids1
         removed = ids1 - ids2

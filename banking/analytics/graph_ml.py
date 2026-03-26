@@ -144,7 +144,8 @@ class Node2Vec:
         window_size: int = 10,
         min_count: int = 1,
         workers: int = 4,
-        seed: int = 42
+        seed: int = 42,
+        max_vertices: int = None
     ):
         """
         Initialize Node2Vec parameters.
@@ -159,6 +160,7 @@ class Node2Vec:
             min_count: Minimum node frequency
             workers: Number of parallel workers
             seed: Random seed for reproducibility
+            max_vertices: Maximum vertices to embed (for memory limits)
         """
         self.embedding_dim = embedding_dim
         self.walk_length = walk_length
@@ -169,6 +171,7 @@ class Node2Vec:
         self.min_count = min_count
         self.workers = workers
         self.seed = seed
+        self.max_vertices = max_vertices
         
         # Will be populated during fit
         self.graph: Dict[str, Set[str]] = {}
@@ -201,9 +204,10 @@ class Node2Vec:
     
     def _build_graph(self, client: Any) -> None:
         """Build adjacency list from JanusGraph."""
-        # Get all relevant vertices
-        vertices_query = """
-            g.V().hasLabel('person', 'company', 'account', 'address').
+        # Get all relevant vertices (with optional limit for memory efficiency)
+        limit_clause = f".limit({self.max_vertices})" if self.max_vertices else ""
+        vertices_query = f"""
+            g.V().hasLabel('person', 'company', 'account', 'address'){limit_clause}.
             project('id', 'label').
             by(id()).
             by(label())
@@ -425,7 +429,8 @@ class GraphMLEngine:
         walk_length: int = 80,
         num_walks: int = 10,
         p: float = 1.0,
-        q: float = 1.0
+        q: float = 1.0,
+        max_vertices: int = None
     ) -> GraphEmbeddingResult:
         """
         Generate graph embeddings using specified method.
@@ -436,6 +441,7 @@ class GraphMLEngine:
             num_walks: Walks per node (Node2Vec)
             p: Return parameter (Node2Vec)
             q: In-out parameter (Node2Vec)
+            max_vertices: Maximum vertices to embed (for memory limits)
             
         Returns:
             GraphEmbeddingResult with all embeddings
@@ -449,7 +455,8 @@ class GraphMLEngine:
                 num_walks=num_walks,
                 p=p,
                 q=q,
-                seed=self.seed
+                seed=self.seed,
+                max_vertices=max_vertices
             )
             self._node2vec.fit(self.client)
             embeddings = self._node2vec.get_all_embeddings()

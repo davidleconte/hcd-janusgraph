@@ -91,6 +91,7 @@ class GraphConsumer:
         batch_size: int = None,
         batch_timeout_ms: int = None,
         dlq_topic: str = None,
+        cache_invalidate_callback: Callable[[str, str], bool] = None,
     ):
         """
         Initialize the GraphConsumer.
@@ -103,6 +104,9 @@ class GraphConsumer:
             batch_size: Number of events per batch
             batch_timeout_ms: Timeout for batch collection
             dlq_topic: Dead letter queue topic
+            cache_invalidate_callback: Optional callback for cache invalidation.
+                Called with (id_field, id_value) after successful mutations.
+                Use GraphRepository.cache_invalidate or similar.
         """
         if not PULSAR_AVAILABLE:
             raise ImportError("pulsar-client is not installed")
@@ -119,6 +123,9 @@ class GraphConsumer:
         self.batch_size = batch_size or self.DEFAULT_BATCH_SIZE
         self.batch_timeout_ms = batch_timeout_ms or self.DEFAULT_BATCH_TIMEOUT_MS
         self.dlq_topic = dlq_topic or "persistent://public/banking/dlq-events"
+
+        # Cache invalidation callback (optional)
+        self.cache_invalidate_callback = cache_invalidate_callback
 
         # State
         self.pulsar_client: Optional[Client] = None
@@ -254,6 +261,11 @@ class GraphConsumer:
 
         traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
         traversal_obj.iterate()
+
+        # Invalidate cache after successful mutation
+        if self.cache_invalidate_callback:
+            self.cache_invalidate_callback("entity_id", entity_id)
+
         self._log_event(
             "graph_consumer_create_processed",
             level=logging.DEBUG,
@@ -298,6 +310,10 @@ class GraphConsumer:
         traversal_obj = self._apply_payload_properties(traversal_obj, event.payload, skip_keys)
         traversal_obj.iterate()
 
+        # Invalidate cache after successful mutation
+        if self.cache_invalidate_callback:
+            self.cache_invalidate_callback("entity_id", entity_id)
+
         self._log_event(
             "graph_consumer_update_processed",
             level=logging.DEBUG,
@@ -310,6 +326,11 @@ class GraphConsumer:
     def _process_delete_event(self, event: EntityEvent) -> bool:
         """Handle delete events."""
         self.g.V().has(event.entity_type, "entity_id", event.entity_id).drop().iterate()
+
+        # Invalidate cache after successful mutation
+        if self.cache_invalidate_callback:
+            self.cache_invalidate_callback("entity_id", event.entity_id)
+
         self._log_event(
             "graph_consumer_delete_processed",
             level=logging.DEBUG,

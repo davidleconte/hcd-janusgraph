@@ -552,12 +552,37 @@ class EntityResolver:
         return fraud_rings
     
     def _fetch_entity(self, entity_id: str) -> Dict[str, Any]:
-        """Fetch entity data from graph."""
-        query = f"g.V('{entity_id}').valueMap().with('~tinkerpop.valueMap.tokens', '~all')"
-        result = self.client.execute(query)
-        if result:
-            entity = result[0] if isinstance(result, list) else result
-            return entity
+        """Fetch entity data from graph.
+        
+        Args:
+            entity_id: The business ID (personId, companyId, accountId) of the entity
+            
+        Returns:
+            Dict with entity properties including '_internal_id' for graph operations
+        """
+        from gremlin_python.process.traversal import T
+        
+        # Query by property ID (personId, companyId, accountId) rather than internal JanusGraph ID
+        # JanusGraph uses internal numeric IDs, so we must use has() to find by business ID
+        # Try common ID properties in order
+        for prop in ('personId', 'companyId', 'accountId', 'id'):
+            query = f"g.V().has('{prop}', '{entity_id}').elementMap()"
+            try:
+                result = self.client.execute(query)
+                if result:
+                    entity = result[0] if isinstance(result, list) else result
+                    # Extract internal ID from elementMap (key is T.id, not 'id')
+                    internal_id = None
+                    for key, value in entity.items():
+                        if key == T.id:
+                            internal_id = str(value)
+                            break
+                    # Store internal ID for graph operations
+                    if internal_id:
+                        entity['_internal_id'] = internal_id
+                    return entity
+            except Exception:
+                continue
         return {}
     
     def _standard_resolution(
@@ -626,15 +651,19 @@ class EntityResolver:
         signals = self._standard_resolution(entity_a, entity_b)
         
         # Add relationship-based signals
+        # Use _internal_id (JanusGraph internal) or business ID for queries
+        entity_a_id = entity_a.get("_internal_id") or entity_a.get("personId") or entity_a.get("companyId")
+        entity_b_id = entity_b.get("_internal_id") or entity_b.get("personId") or entity_b.get("companyId")
+        
         # Check for shared directors
         shared_directors = self._find_shared_directors(
-            entity_a.get("id"), entity_b.get("id")
+            entity_a_id, entity_b_id
         )
         if shared_directors:
             signals.append(MatchSignal(
                 attribute="shared_directors",
-                value_a=entity_a.get("id"),
-                value_b=entity_b.get("id"),
+                value_a=entity_a_id,
+                value_b=entity_b_id,
                 match_type=MatchType.NETWORK,
                 score=0.80,
                 weight=0.15,
@@ -643,13 +672,13 @@ class EntityResolver:
         
         # Check for shared addresses
         shared_addresses = self._find_shared_addresses(
-            entity_a.get("id"), entity_b.get("id")
+            entity_a_id, entity_b_id
         )
         if shared_addresses:
             signals.append(MatchSignal(
                 attribute="shared_addresses",
-                value_a=entity_a.get("id"),
-                value_b=entity_b.get("id"),
+                value_a=entity_a_id,
+                value_b=entity_b_id,
                 match_type=MatchType.NETWORK,
                 score=0.70,
                 weight=0.10,
@@ -733,22 +762,37 @@ class EntityResolver:
                 return "separate"
     
     def _find_shared_directors(self, entity_a_id: str, entity_b_id: str) -> List[str]:
-        """Find shared directors between two companies."""
+        """Find shared directors between two companies using property-based lookup."""
+        # Use property-based lookup to handle string IDs
+        # Try companyId first (companies), then fallback to internal ID
         query = f"""
-            g.V('{entity_a_id}').in('director_of').as('d').
-            where(out('director_of').hasId('{entity_b_id}')).
+            g.V().has('companyId', '{entity_a_id}').in('director_of').as('d').
+            where(out('director_of').has('companyId', '{entity_b_id}')).
             select('d').id()
         """
-        return self.client.execute(query) or []
+        try:
+            result = self.client.execute(query)
+            if result:
+                return result
+        except Exception:
+            pass
+        return []
     
     def _find_shared_addresses(self, entity_a_id: str, entity_b_id: str) -> List[str]:
-        """Find shared addresses between two entities."""
+        """Find shared addresses between two entities using property-based lookup."""
+        # Use property-based lookup to handle string IDs
         query = f"""
-            g.V('{entity_a_id}').out('has_address').as('addr').
-            where(__.in('has_address').hasId('{entity_b_id}')).
+            g.V().has('personId', '{entity_a_id}').out('has_address').as('addr').
+            where(__.in('has_address').has('personId', '{entity_b_id}')).
             select('addr').id()
         """
-        return self.client.execute(query) or []
+        try:
+            result = self.client.execute(query)
+            if result:
+                return result
+        except Exception:
+            pass
+        return []
     
     def _check_device_correlation(self, entity_a_id: str, entity_b_id: str) -> Optional[Dict]:
         """Check device/fingerprint correlation."""

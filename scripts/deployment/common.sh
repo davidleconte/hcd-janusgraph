@@ -388,20 +388,56 @@ cleanup_volumes() {
 deploy_with_compose() {
     local compose_file="${1:-docker-compose.full.yml}"
     local project="${2:-$COMPOSE_PROJECT_NAME}"
-    
+    local compose_timeout_sec="${DEPLOY_COMPOSE_TIMEOUT_SEC:-1200}"
+    local heartbeat_sec="${DEPLOY_COMPOSE_HEARTBEAT_SEC:-30}"
+
     log_step "Deploying with podman-compose"
     log_info "Project: $project"
     log_info "Compose file: $compose_file"
+    log_info "Timeout: ${compose_timeout_sec}s (override with DEPLOY_COMPOSE_TIMEOUT_SEC)"
     
     cd "$PROJECT_ROOT/config/compose"
-    
-    podman-compose -p "$project" -f "$compose_file" up -d --build
-    
-    if [ $? -eq 0 ]; then
+
+    local compose_build_arg=""
+    if [[ "${COMPOSE_FORCE_BUILD:-0}" == "1" ]]; then
+        compose_build_arg="--build"
+        log_info "COMPOSE_FORCE_BUILD=1 -> enabling podman-compose --build"
+    else
+        log_info "Skipping podman-compose --build (images already built in deterministic step)"
+    fi
+
+    podman-compose -p "$project" -f "$compose_file" up -d ${compose_build_arg} &
+    local compose_pid=$!
+    local elapsed=0
+
+    while kill -0 "$compose_pid" 2>/dev/null; do
+        if (( elapsed >= compose_timeout_sec )); then
+            log_error "podman-compose timed out after ${compose_timeout_sec}s"
+            log_info "Killing stalled process pid=${compose_pid}"
+            kill "$compose_pid" 2>/dev/null || true
+            sleep 2
+            kill -9 "$compose_pid" 2>/dev/null || true
+            log_info "Diagnostic snapshot (project=${project}):"
+            podman_cmd ps -a --filter "label=io.podman.compose.project=${project}" --format "{{.Names}}\t{{.Status}}" || true
+            return 1
+        fi
+
+        if (( elapsed > 0 )) && (( elapsed % heartbeat_sec == 0 )); then
+            log_info "podman-compose still running... elapsed=${elapsed}s"
+        fi
+
+        sleep 1
+        ((elapsed += 1))
+    done
+
+    wait "$compose_pid"
+    local compose_rc=$?
+
+    if [ "$compose_rc" -eq 0 ]; then
         log_success "Deployment successful"
         return 0
     else
-        log_error "Deployment failed"
+        log_error "Deployment failed (exit code: ${compose_rc})"
         return 1
     fi
 }

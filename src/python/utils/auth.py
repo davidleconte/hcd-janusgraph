@@ -20,7 +20,8 @@ def get_credentials(
     username_env_var: str = "USERNAME",
     password_env_var: str = "PASSWORD",
     service_name: str = "Service",
-) -> Tuple[str, str]:
+    allow_empty: bool = False,
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Get authentication credentials from parameters or environment variables.
 
@@ -33,12 +34,13 @@ def get_credentials(
         username_env_var: Environment variable name for username
         password_env_var: Environment variable name for password
         service_name: Service name for error messages
+        allow_empty: If True, allow empty credentials (for development mode)
 
     Returns:
-        Tuple of (username, password)
+        Tuple of (username, password) - may be (None, None) if allow_empty=True
 
     Raises:
-        ValueError: If credentials are not provided
+        ValueError: If credentials are not provided and allow_empty=False
 
     Example:
         >>> username, password = get_credentials(
@@ -53,8 +55,17 @@ def get_credentials(
     if not password:
         password = os.getenv(password_env_var)
 
-    # Require authentication
+    # Check if empty credentials are allowed (development mode)
     if not username or not password:
+        # Allow empty if explicitly enabled or if AUTH_DISABLED env is set
+        auth_disabled = os.getenv("AUTH_DISABLED", "").lower() in ("true", "1", "yes")
+        if allow_empty or auth_disabled:
+            logger.warning(
+                "%s authentication disabled - using unauthenticated connection (development mode)",
+                service_name
+            )
+            return None, None
+
         raise ValueError(
             f"{service_name} authentication required: username and password must be provided. "
             f"Set {username_env_var} and {password_env_var} environment variables "

@@ -3,18 +3,21 @@ Production-ready JanusGraph client with authentication, SSL/TLS, and validation.
 
 File: janusgraph_client.py
 Updated: 2026-01-28 - Security Hardening
+Updated: 2026-03-25 - Added distributed tracing integration
 Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
 """
 
 import logging
 import os
 import ssl
+import time
 from typing import Any, Optional
 
 from gremlin_python.driver import client, serializer
 from gremlin_python.driver.protocol import GremlinServerError
 
 from ..utils.auth import get_credentials, validate_ssl_config
+from ..utils.tracing import Status, StatusCode, get_tracer
 from ..utils.validation import (
     validate_file_path,
     validate_gremlin_query,
@@ -24,6 +27,9 @@ from ..utils.validation import (
 from .exceptions import ConnectionError, QueryError, TimeoutError, ValidationError
 
 logger = logging.getLogger(__name__)
+
+# Tracer for distributed tracing
+_tracer = get_tracer()
 
 
 class JanusGraphClient:
@@ -106,7 +112,7 @@ class JanusGraphClient:
             except ValidationError as e:
                 raise ValidationError(f"Invalid CA certificate file: {ca_certs}. {e}") from e
 
-        # Get credentials using shared utility
+        # Get credentials using shared utility (allow empty for development mode)
         try:
             username, password = get_credentials(
                 username=username,
@@ -114,6 +120,7 @@ class JanusGraphClient:
                 username_env_var="JANUSGRAPH_USERNAME",
                 password_env_var="JANUSGRAPH_PASSWORD",
                 service_name="JanusGraph",
+                allow_empty=True,
             )
         except ValueError as e:
             raise ValidationError(str(e)) from e
@@ -160,44 +167,59 @@ class JanusGraphClient:
             logger.warning("Client already connected to %s", self.url)
             return
 
-        try:
-            logger.info("Connecting to JanusGraph at %s (SSL: %s)", self.url, self.use_ssl)
+        with _tracer.start_as_current_span("janusgraph.connect") as span:
+            span.set_attribute("db.system", "janusgraph")
+            span.set_attribute("db.url", self.url)
+            span.set_attribute("db.ssl", self.use_ssl)
 
-            # Configure SSL context if using SSL
-            ssl_context = None
-            if self.use_ssl:
-                ssl_context = ssl.create_default_context()
-                if self.ca_certs:
-                    ssl_context.load_verify_locations(self.ca_certs)
-                if not self.verify_certs:
-                    ssl_context.check_hostname = False
-                    ssl_context.verify_mode = ssl.CERT_NONE
+            try:
+                logger.info("Connecting to JanusGraph at %s (SSL: %s)", self.url, self.use_ssl)
 
-            # Create client with authentication and pool configuration
-            # Note: gremlin_python manages its own connection pool internally
-            # pool_size and max_workers are stored for monitoring/metrics purposes
-            connect_kwargs = {
-                "username": self.username,
-                "password": self.password,
-                "message_serializer": serializer.GraphSONSerializersV3d0(),
-            }
-            if ssl_context is not None:
-                connect_kwargs["ssl_options"] = ssl_context
+                # Configure SSL context if using SSL
+                ssl_context = None
+                if self.use_ssl:
+                    ssl_context = ssl.create_default_context()
+                    if self.ca_certs:
+                        ssl_context.load_verify_locations(self.ca_certs)
+                    if not self.verify_certs:
+                        ssl_context.check_hostname = False
+                        ssl_context.verify_mode = ssl.CERT_NONE
 
-            self._client = client.Client(
-                self.url,
-                self.traversal_source,
-                **connect_kwargs,
-            )
+                start_time = time.time()
 
-            logger.info("Successfully connected to JanusGraph at %s", self.url)
+                # Create client with authentication and pool configuration
+                # Note: gremlin_python manages its own connection pool internally
+                # pool_size and max_workers are stored for monitoring/metrics purposes
+                connect_kwargs = {
+                    "username": self.username,
+                    "password": self.password,
+                    "message_serializer": serializer.GraphSONSerializersV3d0(),
+                }
+                if ssl_context is not None:
+                    connect_kwargs["ssl_options"] = ssl_context
 
-        except TimeoutError as e:
-            logger.error("Connection timeout to %s: %s", self.url, e)
-            raise TimeoutError(f"Connection to {self.url} timed out") from e
-        except Exception as e:
-            logger.error("Failed to connect to %s: %s", self.url, e)
-            raise ConnectionError(f"Failed to connect to {self.url}: {e}") from e
+                self._client = client.Client(
+                    self.url,
+                    self.traversal_source,
+                    **connect_kwargs,
+                )
+
+                duration = time.time() - start_time
+                span.set_attribute("db.connection_duration_ms", duration * 1000)
+                span.set_status(Status(StatusCode.OK))
+
+                logger.info("Successfully connected to JanusGraph at %s", self.url)
+
+            except TimeoutError as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Connection timeout to %s: %s", self.url, e)
+                raise TimeoutError(f"Connection to {self.url} timed out") from e
+            except Exception as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Failed to connect to %s: %s", self.url, e)
+                raise ConnectionError(f"Failed to connect to {self.url}: {e}") from e
 
     def execute(self, query: str, bindings: Optional[dict[str, Any]] = None) -> list[Any]:
         """
@@ -224,29 +246,49 @@ class JanusGraphClient:
                 "Client not connected. Call connect() first or use context manager."
             )
 
-        try:
-            # Log query (first 100 chars only for security)
-            logger.debug("Executing query: %s", query[:100])
+        with _tracer.start_as_current_span("janusgraph.execute") as span:
+            span.set_attribute("db.system", "janusgraph")
+            span.set_attribute("db.operation", "query")
+            span.set_attribute("db.statement", query[:100])  # Truncate for security
 
-            # Log bindings count but not values (may contain sensitive data)
-            if bindings:
-                logger.debug("Query has %d parameter bindings", len(bindings))
-                result = self._client.submit(query, bindings).all().result()
-            else:
-                result = self._client.submit(query).all().result()
+            try:
+                # Log query (first 100 chars only for security)
+                logger.debug("Executing query: %s", query[:100])
 
-            logger.debug("Query returned %d results", len(result))
-            return result
+                start_time = time.time()
 
-        except GremlinServerError as e:
-            logger.error("Query execution failed: %s", e)
-            raise QueryError(f"Gremlin query error: {e}", query=query) from e
-        except TimeoutError as e:
-            logger.error("Query timeout: %s", e)
-            raise TimeoutError(f"Query execution timed out: {e}") from e
-        except Exception as e:
-            logger.error("Unexpected error executing query: %s", e)
-            raise QueryError(f"Query execution failed: {e}", query=query) from e
+                # Log bindings count but not values (may contain sensitive data)
+                if bindings:
+                    span.set_attribute("db.bindings_count", len(bindings))
+                    logger.debug("Query has %d parameter bindings", len(bindings))
+                    result = self._client.submit(query, bindings).all().result()
+                else:
+                    result = self._client.submit(query).all().result()
+
+                duration = time.time() - start_time
+
+                span.set_attribute("db.duration_ms", duration * 1000)
+                span.set_attribute("db.result_count", len(result))
+                span.set_status(Status(StatusCode.OK))
+
+                logger.debug("Query returned %d results in %.3fs", len(result), duration)
+                return result
+
+            except GremlinServerError as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Query execution failed: %s", e)
+                raise QueryError(f"Gremlin query error: {e}", query=query) from e
+            except TimeoutError as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Query timeout: %s", e)
+                raise TimeoutError(f"Query execution timed out: {e}") from e
+            except Exception as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Unexpected error executing query: %s", e)
+                raise QueryError(f"Query execution failed: {e}", query=query) from e
 
     def is_connected(self) -> bool:
         """Check if client is currently connected."""
@@ -258,15 +300,22 @@ class JanusGraphClient:
             logger.debug("Client already closed or never connected")
             return
 
-        try:
-            logger.info("Closing connection to %s", self.url)
-            self._client.close()
-            self._client = None
-            logger.info("Successfully closed connection to %s", self.url)
-        except Exception as e:
-            logger.error("Error closing connection: %s", e)
-            self._client = None
-            raise
+        with _tracer.start_as_current_span("janusgraph.close") as span:
+            span.set_attribute("db.system", "janusgraph")
+            span.set_attribute("db.url", self.url)
+
+            try:
+                logger.info("Closing connection to %s", self.url)
+                self._client.close()
+                self._client = None
+                span.set_status(Status(StatusCode.OK))
+                logger.info("Successfully closed connection to %s", self.url)
+            except Exception as e:
+                span.record_exception(e)
+                span.set_status(Status(StatusCode.ERROR, str(e)))
+                logger.error("Error closing connection: %s", e)
+                self._client = None
+                raise
 
     def __enter__(self) -> "JanusGraphClient":
         """Context manager entry: establish connection."""

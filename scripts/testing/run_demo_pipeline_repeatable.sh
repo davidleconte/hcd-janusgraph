@@ -85,6 +85,8 @@ DEMO_SEED="${DEMO_SEED:-42}"
 NOTEBOOK_TIMEOUT="${DEMO_NOTEBOOK_TOTAL_TIMEOUT:-420}"
 NOTEBOOK_CELL_TIMEOUT="${DEMO_NOTEBOOK_CELL_TIMEOUT:-180}"
 MAX_HEALTH_WAIT_SEC="${MAX_HEALTH_WAIT_SEC:-300}"
+RESET_TIMEOUT_SEC="${DEMO_RESET_TIMEOUT_SEC:-300}"
+RESET_HEARTBEAT_SEC="${DEMO_RESET_HEARTBEAT_SEC:-30}"
 REPORT_DIR="${PROJECT_ROOT}/exports/${RUN_ID}"
 DEMO_DETERMINISTIC_MODE="${DEMO_DETERMINISTIC_MODE:-1}"
 DEMO_RESET_STATE="${DEMO_RESET_STATE:-1}"
@@ -266,10 +268,42 @@ sanitize_malloc_logging
 cd "$PROJECT_ROOT"
 
 if [[ "$DEMO_DETERMINISTIC_MODE" == "1" && "$DEMO_RESET_STATE" == "1" && "$SKIP_DEPLOY" == "false" ]]; then
-    run_cmd "Deterministic State Reset" \
-        "cd config/compose && podman-compose -p ${PROJECT_NAME} -f docker-compose.full.yml down -v" \
-        "${REPORT_DIR}/state_reset.log" \
-        bash -lc "cd config/compose && podman-compose -p ${PROJECT_NAME} -f docker-compose.full.yml down -v || true"
+    echo "[STEP] Deterministic State Reset"
+    echo "       cd config/compose && podman-compose -p ${PROJECT_NAME} -f docker-compose.full.yml down -v"
+    echo "       log: ${REPORT_DIR}/state_reset.log"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "DRY-RUN: cd config/compose && podman-compose -p ${PROJECT_NAME} -f docker-compose.full.yml down -v"
+    else
+        bash -lc "cd config/compose && podman-compose -p ${PROJECT_NAME} -f docker-compose.full.yml down -v || true" >"${REPORT_DIR}/state_reset.log" 2>&1 &
+        reset_pid=$!
+        reset_elapsed=0
+        reset_timed_out=0
+
+        while kill -0 "${reset_pid}" 2>/dev/null; do
+            if (( reset_elapsed >= RESET_TIMEOUT_SEC )); then
+                echo "G3_RESET" > "${FAILED_GATE_FILE}"
+                echo "❌ Deterministic State Reset timed out after ${RESET_TIMEOUT_SEC}s"
+                echo "   Killing reset process pid=${reset_pid}"
+                kill "${reset_pid}" 2>/dev/null || true
+                sleep 2
+                kill -9 "${reset_pid}" 2>/dev/null || true
+                echo "--- Last 80 lines: ${REPORT_DIR}/state_reset.log ---"
+                tail -n 80 "${REPORT_DIR}/state_reset.log" || true
+                exit 1
+            fi
+
+            if (( reset_elapsed > 0 )) && (( reset_elapsed % RESET_HEARTBEAT_SEC == 0 )); then
+                echo "   reset still running... elapsed=${reset_elapsed}s"
+            fi
+
+            sleep 1
+            ((reset_elapsed += 1))
+        done
+
+        wait "${reset_pid}" || true
+        echo "✅ Deterministic State Reset complete"
+    fi
 fi
 
 if [[ "$SKIP_PREFLIGHT" == "false" ]]; then
@@ -287,9 +321,9 @@ fi
 
 if [[ "$SKIP_DEPLOY" == "false" ]]; then
     run_cmd "Deploy Full Stack" \
-        "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh" \
+        "cd config/compose && RUN_NOTEBOOK_PREREQ_BOOTSTRAP=0 bash ../../scripts/deployment/deploy_full_stack.sh" \
         "${REPORT_DIR}/deploy.log" \
-        bash -c "cd config/compose && bash ../../scripts/deployment/deploy_full_stack.sh"
+        bash -c "cd config/compose && RUN_NOTEBOOK_PREREQ_BOOTSTRAP=0 bash ../../scripts/deployment/deploy_full_stack.sh"
 else
     echo "⏭️  Skipping full stack deployment"
 fi

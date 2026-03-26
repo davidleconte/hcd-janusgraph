@@ -176,20 +176,81 @@ run_seed_step() {
 
   echo "${data_output}"
 
+  local loader_timeout_sec="${DEMO_SEED_LOADER_TIMEOUT_SEC:-900}"
+  local loader_heartbeat_sec="${DEMO_SEED_LOADER_HEARTBEAT_SEC:-60}"
+  local loader_pid
+  local loader_elapsed
+  local loader_timed_out
+  local loader_rc
+
   # Load comprehensive banking data into JanusGraph (using jupyter container which has Python)
-  echo "[INFO] Loading comprehensive banking data into JanusGraph"
-  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 bash -c "cd /workspace && conda run -n janusgraph-analysis python scripts/init/load_comprehensive_banking_data.py" 2>&1)"; then
-    echo "${data_output}"
-    echo "[WARN] Banking data load had issues, continuing..."
+  echo "[INFO] Loading comprehensive banking data into JanusGraph (timeout=${loader_timeout_sec}s)"
+  set +e
+  podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 \
+    bash -c "cd /workspace && conda run -n janusgraph-analysis python scripts/init/load_comprehensive_banking_data.py" &
+  loader_pid=$!
+  loader_elapsed=0
+  loader_timed_out=0
+  while kill -0 "${loader_pid}" 2>/dev/null; do
+    if (( loader_elapsed >= loader_timeout_sec )); then
+      echo "[WARN] Banking data load timed out after ${loader_timeout_sec}s; terminating loader process."
+      kill "${loader_pid}" 2>/dev/null || true
+      sleep 2
+      kill -9 "${loader_pid}" 2>/dev/null || true
+      loader_timed_out=1
+      break
+    fi
+    if (( loader_elapsed > 0 )) && (( loader_elapsed % loader_heartbeat_sec == 0 )); then
+      echo "[INFO] Banking data load still running... elapsed=${loader_elapsed}s"
+    fi
+    sleep 1
+    ((loader_elapsed += 1))
+  done
+  if [[ "${loader_timed_out}" -eq 0 ]]; then
+    wait "${loader_pid}"
+    loader_rc=$?
+  else
+    loader_rc=124
+  fi
+  set -e
+  if [[ "${loader_rc}" -ne 0 ]]; then
+    echo "[WARN] Banking data load had issues (rc=${loader_rc}), continuing..."
   else
     echo "[INFO] Banking data loaded successfully"
   fi
 
   # Load sanctions data into OpenSearch (using jupyter container)
-  echo "[INFO] Loading sanctions data into OpenSearch"
-  if ! data_output="$(podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 bash -c "cd /workspace && conda run -n janusgraph-analysis python scripts/init/load_sanctions_data.py" 2>&1)"; then
-    echo "${data_output}"
-    echo "[WARN] Sanctions data load had issues, continuing..."
+  echo "[INFO] Loading sanctions data into OpenSearch (timeout=${loader_timeout_sec}s)"
+  set +e
+  podman --remote --connection "${PODMAN_CONNECTION}" exec janusgraph-demo_jupyter_1 \
+    bash -c "cd /workspace && conda run -n janusgraph-analysis python scripts/init/load_sanctions_data.py" &
+  loader_pid=$!
+  loader_elapsed=0
+  loader_timed_out=0
+  while kill -0 "${loader_pid}" 2>/dev/null; do
+    if (( loader_elapsed >= loader_timeout_sec )); then
+      echo "[WARN] Sanctions data load timed out after ${loader_timeout_sec}s; terminating loader process."
+      kill "${loader_pid}" 2>/dev/null || true
+      sleep 2
+      kill -9 "${loader_pid}" 2>/dev/null || true
+      loader_timed_out=1
+      break
+    fi
+    if (( loader_elapsed > 0 )) && (( loader_elapsed % loader_heartbeat_sec == 0 )); then
+      echo "[INFO] Sanctions data load still running... elapsed=${loader_elapsed}s"
+    fi
+    sleep 1
+    ((loader_elapsed += 1))
+  done
+  if [[ "${loader_timed_out}" -eq 0 ]]; then
+    wait "${loader_pid}"
+    loader_rc=$?
+  else
+    loader_rc=124
+  fi
+  set -e
+  if [[ "${loader_rc}" -ne 0 ]]; then
+    echo "[WARN] Sanctions data load had issues (rc=${loader_rc}), continuing..."
   else
     echo "[INFO] Sanctions data loaded successfully"
   fi

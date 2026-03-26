@@ -540,6 +540,87 @@ check_ports() {
 }
 
 # =============================================================================
+# Section 8: Notebook Validation (Deterministic Execution)
+# =============================================================================
+
+check_notebooks() {
+    log_section "8. Notebook Validation (Deterministic)"
+
+    # Only run if Python is available
+    if ! command -v python &>/dev/null; then
+        log_warning "Python not available, skipping notebook validation"
+        return
+    fi
+
+    local notebooks_dir="$PROJECT_ROOT/banking/notebooks"
+    if [[ ! -d "$notebooks_dir" ]]; then
+        log_warning "Notebooks directory not found: $notebooks_dir"
+        return
+    fi
+
+    log_subsection "Checking notebook JSON validity"
+    local notebook_count=0
+    local invalid_count=0
+
+    # Use Python to iterate safely (avoids shell interpolation issues with filenames)
+    while IFS= read -r nb; do
+        [[ -z "$nb" ]] && continue
+        ((notebook_count += 1))
+        if ! python -c "import json, sys; json.load(open(sys.argv[1]))" "$nb" 2>/dev/null; then
+            log_error "Invalid JSON: $(basename "$nb")"
+            ((invalid_count += 1))
+            ((ERRORS += 1))
+        fi
+    done < <(find "$notebooks_dir" -name "*.ipynb" -type f ! -path "*/.ipynb_checkpoints/*" ! -name "*-checkpoint.ipynb" 2>/dev/null)
+
+    if [[ $invalid_count -eq 0 ]] && [[ $notebook_count -gt 0 ]]; then
+        log_success "All $notebook_count notebooks have valid JSON"
+    elif [[ $notebook_count -eq 0 ]]; then
+        log_warning "No notebooks found in $notebooks_dir"
+    fi
+
+    log_subsection "Checking for nest_asyncio (required for async in Jupyter)"
+    local missing_asyncio=0
+    while IFS= read -r nb; do
+        [[ -z "$nb" ]] && continue
+        nb_name=$(basename "$nb")
+        if ! grep -q "nest_asyncio" "$nb" 2>/dev/null; then
+            # Check if notebook has code cells using safe argument passing
+            if python -c "import json, sys; cells=json.load(open(sys.argv[1]))['cells']; sys.exit(0 if any(c.get('cell_type')=='code' for c in cells) else 1)" "$nb" 2>/dev/null; then
+                log_warning "Missing nest_asyncio: $nb_name"
+                ((missing_asyncio += 1))
+                ((WARNINGS += 1))
+            fi
+        fi
+    done < <(find "$notebooks_dir" -name "*.ipynb" -type f ! -path "*/.ipynb_checkpoints/*" ! -name "*-checkpoint.ipynb" 2>/dev/null)
+
+    if [[ $missing_asyncio -eq 0 ]] && [[ $notebook_count -gt 0 ]]; then
+        log_success "All notebooks have nest_asyncio"
+    fi
+
+    log_subsection "Checking for notebook_config import"
+    local missing_config=0
+    while IFS= read -r nb; do
+        [[ -z "$nb" ]] && continue
+        nb_name=$(basename "$nb")
+        if ! grep -q "notebook_config" "$nb" 2>/dev/null; then
+            # Check if notebook has code cells using safe argument passing
+            if python -c "import json, sys; cells=json.load(open(sys.argv[1]))['cells']; sys.exit(0 if any(c.get('cell_type')=='code' for c in cells) else 1)" "$nb" 2>/dev/null; then
+                log_warning "Missing notebook_config: $nb_name"
+                ((missing_config += 1))
+                ((WARNINGS += 1))
+            fi
+        fi
+    done < <(find "$notebooks_dir" -name "*.ipynb" -type f ! -path "*/.ipynb_checkpoints/*" ! -name "*-checkpoint.ipynb" 2>/dev/null)
+
+    if [[ $missing_config -eq 0 ]] && [[ $notebook_count -gt 0 ]]; then
+        log_success "All notebooks use notebook_config"
+    fi
+
+    log_info "Notebook validation complete: $notebook_count notebooks checked"
+}
+
+# =============================================================================
 # Summary
 # =============================================================================
 
@@ -611,6 +692,7 @@ main() {
     check_dependencies
     check_security
     check_ports
+    check_notebooks
 
     # Print summary and exit
     if print_summary; then

@@ -2,33 +2,123 @@
 File: tracing.py
 Created: 2026-01-28
 Purpose: Distributed tracing instrumentation for JanusGraph applications
+
+OpenTelemetry is OPTIONAL - graceful fallback when not installed.
 """
 
 import logging
 import os
 import time
+from contextlib import contextmanager
 from functools import wraps
 from typing import Any, Dict, Optional
 
-# OpenTelemetry imports
-from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.trace import Status, StatusCode
+logger = logging.getLogger(__name__)
+
+# OpenTelemetry is optional - graceful fallback when not installed
+OTEL_AVAILABLE = False
+trace = None
+StatusCode = None
+Status = None
+TracerProvider = None
+Resource = None
+SERVICE_NAME = None
+BatchSpanProcessor = None
+OTLPSpanExporter = None
+RequestsInstrumentor = None
+
+try:
+    from opentelemetry import trace as _trace
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter as _OTLPSpanExporter
+    from opentelemetry.sdk.resources import SERVICE_NAME as _SERVICE_NAME, Resource as _Resource
+    from opentelemetry.sdk.trace import TracerProvider as _TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor as _BatchSpanProcessor
+    from opentelemetry.trace import Status as _Status, StatusCode as _StatusCode
+
+    # Try to instrument requests (optional)
+    try:
+        from opentelemetry.instrumentation.requests import RequestsInstrumentor as _RequestsInstrumentor
+        RequestsInstrumentor = _RequestsInstrumentor
+    except ImportError:
+        pass
+
+    trace = _trace
+    StatusCode = _StatusCode
+    Status = _Status
+    TracerProvider = _TracerProvider
+    Resource = _Resource
+    SERVICE_NAME = _SERVICE_NAME
+    BatchSpanProcessor = _BatchSpanProcessor
+    OTLPSpanExporter = _OTLPSpanExporter
+    OTEL_AVAILABLE = True
+
+except ImportError:
+    logger.info("OpenTelemetry not installed - tracing disabled (install opentelemetry-api/opentelemetry-sdk to enable)")
+
+
+# No-op implementations when OpenTelemetry is not available
+class NoOpStatusCode:
+    """No-op StatusCode enum replacement."""
+    OK = "OK"
+    ERROR = "ERROR"
+    UNSET = "UNSET"
+
+
+class NoOpStatus:
+    """No-op Status class replacement."""
+    
+    def __init__(self, status_code: Any = None, description: str = ""):
+        self.status_code = status_code
+        self.description = description
+
+
+class NoOpSpan:
+    """No-op span that does nothing but supports context manager protocol."""
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        return False
+    
+    def set_attribute(self, key: str, value: Any) -> None:
+        pass
+    
+    def set_status(self, status: Any) -> None:
+        pass
+    
+    def record_exception(self, exc: Exception) -> None:
+        pass
+
+
+class NoOpTracer:
+    """No-op tracer that returns no-op spans."""
+    
+    @contextmanager
+    def start_as_current_span(self, name: str, **kwargs):
+        yield NoOpSpan()
+    
+    def start_span(self, name: str, **kwargs):
+        return NoOpSpan()
+
+
+# Set Status and StatusCode to no-op versions if OTEL not available
+if not OTEL_AVAILABLE:
+    Status = NoOpStatus
+    StatusCode = NoOpStatusCode
+
 
 # Jaeger exporter is deprecated in newer OTEL SDK versions - make import optional
-try:
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter as _JaegerExporter
-
-    JAEGER_AVAILABLE = True
-except ImportError:
-    _JaegerExporter = None  # type: ignore
+if OTEL_AVAILABLE:
+    try:
+        from opentelemetry.exporter.jaeger.thrift import JaegerExporter as _JaegerExporter
+        JAEGER_AVAILABLE = True
+    except ImportError:
+        _JaegerExporter = None  # type: ignore
+        JAEGER_AVAILABLE = False
+else:
+    _JaegerExporter = None
     JAEGER_AVAILABLE = False
-
-logger = logging.getLogger(__name__)
 
 
 class TracingConfig:
@@ -57,7 +147,7 @@ class TracingConfig:
         self.jaeger_host = jaeger_host
         self.jaeger_port = jaeger_port
         self.otlp_endpoint = otlp_endpoint
-        self.enabled = enabled
+        self.enabled = enabled and OTEL_AVAILABLE
         self.sample_rate = sample_rate
 
     @classmethod
@@ -83,11 +173,15 @@ class TracingManager:
             config: Tracing configuration. If None, loaded from environment.
         """
         self.config = config or TracingConfig.from_env()
-        self.tracer_provider: Optional[TracerProvider] = None
-        self.tracer: Optional[trace.Tracer] = None
+        self.tracer_provider: Optional[Any] = None
+        self.tracer: Optional[Any] = None
+        self._no_op_tracer = NoOpTracer()
 
-        if self.config.enabled:
+        if self.config.enabled and OTEL_AVAILABLE:
             self._initialize_tracing()
+        else:
+            logger.info("Tracing disabled (OTEL_AVAILABLE=%s, enabled=%s)", 
+                       OTEL_AVAILABLE, self.config.enabled)
 
     def _initialize_tracing(self):
         """Initialize OpenTelemetry tracing with Jaeger and OTLP exporters.
@@ -96,6 +190,9 @@ class TracingManager:
         Jaeger (deprecated) and OTLP exporters, and instruments HTTP requests.
         Falls back to disabled tracing if initialization fails.
         """
+        if not OTEL_AVAILABLE:
+            return
+
         try:
             # Create resource with service information
             resource = Resource(
@@ -133,8 +230,12 @@ class TracingManager:
             # Get tracer
             self.tracer = trace.get_tracer(__name__)
 
-            # Instrument HTTP requests
-            RequestsInstrumentor().instrument()
+            # Instrument HTTP requests (optional)
+            if RequestsInstrumentor is not None:
+                try:
+                    RequestsInstrumentor().instrument()
+                except Exception as e:
+                    logger.warning("Failed to instrument requests: %s", e)
 
             logger.info("Tracing initialized for service: %s", self.config.service_name)
 
@@ -142,17 +243,24 @@ class TracingManager:
             logger.error("Failed to initialize tracing: %s", e)
             self.config.enabled = False
 
-    def get_tracer(self) -> trace.Tracer:
-        """Get the tracer instance"""
-        if not self.config.enabled:
+    def get_tracer(self) -> Any:
+        """Get the tracer instance (real or no-op)"""
+        if not self.config.enabled or not OTEL_AVAILABLE:
+            return self._no_op_tracer
+        if self.tracer:
+            return self.tracer
+        if trace:
             return trace.get_tracer(__name__)
-        return self.tracer or trace.get_tracer(__name__)
+        return self._no_op_tracer
 
     def shutdown(self):
         """Shutdown tracing and flush spans"""
         if self.tracer_provider:
-            self.tracer_provider.shutdown()
-            logger.info("Tracing shutdown complete")
+            try:
+                self.tracer_provider.shutdown()
+                logger.info("Tracing shutdown complete")
+            except Exception as e:
+                logger.warning("Error during tracing shutdown: %s", e)
 
 
 # Global tracing manager instance
@@ -166,8 +274,8 @@ def initialize_tracing(config: Optional[TracingConfig] = None) -> TracingManager
     return _tracing_manager
 
 
-def get_tracer() -> trace.Tracer:
-    """Get the global tracer instance"""
+def get_tracer() -> Any:
+    """Get the global tracer instance (real or no-op)"""
     global _tracing_manager
     if _tracing_manager is None:
         _tracing_manager = TracingManager()
@@ -176,7 +284,7 @@ def get_tracer() -> trace.Tracer:
 
 def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None):
     """
-    Decorator to trace a function
+    Decorator to trace a function. Works with or without OpenTelemetry.
 
     Usage:
         @trace_function(name="my_function", attributes={"key": "value"})
@@ -208,14 +316,16 @@ def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, An
 
                     # Add performance metrics
                     span.set_attribute("function.duration_ms", duration * 1000)
-                    span.set_status(Status(StatusCode.OK))
+                    if StatusCode and Status:
+                        span.set_status(Status(StatusCode.OK))
 
                     return result
 
                 except Exception as e:
                     # Record exception
                     span.record_exception(e)
-                    span.set_status(Status(StatusCode.ERROR, str(e)))
+                    if StatusCode and Status:
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
                     raise
 
         return wrapper
@@ -225,7 +335,7 @@ def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, An
 
 def trace_gremlin_query(query: str, bindings: Optional[Dict] = None):
     """
-    Decorator to trace Gremlin queries
+    Decorator to trace Gremlin queries. Works with or without OpenTelemetry.
 
     Usage:
         @trace_gremlin_query("g.V().count()")
@@ -253,13 +363,15 @@ def trace_gremlin_query(query: str, bindings: Optional[Dict] = None):
                     duration = time.time() - start_time
 
                     span.set_attribute("db.duration_ms", duration * 1000)
-                    span.set_status(Status(StatusCode.OK))
+                    if StatusCode and Status:
+                        span.set_status(Status(StatusCode.OK))
 
                     return result
 
                 except Exception as e:
                     span.record_exception(e)
-                    span.set_status(Status(StatusCode.ERROR, str(e)))
+                    if StatusCode and Status:
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
                     raise
 
         return wrapper
@@ -268,7 +380,7 @@ def trace_gremlin_query(query: str, bindings: Optional[Dict] = None):
 
 
 class TracedGremlinClient:
-    """Wrapper for Gremlin client with tracing"""
+    """Wrapper for Gremlin client with tracing. Works with or without OpenTelemetry."""
 
     def __init__(self, client):
         """Wrap a Gremlin client with tracing instrumentation.
@@ -295,20 +407,31 @@ class TracedGremlinClient:
                 duration = time.time() - start_time
 
                 span.set_attribute("db.duration_ms", duration * 1000)
-                span.set_status(Status(StatusCode.OK))
+                if StatusCode and Status:
+                    span.set_status(Status(StatusCode.OK))
 
                 return result
 
             except Exception as e:
                 span.record_exception(e)
                 span.set_attribute("db.error", str(e))
-                span.set_status(Status(StatusCode.ERROR, str(e)))
+                if StatusCode and Status:
+                    span.set_status(Status(StatusCode.ERROR, str(e)))
                 raise
 
     def close(self):
         """Close the client"""
         with self.tracer.start_as_current_span("gremlin.close"):
             self.client.close()
+
+
+# Convenience function to check if tracing is available
+def is_tracing_available() -> bool:
+    """Check if OpenTelemetry tracing is available and enabled."""
+    global _tracing_manager
+    if _tracing_manager is None:
+        return False
+    return _tracing_manager.config.enabled and OTEL_AVAILABLE
 
 
 # Example usage
