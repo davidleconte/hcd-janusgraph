@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added integration utility helpers and coverage-focused unit tests (`tests/integration/_integration_test_utils.py`, `tests/unit/test_streaming_coverage.py`,
     `tests/unit/test_aml_enhanced.py`, `tests/unit/test_dlq_handler.py`, `tests/unit/test_notebook_compat.py`, etc.)
 - **Notebook and Streaming Pipeline Assets** — updated execution-focused notebooks (`07_Insider_Trading_Detection_Demo`, `08_UBO_Discovery_Demo`, `11_Streaming_Pipeline_Demo`) and exploratory materials with current routing/compatibility fixes
+- **Determinism Governance & Release Documentation Pack** — added release-gate and scenario documentation for deterministic operations and stakeholder handoff:
+  - `docs/operations/determinism-acceptance-criteria-checklist.md`
+  - `docs/operations/deterministic-behavior-expected-outputs.md`
+  - `docs/banking/guides/notebook-scenarios-business-technical-summary.md`
+  - `RELEASE_NOTE_20260326.md`
+  - `GRAPH_DENSITY_SUMMARY_20260326.md`
+  - `SUMMARY_20260326.md`
+  - `CHECKPOINT_20260326.md` (updated with timestamped checkpoint entries)
 
 ### Fixed
 
