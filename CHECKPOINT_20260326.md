@@ -101,3 +101,13 @@ Determinism documentation and release-gate checklist artifacts were added and ch
 - PR template updated with determinism release-gate checklist section:  
   `.github/pull-request-template.md`
 
+---
+
+## 🧾 Checkpoint Update (Graph Density Snapshot Saved)
+
+A live graph density/storage-profile snapshot has been saved and checkpointed.
+
+- Snapshot file: `GRAPH_DENSITY_SUMMARY_20260326.md`
+- Snapshot creation timestamp: `2026-03-26 20:14:59 CET`
+- Includes live counts for JanusGraph vertices/edges/properties, HCD tables/core row counts, and derived density metrics.
+
