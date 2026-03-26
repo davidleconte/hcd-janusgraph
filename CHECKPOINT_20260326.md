@@ -76,3 +76,13 @@ Because this change updates a determinism-sensitive baseline pointer, commit mes
 - `[determinism-override]`
 - `Co-Authored-By: AdaL <adal@sylph.ai>`
 
+---
+
+## 🧾 Checkpoint Update (Summary Saved)
+
+A standalone summary of the stabilization and validation work has been saved.
+
+- Summary file: `SUMMARY_20260326.md`
+- Summary creation timestamp: `2026-03-26 20:00:49 CET`
+- Checkpoint updated to reference this summary artifact.
+
