@@ -1,458 +1,153 @@
 # Documentation Index
 
-**Last Updated:** 2026-02-20
-**Project:** HCD + JanusGraph Banking Compliance Platform
-
-Welcome to the comprehensive documentation index for the HCD + JanusGraph project. This index provides quick navigation to all project documentation organized by role and topic.
-
----
-
-## 🚀 Quick Start
-
-**New to the project?** Start here:
-
-1. **README** (see repo root) - Project overview and introduction
-2. **[Quick Start](../QUICKSTART.md)** - Canonical deterministic quick start
-3. **[Setup Guide](guides/setup-guide.md)** - Detailed installation and configuration guide
-4. **AGENTS.md** (see repo root) - AI assistant guidance and project patterns
-5. **[FAQ](FAQ.md)** - Frequently Asked Questions
+**Date:** 2026-03-26  
+**Status:** Active  
+**Project:** HCD + JanusGraph Banking Compliance Platform  
+**TL;DR:** This is the canonical documentation entry point. Use this page to navigate by role, topic, and operational objective.
 
 ---
 
-## 📚 Documentation by Role
+## 1) Start Here (Authoritative Entry Points)
 
-### 👨‍💻 For Developers
-
-#### Getting Started
-
-- **[Setup Guide](guides/setup-guide.md)** - Complete development environment setup
-- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
-- **Code of Conduct** (see repo root) - Community guidelines
-
-#### API & Integration
-
-- **[API Reference](banking/guides/api-reference.md)** - Complete API documentation
-- **[Gremlin API](api/gremlin-api.md)** - Graph traversal API reference
-- **[Integration Guide](api/integration-guide.md)** - Third-party integration patterns
-
-#### Development Guides
-
-- **[Testing Guide](guides/testing-guide.md)** - Testing strategies and execution
-- **[Code Refactoring](development/code-refactoring-guide.md)** - Refactoring best practices
-- **[Authentication Guide](security/authentication-guide.md)** - Security authentication patterns
-- **[Visualization Tools](guides/visualization-tools.md)** - Graph visualization tools (G.V() recommended for macOS Silicon)
-
-#### Banking Module
-
-- **[User Guide](banking/guides/user-guide.md)** - Banking module usage
-- **[Streaming Architecture](architecture/streaming-architecture.md)** - Event streaming with Pulsar (Producer, Consumer, DLQ, Metrics)
-- **[Advanced Analytics](banking/guides/advanced-analytics-olap-guide.md)** - OLAP and analytics
-- **[Gremlin OLAP](banking/guides/gremlin-olap-advanced-scenarios.md)** - Advanced graph queries
-
-### 🔧 For Operators
-
-#### Deployment
-
-- **[Deployment Guide](guides/deployment-guide.md)** - Production deployment procedures
-- **[Production Deployment](banking/implementation/deployment/production-deployment-guide.md)** - Banking module deployment
-- **[Production Verification](banking/implementation/deployment/production-system-verification.md)** - System verification
-
-#### Operations
-
-- **[Operations Runbook](operations/operations-runbook.md)** - Day-to-day operations
-- **[Monitoring Guide](operations/monitoring-guide.md)** - System monitoring and alerting
-- **[Backup Procedures](operations/backup-procedures.md)** - Backup and restore procedures
-- **[Disaster Recovery](operations/disaster-recovery.md)** - DR planning and execution
-- **[Dry-Run Validation Guide (2026-02-19)](operations/dry-run-validation-guide.md)** - Comprehensive validation for Terraform, Helm, Kubernetes, OpenShift (750 lines)
-- **[Horizontal Scaling Guide](operations/horizontal-scaling-guide.md)** - Scaling strategies for 100M+ vertices (1,050 lines)
-
-#### Security
-
-- **Security Policy** (see repo root) - Security guidelines and reporting
-- **[TLS Deployment](operations/tls-deployment-guide.md)** - TLS/SSL configuration
-- **[Incident Response](operations/incident-response-plan.md)** - Security incident procedures
-
-### 🏗️ For Architects
-
-#### Architecture
-
-- **[System Architecture](architecture/system-architecture.md)** - Logical component architecture and data flow
-- **[Deployment Architecture](architecture/deployment-architecture.md)** - Container orchestration, networking, and deployment topology
-- **[Podman Isolation Architecture](architecture/podman-isolation-architecture.md)** - Five-layer isolation model and project boundaries
-- **[Banking Architecture](banking/architecture/architecture.md)** - Banking module architecture
-- **[Enterprise Patterns](banking/architecture/enterprise-advanced-patterns-plan.md)** - Advanced design patterns
-
-#### Infrastructure Architecture (NEW)
-
-- **[Terraform Multi-Cloud Architecture](architecture/terraform-multi-cloud-architecture.md)** - Multi-cloud IaC with 15 modules across 5 platforms (AWS, Azure, GCP, vSphere, Bare Metal)
-- **[Kubernetes & Helm Architecture](architecture/kubernetes-helm-architecture.md)** - Helm charts, ArgoCD GitOps, multi-environment deployment strategy
-- **[OpenShift Deployment Manifests](architecture/openshift-deployment-manifests.md)** - OpenShift-specific deployment configurations
-- **[Horizontal Scaling Strategy](architecture/horizontal-scaling-strategy.md)** - Multi-cloud scaling procedures with HPA/VPA
-
-#### Data Flow & Pipeline
-
-- **[Unified Data Flow](architecture/data-flow-unified.md)** - Complete data flow with ASCII & Mermaid diagrams (ID consistency, topic structure, DLQ)
-- **[Streaming Architecture](architecture/streaming-architecture.md)** - Real-time streaming pipeline architecture with Pulsar
-- **[Event-Sourced Ingestion Architecture](architecture/event-sourced-ingestion-architecture.md)** - Pulsar-based dual ingestion for JanusGraph & OpenSearch
-
-#### Architecture Decision Records (ADRs)
-
-- **[ADR Index](architecture/README.md)** - All architecture decisions
-- **[Pulsar Implementation Plan](architecture/pulsar-implementation-plan.md)** - 6-week implementation plan with tasks, idempotency analysis, CDC requirements
-- **[ADR-005: JWT Authentication](architecture/adr-005-jwt-authentication.md)**
-- **[ADR-010: Distributed Tracing](architecture/adr-010-distributed-tracing.md)**
-- **[ADR-011: Query Caching](architecture/adr-011-query-caching-strategy.md)**
-- **[ADR Template](architecture/adr-template.md)** - Template for new ADRs
-
-#### Planning & Strategy
-
-- **[Synthetic Data Generator Plan](banking/planning/synthetic-data-generator-plan.md)** - Data generation strategy
-- **[Banking Implementation Phases](banking/implementation/phases/README.md)** - Active phase docs and archived phase iterations
-
-### 📊 For Project Managers
-
-#### Project Tracking
-
-- **Changelog** - Version history and changes (see root `CHANGELOG.md`)
-- **[Implementation Phases](implementation/phases/)** - Phase completion summaries
-- **[Remediation Baseline](implementation/remediation-plan-working-b-plus.md)** - Current prioritized backlog and delivery plan
-- **[Codex Program Tracker (2026-02-18)](codex-program-tracker.md)** - Master tracker for P0-P2 execution status and KPI progress
-
-#### Business Documentation
-
-- **[Business Documentation Index](business/README.md)** - Complete business documentation navigation
-- **[Executive Summary](business/executive-summary.md)** - 1-page investment overview (599% ROI, 1.2-month payback)
-- **[Comprehensive Business Case](business/comprehensive-business-case.md)** - Complete investment justification
-- **[TCO Analysis](business/tco-analysis.md)** - 3-year cost breakdown ($1.38M)
-- **[ROI Calculator](business/roi-calculator.md)** - Financial returns analysis ($8.3M NPV, 985% IRR)
-- **[Workshop Readiness Assessment (2026-02-19)](business/workshop-readiness-assessment.md)** - Bank workshop suitability analysis (95/100, highly suitable for POC acceleration)
-
-#### Audits & Reports
-
-- **[Audit Reports](implementation/audits/)** - Security and code audits
-- **[Banking Domain Audit (2026-02-20)](implementation/audits/banking-domain-audit-2026-02-20.md)** - Comprehensive audit of banking modules, notebooks, and use cases (A-, 88/100) with retail/corporate coverage analysis
-- **[Skills Audit (2026-02-20)](implementation/audits/skills-audit-2026-02-20.md)** - Comprehensive audit of 9 repository-local skills (A, 92/100) with verification and recommendations
-- **[Comprehensive Ph.D.-Level Codebase Audit (2026-02-20)](implementation/audits/comprehensive-phd-level-codebase-audit-2026-02-20.md)** - Rigorous multi-dimensional analysis (A-, 90/100) with quantitative metrics and remediation plan
-- **[Codex Comprehensive Audit Report (2026-02-18)](codex-audit-report-2026-02-18.md)** - Full repository-wide technical and operational audit
-- **[Codex Implementation Plan P0-P2 (2026-02-18)](codex-implementation-plan-p0-p2.md)** - Prioritized delivery roadmap with timelines and ownership model
-- **[Codex Execution Task Board (2026-02-18)](codex-execution-task-board.md)** - Ticketized workplan with acceptance criteria
-- **[Codex GitHub Issue Drafts (2026-02-18)](codex-github-issues-drafts-2026-02-18.md)** - Ready-to-submit issue bodies matching CODEX-P0..P2 tickets
-- **[Codex Documentation Obsolescence Audit (2026-02-17)](implementation/audits/codex-documentation-obsolescence-audit-2026-02-17.md)** - Full docs audit and archival ledger
-- **[Codex Executive Summary (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-executive-summary-2026-02-17.md)** - Deployment recovery and notebook proof closure
-- **[Codex Remediation Log (2026-02-17)](implementation/audits/codex-podman-wxd-deployment-live-notebook-proof-remediation-log-2026-02-17.md)** - Issue-by-issue solutions and evidence
-- **[Comprehensive Project Audit (2026-02-16)](implementation/audits/comprehensive-project-audit-2026-02-16.md)** - Current consolidated technical baseline
-- **[Remediation Plans](implementation/remediation/)** - Issue remediation tracking
-- **[Codex Full Deterministic Setup and Run Motion Plan (2026-02-17)](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)** - Detailed implementation plan for end-to-end deterministic runs
-
-### Codex Program Artifacts (2026-02-18)
-
-- [codex-audit-report-2026-02-18.md](codex-audit-report-2026-02-18.md)
-- [codex-implementation-plan-p0-p2.md](codex-implementation-plan-p0-p2.md)
-- [codex-execution-task-board.md](codex-execution-task-board.md)
-- [codex-program-tracker.md](codex-program-tracker.md)
-- [codex-github-issues-drafts-2026-02-18.md](codex-github-issues-drafts-2026-02-18.md)
-- [codes_mcp_fraud_pilot_plan_1771491238767.md](codes_mcp_fraud_pilot_plan_1771491238767.md)
-
-#### Implementation Summaries
-
-- **[Dry-Run Validation Complete (2026-02-19)](implementation/dry-run-validation-complete-2026-02-19.md)** - Comprehensive validation implementation (308-line script, 750-line guide)
-- **[Codebase Review & Infrastructure Complete (2026-02-19)](implementation/codebase-review-and-infrastructure-complete-2026-02-19.md)** - Multi-cloud infrastructure completion summary
-- **[Terraform Bare Metal Fixes Complete (2026-02-19)](implementation/audits/terraform-baremetal-fixes-complete-2026-02-19.md)** - All 7 critical issues resolved
-
-#### Gap Analysis
-
-- **[Banking Gap Analysis](banking/planning/gap-analysis.md)** - Requirements analysis
-- **[Technical Specifications](technical-specifications.md)** - Detailed specifications
-
-### 🔒 For Compliance Teams
-
-#### Compliance Documentation
-
-- **[GDPR Compliance](compliance/gdpr-compliance.md)** - GDPR requirements
-- **[SOC2 Controls](compliance/soc2-controls.md)** - SOC2 compliance
-- **[Data Retention Policy](compliance/data-retention-policy.md)** - Data retention rules
-
-#### Banking Compliance
-
-- **[AML Setup](banking/setup/01-aml-phase1-setup.md)** - Anti-Money Laundering setup
-- **[Banking Overview](banking/setup/00-overview.md)** - Banking module overview
-
-#### Business Compliance Documentation
-
-- **[Compliance Certifications Portfolio](business/compliance-certifications-portfolio.md)** - GDPR, SOC 2, BSA/AML, PCI DSS (98/100 score)
-- **[Risk Management Framework](business/risk-management-framework.md)** - 77 risks identified, 100% mitigation
-- **[Data Governance Framework](business/data-governance-framework.md)** - Data quality, security, privacy (96.5/100 score)
+1. **[README](../README.md)** - Project overview and quick orientation  
+2. **[QUICKSTART](../QUICKSTART.md)** - Deterministic setup and first successful run  
+3. **[Project Status](project-status.md)** - Current verified readiness and baseline  
+4. **[AGENTS](../AGENTS.md)** - Operational rules, canonical commands, and runtime policy  
+5. **[CHANGELOG](../CHANGELOG.md)** - Release and change history  
 
 ---
 
-## 📖 Documentation by Topic
+## 2) Role-Based Navigation
 
-### Infrastructure & Deployment
-
+## Developers
 - [Setup Guide](guides/setup-guide.md)
-- [Deployment Guide](guides/deployment-guide.md)
-- [TLS Deployment](operations/tls-deployment-guide.md)
+- [Testing Guide](guides/testing-guide.md)
+- [API Integration Guide](api/integration-guide.md)
+- [Gremlin API](api/gremlin-api.md)
+- [Code Refactoring Guide](development/code-refactoring-guide.md)
+- [Visualization Tools](guides/visualization-tools.md)
+
+## Operators / SRE / Platform
+- [Operations Runbook](operations/operations-runbook.md)
+- [Monitoring Guide](operations/monitoring-guide.md)
+- [Incident Response Plan](operations/incident-response-plan.md)
 - [Backup Procedures](operations/backup-procedures.md)
 - [Disaster Recovery](operations/disaster-recovery.md)
+- [TLS Deployment Guide](operations/tls-deployment-guide.md)
+- [Deterministic Gate Alert Mapping](operations/deterministic-gate-alert-runbook-mapping.md)
+- [Time-to-Notebook-Ready SLA](operations/time-to-notebook-ready-sla.md)
+- [Runbook Improvement Plan (30-60-90)](operations/runbook-improvement-plan-30-60-90.md)
 
-### Monitoring & Operations
-
-- [Monitoring Guide](operations/monitoring-guide.md)
-- [Operations Runbook](operations/operations-runbook.md)
-- [Incident Response](operations/incident-response-plan.md)
-- [Infrastructure Optimization](performance/infrastructure-optimization.md)
-
-### Development & Testing
-
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Testing Guide](guides/testing-guide.md)
-- [Code Refactoring](development/code-refactoring-guide.md)
-- [Authentication Guide](security/authentication-guide.md)
-
-### Banking & Compliance
-
+## Banking Domain / Analysts
+- [Banking Docs Home](banking/README.md)
 - [Banking User Guide](banking/guides/user-guide.md)
-- [Banking API Reference](banking/guides/api-reference.md)
-- [AML Setup](banking/setup/01-aml-phase1-setup.md)
-- [Advanced Analytics](banking/guides/advanced-analytics-olap-guide.md)
+- [Notebook Scenarios Summary](banking/guides/notebook-scenarios-business-technical-summary.md)
+- [Advanced Analytics OLAP Guide](banking/guides/advanced-analytics-olap-guide.md)
+- [Gremlin OLAP Advanced Scenarios](banking/guides/gremlin-olap-advanced-scenarios.md)
+- [Notebook Business Audit Remediation Plan](operations/notebook-business-audit-remediation-plan.md)
 
-### Business Documentation
+## Security / Compliance
+- [GDPR Compliance](compliance/gdpr-compliance.md)
+- [SOC2 Controls](compliance/soc2-controls.md)
+- [Data Retention Policy](compliance/data-retention-policy.md)
+- [Authentication Guide](security/authentication-guide.md)
+- [Business Compliance Portfolio](business/compliance-certifications-portfolio.md)
+- [Risk Management Framework](business/risk-management-framework.md)
 
-- [Business Documentation Index](business/README.md)
-- [Executive Summary](business/executive-summary.md)
-- [Business User Guide](business/business-user-guide.md)
-- [Banking & Financial Services Guide](business/banking-financial-services-guide.md)
-- [SLA Documentation](business/sla-documentation.md)
-- [Capacity Planning Guide](business/capacity-planning-guide.md)
-- [Business Continuity & DR Plan](business/business-continuity-disaster-recovery-plan.md)
-
-### Architecture & Design
-
+## Architects / Technical Leadership
+- [Architecture Index](architecture/README.md)
 - [System Architecture](architecture/system-architecture.md)
-- [Banking Architecture](banking/architecture/architecture.md)
-- [ADR Index](architecture/README.md)
-- [Enterprise Patterns](banking/architecture/enterprise-advanced-patterns-plan.md)
+- [Deployment Architecture](architecture/deployment-architecture.md)
+- [Podman Isolation Architecture](architecture/podman-isolation-architecture.md)
+- [Streaming Architecture](architecture/streaming-architecture.md)
+- [Unified Data Flow](architecture/data-flow-unified.md)
+- [Horizontal Scaling Strategy](architecture/horizontal-scaling-strategy.md)
+
+## Product / PM / Business Stakeholders
+- [Business Docs Index](business/README.md)
+- [Executive Summary](business/executive-summary.md)
+- [Comprehensive Business Case](business/comprehensive-business-case.md)
+- [ROI Calculator](business/roi-calculator.md)
+- [TCO Analysis](business/tco-analysis.md)
+- [SLA Documentation](business/sla-documentation.md)
 
 ---
 
-## 🔍 Finding Documentation
+## 3) Topic-Based Navigation
 
-### By File Type
+## Determinism and Release Readiness
+- [Project Status](project-status.md)
+- [Determinism Acceptance Criteria Checklist](operations/determinism-acceptance-criteria-checklist.md)
+- [Deterministic Behavior: Expected Outputs](operations/deterministic-behavior-expected-outputs.md)
+- [Time-to-Notebook-Ready SLA](operations/time-to-notebook-ready-sla.md)
+- [Runbook Improvement Plan (30-60-90)](operations/runbook-improvement-plan-30-60-90.md)
 
-- **Guides:** Step-by-step instructions for specific tasks
-- **References:** Comprehensive API and configuration documentation
-- **ADRs:** Architecture decisions and rationale
-- **Runbooks:** Operational procedures and troubleshooting
-- **Plans:** Strategic planning and roadmaps
+## Banking Notebook Delivery and Business Outcomes
+- [Notebook Scenarios Summary](banking/guides/notebook-scenarios-business-technical-summary.md)
+- [Notebook Business Audit Remediation Plan](operations/notebook-business-audit-remediation-plan.md)
+- [Banking Gap Analysis](banking/planning/gap-analysis.md)
 
-### Search Tips
+## Implementation Evidence and Audits
+- [Implementation Index](implementation/README.md)
+- [Audit Reports](implementation/audits/)
+- [Phase Summaries](implementation/phases/)
+- [Remediation Plans](implementation/remediation/)
 
-1. **Use your IDE's search:** Most effective for finding specific terms
-2. **Check the relevant role section:** Documentation is organized by user role
-3. **Start with README files:** Each directory has a README with overview
-4. **Follow cross-references:** Documents link to related content
-
-### Common Searches
-
-- **"How do I deploy?"** → [Deployment Guide](guides/deployment-guide.md)
-- **"How do I test?"** → [Testing Guide](guides/testing-guide.md)
-- **"What's the architecture?"** → [System Architecture](architecture/system-architecture.md)
-- **"How do I use the banking module?"** → [Banking User Guide](banking/guides/user-guide.md)
-- **"How do I monitor?"** → [Monitoring Guide](operations/monitoring-guide.md)
-
----
-
-## 📁 Directory Structure
-
-```
-docs/
-├── index.md                    # This file - central navigation
-├── CHANGELOG.md                # Version history
-├── CONTRIBUTING.md             # Contribution guidelines
-├── documentation-standards.md  # Documentation standards
-├── technical-specifications.md # Technical specs
-│
-├── api/                        # API documentation
-│   ├── gremlin-api.md
-│   ├── integration-guide.md
-│   └── openapi.yaml
-│
-├── architecture/               # Architecture decisions
-│   ├── system-architecture.md
-│   ├── ADR-*.md
-│   └── README.md
-│
-├── banking/                    # Banking module docs
-│   ├── README.md
-│   ├── guides/                # User and developer guides
-│   ├── architecture/          # Banking architecture
-│   ├── implementation/        # Implementation docs
-│   ├── planning/              # Planning documents
-│   └── setup/                 # Setup guides
-│
-├── business/                   # Business documentation (NEW)
-│   ├── README.md              # Business docs navigation
-│   ├── business-documentation-master-plan.md
-│   ├── executive-summary.md
-│   ├── tco-analysis.md
-│   ├── roi-calculator.md
-│   ├── comprehensive-business-case.md
-│   ├── compliance-certifications-portfolio.md
-│   ├── business-user-guide.md
-│   ├── sla-documentation.md
-│   ├── risk-management-framework.md
-│   ├── data-governance-framework.md
-│   ├── capacity-planning-guide.md
-│   ├── business-continuity-disaster-recovery-plan.md
-│   ├── banking-financial-services-guide.md
-│   └── business-value-dashboard.md
-│
-├── compliance/                 # Compliance documentation
-│   ├── gdpr-compliance.md
-│   ├── soc2-controls.md
-│   └── data-retention-policy.md
-│
-├── development/                # Development guides
-│   └── code-refactoring-guide.md
-│
-├── guides/                     # General guides
-│   ├── setup-guide.md
-│   ├── deployment-guide.md
-│   ├── testing-guide.md
-│   └── visualization-tools.md
-│
-├── implementation/             # Implementation tracking
-│   ├── audits/                # Audit reports
-│   ├── phases/                # Phase summaries
-│   └── remediation/           # Remediation plans
-│
-├── archive/                    # Historical documentation
-│   └── 2026-02/               # February 2026 archive
-│       ├── weekly-summaries/  # Historical progress reports
-│       ├── phase-iterations/  # Superseded phase docs
-│       ├── duplicates/        # Duplicate content
-│       ├── audits/            # Obsolete audits
-│       ├── remediation/       # Completed remediation
-│       ├── misc/              # Miscellaneous obsolete files
-│       └── README.md          # Archive index
-│
-├── operations/                 # Operations documentation
-│   ├── operations-runbook.md
-│   ├── monitoring-guide.md
-│   ├── backup-procedures.md
-│   ├── tls-deployment-guide.md
-│   ├── incident-response-plan.md
-│   └── disaster-recovery-plan.md
-│
-├── performance/                # Performance docs
-│   └── infrastructure-optimization.md
-│
-├── security/                   # Security documentation
-│   └── authentication-guide.md
-│
-├── strategic/                  # Strategic analysis
-│   └── REBUILD_VS_REMEDIATION_ANALYSIS_2026-01-30.md
-│
-└── archive/                    # Historical documents
-```
+## API and Integration
+- [API Directory](api/)
+- [Gremlin API](api/gremlin-api.md)
+- [Integration Guide](api/integration-guide.md)
 
 ---
 
-## 🆘 Getting Help
+## 4) Directory Map
 
-### Documentation Issues
+- [docs/api/](api/)
+- [docs/architecture/](architecture/)
+- [docs/banking/](banking/)
+- [docs/business/](business/)
+- [docs/compliance/](compliance/)
+- [docs/development/](development/)
+- [docs/guides/](guides/)
+- [docs/implementation/](implementation/)
+- [docs/operations/](operations/)
+- [docs/performance/](performance/)
+- [docs/security/](security/)
+- [docs/archive/](archive/)
 
-- **Missing documentation?** Check if it's in progress or [create an issue](https://github.com/your-org/your-repo/issues)
-- **Outdated content?** Submit a pull request with updates
-- **Unclear instructions?** Open an issue with specific questions
-
-### Support Channels
-
-1. **Documentation:** Start here - most questions are answered
-2. **Operations Runbook:** [operations-runbook.md](operations/operations-runbook.md)
-3. **GitHub Issues:** For bugs and feature requests
-4. **Team Chat:** For real-time assistance
-
----
-
-## 📝 Contributing to Documentation
-
-We welcome documentation improvements! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Documentation Standards
-
-- Use clear, concise language
-- Include code examples where appropriate
-- Add cross-references to related documents
-- Keep formatting consistent
-- Update this index when adding new documents
-
-### Quick Contribution Guide
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test all links and examples
-5. Submit a pull request
+> Note: `docs/archive/` contains historical and superseded artifacts and should not be treated as primary operational guidance unless explicitly referenced.
 
 ---
 
-## 🛠️ Documentation Tools
+## 5) Documentation Standards and Maintenance
 
-### Quality Assurance
+- [Documentation Standards](documentation-standards.md)
+- [Contributing](../CONTRIBUTING.md)
 
-- **Markdownlint**: Linting configuration in `.markdownlint.json`
-- **Link Checker**: Configuration in `.markdown-link-check.json`
-- **CI Workflow**: Automated checks in `.github/workflows/docs-lint.yml`
+### Maintenance Rules
+1. Add new docs in the correct domain directory.
+2. Use kebab-case filenames (except standard root exceptions like README.md).
+3. Use relative links only.
+4. Update this index when adding new high-value or authoritative documents.
+5. Keep numeric/project-readiness claims centralized in `docs/project-status.md`.
 
-### Coverage & Search
+---
 
-- **Doc Coverage**: `python scripts/docs/doc_coverage.py --report`
-- **AI Search**: `python scripts/docs/setup_doc_search.py --index` (requires OpenSearch)
+## 6) Quick Search and Coverage
 
-### Building Documentation Site
+- Generate coverage report:  
+  `python scripts/docs/doc_coverage.py --report`
+- Build doc search index (if configured):  
+  `python scripts/docs/setup_doc_search.py --index`
+
+---
+
+## 7) Canonical Deterministic Command
 
 ```bash
-# Install MkDocs with Material theme
-pip install mkdocs-material pymdown-extensions mkdocs-mermaid2-plugin
-
-# Serve locally
-mkdocs serve
-
-# Build static site
-mkdocs build
+bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json
 ```
 
----
-
-## 📅 Maintenance
-
-This index is maintained by the project team and updated with each major release.
-
-**Review Schedule:** Monthly
-**Last Review:** 2026-02-06
-**Next Review:** 2026-03-06
-
----
-
-**Questions?** Check [Operations Runbook](operations/operations-runbook.md) or open an issue.
-
-## Codex Fresh-Machine Enforcement Update (2026-02-17)
-
-New canonical deterministic deployment enforcement reference:
-
-- [Codex Podman-WXD Fresh Machine Enforcement Matrix (2026-02-17)](implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md)
-
-Use this matrix with these operational docs:
-
-- [Setup Guide](guides/setup-guide.md)
-- [Deployment Guide](guides/deployment-guide.md)
-- [Deployment Verification](development/deployment-verification.md)
+For operational interpretation of outcomes, use:
 - [Operations Runbook](operations/operations-runbook.md)
-
-## Deterministic Setup and Proof (Canonical)
-
-- Canonical command: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
-- Deterministic plan: [implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md](implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md)
-- Enforcement matrix: [implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md](implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md)
-- Deployment verification: [development/deployment-verification.md](development/deployment-verification.md)
+- [Deterministic Gate Alert Mapping](operations/deterministic-gate-alert-runbook-mapping.md)
