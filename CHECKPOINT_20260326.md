@@ -162,3 +162,13 @@ Repository documentation has been fully indexed and checkpointed with both navig
 - Catalog/checkpoint timestamp: `2026-03-26 21:17:25 CET`
 - Includes role/topic navigation plus full markdown inventory for coverage and auditability.
 
+---
+
+## 🧾 Checkpoint Update (Fraud Realism Audit Saved)
+
+A deep, adversarial fraud-domain realism audit has been saved and checkpointed.
+
+- Audit file: `docs/operations/fraud-realism-audit-2026-03-27.md`
+- Audit creation timestamp: `2026-03-27 14:09:42 CET`
+- Includes notebook-by-notebook realism scoring, coverage gap matrix, contradictions vs documentation claims, top missing scenarios, 30/60/90 remediation plan, and production risk register.
+
