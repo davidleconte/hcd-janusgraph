@@ -768,7 +768,7 @@ class GraphMLEngine:
                 "x": float(coords_2d[i, 0]),
                 "y": float(coords_2d[i, 1]),
                 "risk_score": node_emb.risk_score,
-                "risk_level": self._results.risk_predictions.get(node_id, RiskPrediction.LOW).value,
+                "risk_level": self._results.risk_predictions[node_id].value if node_id in self._results.risk_predictions else "unknown",
                 "cluster": node_emb.cluster_id,
                 "is_anomaly": node_emb.is_anomaly,
                 "degree": node_emb.degree

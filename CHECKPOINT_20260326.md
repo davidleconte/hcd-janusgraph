@@ -207,3 +207,15 @@ The deterministic-safe remediation strategy and sprint-ready execution board hav
 - Creation timestamp: `2026-03-27 14:24:29 CET`
 - Includes baseline factual scoring (`85/100`, grade `B+`), P0/P1/P2 tickets, owners, estimates, dependencies, exact gate checks per ticket, and sprint-by-sprint targets.
 
+---
+
+## 🧾 Checkpoint Update (FR-001 Mini-Fix: Graph ML Risk-Level Safety)
+
+A deterministic-safe mini-fix was applied to prevent silent risk under-classification in Graph ML visualization output.
+
+- File updated: `banking/analytics/graph_ml.py`
+- Change: `export_for_visualization` now outputs `"unknown"` when a node has no risk prediction instead of silently defaulting to `LOW`
+- Test added: `banking/analytics/tests/test_graph_ml.py`
+- Validation: `pytest banking/analytics/tests/test_graph_ml.py -v --no-cov` => **1 passed**
+- Change timestamp: `2026-03-27 19:16:22 CET`
+
