@@ -183,3 +183,14 @@ A pre-implementation safety baseline and strict go/no-go protection plan have be
 - Creation timestamp: `2026-03-27 14:17:53 CET`
 - Includes domain-by-domain pass/fail criteria, exact validation commands, and documented backup/restore + rollback options.
 
+---
+
+## 🧾 Checkpoint Update (Do-Not-Break Remediation Plan + Ticketized Execution Board Saved)
+
+The deterministic-safe remediation strategy and sprint-ready execution board have been saved and checkpointed.
+
+- Remediation plan: `docs/operations/do-not-break-remediation-improvement-plan-2026-03-27.md`
+- Ticketized execution board: `docs/operations/fraud-realism-ticketized-execution-board-2026-03-27.md`
+- Creation timestamp: `2026-03-27 14:24:29 CET`
+- Includes baseline factual scoring (`85/100`, grade `B+`), P0/P1/P2 tickets, owners, estimates, dependencies, exact gate checks per ticket, and sprint-by-sprint targets.
+

@@ -1,0 +1,140 @@
+# Fraud Realism Ticketized Execution Board (Sprint-by-Sprint)
+
+**Date:** 2026-03-27  
+**Created (UTC):** 2026-03-27T13:24:29Z  
+**Created (Local):** 2026-03-27 14:24:29 CET  
+**POC:** Platform Engineering + Fraud Domain Engineering + Compliance  
+**Status:** Active (Execution Board)  
+**TL;DR:** Ticketized P0/P1/P2 plan to improve fraud realism while preserving deterministic behavior and current working integrations.
+
+---
+
+## 1) Baseline Score & Grade (Starting Point)
+
+| Area | Baseline Score | Grade |
+|---|---:|---|
+| Deterministic Runtime & Gates | 96 | A |
+| Notebook Runtime Stability | 94 | A- |
+| Data Generation Reproducibility | 92 | A- |
+| Data Integration Contract Stability | 84 | B |
+| Streaming Ingestion Reliability | 86 | B+ |
+| OpenSearch Compatibility | 85 | B |
+| Fraud Realism / Decision Utility | 68 | C+ |
+| Compliance-Ready Evidence Utility | 74 | B- |
+
+**Overall Program Baseline:** **85/100 (B+)**
+
+---
+
+## 2) Gate Check Catalog (Reusable Per Ticket)
+
+Use these exact checks based on scope touched by a ticket.
+
+- **G-DET:** `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
+- **G-NBK:** `bash scripts/testing/run_demo_pipeline_repeatable.sh`
+- **G-GEN:** `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/data_generators/tests -v --no-cov`
+- **G-STR:** `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/streaming/tests -v --no-cov`
+- **G-API:** `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit -v --no-cov`
+- **G-OS:** `conda run -n janusgraph-analysis PYTHONPATH=. OPENSEARCH_USE_SSL=false python -m pytest tests/integration -k opensearch -v --no-cov --timeout=120`
+
+> Ticket completion requires all listed gate checks in the ticket row to pass.
+
+---
+
+## 3) Sprint Plan & Ticket Board
+
+## Sprint 0 (Stabilization Harness) — Week 0-1
+
+| Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
+|---|---|---|---|---|---|---|---|---|
+| FR-000 | P0 | Baseline evidence pack freeze | Platform | S | None | Archive baseline artifacts/config snapshots | G-DET, G-NBK | Baseline bundle archived and reproducible |
+| FR-001 | P0 | Activate strict go/no-go workflow | Platform + QA | S | FR-000 | Enforce stop-on-fail validation sequence | G-DET, G-NBK, G-GEN | Documented + rehearsed workflow adopted |
+| FR-002 | P0 | Contract freeze for IDs/events/index fields | Platform + Domain | M | FR-000 | Define immutable contract matrix | G-API, G-STR, G-OS | Contract matrix published and validated |
+
+## Sprint 1 (Non-invasive Decision Output Hardening) — Weeks 1-3
+
+| Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
+|---|---|---|---|---|---|---|---|---|
+| FR-010 | P0 | Standard notebook decision block template | Domain + Product | M | FR-001 | Decision + confidence + action block for P0/P1 notebooks | G-NBK | Template present and rendered in all target notebooks |
+| FR-011 | P0 | PII masking utility and adoption | Platform + Compliance | M | FR-002 | Default masking in notebook outputs | G-NBK, G-API | No raw sensitive identifiers in notebook outputs |
+| FR-012 | P0 | Reason-code explainability for sanctions/AML/fraud notebooks | Domain | M | FR-010 | Rationale fields and reason code sections | G-NBK | Outputs include reason codes and rationale text |
+
+## Sprint 2 (Controlled Logic Upgrades) — Weeks 3-7
+
+| Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
+|---|---|---|---|---|---|---|---|---|
+| FR-020 | P1 | Sanctions multi-factor weighted scoring | Domain + Compliance | L | FR-012 | Name+DOB+country+association weighted model | G-NBK, G-OS, G-DET | Weighted score + reason codes in notebook outputs |
+| FR-021 | P1 | UBO recursive effective ownership/control rights | Domain | L | FR-002 | Deterministic recursive effective-control logic | G-NBK, G-DET | Deterministic >25% control list generated |
+| FR-022 | P1 | TBML economic realism (price benchmark + route anomaly) | Domain | L | FR-002 | Add economic anomaly checks to TBML flow | G-NBK, G-DET | TBML outputs include explicit economic anomaly flags |
+
+## Sprint 3 (Missing Scenario Additions, Additive-First) — Weeks 7-12
+
+| Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
+|---|---|---|---|---|---|---|---|---|
+| FR-030 | P1 | APP mule-chain scenario notebook/module | Domain | L | FR-001 | Additive new scenario (no baseline mutation) | G-NBK, G-GEN, G-DET | Runnable scenario with case-evidence output block |
+| FR-031 | P1 | Account takeover (ATO) scenario | Domain + Platform | L | FR-030 | Device/session/beneficiary novelty risk pattern | G-NBK, G-STR, G-DET | ATO scenario runnable and deterministic-safe |
+| FR-032 | P1 | Corporate invoice/vendor fraud scenario | Domain | L | FR-030 | Collusion + duplicate invoice graph patterns | G-NBK, G-GEN, G-DET | Corporate fraud scenario added with reasoned outputs |
+
+## Sprint 4 (Governance, Evidence, Drift Controls) — Weeks 12+
+
+| Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
+|---|---|---|---|---|---|---|---|---|
+| FR-040 | P2 | Case evidence export standardization | Compliance + Platform | M | FR-020, FR-021, FR-022 | Regulator-ready findings schema and export block | G-NBK, G-API | Core AML/fraud notebooks produce standardized evidence output |
+| FR-041 | P2 | Alert quality KPI governance dashboard | Product + Domain | M | FR-040 | Precision proxy, conversion rate, false-positive trend | G-NBK | Weekly KPI dashboard published |
+| FR-042 | P2 | Alert behavior drift monitoring | Platform + Domain | M | FR-041 | Drift checks on alert quality signals | G-DET, G-NBK | Drift monitoring procedure documented and executed |
+
+---
+
+## 4) Priority Definitions
+
+- **P0:** Mandatory safety/value preconditions; must complete first.
+- **P1:** High-value realism improvements with controlled risk.
+- **P2:** Governance and scaling maturity improvements.
+
+---
+
+## 5) Progress Scoring Model (Factual Measurement)
+
+Update these after each sprint:
+
+1. **Safety Score (40%)**  
+   - Determinism pass, notebook pass, contract stability.
+
+2. **Realism Score (35%)**  
+   - Scenario quality uplift, explainability, decision usefulness.
+
+3. **Evidence Score (15%)**  
+   - Case export readiness and traceability quality.
+
+4. **Operational Score (10%)**  
+   - SLA adherence and regression-free delivery cadence.
+
+### Grade bands
+- **A:** 92-100
+- **A-:** 88-91
+- **B+:** 84-87
+- **B:** 80-83
+- **C+:** 72-79
+- **C:** 65-71
+- **D/F:** <65
+
+---
+
+## 6) Current vs Target
+
+| Metric | Current | Target after Sprint 2 | Target after Sprint 4 |
+|---|---:|---:|---:|
+| Overall Program Score | 85 (B+) | >=89 (A-) | >=92 (A) |
+| Fraud Realism Score | 68 (C+) | >=78 (B) | >=85 (B+/A-) |
+| Evidence Utility Score | 74 (B-) | >=82 (B) | >=90 (A-) |
+| Deterministic Reliability | 96 (A) | >=96 (A) | >=96 (A) |
+| Notebook Runtime Stability | 94 (A-) | >=94 (A-) | >=94 (A-) |
+
+---
+
+## 7) Related Documents
+
+- `docs/operations/do-not-break-remediation-improvement-plan-2026-03-27.md`
+- `docs/operations/baseline-assessment-matrix-2026-03-27.md`
+- `docs/operations/baseline-protection-test-plan.md`
+- `docs/operations/fraud-realism-audit-2026-03-27.md`
