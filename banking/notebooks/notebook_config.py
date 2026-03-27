@@ -169,6 +169,18 @@ def render_decision_block(
     display(Markdown(template))
 
 
+def render_reason_codes_block(reason_codes: list[str], rationale: str) -> None:
+    """Render standardized explainability reason codes for investigator output."""
+    codes_markdown = " ".join(f"`{code}`" for code in reason_codes) if reason_codes else "`NONE`"
+    template = f"""
+> #### 🔍 EXPLAINABILITY REPORT
+> **Reason Codes:** {codes_markdown}
+>
+> **Automated Rationale:** {rationale}
+"""
+    display(Markdown(template))
+
+
 def get_gremlin_client():
     """Create and return a Gremlin client."""
     from gremlin_python.driver import client
