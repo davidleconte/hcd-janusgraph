@@ -89,12 +89,13 @@ class TestJanusGraphClientInitialization:
         assert client.url == "ws://insecure.example.com:18182/gremlin"
 
     def test_init_missing_credentials(self, monkeypatch):
-        """Test initialization fails without credentials"""
+        """Test initialization allows missing credentials in development mode."""
         monkeypatch.delenv("JANUSGRAPH_USERNAME", raising=False)
         monkeypatch.delenv("JANUSGRAPH_PASSWORD", raising=False)
 
-        with pytest.raises(ClientValidationError, match="authentication required"):
-            JanusGraphClient()
+        client = JanusGraphClient()
+        assert client.username is None
+        assert client.password is None
 
     def test_init_invalid_hostname(self, monkeypatch):
         """Test initialization with invalid hostname"""

@@ -138,6 +138,17 @@ def get_data_path(key: str) -> Path:
     return project_root / DATA_PATHS.get(key, key)
 
 
+def mask_pii(value: str, visible_prefix: int = 2, visible_suffix: int = 4) -> str:
+    """Mask identifiers deterministically for safe notebook display."""
+    if not isinstance(value, str):
+        return str(value)
+    if not value:
+        return value
+    if len(value) <= (visible_prefix + visible_suffix):
+        return "***"
+    return f"{value[:visible_prefix]}***{value[-visible_suffix:]}"
+
+
 def render_decision_block(
     decision: str,
     confidence: int | float,
