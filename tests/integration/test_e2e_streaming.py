@@ -341,8 +341,8 @@ class TestE2EOpenSearchIntegration:
 
         try:
             # Create index if not exists
-            if not client.indices.exists(test_index):
-                client.indices.create(test_index)
+            if not client.indices.exists(index=test_index):
+                client.indices.create(index=test_index)
 
             # Index a document
             doc = {"entity_id": test_id, "name": "E2E Test Document", "type": "person"}
@@ -357,8 +357,8 @@ class TestE2EOpenSearchIntegration:
             client.delete(index=test_index, id=test_id)
         finally:
             # Clean up test index
-            if client.indices.exists(test_index):
-                client.indices.delete(test_index)
+            if client.indices.exists(index=test_index):
+                client.indices.delete(index=test_index)
 
 
 class TestE2ECrossSystemConsistency:
