@@ -185,6 +185,19 @@ A pre-implementation safety baseline and strict go/no-go protection plan have be
 
 ---
 
+## 🧾 Checkpoint Update (FR-000 Baseline Freeze Executed and Validated)
+
+FR-000 baseline evidence freeze was executed with full backup, gate validation, remediation, and revalidation.
+
+- Backup bundle: `exports/baseline-backup-2026-03-27/fr-000-20260327T133251Z`
+- Initial gate run result: **NO-GO** due to metadata-only drift (`commit_sha` in `deterministic_manifest.json`)
+- Deterministic-safe fix applied: removed `commit_sha` from deterministic manifest generation in `scripts/testing/collect_run_manifest.sh`
+- Controlled baseline refresh applied for deterministic manifest schema update: `exports/determinism-baselines/CANONICAL_42.checksums`
+- Revalidation run: `demo-20260327T152547Z` with wrapper `exit_code=0`
+- Final FR-000 result: **GO** (determinism artifact verification and drift detection both PASS)
+
+---
+
 ## 🧾 Checkpoint Update (Do-Not-Break Remediation Plan + Ticketized Execution Board Saved)
 
 The deterministic-safe remediation strategy and sprint-ready execution board have been saved and checkpointed.

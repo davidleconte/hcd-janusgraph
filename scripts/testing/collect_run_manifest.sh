@@ -155,7 +155,6 @@ EOF
 
     cat > "${DETERMINISTIC_MANIFEST_FILE}" <<EOF
 {
-  "commit_sha":"${commit_sha}",
   "seed":"${SEED_VALUE}",
   "compose_project_name":"${PROJECT_NAME}",
   "image_digests_sha256":"${image_digests_hash}",
