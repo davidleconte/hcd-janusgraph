@@ -12,6 +12,8 @@ import os
 import sys
 from pathlib import Path
 
+from IPython.display import Markdown, display
+
 
 def setup_project_paths():
     """Add project root to Python path for imports."""
@@ -134,6 +136,26 @@ def get_data_path(key: str) -> Path:
     """Get absolute path to a data file."""
     project_root = setup_project_paths()
     return project_root / DATA_PATHS.get(key, key)
+
+
+def render_decision_block(
+    decision: str,
+    confidence: int | float,
+    action: str,
+    why: str,
+    evidence: str,
+) -> None:
+    """Render a standardized investigator decision block for notebook outputs."""
+    template = f"""
+> ### 🎯 INVESTIGATOR DECISION
+> **Decision:** {decision}
+> **Confidence:** {confidence}%
+> **Recommended Action:** {action}
+>
+> **Rationale (Why):** {why}
+> **Key Evidence:** {evidence}
+"""
+    display(Markdown(template))
 
 
 def get_gremlin_client():
