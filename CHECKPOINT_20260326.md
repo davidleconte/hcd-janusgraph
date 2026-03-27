@@ -172,3 +172,14 @@ A deep, adversarial fraud-domain realism audit has been saved and checkpointed.
 - Audit creation timestamp: `2026-03-27 14:09:42 CET`
 - Includes notebook-by-notebook realism scoring, coverage gap matrix, contradictions vs documentation claims, top missing scenarios, 30/60/90 remediation plan, and production risk register.
 
+---
+
+## 🧾 Checkpoint Update (Baseline Matrix + Protection Test Plan Saved)
+
+A pre-implementation safety baseline and strict go/no-go protection plan have been saved and checkpointed.
+
+- Baseline matrix: `docs/operations/baseline-assessment-matrix-2026-03-27.md`
+- Protection test plan: `docs/operations/baseline-protection-test-plan.md`
+- Creation timestamp: `2026-03-27 14:17:53 CET`
+- Includes domain-by-domain pass/fail criteria, exact validation commands, and documented backup/restore + rollback options.
+
