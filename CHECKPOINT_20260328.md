@@ -78,9 +78,20 @@ Repeatable pipeline:
   - JSON: `exports/evidence/mule_chains/{alert_id}_evidence.json`
   - CSV: `exports/evidence/mule_chains/mule_chain_alerts_summary.csv`
 
-### 🔄 FR-040 — Case evidence export standardization (IN PROGRESS)
-- Pattern now implemented for mule-chain notebook (#16).
-- Remaining work: propagate standardized export schema/pattern to remaining core AML/fraud notebooks.
+### ✅ FR-040 — Case evidence export standardization (DONE)
+- Standardized evidence export pattern implemented for notebooks #01/#02/#03 and #16/#17/#18.
+- Added deterministic JSON evidence + masked summary CSV exports across scenarios:
+  - `exports/evidence/sanctions/`
+  - `exports/evidence/aml_structuring/`
+  - `exports/evidence/fraud_detection/`
+  - `exports/evidence/mule_chains/`
+  - `exports/evidence/ato/`
+  - `exports/evidence/procurement/`
+- Notebook gate evidence:
+  - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/01_Sanctions_Screening_Demo.ipynb` ✅ PASS  
+    Report: `exports/live-notebooks-stable-20260328T223930Z/notebook_run_report.tsv`
+  - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/02_AML_Structuring_Detection_Demo.ipynb banking/notebooks/03_Fraud_Detection_Demo.ipynb` ✅ PASS  
+    Report: `exports/live-notebooks-stable-20260328T224721Z/notebook_run_report.tsv`
 
 ## ✅ FR-030 Gate Sequence Evidence (Completed)
 
