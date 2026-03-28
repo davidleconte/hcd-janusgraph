@@ -185,3 +185,111 @@ class TestMuleChainDetectorScan:
         alerts = detector.detect_mule_chains()
 
         assert alerts == []
+
+
+class TestMuleChainRecordsAPI:
+    """Test notebook-ready records API behavior and deterministic ordering."""
+
+    def test_detect_mule_chains_as_records_schema(self):
+        """Test records API emits required business evidence fields."""
+        detector = MuleChainDetector()
+        alert = MuleChainAlert(
+            alert_id="APP-MULE-abcdef123456",
+            victim_account_id="A-VICTIM",
+            mule_account_ids=["A-MULE-1", "A-MULE-2"],
+            cash_out_account_id="A-CASHOUT",
+            transaction_ids=["TX-1", "TX-2", "TX-3"],
+            hop_count=3,
+            total_value=29300.0,
+            average_hop_minutes=9.1234,
+            risk_score=0.87654,
+            indicators=["rapid hops"],
+            details={"source": "unit-test"},
+        )
+        detector.detect_mule_chains = Mock(return_value=[alert])
+
+        records = detector.detect_mule_chains_as_records()
+
+        assert len(records) == 1
+        record = records[0]
+        assert set(record.keys()) == {
+            "alert_id",
+            "victim_account_id",
+            "mule_account_ids",
+            "cash_out_account_id",
+            "hop_count",
+            "total_value",
+            "average_hop_minutes",
+            "risk_score",
+            "reason_codes",
+            "rationale",
+            "evidence_summary",
+        }
+        assert record["alert_id"] == "APP-MULE-abcdef123456"
+        assert record["victim_account_id"] == "A-VICTIM"
+        assert record["mule_account_ids"] == ["A-MULE-1", "A-MULE-2"]
+        assert record["cash_out_account_id"] == "A-CASHOUT"
+        assert record["hop_count"] == 3
+        assert record["total_value"] == pytest.approx(29300.0)
+        assert record["average_hop_minutes"] == pytest.approx(9.12)
+        assert record["risk_score"] == pytest.approx(0.8765)
+        assert record["reason_codes"] == [
+            "APP_MULE_CHAIN",
+            "RAPID_TRANSFER_VELOCITY",
+            "MULTI_HOP_CASH_OUT_PATH",
+        ]
+        assert "Funds traversed 3 hops" in record["rationale"]
+        assert "Victim=A-VICTIM" in record["evidence_summary"]
+
+    def test_detect_mule_chains_as_records_deterministic_sort(self):
+        """Test records are deterministically sorted by alert_id then descending risk_score."""
+        detector = MuleChainDetector()
+        alert_b = MuleChainAlert(
+            alert_id="APP-MULE-bbbbbbbbbbbb",
+            victim_account_id="V-B",
+            mule_account_ids=["M-B1"],
+            cash_out_account_id="C-B",
+            transaction_ids=["T-B1", "T-B2", "T-B3"],
+            hop_count=3,
+            total_value=11000.0,
+            average_hop_minutes=8.0,
+            risk_score=0.7,
+            indicators=[],
+            details={},
+        )
+        alert_a_low = MuleChainAlert(
+            alert_id="APP-MULE-aaaaaaaaaaaa",
+            victim_account_id="V-A2",
+            mule_account_ids=["M-A2"],
+            cash_out_account_id="C-A2",
+            transaction_ids=["T-A4", "T-A5", "T-A6"],
+            hop_count=3,
+            total_value=9000.0,
+            average_hop_minutes=12.0,
+            risk_score=0.4,
+            indicators=[],
+            details={},
+        )
+        alert_a_high = MuleChainAlert(
+            alert_id="APP-MULE-aaaaaaaaaaaa",
+            victim_account_id="V-A1",
+            mule_account_ids=["M-A1"],
+            cash_out_account_id="C-A1",
+            transaction_ids=["T-A1", "T-A2", "T-A3"],
+            hop_count=3,
+            total_value=15000.0,
+            average_hop_minutes=7.0,
+            risk_score=0.9,
+            indicators=[],
+            details={},
+        )
+        detector.detect_mule_chains = Mock(return_value=[alert_b, alert_a_low, alert_a_high])
+
+        records = detector.detect_mule_chains_as_records()
+
+        assert [record["alert_id"] for record in records] == [
+            "APP-MULE-aaaaaaaaaaaa",
+            "APP-MULE-aaaaaaaaaaaa",
+            "APP-MULE-bbbbbbbbbbbb",
+        ]
+        assert [record["risk_score"] for record in records] == [0.9, 0.4, 0.7]

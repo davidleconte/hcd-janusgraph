@@ -198,3 +198,49 @@ class MuleChainDetector:
             score += 0.1
 
         return min(score, 1.0)
+
+    def detect_mule_chains_as_records(
+        self, min_hops: int = DEFAULT_MIN_HOPS, max_hop_minutes: int = DEFAULT_MAX_HOP_MINUTES
+    ) -> List[Dict[str, Any]]:
+        """
+        Detect mule chains and return stable, notebook-ready evidence records.
+        """
+        alerts = self.detect_mule_chains(min_hops=min_hops, max_hop_minutes=max_hop_minutes)
+        records: List[Dict[str, Any]] = []
+
+        for alert in alerts:
+            reason_codes = [
+                "APP_MULE_CHAIN",
+                "RAPID_TRANSFER_VELOCITY",
+                "MULTI_HOP_CASH_OUT_PATH",
+            ]
+            rationale = (
+                f"Funds traversed {alert.hop_count} hops with average latency "
+                f"{alert.average_hop_minutes:.1f} minutes."
+            )
+            evidence_summary = (
+                f"Victim={alert.victim_account_id}; "
+                f"Mules={len(alert.mule_account_ids)}; "
+                f"CashOut={alert.cash_out_account_id}; "
+                f"Total=${alert.total_value:,.2f}; "
+                f"Risk={alert.risk_score:.3f}"
+            )
+
+            records.append(
+                {
+                    "alert_id": alert.alert_id,
+                    "victim_account_id": alert.victim_account_id,
+                    "mule_account_ids": alert.mule_account_ids,
+                    "cash_out_account_id": alert.cash_out_account_id,
+                    "hop_count": alert.hop_count,
+                    "total_value": alert.total_value,
+                    "average_hop_minutes": round(alert.average_hop_minutes, 2),
+                    "risk_score": round(alert.risk_score, 4),
+                    "reason_codes": reason_codes,
+                    "rationale": rationale,
+                    "evidence_summary": evidence_summary,
+                }
+            )
+
+        # Deterministic ordering for notebook/report stability.
+        return sorted(records, key=lambda item: (item["alert_id"], -item["risk_score"]))

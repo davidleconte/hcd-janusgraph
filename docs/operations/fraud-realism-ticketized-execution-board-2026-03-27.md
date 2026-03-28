@@ -71,7 +71,7 @@ Use these exact checks based on scope touched by a ticket.
 
 | Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
 |---|---|---|---|---|---|---|---|---|
-| FR-030 | P1 | APP mule-chain scenario notebook/module | Domain | L | FR-001 | Additive new scenario (no baseline mutation) | G-NBK, G-GEN, G-DET | Runnable scenario with case-evidence output block |
+| FR-030 | P1 | APP mule-chain scenario notebook/module ✅ DONE (2026-03-28) | Domain | L | FR-001 | Additive new scenario (no baseline mutation) | G-NBK, G-GEN, G-DET | Runnable scenario with case-evidence output block; evidence: `pytest banking/analytics/tests/test_detect_mule_chains.py -q --no-cov` (11 passed), notebook #16 upgraded to live graph-backed retrieval + deterministic fallback, standardized export path `exports/evidence/mule_chains/` |
 | FR-031 | P1 | Account takeover (ATO) scenario | Domain + Platform | L | FR-030 | Device/session/beneficiary novelty risk pattern | G-NBK, G-STR, G-DET | ATO scenario runnable and deterministic-safe |
 | FR-032 | P1 | Corporate invoice/vendor fraud scenario | Domain | L | FR-030 | Collusion + duplicate invoice graph patterns | G-NBK, G-GEN, G-DET | Corporate fraud scenario added with reasoned outputs |
 
@@ -79,7 +79,7 @@ Use these exact checks based on scope touched by a ticket.
 
 | Ticket ID | Priority | Title | Owner | Estimate | Dependencies | Scope | Exact Gate Checks | Done Criteria |
 |---|---|---|---|---|---|---|---|---|
-| FR-040 | P2 | Case evidence export standardization | Compliance + Platform | M | FR-020, FR-021, FR-022 | Regulator-ready findings schema and export block | G-NBK, G-API | Core AML/fraud notebooks produce standardized evidence output |
+| FR-040 | P2 | Case evidence export standardization 🔄 IN PROGRESS (2026-03-28) | Compliance + Platform | M | FR-020, FR-021, FR-022 | Regulator-ready findings schema and export block | G-NBK, G-API | Standardized evidence export implemented for notebook 16 (`exports/evidence/mule_chains/{alert_id}_evidence.json` + masked summary CSV); rollout to remaining core AML/fraud notebooks pending |
 | FR-041 | P2 | Alert quality KPI governance dashboard | Product + Domain | M | FR-040 | Precision proxy, conversion rate, false-positive trend | G-NBK | Weekly KPI dashboard published |
 | FR-042 | P2 | Alert behavior drift monitoring | Platform + Domain | M | FR-041 | Drift checks on alert quality signals | G-DET, G-NBK | Drift monitoring procedure documented and executed |
 
