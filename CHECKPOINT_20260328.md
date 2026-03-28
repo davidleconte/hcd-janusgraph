@@ -1,8 +1,8 @@
 # Session Checkpoint - 2026-03-28
 
 **Date:** 2026-03-28 21:25:27 CET  
-**Status:** FR-030 complete; FR-040 in progress  
-**Scope:** Deterministic-safe realism upgrades through FR-022 + FR-030 completion and FR-040 export standardization kickoff
+**Status:** FR-030/FR-031/FR-032 complete; FR-040 in progress  
+**Scope:** Deterministic-safe realism upgrades through FR-022 + FR-032 completion and FR-040 evidence-export rollout
 
 ---
 
@@ -97,9 +97,67 @@ Repeatable pipeline:
 4. `bash scripts/testing/detect_determinism_drift.sh exports/demo-20260328T203655Z`  
    - ✅ No drift detected (matches canonical baseline)
 
+## 🧪 FR-031 Kickoff Evidence (2026-03-28)
+
+1. `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_detect_ato.py -v --no-cov`  
+   - ✅ 7 passed
+
+2. `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_detect_ato.py banking/analytics/tests/test_detect_mule_chains.py -v --no-cov`  
+   - ✅ 18 passed
+
+3. FR-031 kickoff slice delivered:
+   - `banking/analytics/detect_ato.py` (new detector with deterministic alert IDs + notebook-ready records API)
+   - `banking/analytics/tests/test_detect_ato.py` (new deterministic/schema/sort contract tests)
+   - `banking/analytics/__init__.py` updated exports (`ATOAlert`, `ATODetector`)
+   - `banking/notebooks/17_Account_Takeover_ATO_Demo.ipynb` (new ATO investigator-cockpit scaffold with live attempt + deterministic fallback + standardized export `exports/evidence/ato/`)
+
+4. Notebook gate execution:
+   - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/17_Account_Takeover_ATO_Demo.ipynb`
+   - ✅ PASS (0 error cells, 5s)
+   - Report: `exports/live-notebooks-stable-20260328T212744Z/notebook_run_report.tsv`
+
+5. Streaming gate execution (`G-STR`):
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/streaming/tests -v --no-cov`
+   - ✅ PASS (270 passed)
+
+6. Deterministic proof execution (`G-DET`):
+   - `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
+   - ✅ PASS (`exports/deterministic-status.json` shows `exit_code: 0`)
+   - Run artifacts: `exports/demo-20260328T213636Z/`
+   - Drift check: ✅ `exports/demo-20260328T213636Z/drift_detection.log` (no drift)
+
+## ✅ FR-032 Evidence (2026-03-28)
+
+1. `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_detect_procurement.py -v --no-cov`  
+   - ✅ 7 passed
+
+2. `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_detect_procurement.py banking/analytics/tests/test_detect_ato.py banking/analytics/tests/test_detect_mule_chains.py -v --no-cov`  
+   - ✅ 25 passed
+
+3. FR-032 slice delivered:
+   - `banking/analytics/detect_procurement.py` (new deterministic procurement/vendor fraud detector + records API)
+   - `banking/analytics/tests/test_detect_procurement.py` (new deterministic/schema/sort contract tests)
+   - `banking/analytics/__init__.py` updated exports (`ProcurementFraudAlert`, `ProcurementFraudDetector`)
+   - `banking/notebooks/18_Corporate_Vendor_Fraud_Demo.ipynb` (new procurement investigator-cockpit scaffold with live attempt + deterministic fallback + standardized export `exports/evidence/procurement/`)
+
+4. Notebook gate execution:
+   - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/18_Corporate_Vendor_Fraud_Demo.ipynb`
+   - ✅ PASS (0 error cells, 5s)
+   - Report: `exports/live-notebooks-stable-20260328T220229Z/notebook_run_report.tsv`
+
+5. Generator gate execution (`G-GEN`):
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/data_generators/tests -v --no-cov`
+   - ✅ PASS (286 passed)
+
+6. Deterministic proof execution (`G-DET`):
+   - `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json`
+   - ✅ PASS (`exports/deterministic-status.json` shows `exit_code: 0`)
+   - Run artifacts: `exports/demo-20260328T220806Z/`
+   - Drift check: ✅ `exports/demo-20260328T220806Z/drift_detection.log` (no drift)
+
 ## ▶️ Next Action (Immediate)
 
-Start Sprint 3 follow-on implementation:
-1. FR-031 — Account takeover (ATO) scenario kickoff.
-2. FR-032 — Corporate invoice/vendor fraud scenario planning.
-3. FR-040 — propagate standardized case-evidence export schema to remaining core AML/fraud notebooks.
+Continue Sprint execution:
+1. Start FR-040 rollout across remaining core AML/fraud notebooks with standardized case-evidence export schema.
+2. Execute focused notebook gates for FR-040 propagation scope and capture evidence artifacts.
+3. Prepare the next commit bundle with FR-031/FR-032 completion + governance evidence updates.

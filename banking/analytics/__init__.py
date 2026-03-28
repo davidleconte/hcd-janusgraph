@@ -14,7 +14,9 @@ from .community_detection import (
     CommunityDetectionResult,
     create_community_detection_report,
 )
+from .detect_ato import ATOAlert, ATODetector
 from .detect_mule_chains import MuleChainAlert, MuleChainDetector
+from .detect_procurement import ProcurementFraudAlert, ProcurementFraudDetector
 from .graph_ml import (
     EmbeddingMethod,
     RiskPrediction,
@@ -34,9 +36,15 @@ __all__ = [
     "FraudCommunity",
     "CommunityDetectionResult",
     "create_community_detection_report",
+    # ATO Detection
+    "ATOAlert",
+    "ATODetector",
     # Mule Chain Detection
     "MuleChainAlert",
     "MuleChainDetector",
+    # Procurement Fraud Detection
+    "ProcurementFraudAlert",
+    "ProcurementFraudDetector",
     # Graph ML
     "EmbeddingMethod",
     "RiskPrediction",
