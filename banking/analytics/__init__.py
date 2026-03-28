@@ -14,6 +14,7 @@ from .community_detection import (
     CommunityDetectionResult,
     create_community_detection_report,
 )
+from .detect_mule_chains import MuleChainAlert, MuleChainDetector
 from .graph_ml import (
     EmbeddingMethod,
     RiskPrediction,
@@ -33,6 +34,9 @@ __all__ = [
     "FraudCommunity",
     "CommunityDetectionResult",
     "create_community_detection_report",
+    # Mule Chain Detection
+    "MuleChainAlert",
+    "MuleChainDetector",
     # Graph ML
     "EmbeddingMethod",
     "RiskPrediction",
