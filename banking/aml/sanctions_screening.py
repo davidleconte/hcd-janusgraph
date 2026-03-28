@@ -158,6 +158,11 @@ class SanctionsScreener:
     FUZZY_THRESHOLD = 0.60  # Fuzzy match threshold (typos, abbreviations)
     LOW_RISK_THRESHOLD = 0.75  # Possibly similar
 
+    # FR-020 weighted-scoring defaults (applied only when customer context is provided)
+    WEIGHT_NAME_SIMILARITY = 0.70
+    WEIGHT_COUNTRY_MATCH = 0.20
+    WEIGHT_ENTITY_TYPE_MATCH = 0.10
+
     def __init__(
         self,
         opensearch_host: str = "localhost",
@@ -262,7 +267,13 @@ class SanctionsScreener:
         return success
 
     def screen_customer(
-        self, customer_id: str, customer_name: str, k: int = 10, min_score: float = None
+        self,
+        customer_id: str,
+        customer_name: str,
+        k: int = 10,
+        min_score: float = None,
+        customer_country: Optional[str] = None,
+        customer_entity_type: Optional[str] = None,
     ) -> ScreeningResult:
         """
         Screen a customer against sanctions list.
@@ -272,6 +283,8 @@ class SanctionsScreener:
             customer_name: Customer name to screen
             k: Number of top matches to retrieve
             min_score: Minimum similarity score (default: LOW_RISK_THRESHOLD)
+            customer_country: Optional customer country for weighted scoring boost/penalty
+            customer_entity_type: Optional customer entity type for weighted scoring boost/penalty
 
         Returns:
             ScreeningResult with matches
@@ -279,11 +292,13 @@ class SanctionsScreener:
         if min_score is None:
             min_score = self.LOW_RISK_THRESHOLD
 
-        # Check cache first
-        cached_result, found = self._cache.get(customer_id, customer_name)
-        if found:
-            logger.info("Cache HIT for customer: %s (ID: %s)", customer_name, customer_id)
-            return cached_result
+        # Cache only legacy name-similarity-only lookups to preserve key stability.
+        use_cache = customer_country is None and customer_entity_type is None
+        if use_cache:
+            cached_result, found = self._cache.get(customer_id, customer_name)
+            if found:
+                logger.info("Cache HIT for customer: %s (ID: %s)", customer_name, customer_id)
+                return cached_result
 
         logger.info("Cache MISS - Screening customer: %s (ID: %s)", customer_name, customer_id)
 
@@ -298,8 +313,39 @@ class SanctionsScreener:
         # Process matches
         matches = []
         for result in results:
-            score = result["score"]
+            base_score = float(result["score"])
+            score = base_score
             source = result["source"]
+
+            weighted_components: Optional[Dict[str, float]] = None
+            if customer_country is not None or customer_entity_type is not None:
+                country_component = 0.5
+                if customer_country is not None:
+                    source_country = str(source.get("country", "")).strip().lower()
+                    customer_country_norm = str(customer_country).strip().lower()
+                    country_component = 1.0 if source_country == customer_country_norm else 0.0
+
+                entity_type_component = 0.5
+                if customer_entity_type is not None:
+                    source_entity_type = str(
+                        source.get("type", source.get("entity_type", ""))
+                    ).strip().lower()
+                    customer_entity_type_norm = str(customer_entity_type).strip().lower()
+                    entity_type_component = (
+                        1.0 if source_entity_type == customer_entity_type_norm else 0.0
+                    )
+
+                score = (
+                    self.WEIGHT_NAME_SIMILARITY * base_score
+                    + self.WEIGHT_COUNTRY_MATCH * country_component
+                    + self.WEIGHT_ENTITY_TYPE_MATCH * entity_type_component
+                )
+                weighted_components = {
+                    "base_similarity_score": base_score,
+                    "country_component": country_component,
+                    "entity_type_component": entity_type_component,
+                    "weighted_score": score,
+                }
 
             # Determine risk level
             if score >= self.HIGH_RISK_THRESHOLD:
@@ -312,6 +358,15 @@ class SanctionsScreener:
                 risk_level = "low"
                 match_type = "phonetic"
 
+            metadata = {
+                "entity_type": source.get("type", source.get("entity_type", "")),
+                "country": source.get("country", ""),
+                "aliases": source.get("aliases", ""),
+                "date_added": source.get("added_date", ""),
+            }
+            if weighted_components is not None:
+                metadata.update(weighted_components)
+
             match = SanctionMatch(
                 customer_name=customer_name,
                 sanctioned_name=source["name"],
@@ -320,12 +375,7 @@ class SanctionsScreener:
                 entity_id=source.get("entity_id", source.get("id", "UNKNOWN")),
                 match_type=match_type,
                 risk_level=risk_level,
-                metadata={
-                    "entity_type": source.get("type", source.get("entity_type", "")),
-                    "country": source.get("country", ""),
-                    "aliases": source.get("aliases", ""),
-                    "date_added": source.get("added_date", ""),
-                },
+                metadata=metadata,
             )
             matches.append(match)
 
@@ -347,7 +397,7 @@ class SanctionsScreener:
         )
 
         # Cache the result (cache "clean" customers longer by not caching matches)
-        if not is_match:
+        if not is_match and use_cache:
             self._cache.set(customer_id, customer_name, result)
             logger.debug("Cached screening result for: %s", customer_id)
 
@@ -389,7 +439,12 @@ class SanctionsScreener:
             cust_name = customer.get("customer_name") or customer.get("name", "")
 
             result = self.screen_customer(
-                customer_id=cust_id, customer_name=cust_name, k=k, min_score=min_score
+                customer_id=cust_id,
+                customer_name=cust_name,
+                k=k,
+                min_score=min_score,
+                customer_country=customer.get("country"),
+                customer_entity_type=customer.get("entity_type"),
             )
             results.append(result)
 

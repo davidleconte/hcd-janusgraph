@@ -469,6 +469,60 @@ class TestCustomerScreening:
         assert result.matches[0].risk_level == "low"
         assert result.matches[0].match_type == "phonetic"
 
+    @patch("banking.aml.sanctions_screening.encode_person_name")
+    @patch("banking.aml.sanctions_screening.VectorSearchClient")
+    @patch("banking.aml.sanctions_screening.EmbeddingGenerator")
+    def test_screen_customer_weighted_scoring_with_customer_context(
+        self, mock_generator, mock_search_client, mock_encode
+    ):
+        """Test FR-020 weighted scoring when customer context is provided."""
+        mock_gen_instance = Mock()
+        mock_gen_instance.dimensions = 384
+        mock_generator.return_value = mock_gen_instance
+
+        mock_client_instance = Mock()
+        mock_client_instance.client.indices.exists.return_value = True
+        mock_client_instance.search.return_value = [
+            {
+                "score": 0.90,
+                "source": {
+                    "name": "John Doe",
+                    "id": "SANC-001",
+                    "list_type": "OFAC",
+                    "entity_type": "person",
+                    "country": "US",
+                },
+            },
+            {
+                "score": 0.90,
+                "source": {
+                    "name": "John Doe",
+                    "id": "SANC-002",
+                    "list_type": "UN",
+                    "entity_type": "company",
+                    "country": "UK",
+                },
+            },
+        ]
+        mock_search_client.return_value = mock_client_instance
+        mock_encode.return_value = [0.1] * 384
+
+        screener = SanctionsScreener()
+        result = screener.screen_customer(
+            "CUST-123",
+            "John Doe",
+            customer_country="US",
+            customer_entity_type="person",
+        )
+
+        assert len(result.matches) == 2
+        assert result.matches[0].similarity_score > result.matches[1].similarity_score
+        assert result.matches[0].metadata["base_similarity_score"] == 0.90
+        assert result.matches[0].metadata["country_component"] == 1.0
+        assert result.matches[0].metadata["entity_type_component"] == 1.0
+        assert result.matches[1].metadata["country_component"] == 0.0
+        assert result.matches[1].metadata["entity_type_component"] == 0.0
+
 
 # ============================================================================
 # Test Batch Screening
