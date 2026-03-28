@@ -43,6 +43,7 @@ from ..patterns.fraud_ring_pattern_generator import FraudRingPatternGenerator
 
 # Pattern generators
 from ..patterns.insider_trading_pattern_generator import InsiderTradingPatternGenerator
+from ..patterns.mule_chain_generator import MuleChainGenerator
 from ..patterns.structuring_pattern_generator import StructuringPatternGenerator
 from ..patterns.tbml_pattern_generator import TBMLPatternGenerator
 
@@ -77,6 +78,7 @@ class GenerationConfig:
     insider_trading_patterns: int = 0
     tbml_patterns: int = 0
     fraud_ring_patterns: int = 0
+    mule_chain_patterns: int = 0
     structuring_patterns: int = 0
     cato_patterns: int = 0
 
@@ -206,6 +208,7 @@ class MasterOrchestrator:
         self.insider_trading_gen = InsiderTradingPatternGenerator(seed=self.config.seed)
         self.tbml_gen = TBMLPatternGenerator(seed=self.config.seed)
         self.fraud_ring_gen = FraudRingPatternGenerator(seed=self.config.seed)
+        self.mule_chain_gen = MuleChainGenerator(seed=self.config.seed)
         self.structuring_gen = StructuringPatternGenerator(seed=self.config.seed)
         self.cato_gen = CATOPatternGenerator(seed=self.config.seed)
 
@@ -451,6 +454,23 @@ class MasterOrchestrator:
             self.patterns.append(pattern)
         logger.info("✓ Generated %s fraud ring patterns", self.config.fraud_ring_patterns)
 
+    def _generate_mule_chain_patterns(self) -> None:
+        """Generate APP fraud mule-chain patterns."""
+        if self.config.mule_chain_patterns <= 0:
+            return
+
+        logger.info("\nGenerating %s mule-chain patterns...", self.config.mule_chain_patterns)
+        for _ in range(self.config.mule_chain_patterns):
+            pattern, transactions = self.mule_chain_gen.generate(
+                chain_length=random.randint(3, 6),
+                start_amount=float(random.randint(5000, 25000)),
+                hop_delay_minutes=random.randint(5, 30),
+                duration_days=random.randint(1, 7),
+            )
+            self.patterns.append(pattern)
+            self.transactions.extend(transactions)
+        logger.info("✓ Generated %s mule-chain patterns", self.config.mule_chain_patterns)
+
     def _generate_structuring_patterns(self) -> None:
         """Generate structuring (smurfing) patterns."""
         if self.config.structuring_patterns <= 0:
@@ -487,6 +507,7 @@ class MasterOrchestrator:
             self.config.insider_trading_patterns
             + self.config.tbml_patterns
             + self.config.fraud_ring_patterns
+            + self.config.mule_chain_patterns
             + self.config.structuring_patterns
             + self.config.cato_patterns
         )
@@ -503,6 +524,7 @@ class MasterOrchestrator:
         self._generate_insider_trading_patterns(person_ids)
         self._generate_tbml_patterns(company_ids)
         self._generate_fraud_ring_patterns()
+        self._generate_mule_chain_patterns()
         self._generate_structuring_patterns()
         self._generate_cato_patterns()
 

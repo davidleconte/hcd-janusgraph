@@ -19,6 +19,7 @@ from banking.data_generators.patterns.fraud_ring_pattern_generator import FraudR
 from banking.data_generators.patterns.insider_trading_pattern_generator import (
     InsiderTradingPatternGenerator,
 )
+from banking.data_generators.patterns.mule_chain_generator import MuleChainGenerator
 from banking.data_generators.patterns.structuring_pattern_generator import (
     StructuringPatternGenerator,
 )
@@ -113,6 +114,36 @@ class TestStructuringPatternGenerator:
         assert gen1.seed == gen2.seed
 
 
+class TestMuleChainPatternGenerator:
+    """Tests for Mule Chain Pattern Generator."""
+
+    def test_init(self):
+        """Test generator initialization."""
+        gen = MuleChainGenerator(seed=42)
+        assert gen is not None
+        assert gen.seed == 42
+
+    def test_init_with_different_seeds(self):
+        """Test that different seeds produce different results."""
+        gen1 = MuleChainGenerator(seed=1)
+        gen2 = MuleChainGenerator(seed=2)
+        assert gen1.seed != gen2.seed
+
+    def test_reproducibility(self):
+        """Test that same seed produces same results for core outputs."""
+        gen1 = MuleChainGenerator(seed=42)
+        pattern1, txns1 = gen1.generate(chain_length=4, start_amount=10000.0, hop_delay_minutes=15)
+
+        # Reinitialize to reset deterministic counters before second run.
+        gen2 = MuleChainGenerator(seed=42)
+        pattern2, txns2 = gen2.generate(chain_length=4, start_amount=10000.0, hop_delay_minutes=15)
+
+        assert pattern1.pattern_id == pattern2.pattern_id
+        assert pattern1.transaction_ids == pattern2.transaction_ids
+        assert [t.transaction_id for t in txns1] == [t.transaction_id for t in txns2]
+        assert [t.amount for t in txns1] == [t.amount for t in txns2]
+
+
 class TestCATOPatternGenerator:
     """Tests for CATO (Complex AML Typology) Pattern Generator."""
 
@@ -144,10 +175,11 @@ class TestPatternGeneratorIntegration:
             InsiderTradingPatternGenerator(seed=42),
             TBMLPatternGenerator(seed=42),
             FraudRingPatternGenerator(seed=42),
+            MuleChainGenerator(seed=42),
             StructuringPatternGenerator(seed=42),
             CATOPatternGenerator(seed=42),
         ]
-        assert len(generators) == 5
+        assert len(generators) == 6
         for gen in generators:
             assert gen is not None
 
@@ -157,6 +189,7 @@ class TestPatternGeneratorIntegration:
             InsiderTradingPatternGenerator(seed=123),
             TBMLPatternGenerator(seed=123),
             FraudRingPatternGenerator(seed=123),
+            MuleChainGenerator(seed=123),
             StructuringPatternGenerator(seed=123),
             CATOPatternGenerator(seed=123),
         ]

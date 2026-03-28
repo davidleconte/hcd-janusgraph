@@ -12,6 +12,7 @@ Date: 2026-02-06
 from .cato_pattern_generator import CATOPatternGenerator
 from .fraud_ring_pattern_generator import FraudRingPatternGenerator
 from .insider_trading_pattern_generator import InsiderTradingPatternGenerator
+from .mule_chain_generator import MuleChainGenerator
 from .structuring_pattern_generator import StructuringPatternGenerator
 from .tbml_pattern_generator import TBMLPatternGenerator
 
@@ -19,6 +20,7 @@ __all__ = [
     "InsiderTradingPatternGenerator",
     "TBMLPatternGenerator",
     "FraudRingPatternGenerator",
+    "MuleChainGenerator",
     "StructuringPatternGenerator",
     "CATOPatternGenerator",
 ]

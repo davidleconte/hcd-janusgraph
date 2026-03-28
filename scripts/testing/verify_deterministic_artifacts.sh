@@ -96,7 +96,16 @@ main() {
     fi
 
     mkdir -p "${BASELINE_DIR}"
-    baseline_file="${BASELINE_DIR}/${commit_sha}_${seed}.checksums"
+
+    # Prefer canonical seed baseline when present to avoid commit-SHA baseline churn.
+    # Fallback to commit-specific baseline for environments that do not yet publish canonical.
+    local canonical_baseline
+    canonical_baseline="${BASELINE_DIR}/CANONICAL_${seed}.checksums"
+    if [[ -f "${canonical_baseline}" ]]; then
+        baseline_file="${canonical_baseline}"
+    else
+        baseline_file="${BASELINE_DIR}/${commit_sha}_${seed}.checksums"
+    fi
 
     if [[ ! -f "${baseline_file}" ]]; then
         if [[ "${REQUIRE_EXISTING_BASELINE}" == "1" ]]; then

@@ -80,7 +80,23 @@ if [[ -z "${VAULT_TOKEN_VALUE}" ]]; then
 fi
 
 BANKING_NOTEBOOKS=(
-  banking/notebooks/*.ipynb
+  # Canonical deterministic notebook set (baseline-protected).
+  # Keep this list explicit to prevent additive notebooks from mutating G-DET artifacts.
+  banking/notebooks/01_Sanctions_Screening_Demo.ipynb
+  banking/notebooks/02_AML_Structuring_Detection_Demo.ipynb
+  banking/notebooks/03_Fraud_Detection_Demo.ipynb
+  banking/notebooks/04_Customer_360_View_Demo.ipynb
+  banking/notebooks/05_Advanced_Analytics_OLAP.ipynb
+  banking/notebooks/06_TBML_Detection_Demo.ipynb
+  banking/notebooks/07_Insider_Trading_Detection_Demo.ipynb
+  banking/notebooks/08_UBO_Discovery_Demo.ipynb
+  banking/notebooks/09_Community_Detection_Demo.ipynb
+  banking/notebooks/10_Integrated_Architecture_Demo.ipynb
+  banking/notebooks/11_Streaming_Pipeline_Demo.ipynb
+  banking/notebooks/12_API_Integration_Demo.ipynb
+  banking/notebooks/13_Time_Travel_Queries_Demo.ipynb
+  banking/notebooks/14_Entity_Resolution_Demo.ipynb
+  banking/notebooks/15_Graph_Embeddings_ML_Demo.ipynb
 )
 
 EXPLORATORY_NOTEBOOKS=(
