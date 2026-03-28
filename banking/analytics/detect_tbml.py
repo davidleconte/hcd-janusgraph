@@ -21,6 +21,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.driver import client, serializer
 
+from banking.data_generators.utils.constants import HIGH_RISK_COUNTRIES, TAX_HAVENS
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -285,17 +287,20 @@ class TBMLDetector:
         if market_prices:
             self.market_prices.update(market_prices)
 
-        # Query trades/invoices with amounts and product info
+        # Query trades/invoices with amounts and product/route info
         query = """
         g.V().hasLabel('transaction')
          .has('transaction_type', within('invoice', 'trade', 'wire'))
-         .project('tx_id', 'amount', 'description', 'currency', 'from_company', 'to_company')
+         .project('tx_id', 'amount', 'description', 'currency', 'from_company', 'to_company',
+                  'origin_country', 'destination_country')
          .by('transaction_id')
          .by('amount')
          .by(coalesce(values('description'), constant('N/A')))
          .by(coalesce(values('currency'), constant('USD')))
          .by(coalesce(__.in('sent_transaction').in('owns_account').values('name'), constant('Unknown')))
          .by(coalesce(__.out('received_by').in('owns_account').values('name'), constant('Unknown')))
+         .by(coalesce(values('origin_country'), constant('')))
+         .by(coalesce(values('destination_country'), constant('')))
          .limit(500)
         """
 
@@ -304,12 +309,16 @@ class TBMLDetector:
 
             # Analyze each transaction for price anomalies
             for tx in results:
-                anomaly = self._check_price_anomaly(tx)
+                anomaly = self._check_price_anomaly(tx, self.market_prices)
                 if anomaly:
                     anomalies.append(anomaly)
 
                     # Generate alert for high-risk anomalies
                     if anomaly.risk_score >= 0.7:
+                        route_risk_indicators = self._get_route_risk_indicators(
+                            tx.get("origin_country", ""),
+                            tx.get("destination_country", ""),
+                        )
                         alert = TBMLAlert(
                             alert_id=f"TBML-{anomaly.direction.upper()}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
                             alert_type=f"{anomaly.direction}_invoicing",
@@ -322,9 +331,15 @@ class TBMLDetector:
                                 f"Price deviation: {anomaly.deviation_percent:.1f}%",
                                 f"Declared: ${anomaly.declared_price:,.2f}, Market: ${anomaly.market_price:,.2f}",
                                 f"Direction: {anomaly.direction}-invoicing",
+                                "REASON_CODE: MARKET_PRICE_DEVIATION",
+                                *route_risk_indicators,
                             ],
                             timestamp=datetime.now(timezone.utc),
-                            details={"anomaly": anomaly.__dict__, "transaction": tx},
+                            details={
+                                "anomaly": anomaly.__dict__,
+                                "transaction": tx,
+                                "route_risk_indicators": route_risk_indicators,
+                            },
                         )
                         alerts.append(alert)
 
@@ -335,14 +350,15 @@ class TBMLDetector:
         logger.info("Found %s price anomalies, %s high-risk alerts", len(anomalies), len(alerts))
         return anomalies, alerts
 
-    def _check_price_anomaly(self, transaction: Dict) -> Optional[PriceAnomaly]:
+    def _check_price_anomaly(
+        self, transaction: Dict, market_prices: Optional[Dict[str, float]] = None
+    ) -> Optional[PriceAnomaly]:
         """Check if a transaction has price anomaly."""
         amount = transaction.get("amount", 0)
         description = transaction.get("description", "").lower()
 
-        # Try to match against known market prices
-        # In production, this would use product codes or ML classification
-        estimated_market = self._estimate_market_price(description, amount)
+        # Try benchmark lookup first, then fall back to heuristic estimation
+        estimated_market = self._estimate_market_price(description, amount, market_prices)
 
         if estimated_market and estimated_market > 0:
             deviation = (amount - estimated_market) / estimated_market
@@ -362,7 +378,12 @@ class TBMLDetector:
 
         return None
 
-    def _estimate_market_price(self, description: str, declared_amount: float) -> Optional[float]:
+    def _estimate_market_price(
+        self,
+        description: str,
+        declared_amount: float,
+        market_prices: Optional[Dict[str, float]] = None,
+    ) -> Optional[float]:
         """
         Estimate market price for a transaction based on description.
 
@@ -371,7 +392,18 @@ class TBMLDetector:
         - Commodity price feeds
         - ML-based price estimation
         """
-        # Simple heuristic-based estimation
+        normalized_description = (description or "").strip().lower()
+
+        # FR-022: benchmark-based lookup (deterministic ordering)
+        if market_prices:
+            for product_code in sorted(market_prices.keys()):
+                benchmark_price = market_prices.get(product_code)
+                if benchmark_price is None or benchmark_price <= 0:
+                    continue
+                if product_code.strip().lower() in normalized_description:
+                    return benchmark_price
+
+        # Simple heuristic-based estimation fallback
         # Check for common patterns that might indicate manipulation
 
         # High-value items that are often manipulated
@@ -379,18 +411,45 @@ class TBMLDetector:
         tech_keywords = ["electronics", "computer", "phone", "server", "equipment"]
 
         for keyword in high_value_keywords:
-            if keyword in description:
+            if keyword in normalized_description:
                 # Return a range that would flag unusual amounts
                 if declared_amount > 100000:
                     return declared_amount * 0.7  # Suggest potential over-invoicing
 
         for keyword in tech_keywords:
-            if keyword in description:
+            if keyword in normalized_description:
                 if declared_amount > 50000:
                     return declared_amount * 0.75
 
         # Default: No anomaly detected
         return None
+
+    def _get_route_risk_indicators(self, origin_country: str, destination_country: str) -> List[str]:
+        """Return deterministic route-risk indicators for an origin/destination pair."""
+        origin_code = self._normalize_country_code(origin_country)
+        destination_code = self._normalize_country_code(destination_country)
+        indicators: List[str] = []
+
+        if origin_code in TAX_HAVENS:
+            indicators.append(f"ROUTE_RISK: TAX_HAVEN_ORIGIN ({origin_code})")
+        if destination_code in TAX_HAVENS:
+            indicators.append(f"ROUTE_RISK: TAX_HAVEN_DESTINATION ({destination_code})")
+        if origin_code in HIGH_RISK_COUNTRIES or destination_code in HIGH_RISK_COUNTRIES:
+            indicators.append("ROUTE_RISK: HIGH_RISK_COUNTRY")
+
+        return sorted(set(indicators))
+
+    def _normalize_country_code(self, country: Any) -> str:
+        """Normalize route country values to ISO alpha-2 style uppercase code when possible."""
+        if isinstance(country, list) and country:
+            country = country[0]
+        if not isinstance(country, str):
+            return ""
+
+        normalized = country.strip().upper()
+        if len(normalized) >= 2:
+            return normalized[:2]
+        return ""
 
     # =========================================================================
     # SHELL COMPANY NETWORK DETECTION

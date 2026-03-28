@@ -76,6 +76,7 @@ class UBODiscovery:
 
     # Regulatory thresholds
     DEFAULT_OWNERSHIP_THRESHOLD = 25.0  # EU 5AMLD threshold
+    CONTROL_RIGHTS_THRESHOLD = 50.0  # De-facto control rights threshold
     MAX_TRAVERSAL_DEPTH = 10  # Prevent infinite loops
 
     # High-risk jurisdictions (sample list)
@@ -203,7 +204,8 @@ class UBODiscovery:
             indirect_chains = self._find_indirect_owners(company_id, max_depth)
             for chain in indirect_chains:
                 effective_ownership = self._calculate_effective_ownership(chain)
-                if effective_ownership >= self.ownership_threshold:
+                has_control_rights = self._has_control_rights(chain)
+                if effective_ownership >= self.ownership_threshold or has_control_rights:
                     ubo = chain[0]  # The person at the top of the chain
                     ubos.append(
                         {
@@ -212,6 +214,10 @@ class UBODiscovery:
                             "ownership_percentage": effective_ownership,
                             "ownership_type": "indirect",
                             "chain_length": len(chain),
+                            "control_rights": has_control_rights,
+                            "qualification_basis": "ownership"
+                            if effective_ownership >= self.ownership_threshold
+                            else "control_rights",
                         }
                     )
                     ownership_chains.append(chain)
@@ -222,6 +228,10 @@ class UBODiscovery:
                             high_risk_indicators.append(
                                 f"High-risk jurisdiction: {link.entity_name} ({link.jurisdiction})"
                             )
+
+        # Stabilize ordering for deterministic outputs
+        ubos.sort(key=lambda u: (u["person_id"], -u["ownership_percentage"], u["ownership_type"]))
+        high_risk_indicators = sorted(set(high_risk_indicators))
 
         # Calculate risk score
         risk_score = self._calculate_risk_score(ubos, ownership_chains, high_risk_indicators)
@@ -383,6 +393,22 @@ class UBODiscovery:
 
         return effective
 
+    def _has_control_rights(self, chain: List[OwnershipLink]) -> bool:
+        """
+        Determine if any company-layer link in the chain indicates de-facto control rights.
+
+        A control-rights signal is detected when an intermediate company ownership
+        stake exceeds CONTROL_RIGHTS_THRESHOLD, even when cumulative effective
+        ownership is below the ownership qualification threshold.
+        """
+        for link in chain:
+            if (
+                link.entity_type == "company"
+                and link.ownership_percentage > self.CONTROL_RIGHTS_THRESHOLD
+            ):
+                return True
+        return False
+
     def _calculate_risk_score(
         self, ubos: List[Dict], chains: List[List[OwnershipLink]], indicators: List[str]
     ) -> float:
@@ -398,6 +424,11 @@ class UBODiscovery:
         # Base score from structure complexity
         max_layers = max(len(c) for c in chains) if chains else 0
         score += min(max_layers * 10, 30)  # Up to 30 points for complexity
+
+        # Circular ownership structures are an additional risk signal
+        has_cycle = any(len({link.entity_id for link in chain}) < len(chain) for chain in chains)
+        if has_cycle:
+            score += 20
 
         # PEP/Sanctions risk
         for ubo in ubos:

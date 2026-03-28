@@ -547,6 +547,54 @@ class TestInvoiceManipulationDetectionAdvanced:
         anomaly = detector._check_price_anomaly(transaction)
         assert anomaly is None  # Should not trigger at exact threshold
 
+    def test_estimate_market_price_uses_benchmark_mapping_first(self):
+        """Test benchmark market prices override heuristic fallback when matched."""
+        detector = TBMLDetector()
+
+        benchmark_prices = {"gold": 120000.0}
+        estimated = detector._estimate_market_price("gold shipment", 150000.0, benchmark_prices)
+
+        assert estimated == 120000.0
+
+    def test_get_route_risk_indicators_tax_haven_and_high_risk_country(self):
+        """Test deterministic route-risk indicators for tax haven/high-risk country routes."""
+        detector = TBMLDetector()
+
+        indicators = detector._get_route_risk_indicators("ky", "ir")
+
+        assert indicators == sorted(indicators)
+        assert "ROUTE_RISK: TAX_HAVEN_ORIGIN (KY)" in indicators
+        assert "ROUTE_RISK: HIGH_RISK_COUNTRY" in indicators
+
+    def test_detect_invoice_manipulation_adds_reason_code_and_route_indicators(self):
+        """Test FR-022 reason code and route anomaly indicators are present in alerts."""
+        detector = TBMLDetector()
+
+        mock_client = Mock()
+        mock_result = Mock()
+        mock_result.all.return_value.result.return_value = [
+            {
+                "tx_id": "TX-900",
+                "amount": 3000.0,
+                "description": "gold bar shipment",
+                "currency": "USD",
+                "from_company": "Exporter A",
+                "to_company": "Importer B",
+                "origin_country": "US",
+                "destination_country": "KY",
+            }
+        ]
+        mock_client.submit.return_value = mock_result
+        detector.client = mock_client
+
+        anomalies, alerts = detector.detect_invoice_manipulation(market_prices={"gold": 2000.0})
+
+        assert len(anomalies) == 1
+        assert len(alerts) == 1
+        assert "REASON_CODE: MARKET_PRICE_DEVIATION" in alerts[0].indicators
+        assert "ROUTE_RISK: TAX_HAVEN_DESTINATION (KY)" in alerts[0].indicators
+        assert "ROUTE_RISK: TAX_HAVEN_DESTINATION (KY)" in alerts[0].details["route_risk_indicators"]
+
 
 class TestShellCompanyDetectionAdvanced:
     """Advanced tests for shell company detection"""

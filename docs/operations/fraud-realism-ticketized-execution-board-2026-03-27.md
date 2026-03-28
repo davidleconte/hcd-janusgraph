@@ -65,7 +65,7 @@ Use these exact checks based on scope touched by a ticket.
 |---|---|---|---|---|---|---|---|---|
 | FR-020 | P1 | Sanctions multi-factor weighted scoring | Domain + Compliance | L | FR-012 | Name+DOB+country+association weighted model | G-NBK, G-OS, G-DET | Weighted score + reason codes in notebook outputs |
 | FR-021 | P1 | UBO recursive effective ownership/control rights | Domain | L | FR-002 | Deterministic recursive effective-control logic | G-NBK, G-DET | Deterministic >25% control list generated |
-| FR-022 | P1 | TBML economic realism (price benchmark + route anomaly) | Domain | L | FR-002 | Add economic anomaly checks to TBML flow | G-NBK, G-DET | TBML outputs include explicit economic anomaly flags |
+| FR-022 | P1 | TBML economic realism (price benchmark + route anomaly) ✅ DONE (2026-03-28) | Domain | L | FR-002 | Add economic anomaly checks to TBML flow | G-NBK, G-DET | Explicit economic anomaly flags added (`REASON_CODE: MARKET_PRICE_DEVIATION`, route-risk indicators); evidence: `pytest banking/analytics/tests/test_detect_tbml.py -v --no-cov` (60 passed) and `exports/demo-20260328T120423Z/drift_detection.log` (No drift) |
 
 ## Sprint 3 (Missing Scenario Additions, Additive-First) — Weeks 7-12
 

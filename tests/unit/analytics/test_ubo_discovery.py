@@ -327,6 +327,24 @@ class TestUBODiscoveryHelperMethods:
         result = ubo._calculate_effective_ownership(chain)
         assert result == 30.0  # 60% * 50%
 
+    def test_has_control_rights_true_for_company_link_above_threshold(self):
+        """Test control-rights signal when company layer exceeds threshold."""
+        ubo = UBODiscovery()
+        chain = [
+            OwnershipLink("p-1", "person", "John", 20.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "HoldCo", 60.0, OwnershipType.INDIRECT),
+        ]
+        assert ubo._has_control_rights(chain) is True
+
+    def test_has_control_rights_false_without_company_control(self):
+        """Test no control-rights signal without qualifying company layer."""
+        ubo = UBODiscovery()
+        chain = [
+            OwnershipLink("p-1", "person", "John", 20.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "HoldCo", 40.0, OwnershipType.INDIRECT),
+        ]
+        assert ubo._has_control_rights(chain) is False
+
     def test_calculate_risk_score(self):
         """Test risk score calculation"""
         ubo = UBODiscovery()
@@ -377,6 +395,27 @@ class TestUBODiscoveryRiskAssessment:
         score_no_pep = ubo._calculate_risk_score(ubos_no_pep, chains, [])
         score_with_pep = ubo._calculate_risk_score(ubos_with_pep, chains, [])
         assert score_with_pep > score_no_pep
+
+    def test_risk_score_circular_ownership_penalty(self):
+        """Test circular ownership adds deterministic +20 risk penalty."""
+        ubo = UBODiscovery()
+        ubos = [{"is_pep": False, "is_sanctioned": False}]
+
+        non_circular_chain = [
+            OwnershipLink("p-1", "person", "John", 40.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "HoldCo A", 60.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-2", "company", "HoldCo B", 70.0, OwnershipType.INDIRECT),
+        ]
+        circular_chain = [
+            OwnershipLink("p-1", "person", "John", 40.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "HoldCo A", 60.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "HoldCo A", 70.0, OwnershipType.INDIRECT),
+        ]
+
+        non_circular_score = ubo._calculate_risk_score(ubos, [non_circular_chain], [])
+        circular_score = ubo._calculate_risk_score(ubos, [circular_chain], [])
+
+        assert circular_score == non_circular_score + 20.0
 
 
 class TestDiscoverUBOsFunction:
@@ -544,6 +583,87 @@ class TestUBODiscoveryMainMethods:
         assert len(result.ubos) == 1
         assert result.ubos[0]["ownership_type"] == "indirect"
         assert result.ubos[0]["chain_length"] == 2
+
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._get_company_info")
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._find_direct_owners")
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._find_indirect_owners")
+    def test_find_ubos_indirect_control_rights_qualifies_below_ownership_threshold(
+        self, mock_indirect, mock_direct, mock_info
+    ):
+        """Test de-facto control-rights qualification when effective ownership is below threshold."""
+        ubo = UBODiscovery(ownership_threshold=25.0)
+        ubo.g = Mock()
+
+        mock_info.return_value = {"legal_name": "ACME Corp"}
+        mock_direct.return_value = []
+
+        # Effective ownership = 10% * 60% = 6% (<25%), but company-layer control rights apply (>50%)
+        chain = [
+            OwnershipLink("p-1", "person", "John Doe", 10.0, OwnershipType.INDIRECT),
+            OwnershipLink("c-1", "company", "Control HoldCo", 60.0, OwnershipType.INDIRECT),
+        ]
+        mock_indirect.return_value = [chain]
+
+        result = ubo.find_ubos_for_company("c-123", include_indirect=True)
+
+        assert len(result.ubos) == 1
+        assert result.ubos[0]["person_id"] == "p-1"
+        assert result.ubos[0]["ownership_type"] == "indirect"
+        assert result.ubos[0]["control_rights"] is True
+        assert result.ubos[0]["qualification_basis"] == "control_rights"
+        assert result.ubos[0]["ownership_percentage"] == pytest.approx(6.0)
+
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._get_company_info")
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._find_direct_owners")
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery._find_indirect_owners")
+    def test_find_ubos_output_is_deterministically_sorted(
+        self, mock_indirect, mock_direct, mock_info
+    ):
+        """Test deterministic ordering for UBO list and risk indicators."""
+        ubo = UBODiscovery()
+        ubo.g = Mock()
+
+        mock_info.return_value = {"legal_name": "ACME Corp"}
+        mock_direct.return_value = [
+            {
+                "person_id": "p-2",
+                "name": "Bob",
+                "ownership_percentage": 30.0,
+                "is_pep": False,
+                "is_sanctioned": False,
+            },
+            {
+                "person_id": "p-1",
+                "name": "Alice",
+                "ownership_percentage": 35.0,
+                "is_pep": True,
+                "is_sanctioned": False,
+            },
+        ]
+
+        # Add an indirect UBO for p-1 (lower effective ownership than direct record)
+        chain = [
+            OwnershipLink("p-1", "person", "Alice", 40.0, OwnershipType.INDIRECT),
+            OwnershipLink(
+                "c-9",
+                "company",
+                "Offshore HoldCo",
+                70.0,
+                OwnershipType.INDIRECT,
+                jurisdiction="VG",
+            ),
+        ]
+        mock_indirect.return_value = [chain]
+
+        result = ubo.find_ubos_for_company("c-123", include_indirect=True)
+
+        # Sorted by: person_id asc, ownership_percentage desc, ownership_type asc
+        assert [u["person_id"] for u in result.ubos] == ["p-1", "p-1", "p-2"]
+        assert result.ubos[0]["ownership_type"] == "direct"
+        assert result.ubos[1]["ownership_type"] == "indirect"
+        assert result.high_risk_indicators == sorted(set(result.high_risk_indicators))
+        assert "PEP: Alice" in result.high_risk_indicators
+        assert any("High-risk jurisdiction: Offshore HoldCo (VG)" == i for i in result.high_risk_indicators)
 
     @patch("src.python.analytics.ubo_discovery.UBODiscovery._get_company_info")
     @patch("src.python.analytics.ubo_discovery.UBODiscovery._find_direct_owners")
