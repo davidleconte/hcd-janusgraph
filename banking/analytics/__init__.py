@@ -20,6 +20,8 @@ from .detect_procurement import ProcurementFraudAlert, ProcurementFraudDetector
 from .governance import (
     PrecisionProxyResult,
     calculate_precision_proxy,
+    emit_precision_proxy_from_summary,
+    emit_precision_proxy_metric,
     export_kpi_summary,
     precision_proxy_to_dict,
 )
@@ -54,6 +56,8 @@ __all__ = [
     # Governance KPI Utilities
     "PrecisionProxyResult",
     "calculate_precision_proxy",
+    "emit_precision_proxy_from_summary",
+    "emit_precision_proxy_metric",
     "export_kpi_summary",
     "precision_proxy_to_dict",
     # Graph ML

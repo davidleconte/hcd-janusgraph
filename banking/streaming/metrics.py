@@ -229,6 +229,13 @@ def _init_metrics():
         (1, 5, 10, 25, 50, 100, 250, 500, 1000),
     )
 
+    # Alert quality governance metrics
+    _metrics["alert_quality_precision_proxy"] = _safe_gauge(
+        "alert_quality_precision_proxy",
+        "Alert quality precision proxy by scenario and detector",
+        ["scenario", "detector"],
+    )
+
     # Info metric
     _metrics["streaming_info"] = _safe_info("streaming", "Streaming module information")
     if _metrics["streaming_info"]:

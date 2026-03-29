@@ -12,6 +12,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+from banking.streaming.metrics import get_metric
+
 
 @dataclass(frozen=True)
 class PrecisionProxyResult:
@@ -62,3 +64,34 @@ def export_kpi_summary(
 def precision_proxy_to_dict(result: PrecisionProxyResult) -> dict[str, Any]:
     """Convert a precision-proxy result to a plain dictionary."""
     return asdict(result)
+
+
+def emit_precision_proxy_metric(*, scenario: str, detector: str, precision_proxy: float) -> bool:
+    """Emit precision proxy to Prometheus gauge if metric registry is available."""
+    metric = get_metric("alert_quality_precision_proxy")
+    if metric is None:
+        return False
+
+    metric.labels(scenario=scenario, detector=detector).set(precision_proxy)
+    return True
+
+
+def emit_precision_proxy_from_summary(summary_path: str | Path) -> bool:
+    """Load KPI summary JSON and emit precision proxy metric."""
+    summary_file = Path(summary_path)
+    if not summary_file.exists():
+        return False
+
+    payload = json.loads(summary_file.read_text(encoding="utf-8"))
+    scenario = str(payload.get("scenario", "")).strip()
+    detector = str(payload.get("detector", "")).strip()
+    precision_proxy = payload.get("precision_proxy")
+
+    if not scenario or not detector or precision_proxy is None:
+        return False
+
+    return emit_precision_proxy_metric(
+        scenario=scenario,
+        detector=detector,
+        precision_proxy=float(precision_proxy),
+    )
