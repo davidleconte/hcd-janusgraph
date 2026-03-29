@@ -224,3 +224,17 @@ Repeatable pipeline:
    - Pipeline summary: `exports/demo-20260329T112934Z/pipeline_summary.txt` (includes `kpi-trend-aggregation`).
    - Step log: `exports/demo-20260329T112934Z/kpi_trends.log` (KPI Trend Aggregation PASS).
    - Persistent artifact: `exports/evidence/governance/kpi_trend_report.json` (`runs_evaluated: 4`, `overall_avg_precision_proxy: 0.6667`, `status_counts: {"FAIL": 3, "NO_DATA": 1}`).
+
+## 📦 FR-044: Scheduled KPI Evidence Bundling (Completed 2026-03-29)
+
+1. Bundling engine delivered:
+   - `scripts/testing/bundle_governance_evidence.py` generates deterministic governance handoff artifacts from trend/drift outputs.
+2. Pipeline integration delivered:
+   - `scripts/testing/run_demo_pipeline_repeatable.sh` now includes `KPI Evidence Bundling` and `kpi-evidence-bundling` in the summary step list.
+3. Validation delivered:
+   - `tests/unit/test_bundle_governance_evidence.py` added (3 tests).
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/test_bundle_governance_evidence.py tests/unit/test_aggregate_kpi_trends.py tests/unit/test_detect_kpi_drift.py -v --no-cov` ✅ 10 passed.
+4. Artifact generation verified:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python3 scripts/testing/bundle_governance_evidence.py` ✅ success (`latest_run=demo-20260329T112934Z`, `files=6`).
+   - Summary artifact: `exports/evidence/governance/weekly_governance_summary.md`
+   - Bundle artifact: `exports/evidence/governance/governance_evidence_bundle.tar.gz`.
