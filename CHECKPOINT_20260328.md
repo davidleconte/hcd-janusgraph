@@ -211,14 +211,16 @@ Repeatable pipeline:
    - KPI drift gate: ✅ `exports/demo-20260329T104407Z/kpi_drift.log` (report-only mode)
    - Notebook report: ✅ `exports/demo-20260329T104407Z/notebook_run_report.tsv` (`14_Entity_Resolution_Demo.ipynb` PASS, 0 error cells)
 
-## 📈 FR-043: KPI Trend Aggregation & Weekly Evidence Rollup (Step 1, In Progress 2026-03-29)
+## 📈 FR-043: KPI Trend Aggregation & Weekly Evidence Rollup (Completed 2026-03-29)
 
-1. Implementation delivered:
-   - `scripts/testing/aggregate_kpi_trends.py` (new deterministic cross-run KPI trend aggregator).
-   - `scripts/testing/run_demo_pipeline_repeatable.sh` updated with `KPI Trend Aggregation` step and summary step-list entry.
-2. Validation delivered:
+1. Aggregator engine delivered:
+   - `scripts/testing/aggregate_kpi_trends.py` scans historical `exports/demo-*/kpi_drift_verdict.json` artifacts and emits deterministic trend rollups.
+2. Pipeline integration delivered:
+   - `scripts/testing/run_demo_pipeline_repeatable.sh` now includes `KPI Trend Aggregation` as a deterministic gate step and summary step-list entry.
+3. Validation delivered:
    - `tests/unit/test_aggregate_kpi_trends.py` added (3 tests).
    - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/test_aggregate_kpi_trends.py tests/unit/test_detect_kpi_drift.py -v --no-cov` ✅ 7 passed.
-3. Artifact generation verified:
-   - `conda run -n janusgraph-analysis PYTHONPATH=. python3 scripts/testing/aggregate_kpi_trends.py` executed successfully.
-   - Output artifact: `exports/evidence/governance/kpi_trend_report.json`.
+4. Full-run evidence (`demo-20260329T112934Z`):
+   - Pipeline summary: `exports/demo-20260329T112934Z/pipeline_summary.txt` (includes `kpi-trend-aggregation`).
+   - Step log: `exports/demo-20260329T112934Z/kpi_trends.log` (KPI Trend Aggregation PASS).
+   - Persistent artifact: `exports/evidence/governance/kpi_trend_report.json` (`runs_evaluated: 4`, `overall_avg_precision_proxy: 0.6667`, `status_counts: {"FAIL": 3, "NO_DATA": 1}`).
