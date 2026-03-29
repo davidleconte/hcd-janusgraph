@@ -166,9 +166,25 @@ Repeatable pipeline:
    - Run artifacts: `exports/demo-20260328T220806Z/`
    - Drift check: ✅ `exports/demo-20260328T220806Z/drift_detection.log` (no drift)
 
-## ▶️ Next Action (Immediate)
+## 📊 FR-041 & FR-042 Governance Update (2026-03-29)
 
-Continue Sprint execution:
-1. Start FR-040 rollout across remaining core AML/fraud notebooks with standardized case-evidence export schema.
-2. Execute focused notebook gates for FR-040 propagation scope and capture evidence artifacts.
-3. Prepare the next commit bundle with FR-031/FR-032 completion + governance evidence updates.
+### ✅ FR-041: Alert Quality KPI Governance (Completed)
+1. Governance utility delivered:
+   - `banking/analytics/governance.py` (precision-proxy computation + deterministic summary export + metric emission helpers)
+   - `banking/streaming/metrics.py` adds Prometheus gauge `alert_quality_precision_proxy{scenario,detector}`.
+2. Sanctions notebook wiring:
+   - `banking/notebooks/01_Sanctions_Screening_Demo.ipynb` now exports deterministic KPI summary and emits the Prometheus precision metric from summary.
+3. Validation evidence:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_governance.py -v --no-cov` ✅ 6 passed
+   - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/01_Sanctions_Screening_Demo.ipynb` ✅ PASS  
+     Report: `exports/live-notebooks-stable-20260329T085022Z/notebook_run_report.tsv`
+
+### 🔄 FR-042: Alert Behavior Drift Monitoring (Kickoff)
+1. Governance dashboard scaffold active:
+   - `config/grafana/dashboards/alert-quality-governance.json`
+2. Drift thresholds documented for precision-proxy governance:
+   - Warning threshold: `0.90`
+   - High-severity threshold: `0.80`
+   - Baseline anchor: Seed 42 canonical determinism baseline.
+3. Remaining FR-042 implementation:
+   - Automate periodic KPI trend aggregation and publish drift verdict artifacts per run.

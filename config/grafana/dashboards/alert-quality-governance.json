@@ -31,7 +31,7 @@
               "mode": "absolute",
               "steps": [
                 {"value": 0, "color": "red"},
-                {"value": 0.7, "color": "yellow"},
+                {"value": 0.8, "color": "yellow"},
                 {"value": 0.9, "color": "green"}
               ]
             }
@@ -45,7 +45,7 @@
         "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
         "options": {
           "mode": "markdown",
-          "content": "FR-041 kickoff scaffold.\n\nCurrent first metric wiring is exported deterministically by sanctions notebook via `exports/evidence/sanctions/kpi/alert_quality_sanctions_kpi_summary.json`.\n\nNext step: wire KPI exporter to Prometheus metric `alert_quality_precision_proxy`."
+          "content": "FR-041 Alert Quality Dashboard.\n\nGovernance metric `alert_quality_precision_proxy` is emitted from sanctions KPI summaries and visualized here.\n\nFR-042 drift thresholds:\n- Warning: precision proxy < 0.90\n- High severity: precision proxy < 0.80\n- Baseline anchor: Seed 42 canonical determinism artifacts."
         }
       }
     ]
