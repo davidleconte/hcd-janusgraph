@@ -255,3 +255,15 @@ Repeatable pipeline:
      Report: `exports/live-notebooks-stable-20260329T170901Z/notebook_run_report.tsv`
    - Deterministic proof: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` ✅ PASS  
      Artifacts: `exports/demo-20260329T170932Z/` (`drift_detection.log` PASS).
+
+## 🧭 FR-021: UBO Recursive Effective Ownership/Control Rights (Completed 2026-03-29)
+
+1. Recursive/control-rights logic confirmed:
+   - `src/python/analytics/ubo_discovery.py` already implements recursive effective ownership (`_calculate_effective_ownership`) and de-facto control-rights qualification (`_has_control_rights`), with deterministic UBO ordering in `find_ubos_for_company`.
+2. Validation delivered:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/analytics/test_ubo_discovery.py -v --no-cov` ✅ 60 passed.
+3. Gate evidence:
+   - Notebook gate: `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/08_UBO_Discovery_Demo.ipynb` ✅ PASS  
+     Report: `exports/live-notebooks-stable-20260329T173933Z/notebook_run_report.tsv`
+   - Deterministic proof: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` ✅ PASS  
+     Artifacts: `exports/demo-20260329T170932Z/` (`drift_detection.log` PASS).
