@@ -453,7 +453,7 @@ SUMMARY_FILE="${REPORT_DIR}/pipeline_summary.txt"
     echo "Project: ${PROJECT_NAME}"
     echo "Podman connection: ${PODMAN_CONNECTION}"
     echo "Report directory: ${REPORT_DIR}"
-    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, graph-seed, notebook-prereq-proof, notebooks, notebook-output-validation, data-generators, manifest, determinism, drift-detection, kpi-drift-detection"
+    echo "Steps: reset, preflight, isolation, deploy, service-boot, runtime-contracts, runtime-package-fingerprint, notebook-determinism-sweep, service-snapshot, graph-seed, notebook-prereq-proof, notebooks, notebook-output-validation, data-generators, manifest, determinism, drift-detection, kpi-drift-detection, kpi-trend-aggregation"
     echo "SKIP_PREFLIGHT=${SKIP_PREFLIGHT}"
     echo "SKIP_DEPLOY=${SKIP_DEPLOY}"
     echo "SKIP_NOTEBOOKS=${SKIP_NOTEBOOKS}"
@@ -489,6 +489,12 @@ if [[ "$DRY_RUN" == "false" ]]; then
             "python3 scripts/testing/detect_kpi_drift.py ${REPORT_DIR}" \
             "${REPORT_DIR}/kpi_drift.log" \
             python3 scripts/testing/detect_kpi_drift.py "${REPORT_DIR}"
+
+        # KPI trend aggregation for cross-run governance visibility (FR-043)
+        run_cmd "KPI Trend Aggregation" \
+            "python3 scripts/testing/aggregate_kpi_trends.py" \
+            "${REPORT_DIR}/kpi_trends.log" \
+            python3 scripts/testing/aggregate_kpi_trends.py
     fi
 fi
 
