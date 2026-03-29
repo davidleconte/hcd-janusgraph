@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Alert Quality Governance",
+    "tags": ["fraud", "governance", "kpi", "fr-041"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Sanctions Precision Proxy (Scaffold)",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "alert_quality_precision_proxy{scenario=\"sanctions\"}",
+            "legendFormat": "Precision Proxy"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 0.7, "color": "yellow"},
+                {"value": 0.9, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Governance Wiring Notes",
+        "type": "text",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "options": {
+          "mode": "markdown",
+          "content": "FR-041 kickoff scaffold.\n\nCurrent first metric wiring is exported deterministically by sanctions notebook via `exports/evidence/sanctions/kpi/alert_quality_sanctions_kpi_summary.json`.\n\nNext step: wire KPI exporter to Prometheus metric `alert_quality_precision_proxy`."
+        }
+      }
+    ]
+  }
+}

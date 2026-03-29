@@ -17,6 +17,12 @@ from .community_detection import (
 from .detect_ato import ATOAlert, ATODetector
 from .detect_mule_chains import MuleChainAlert, MuleChainDetector
 from .detect_procurement import ProcurementFraudAlert, ProcurementFraudDetector
+from .governance import (
+    PrecisionProxyResult,
+    calculate_precision_proxy,
+    export_kpi_summary,
+    precision_proxy_to_dict,
+)
 from .graph_ml import (
     EmbeddingMethod,
     RiskPrediction,
@@ -45,6 +51,11 @@ __all__ = [
     # Procurement Fraud Detection
     "ProcurementFraudAlert",
     "ProcurementFraudDetector",
+    # Governance KPI Utilities
+    "PrecisionProxyResult",
+    "calculate_precision_proxy",
+    "export_kpi_summary",
+    "precision_proxy_to_dict",
     # Graph ML
     "EmbeddingMethod",
     "RiskPrediction",
