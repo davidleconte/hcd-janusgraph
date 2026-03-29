@@ -323,6 +323,29 @@ curl -s 'http://localhost:9090/api/v1/query?query=rate(query_total[24h])' | \
 podman --remote stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
 ```
 
+### 2.4 Generating Regulator-Ready Evidence (PDF)
+
+Use FR-045 reporting to convert case evidence JSON into deterministic PDF artifacts.
+
+```bash
+# Generate a single PDF report from one case evidence file
+python3 scripts/reporting/generate_case_pdf.py \
+  --input-json exports/evidence/sanctions/example_case.json \
+  --output-pdf exports/evidence/governance/pdf/example_case.pdf \
+  --title "Regulator Evidence - Sanctions Case"
+```
+
+Bundle integration (FR-044 + FR-045):
+
+```bash
+# Include generated PDFs in the weekly governance evidence bundle
+python3 scripts/testing/bundle_governance_evidence.py --pdf
+```
+
+Success criteria:
+- PDF output exists under `exports/evidence/governance/pdf/`
+- Bundle contains PDF artifacts: `exports/evidence/governance/governance_evidence_bundle.tar.gz`
+
 ---
 
 ## 3. Health Checks

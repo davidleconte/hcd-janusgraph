@@ -267,3 +267,15 @@ Repeatable pipeline:
      Report: `exports/live-notebooks-stable-20260329T173933Z/notebook_run_report.tsv`
    - Deterministic proof: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` ✅ PASS  
      Artifacts: `exports/demo-20260329T170932Z/` (`drift_detection.log` PASS).
+
+## 📄 FR-045: Case Evidence PDF Exporter (Step 1, In Progress 2026-03-29)
+
+1. Reporting engine delivered:
+   - New deterministic PDF generator: `scripts/reporting/generate_case_pdf.py`.
+2. Bundle integration delivered:
+   - `scripts/testing/bundle_governance_evidence.py` now supports optional `--pdf` and `--pdf-output-dir` to generate and include PDF artifacts in the weekly governance bundle.
+3. Validation delivered:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/test_generate_case_pdf.py tests/unit/test_bundle_governance_evidence.py -v --no-cov` ✅ 6 passed.
+4. Artifact generation verified:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python3 scripts/testing/bundle_governance_evidence.py --pdf` ✅ success (`files=8`, `pdfs=2`).
+   - PDF artifacts emitted under `exports/evidence/governance/pdf/` and included in `exports/evidence/governance/governance_evidence_bundle.tar.gz`.

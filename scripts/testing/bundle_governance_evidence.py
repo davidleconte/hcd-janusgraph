@@ -9,6 +9,7 @@ a deterministic tar.gz bundle containing key governance artifacts.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import tarfile
 from pathlib import Path
@@ -109,12 +110,53 @@ def _relative_arcname(path: Path, repo_root: Path, exports_root: Path) -> str:
             return path.name
 
 
+def _load_pdf_generator(repo_root: Path):
+    module_path = repo_root / "scripts" / "reporting" / "generate_case_pdf.py"
+    if not module_path.is_file():
+        return None
+
+    spec = importlib.util.spec_from_file_location("generate_case_pdf", module_path)
+    if spec is None or spec.loader is None:
+        return None
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return getattr(module, "generate_case_pdf_from_file", None)
+
+
+def _generate_pdf_artifacts(
+    *,
+    source_json_files: list[Path],
+    repo_root: Path,
+    pdf_output_dir: Path,
+) -> list[Path]:
+    generator = _load_pdf_generator(repo_root=repo_root)
+    if generator is None:
+        raise FileNotFoundError(
+            f"PDF generator not available at {repo_root / 'scripts' / 'reporting' / 'generate_case_pdf.py'}"
+        )
+
+    pdf_output_dir.mkdir(parents=True, exist_ok=True)
+    generated: list[Path] = []
+    for source in sorted({path.resolve() for path in source_json_files if path.is_file()}):
+        output_pdf = pdf_output_dir / f"{source.stem}.pdf"
+        generator(
+            input_json_path=source,
+            output_pdf_path=output_pdf,
+            title=f"Case Evidence Report: {source.stem}",
+        )
+        generated.append(output_pdf.resolve())
+    return generated
+
+
 def build_bundle(
     *,
     exports_root: Path,
     trend_report_path: Path,
     summary_output_path: Path,
     bundle_output_path: Path,
+    generate_pdf: bool = False,
+    pdf_output_dir: Path | None = None,
 ) -> dict[str, Any]:
     if not trend_report_path.is_file():
         raise FileNotFoundError(f"Trend report not found: {trend_report_path}")
@@ -143,6 +185,16 @@ def build_bundle(
     )
     sources = sorted({path.resolve() for path in sources if path.is_file()})
 
+    pdf_artifacts: list[Path] = []
+    if generate_pdf:
+        default_pdf_dir = exports_root / "evidence" / "governance" / "pdf"
+        pdf_artifacts = _generate_pdf_artifacts(
+            source_json_files=[trend_report_path, *([latest_run_dir / "kpi_drift_verdict.json"] if latest_run_dir else [])],
+            repo_root=repo_root,
+            pdf_output_dir=(pdf_output_dir or default_pdf_dir),
+        )
+        sources = sorted({*sources, *(path.resolve() for path in pdf_artifacts)})
+
     with tarfile.open(bundle_output_path, mode="w:gz", compresslevel=9) as archive:
         for source in sources:
             archive.add(
@@ -164,6 +216,14 @@ def build_bundle(
                 exports_root=exports_root,
             )
             for source in sources
+        ],
+        "pdf_artifacts": [
+            _relative_arcname(
+                Path(source),
+                repo_root=repo_root,
+                exports_root=exports_root,
+            )
+            for source in pdf_artifacts
         ],
         "summary_output": str(summary_output_path),
         "bundle_output": str(bundle_output_path),
@@ -196,6 +256,16 @@ def main() -> int:
         ),
         help="Output tar.gz bundle path",
     )
+    parser.add_argument(
+        "--pdf",
+        action="store_true",
+        help="Generate PDF case reports and include them in the bundle",
+    )
+    parser.add_argument(
+        "--pdf-output-dir",
+        default="",
+        help="Optional output directory for generated PDF reports",
+    )
     args = parser.parse_args()
 
     exports_root = Path(args.exports_root).resolve()
@@ -206,6 +276,7 @@ def main() -> int:
     trend_report_path = Path(args.trend_report).resolve()
     summary_output_path = Path(args.summary_output).resolve()
     bundle_output_path = Path(args.bundle_output).resolve()
+    pdf_output_dir = Path(args.pdf_output_dir).resolve() if args.pdf_output_dir else None
 
     try:
         result = build_bundle(
@@ -213,6 +284,8 @@ def main() -> int:
             trend_report_path=trend_report_path,
             summary_output_path=summary_output_path,
             bundle_output_path=bundle_output_path,
+            generate_pdf=args.pdf,
+            pdf_output_dir=pdf_output_dir,
         )
     except FileNotFoundError as exc:
         print(f"❌ {exc}")
@@ -220,7 +293,8 @@ def main() -> int:
 
     print(
         "Governance evidence bundle complete: "
-        f"latest_run={result['latest_run_id']}, files={len(result['files_bundled'])}"
+        f"latest_run={result['latest_run_id']}, files={len(result['files_bundled'])}, "
+        f"pdfs={len(result.get('pdf_artifacts', []))}"
     )
     print(f"Summary: {result['summary_output']}")
     print(f"Bundle: {result['bundle_output']}")

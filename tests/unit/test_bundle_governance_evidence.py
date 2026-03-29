@@ -136,3 +136,64 @@ def test_render_summary_markdown_no_data_row():
     )
 
     assert "| N/A | NO_DATA | 0 | 0 | 0 | None |" in markdown
+
+
+def test_build_bundle_with_pdf_artifacts(tmp_path):
+    """When generate_pdf=True, bundle should include generated PDF artifacts."""
+    module = _load_module()
+
+    exports_root = tmp_path / "exports"
+    latest_run_dir = exports_root / "demo-20260329T130000Z"
+    latest_run_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(
+        latest_run_dir / "kpi_drift_verdict.json",
+        {
+            "status": "FAIL",
+            "records_evaluated": 1,
+            "warning_count": 0,
+            "critical_count": 1,
+            "records": [
+                {"scenario": "sanctions", "detector": "SanctionsScreener", "precision_proxy": 0.6667}
+            ],
+        },
+    )
+
+    trend_report = exports_root / "evidence" / "governance" / "kpi_trend_report.json"
+    _write_json(
+        trend_report,
+        {
+            "runs_evaluated": 1,
+            "overall_avg_precision_proxy": 0.6667,
+            "status_counts": {"FAIL": 1},
+            "run_summaries": [
+                {
+                    "run_id": "demo-20260329T130000Z",
+                    "status": "FAIL",
+                    "records_evaluated": 1,
+                    "warning_count": 0,
+                    "critical_count": 1,
+                    "avg_precision_proxy": 0.6667,
+                }
+            ],
+        },
+    )
+
+    summary_output = exports_root / "evidence" / "governance" / "weekly_governance_summary.md"
+    bundle_output = exports_root / "evidence" / "governance" / "governance_evidence_bundle.tar.gz"
+    pdf_output_dir = exports_root / "evidence" / "governance" / "pdf"
+
+    result = module.build_bundle(
+        exports_root=exports_root,
+        trend_report_path=trend_report,
+        summary_output_path=summary_output,
+        bundle_output_path=bundle_output,
+        generate_pdf=True,
+        pdf_output_dir=pdf_output_dir,
+    )
+
+    assert len(result["pdf_artifacts"]) >= 1
+    assert any(path.endswith(".pdf") for path in result["pdf_artifacts"])
+
+    with tarfile.open(bundle_output, "r:gz") as archive:
+        names = sorted(archive.getnames())
+    assert any(name.endswith(".pdf") for name in names)
