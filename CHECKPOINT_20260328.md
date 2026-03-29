@@ -194,3 +194,19 @@ Repeatable pipeline:
    - Observed signal: sanctions precision proxy `0.6667` below critical threshold, surfaced in artifact/log without blocking pipeline.
 4. Validation:
    - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/test_detect_kpi_drift.py -v --no-cov` ✅ 4 passed
+
+## 🆔 FR-023: Entity Resolution Confidence Calibration (Completed 2026-03-29)
+
+1. Logic hardening delivered:
+   - `banking/analytics/entity_resolution.py` upgraded to deterministic multi-factor weighted linkage scoring.
+   - Standard identity weighting calibrated for high-confidence matches: SSN `0.40`, TaxID `0.40`, Passport `0.30`, DOB `0.10`, Name `0.10`.
+2. Investigator cockpit upgrade:
+   - `banking/notebooks/14_Entity_Resolution_Demo.ipynb` now renders Merge Rationale cards with explicit "Merge" vs "Review" decision framing.
+   - Deterministic evidence export added under `exports/evidence/entity_resolution/` including `ambiguity_class` labels for reviewability.
+3. Validation evidence:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/analytics/tests/test_entity_resolution.py -v --no-cov` ✅ 8 passed
+4. Full-pipeline proof evidence (`demo-20260329T104407Z`):
+   - Pipeline summary: `exports/demo-20260329T104407Z/pipeline_summary.txt`
+   - Drift check: ✅ `exports/demo-20260329T104407Z/drift_detection.log` (no drift vs canonical baseline)
+   - KPI drift gate: ✅ `exports/demo-20260329T104407Z/kpi_drift.log` (report-only mode)
+   - Notebook report: ✅ `exports/demo-20260329T104407Z/notebook_run_report.tsv` (`14_Entity_Resolution_Demo.ipynb` PASS, 0 error cells)
