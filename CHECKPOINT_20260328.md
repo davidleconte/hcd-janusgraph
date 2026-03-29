@@ -179,12 +179,18 @@ Repeatable pipeline:
    - `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/01_Sanctions_Screening_Demo.ipynb` ✅ PASS  
      Report: `exports/live-notebooks-stable-20260329T085022Z/notebook_run_report.tsv`
 
-### 🔄 FR-042: Alert Behavior Drift Monitoring (Kickoff)
-1. Governance dashboard scaffold active:
-   - `config/grafana/dashboards/alert-quality-governance.json`
-2. Drift thresholds documented for precision-proxy governance:
+### ✅ FR-042: Alert Behavior Drift Monitoring (Completed 2026-03-29)
+1. Automated drift detection delivered:
+   - `scripts/testing/detect_kpi_drift.py` added and integrated into `scripts/testing/run_demo_pipeline_repeatable.sh`.
+   - Deterministic verdict artifact emitted per run: `<run_dir>/kpi_drift_verdict.json`.
+2. Policy and thresholds:
    - Warning threshold: `0.90`
    - High-severity threshold: `0.80`
-   - Baseline anchor: Seed 42 canonical determinism baseline.
-3. Remaining FR-042 implementation:
-   - Automate periodic KPI trend aggregation and publish drift verdict artifacts per run.
+   - Operating mode: **Report-only** for P2 (pipeline continues by default; optional `--enforce` for hard-fail mode).
+3. Full-run evidence (`demo-20260329T093747Z`):
+   - Pipeline summary: `exports/demo-20260329T093747Z/pipeline_summary.txt`
+   - Drift step log: `exports/demo-20260329T093747Z/kpi_drift.log`
+   - Verdict artifact: `exports/demo-20260329T093747Z/kpi_drift_verdict.json`
+   - Observed signal: sanctions precision proxy `0.6667` below critical threshold, surfaced in artifact/log without blocking pipeline.
+4. Validation:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest tests/unit/test_detect_kpi_drift.py -v --no-cov` ✅ 4 passed
