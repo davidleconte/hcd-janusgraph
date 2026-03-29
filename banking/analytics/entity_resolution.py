@@ -290,14 +290,14 @@ class EntityResolver:
     # Attribute weights for different resolution contexts
     ATTRIBUTE_WEIGHTS = {
         "standard": {
-            "ssn": 0.30,
-            "tax_id": 0.30,
-            "passport": 0.25,
-            "dob": 0.20,
-            "name": 0.15,
-            "phone": 0.15,
-            "email": 0.10,
-            "address": 0.10,
+            "ssn": 0.40,
+            "tax_id": 0.40,
+            "passport": 0.30,
+            "dob": 0.10,
+            "name": 0.10,
+            "phone": 0.10,
+            "email": 0.05,
+            "address": 0.05,
         },
         "high_complexity": {
             "name": 0.20,
@@ -594,20 +594,30 @@ class EntityResolver:
         signals = []
         weights = self.ATTRIBUTE_WEIGHTS["standard"]
         
-        # Compare SSN/Tax ID (highest weight)
-        for attr in ["ssn", "taxId", "passportNumber"]:
+        # Compare SSN/Tax ID/Passport (highest identity weights)
+        identity_weight_map = {
+            "ssn": "ssn",
+            "taxId": "tax_id",
+            "passportNumber": "passport",
+        }
+        for attr, weight_key in identity_weight_map.items():
             val_a = entity_a.get(attr)
             val_b = entity_b.get(attr)
             if val_a and val_b:
                 score = 1.0 if val_a == val_b else 0.0
+                signal_weight = weights.get(weight_key, 0.25)
+                weighted_contribution = score * signal_weight
                 signals.append(MatchSignal(
                     attribute=attr,
                     value_a=val_a,
                     value_b=val_b,
-                    match_type=MatchType.EXACT if score == 1.0 else MatchType.EXACT,
+                    match_type=MatchType.EXACT,
                     score=score,
-                    weight=weights.get("ssn", 0.25),
-                    explanation=f"{'Match' if score == 1.0 else 'No match'} on {attr}"
+                    weight=signal_weight,
+                    explanation=(
+                        f"{'Match' if score == 1.0 else 'No match'} on {attr} "
+                        f"(weighted contribution: {weighted_contribution:.2f})"
+                    ),
                 ))
         
         # Compare DOB
