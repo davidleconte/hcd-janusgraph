@@ -238,3 +238,15 @@ Repeatable pipeline:
    - `conda run -n janusgraph-analysis PYTHONPATH=. python3 scripts/testing/bundle_governance_evidence.py` ✅ success (`latest_run=demo-20260329T112934Z`, `files=6`).
    - Summary artifact: `exports/evidence/governance/weekly_governance_summary.md`
    - Bundle artifact: `exports/evidence/governance/governance_evidence_bundle.tar.gz`.
+
+## 🛡️ FR-020: Sanctions Multi-factor Weighted Scoring (Step 1, In Progress 2026-03-29)
+
+1. Model contract upgrade delivered:
+   - `banking/aml/sanctions_screening.py` now exposes `weighted_score` and `reason_codes` on `SanctionMatch`.
+2. Detector logic upgrade delivered:
+   - `screen_customer` now emits deterministic weighted reason codes:
+     - `SANCTION_NAME_MATCH`
+     - `JURISDICTION_MATCH`
+     - `ENTITY_TYPE_MATCH`
+3. Validation delivered:
+   - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/aml/tests/test_sanctions_screening.py -v --no-cov` ✅ 22 passed.

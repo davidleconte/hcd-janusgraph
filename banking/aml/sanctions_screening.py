@@ -11,7 +11,7 @@ Updated: 2026-03-23 - Performance optimization: Added LRU cache with TTL for scr
 import logging
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from threading import Lock
 from typing import Any, Dict, List, Optional, Tuple
@@ -38,7 +38,9 @@ class SanctionMatch:
     entity_id: str
     match_type: str  # 'exact', 'fuzzy', 'phonetic'
     risk_level: str  # 'high', 'medium', 'low'
-    metadata: Dict[str, Any]
+    weighted_score: float = 0.0
+    reason_codes: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -318,6 +320,7 @@ class SanctionsScreener:
             source = result["source"]
 
             weighted_components: Optional[Dict[str, float]] = None
+            reason_codes: List[str] = []
             if customer_country is not None or customer_entity_type is not None:
                 country_component = 0.5
                 if customer_country is not None:
@@ -347,6 +350,15 @@ class SanctionsScreener:
                     "weighted_score": score,
                 }
 
+                if base_score >= self.FUZZY_THRESHOLD:
+                    reason_codes.append("SANCTION_NAME_MATCH")
+                if country_component == 1.0:
+                    reason_codes.append("JURISDICTION_MATCH")
+                if entity_type_component == 1.0:
+                    reason_codes.append("ENTITY_TYPE_MATCH")
+            elif base_score >= self.FUZZY_THRESHOLD:
+                reason_codes.append("SANCTION_NAME_MATCH")
+
             # Determine risk level
             if score >= self.HIGH_RISK_THRESHOLD:
                 risk_level = "high"
@@ -375,6 +387,8 @@ class SanctionsScreener:
                 entity_id=source.get("entity_id", source.get("id", "UNKNOWN")),
                 match_type=match_type,
                 risk_level=risk_level,
+                weighted_score=score,
+                reason_codes=reason_codes,
                 metadata=metadata,
             )
             matches.append(match)

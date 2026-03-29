@@ -517,11 +517,18 @@ class TestCustomerScreening:
 
         assert len(result.matches) == 2
         assert result.matches[0].similarity_score > result.matches[1].similarity_score
+        assert result.matches[0].weighted_score == result.matches[0].similarity_score
         assert result.matches[0].metadata["base_similarity_score"] == 0.90
         assert result.matches[0].metadata["country_component"] == 1.0
         assert result.matches[0].metadata["entity_type_component"] == 1.0
+        assert result.matches[0].reason_codes == [
+            "SANCTION_NAME_MATCH",
+            "JURISDICTION_MATCH",
+            "ENTITY_TYPE_MATCH",
+        ]
         assert result.matches[1].metadata["country_component"] == 0.0
         assert result.matches[1].metadata["entity_type_component"] == 0.0
+        assert result.matches[1].reason_codes == ["SANCTION_NAME_MATCH"]
 
 
 # ============================================================================
