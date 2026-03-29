@@ -239,7 +239,7 @@ Repeatable pipeline:
    - Summary artifact: `exports/evidence/governance/weekly_governance_summary.md`
    - Bundle artifact: `exports/evidence/governance/governance_evidence_bundle.tar.gz`.
 
-## 🛡️ FR-020: Sanctions Multi-factor Weighted Scoring (Step 1, In Progress 2026-03-29)
+## 🛡️ FR-020: Sanctions Multi-factor Weighted Scoring (Completed 2026-03-29)
 
 1. Model contract upgrade delivered:
    - `banking/aml/sanctions_screening.py` now exposes `weighted_score` and `reason_codes` on `SanctionMatch`.
@@ -250,3 +250,8 @@ Repeatable pipeline:
      - `ENTITY_TYPE_MATCH`
 3. Validation delivered:
    - `conda run -n janusgraph-analysis PYTHONPATH=. python -m pytest banking/aml/tests/test_sanctions_screening.py -v --no-cov` ✅ 22 passed.
+4. Gate evidence:
+   - Notebook gate: `bash scripts/testing/run_notebooks_live_repeatable.sh banking/notebooks/01_Sanctions_Screening_Demo.ipynb` ✅ PASS  
+     Report: `exports/live-notebooks-stable-20260329T170901Z/notebook_run_report.tsv`
+   - Deterministic proof: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh --status-report exports/deterministic-status.json` ✅ PASS  
+     Artifacts: `exports/demo-20260329T170932Z/` (`drift_detection.log` PASS).
