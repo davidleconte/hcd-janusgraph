@@ -26,8 +26,10 @@ Date: 2026-03-23
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 import hashlib
+import json
 import re
 
 from src.python.client.janusgraph_client import JanusGraphClient
@@ -288,7 +290,7 @@ class EntityResolver:
     """
     
     # Attribute weights for different resolution contexts
-    ATTRIBUTE_WEIGHTS = {
+    DEFAULT_ATTRIBUTE_WEIGHTS = {
         "standard": {
             "ssn": 0.40,
             "tax_id": 0.40,
@@ -319,17 +321,32 @@ class EntityResolver:
             "ip_address": 0.10,
             "behavioral_pattern": 0.15,
             "network_position": 0.10,
-        }
+        },
     }
     
-    def __init__(self, client: JanusGraphClient):
+    def __init__(
+        self,
+        client: JanusGraphClient,
+        weights_config_path: str = "config/analytics/entity_resolution_weights.json",
+    ):
         """
         Initialize entity resolver.
         
         Args:
             client: JanusGraph client connection
+            weights_config_path: JSON config path for attribute weights
         """
         self.client = client
+        self.ATTRIBUTE_WEIGHTS = self._load_attribute_weights(weights_config_path)
+
+    def _load_attribute_weights(self, weights_config_path: str) -> Dict[str, Dict[str, float]]:
+        """Load attribute weights from JSON config with safe fallback to defaults."""
+        config_path = Path(weights_config_path)
+        if config_path.is_file():
+            payload = json.loads(config_path.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                return payload
+        return self.DEFAULT_ATTRIBUTE_WEIGHTS
     
     def resolve(
         self,
