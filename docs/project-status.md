@@ -1,7 +1,7 @@
 # Project Status and Verification Baseline
 
-**Date:** 2026-02-20  
-**Version:** 1.2  
+**Date:** 2026-03-30  
+**Version:** 1.4.0  
 **Status:** Active
 
 ---
