@@ -83,6 +83,7 @@ class UBOResponse(BaseModel):
     target_entity_name: str
     ubos: List[UBOOwner]
     total_layers: int
+    has_circular_ownership: bool = False
     high_risk_indicators: List[str]
     risk_score: float
     query_time_ms: float

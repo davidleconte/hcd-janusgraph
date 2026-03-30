@@ -64,6 +64,7 @@ class UBOResult:
     total_layers: int
     high_risk_indicators: List[str]
     risk_score: float
+    has_circular_ownership: bool = False
 
 
 class UBODiscovery:
@@ -235,6 +236,9 @@ class UBODiscovery:
 
         # Calculate risk score
         risk_score = self._calculate_risk_score(ubos, ownership_chains, high_risk_indicators)
+        has_circular_ownership = any(
+            len({link.entity_id for link in chain}) < len(chain) for chain in ownership_chains
+        )
 
         return UBOResult(
             target_entity_id=company_id,
@@ -244,6 +248,7 @@ class UBODiscovery:
             total_layers=max(len(c) for c in ownership_chains) if ownership_chains else 0,
             high_risk_indicators=high_risk_indicators,
             risk_score=risk_score,
+            has_circular_ownership=has_circular_ownership,
         )
 
     def _get_company_info(self, company_id: str) -> Optional[Dict[str, Any]]:

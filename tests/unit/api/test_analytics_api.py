@@ -461,7 +461,7 @@ class TestRequestValidation:
             with patch("src.python.api.routers.ubo.GraphRepository") as mock_repo_cls:
                 mock_repo = MagicMock()
                 mock_repo.get_company.return_value = {"company_id": "COMP-001", "legal_name": "Test Corp"}
-                mock_repo.find_ubo_owners.return_value = ([], 0)
+                mock_repo.find_ubo_owners.return_value = ([], 0, False)
                 mock_repo_cls.return_value = mock_repo
 
                 response = client.post(

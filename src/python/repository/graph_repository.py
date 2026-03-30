@@ -384,7 +384,7 @@ class GraphRepository:
         *,
         include_indirect: bool = True,
         max_depth: int = 10,
-    ) -> Tuple[List[Dict[str, Any]], int]:
+    ) -> Tuple[List[Dict[str, Any]], int, bool]:
         """Discover UBOs with optional indirect traversal."""
         direct_owners = [
             owner
@@ -397,7 +397,7 @@ class GraphRepository:
             owner["chain_length"] = 1
 
         if not include_indirect:
-            return direct_owners, 1 if direct_owners else 0
+            return direct_owners, 1 if direct_owners else 0, False
 
         # Import lazily to avoid introducing a hard dependency at module import.
         from src.python.analytics.ubo_discovery import UBODiscovery
@@ -420,10 +420,10 @@ class GraphRepository:
                 indirect_owners.append(ubo)
         except concurrent.futures.TimeoutError:
             logger.debug("UBO discovery timed out after 15.0s; falling back to direct owners only")
-            return direct_owners, 1 if direct_owners else 0
+            return direct_owners, 1 if direct_owners else 0, False
         except Exception as exc:
             logger.debug("Fallback to direct owners only: %s", exc)
-            return direct_owners, 1 if direct_owners else 0
+            return direct_owners, 1 if direct_owners else 0, False
 
         # Deduplicate UBOs by person and keep the strongest chain.
         merged: Dict[str, Dict[str, Any]] = {owner["person_id"]: owner for owner in direct_owners}
@@ -441,7 +441,7 @@ class GraphRepository:
             else 0
         )
 
-        return merged_owners, total_layers
+        return merged_owners, total_layers, getattr(result, "has_circular_ownership", False)
 
     def get_owner_vertices(self, company_id: str) -> List[Dict[str, Any]]:
         """Return full valueMap of persons who own a company (for network view)."""

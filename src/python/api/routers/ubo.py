@@ -50,7 +50,7 @@ def discover_ubo(request: Request, body: UBORequest):
     ubos: List[UBOOwner] = []
     high_risk_indicators: List[str] = []
 
-    ubos_payload, total_layers = repo.find_ubo_owners(
+    ubos_payload, total_layers, has_circular_ownership = repo.find_ubo_owners(
         body.company_id,
         ownership_threshold=body.ownership_threshold,
         include_indirect=body.include_indirect,
@@ -82,6 +82,7 @@ def discover_ubo(request: Request, body: UBORequest):
         ),
         ubos=ubos,
         total_layers=total_layers,
+        has_circular_ownership=has_circular_ownership,
         high_risk_indicators=high_risk_indicators,
         risk_score=min(risk_score, 100.0),
         query_time_ms=round(query_time, 2),

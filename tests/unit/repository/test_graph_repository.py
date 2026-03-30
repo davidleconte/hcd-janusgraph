@@ -201,10 +201,11 @@ class TestUBODiscovery:
         mock_g.toList.return_value = [
             {"person_id": "P-1", "name": "Alice", "ownership_percentage": 60.0}
         ]
-        result, layers = repo.find_ubo_owners("COMP-1", include_indirect=False)
+        result, layers, has_circular_ownership = repo.find_ubo_owners("COMP-1", include_indirect=False)
         assert layers == 1
         assert len(result) == 1
         assert result[0]["ownership_type"] == "direct"
+        assert has_circular_ownership is False
 
     @patch("src.python.analytics.ubo_discovery.UBODiscovery.find_ubos_for_company")
     def test_find_ubo_owners_timeout_fallback(self, mock_find_ubos, repo, mock_g):
@@ -215,12 +216,40 @@ class TestUBODiscovery:
         ]
         mock_find_ubos.side_effect = concurrent.futures.TimeoutError("Query timed out")
 
-        result, layers = repo.find_ubo_owners("COMP-1", include_indirect=True, max_depth=50)
+        result, layers, has_circular_ownership = repo.find_ubo_owners(
+            "COMP-1", include_indirect=True, max_depth=50
+        )
 
         assert layers == 1
         assert len(result) == 1
         assert result[0]["person_id"] == "P-1"
         assert result[0]["ownership_type"] == "direct"
+        assert has_circular_ownership is False
+
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery.find_ubos_for_company")
+    def test_find_ubo_owners_propagates_circular_ownership_flag(self, mock_find_ubos, repo, mock_g):
+        discovery_result = MagicMock()
+        discovery_result.ubos = [
+            {
+                "person_id": "P-2",
+                "name": "Bob",
+                "ownership_percentage": 26.0,
+                "ownership_type": "indirect",
+                "chain_length": 2,
+            }
+        ]
+        discovery_result.has_circular_ownership = True
+        mock_find_ubos.return_value = discovery_result
+        mock_g.toList.return_value = []
+
+        result, layers, has_circular_ownership = repo.find_ubo_owners(
+            "COMP-1", include_indirect=True, max_depth=50
+        )
+
+        assert layers == 2
+        assert len(result) == 1
+        assert result[0]["person_id"] == "P-2"
+        assert has_circular_ownership is True
 
     def test_get_owner_vertices(self, repo, mock_g):
         mock_g.toList.return_value = [
