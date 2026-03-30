@@ -453,6 +453,33 @@ class TestRequestValidation:
 
         assert response.status_code == 422
 
+    def test_ubo_discover_accepts_max_depth_50(self, client):
+        """Test UBO discover accepts max depth upper bound of 50."""
+        with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
+            mock_g = MagicMock()
+            mock_conn.return_value = mock_g
+            with patch("src.python.api.routers.ubo.GraphRepository") as mock_repo_cls:
+                mock_repo = MagicMock()
+                mock_repo.get_company.return_value = {"company_id": "COMP-001", "legal_name": "Test Corp"}
+                mock_repo.find_ubo_owners.return_value = ([], 0)
+                mock_repo_cls.return_value = mock_repo
+
+                response = client.post(
+                    "/api/v1/ubo/discover",
+                    json={"company_id": "COMP-001", "max_depth": 50},
+                )
+
+                assert response.status_code != 422
+
+    def test_ubo_discover_rejects_max_depth_over_50(self, client):
+        """Test UBO discover rejects max depth values greater than 50."""
+        response = client.post(
+            "/api/v1/ubo/discover",
+            json={"company_id": "COMP-001", "max_depth": 51},
+        )
+
+        assert response.status_code == 422
+
     def test_structuring_rejects_invalid_time_window(self, client):
         """Test structuring detection rejects invalid time window."""
         response = client.post("/api/v1/aml/structuring", json={"time_window_days": 0})

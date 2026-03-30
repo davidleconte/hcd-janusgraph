@@ -1,6 +1,6 @@
 """Tests for GraphRepository."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from gremlin_python.process.traversal import T
@@ -204,6 +204,22 @@ class TestUBODiscovery:
         result, layers = repo.find_ubo_owners("COMP-1", include_indirect=False)
         assert layers == 1
         assert len(result) == 1
+        assert result[0]["ownership_type"] == "direct"
+
+    @patch("src.python.analytics.ubo_discovery.UBODiscovery.find_ubos_for_company")
+    def test_find_ubo_owners_timeout_fallback(self, mock_find_ubos, repo, mock_g):
+        import concurrent.futures
+
+        mock_g.toList.return_value = [
+            {"person_id": "P-1", "name": "Alice", "ownership_percentage": 60.0}
+        ]
+        mock_find_ubos.side_effect = concurrent.futures.TimeoutError("Query timed out")
+
+        result, layers = repo.find_ubo_owners("COMP-1", include_indirect=True, max_depth=50)
+
+        assert layers == 1
+        assert len(result) == 1
+        assert result[0]["person_id"] == "P-1"
         assert result[0]["ownership_type"] == "direct"
 
     def test_get_owner_vertices(self, repo, mock_g):

@@ -50,7 +50,7 @@ class UBORequest(BaseModel):
         str, StringConstraints(min_length=5, max_length=50, pattern=r"^[A-Z0-9\-_]+$")
     ] = Field(..., description="Company ID to analyze (alphanumeric, hyphens, underscores only)")
     include_indirect: bool = Field(True, description="Include indirect ownership")
-    max_depth: int = Field(10, description="Maximum ownership chain depth", ge=1, le=20)
+    max_depth: int = Field(10, description="Maximum ownership chain depth", ge=1, le=50)
     ownership_threshold: float = Field(
         25.0, description="Minimum ownership percentage", ge=0, le=100
     )

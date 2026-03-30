@@ -93,7 +93,7 @@ def discover_ubo(request: Request, body: UBORequest):
 def get_ownership_network(
     request: Request,
     company_id: str,
-    depth: int = Query(3, ge=1, le=5, description="Traversal depth"),
+    depth: int = Query(3, ge=1, le=50, description="Traversal depth"),
 ):
     """Get ownership network around a company for visualization."""
     repo = GraphRepository(get_graph_connection())

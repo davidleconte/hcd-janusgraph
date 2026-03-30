@@ -18,6 +18,7 @@ Design decisions
 Updated: 2026-03-23 - Added vertex caching for performance optimization
 """
 
+import concurrent.futures
 import logging
 import threading
 from typing import Any, Dict, List, Optional, Tuple
@@ -405,15 +406,21 @@ class GraphRepository:
         try:
             discovery = UBODiscovery(ownership_threshold=ownership_threshold)
             discovery.g = self._g
-            result = discovery.find_ubos_for_company(
-                company_id=company_id,
-                include_indirect=True,
-                max_depth=max_depth,
-            )
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(
+                    discovery.find_ubos_for_company,
+                    company_id=company_id,
+                    include_indirect=True,
+                    max_depth=max_depth,
+                )
+                result = future.result(timeout=15.0)
             for ubo in result.ubos:
                 if ubo["chain_length"] <= 1:
                     continue
                 indirect_owners.append(ubo)
+        except concurrent.futures.TimeoutError:
+            logger.debug("UBO discovery timed out after 15.0s; falling back to direct owners only")
+            return direct_owners, 1 if direct_owners else 0
         except Exception as exc:
             logger.debug("Fallback to direct owners only: %s", exc)
             return direct_owners, 1 if direct_owners else 0
