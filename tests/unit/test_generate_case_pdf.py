@@ -74,3 +74,24 @@ def test_generate_case_pdf_from_file(tmp_path):
     assert output_pdf.is_file()
     assert b"Regulator Evidence" in content
     assert b"ALERT-456" in content
+
+
+def test_generate_case_pdf_supports_deterministic_multi_page_output(tmp_path):
+    """Long evidence payloads should be split across pages without truncation."""
+    module = _load_module()
+
+    case_data = {
+        "alert_id": "ALERT-MULTI",
+        "decision": "REVIEW",
+        "reason_codes": [f"CODE-{index:03d}" for index in range(1, 90)],
+    }
+
+    output_pdf = tmp_path / "multi-page.pdf"
+    module.generate_case_pdf(case_data=case_data, output_pdf_path=output_pdf)
+
+    content = output_pdf.read_bytes()
+    assert output_pdf.is_file()
+    assert content.startswith(b"%PDF-1.4")
+    assert b"ALERT-MULTI" in content
+    assert b"/Count 2" in content
+    assert b"truncated for single-page export" not in content
