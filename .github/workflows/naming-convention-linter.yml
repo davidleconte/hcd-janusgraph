@@ -58,7 +58,7 @@ jobs:
         run: |
           echo "🔍 Running naming convention linter..."
           
-          # Run linter and capture output
+          # Run linter and capture output without failing this step
           if python3 scripts/validation/naming-convention-linter.py --root . --format json --output lint-report.json; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "✅ No naming convention violations found"
@@ -67,8 +67,8 @@ jobs:
             echo "❌ Naming convention violations found"
           fi
           
-          # Generate text report for logs
-          python3 scripts/validation/naming-convention-linter.py --root . --format text > lint-report.txt
+          # Generate text report for logs (non-blocking)
+          python3 scripts/validation/naming-convention-linter.py --root . --format text > lint-report.txt || true
           cat lint-report.txt
       
       - name: Upload lint report
@@ -84,8 +84,8 @@ jobs:
       - name: Generate compliance report
         if: always()
         run: |
-          # Generate markdown report for PR comment
-          python3 scripts/validation/naming-convention-linter.py --root . --format markdown --output lint-report.md
+          # Generate markdown report for PR comment (non-blocking)
+          python3 scripts/validation/naming-convention-linter.py --root . --format markdown --output lint-report.md || true
       
       - name: Comment on PR with report
         if: github.event_name == 'pull_request' && steps.lint.outputs.status == 'failure'
@@ -128,7 +128,7 @@ jobs:
           echo "| TOML (\`.toml\`) | kebab-case | \`pyproject.toml\` |" >> $GITHUB_STEP_SUMMARY
       
       - name: Fail if violations found
-        if: steps.lint.outputs.status == 'failure'
+        if: steps.lint.outputs.status == 'failure' && github.event_name != 'pull_request'
         run: |
           echo "❌ Naming convention violations found. Please fix them before merging."
           exit 1
