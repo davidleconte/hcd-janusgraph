@@ -34,7 +34,7 @@ class VectorSearchClient:
         username: Optional[str] = None,
         password: Optional[str] = None,
         use_ssl: bool = False,
-        verify_certs: bool = False,
+        verify_certs: bool = True,
         ca_certs: Optional[str] = None,
     ):
         """
@@ -46,7 +46,7 @@ class VectorSearchClient:
             username: Authentication username (optional for local dev)
             password: Authentication password (optional for local dev)
             use_ssl: Use SSL/TLS - default False for local development
-            verify_certs: Verify SSL certificates - default False
+            verify_certs: Verify SSL certificates - default True
             ca_certs: Path to CA certificate bundle
 
         Note:
