@@ -47,6 +47,7 @@ class TestSanctionMatch:
         assert match.sanctions_list == "OFAC"
         assert match.match_type == "fuzzy"
         assert match.risk_level == "high"
+        assert match.risk_score_100 == 0.0
 
     def test_match_types(self):
         """Test different match types."""
@@ -526,9 +527,13 @@ class TestCustomerScreening:
             "JURISDICTION_MATCH",
             "ENTITY_TYPE_MATCH",
         ]
+        assert result.matches[0].risk_score_100 == 93.0
+        assert result.matches[0].metadata["risk_score_100"] == 93.0
         assert result.matches[1].metadata["country_component"] == 0.0
         assert result.matches[1].metadata["entity_type_component"] == 0.0
         assert result.matches[1].reason_codes == ["SANCTION_NAME_MATCH"]
+        assert result.matches[1].risk_score_100 == 63.0
+        assert result.matches[1].metadata["risk_score_100"] == 63.0
 
 
 # ============================================================================
