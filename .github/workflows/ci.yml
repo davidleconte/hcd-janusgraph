@@ -13,7 +13,6 @@ concurrency:
 jobs:
   determinism-guard:
     uses: ./.github/workflows/determinism-guard.yml
-    secrets: inherit
 
   determinism-verify:
     needs: [determinism-guard]
@@ -57,14 +56,11 @@ jobs:
   quality-gates:
     needs: [determinism-guard]
     uses: ./.github/workflows/quality-gates.yml
-    secrets: inherit
 
   security-scan:
     needs: [determinism-guard]
     uses: ./.github/workflows/security-scan.yml
-    secrets: inherit
 
   container-scan:
     needs: [determinism-guard]
     uses: ./.github/workflows/container-scan.yml
-    secrets: inherit
