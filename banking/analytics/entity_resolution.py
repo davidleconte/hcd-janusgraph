@@ -290,7 +290,42 @@ class EntityResolver:
     """
     
     # Attribute weights for different resolution contexts
-    DEFAULT_ATTRIBUTE_WEIGHTS = {
+    ATTRIBUTE_WEIGHTS = {
+        "standard": {
+            "ssn": 0.40,
+            "tax_id": 0.40,
+            "passport": 0.30,
+            "dob": 0.10,
+            "name": 0.10,
+            "phone": 0.10,
+            "email": 0.05,
+            "address": 0.05,
+        },
+        "high_complexity": {
+            "name": 0.20,
+            "dob": 0.15,
+            "passport": 0.20,
+            "nationality": 0.10,
+            "company_name": 0.15,
+            "jurisdiction": 0.05,
+            "director_overlap": 0.10,
+            "address": 0.05,
+        },
+        "ultra_high": {
+            "ssn": 0.15,
+            "name": 0.10,
+            "dob": 0.10,
+            "address": 0.10,
+            "phone": 0.08,
+            "device_fingerprint": 0.12,
+            "ip_address": 0.10,
+            "behavioral_pattern": 0.15,
+            "network_position": 0.10,
+        },
+    }
+
+    DEFAULT_ATTRIBUTE_WEIGHTS = ATTRIBUTE_WEIGHTS
+    _IGNORE = {
         "standard": {
             "ssn": 0.40,
             "tax_id": 0.40,
