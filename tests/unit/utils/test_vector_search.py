@@ -30,6 +30,9 @@ class TestVectorSearchClientInit:
     def test_unauthenticated(self, mock_os_client):
         c = VectorSearchClient()
         mock_os_client.info.assert_called_once()
+        kwargs = mock_os_client._mock_new_parent.call_args.kwargs
+        assert kwargs["verify_certs"] is True
+        assert kwargs["use_ssl"] is False
 
     def test_authenticated(self, mock_os_client):
         c = VectorSearchClient(username="admin", password="secret")
@@ -44,6 +47,16 @@ class TestVectorSearchClientInit:
     def test_ssl_options(self, mock_os_client):
         c = VectorSearchClient(use_ssl=True, ca_certs="/path/ca.pem")
         mock_os_client.info.assert_called_once()
+        kwargs = mock_os_client._mock_new_parent.call_args.kwargs
+        assert kwargs["use_ssl"] is True
+        assert kwargs["verify_certs"] is True
+        assert kwargs["ca_certs"] == "/path/ca.pem"
+
+    def test_verify_certs_explicit_override(self, mock_os_client):
+        c = VectorSearchClient(use_ssl=True, verify_certs=False)
+        mock_os_client.info.assert_called_once()
+        kwargs = mock_os_client._mock_new_parent.call_args.kwargs
+        assert kwargs["verify_certs"] is False
 
 
 class TestCreateVectorIndex:
