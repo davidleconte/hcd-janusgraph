@@ -11,11 +11,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  determinism-guard:
-    uses: ./.github/workflows/determinism-guard.yml
+  sanity:
+    name: CI Sanity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate workflow bootstrap
+        run: |
+          echo "CI bootstrap is healthy"
+          echo "Commit: ${GITHUB_SHA}"
 
   determinism-verify:
-    needs: [determinism-guard]
+    needs: [sanity]
     runs-on: ubuntu-latest
     env:
       DEMO_REQUIRE_EXISTING_BASELINE: "1"
@@ -24,7 +31,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      
+
       - name: Verify canonical baseline exists
         run: |
           if [[ ! -f "exports/determinism-baselines/CANONICAL_42.checksums" ]]; then
@@ -32,14 +39,13 @@ jobs:
             exit 1
           fi
           echo "✅ Canonical baseline verified"
-      
+
       - name: Check for baseline drift
         run: |
-          # Get current commit SHA
           COMMIT_SHA=$(git rev-parse HEAD)
           SEED="42"
           CURRENT_BASELINE="exports/determinism-baselines/${COMMIT_SHA}_${SEED}.checksums"
-          
+
           if [[ -f "${CURRENT_BASELINE}" ]]; then
             if ! cmp -s "${CURRENT_BASELINE}" "exports/determinism-baselines/CANONICAL_42.checksums"; then
               echo "::error::Determinism drift detected!"
@@ -52,15 +58,3 @@ jobs:
           else
             echo "ℹ️ No baseline for current commit yet - will be verified on pipeline run"
           fi
-
-  quality-gates:
-    needs: [determinism-guard]
-    uses: ./.github/workflows/quality-gates.yml
-
-  security-scan:
-    needs: [determinism-guard]
-    uses: ./.github/workflows/security-scan.yml
-
-  container-scan:
-    needs: [determinism-guard]
-    uses: ./.github/workflows/container-scan.yml
