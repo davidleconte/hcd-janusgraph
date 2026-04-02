@@ -281,3 +281,14 @@ Repeatable pipeline:
      Artifacts: `exports/demo-20260329T175235Z/` (includes `kpi_bundle.log` and `pipeline_summary.txt`).
    - PDF-enabled bundling refresh: `conda run -n janusgraph-analysis PYTHONPATH=. python3 scripts/testing/bundle_governance_evidence.py --pdf` ✅ success (`latest_run=demo-20260329T175235Z`, `files=8`, `pdfs=2`).
    - PDF artifacts emitted under `exports/evidence/governance/pdf/` and included in `exports/evidence/governance/governance_evidence_bundle.tar.gz`.
+
+## 🏁 Deterministic Proof Pass — 2026-04-02
+
+- **Run ID**: `demo-20260402T101618Z`
+- **Status**: ✅ `exit_code: 0` (all notebooks PASS in repeatable run)
+- **Recent Hardening Commits**:
+  - `93b0201` — UBO traversal depth hardening + 15s timeout fallback.
+  - `83234b8` — Project status/version + notebook inventory docs sync.
+  - `cc3d778` — `has_circular_ownership` propagated through UBO API response.
+  - `1059d80` — Deterministic multi-page PDF exporter hardening.
+- **Drift Check**: ✅ `exports/demo-20260402T101618Z/drift_detection.log` reports no drift detected.
