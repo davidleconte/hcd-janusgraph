@@ -173,6 +173,9 @@ class SanctionsScreener:
         opensearch_port: int = 9200,
         embedding_model: str = "mini",
         index_name: str = "sanctions_list",
+        opensearch_use_ssl: bool = False,
+        opensearch_verify_certs: bool = True,
+        opensearch_ca_certs: Optional[str] = None,
     ):
         """
         Initialize sanctions screener.
@@ -191,7 +194,13 @@ class SanctionsScreener:
 
         # Initialize vector search client
         logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
-        self.search_client = VectorSearchClient(host=opensearch_host, port=opensearch_port)
+        self.search_client = VectorSearchClient(
+            host=opensearch_host,
+            port=opensearch_port,
+            use_ssl=opensearch_use_ssl,
+            verify_certs=opensearch_verify_certs,
+            ca_certs=opensearch_ca_certs,
+        )
 
         # Initialize screening cache (1-hour TTL for "clean" status)
         self._cache = TTLCache(maxsize=10000, ttl_seconds=3600)

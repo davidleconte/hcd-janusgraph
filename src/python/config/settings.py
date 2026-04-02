@@ -64,6 +64,8 @@ class Settings(BaseSettings):
     opensearch_host: str = "localhost"
     opensearch_port: int = 9200
     opensearch_use_ssl: bool = False
+    opensearch_verify_certs: bool = True
+    opensearch_ca_certs: Optional[str] = None
     opensearch_username: Optional[str] = None
     opensearch_password: Optional[str] = None
 

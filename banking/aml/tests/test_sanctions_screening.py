@@ -154,7 +154,13 @@ class TestSanctionsScreenerInit:
 
         assert screener.index_name == "sanctions_list"
         mock_generator.assert_called_once_with(model_name="mini")
-        mock_search_client.assert_called_once_with(host="localhost", port=9200)
+        mock_search_client.assert_called_once_with(
+            host="localhost",
+            port=9200,
+            use_ssl=False,
+            verify_certs=True,
+            ca_certs=None,
+        )
 
     @patch("banking.aml.sanctions_screening.VectorSearchClient")
     @patch("banking.aml.sanctions_screening.EmbeddingGenerator")
@@ -177,7 +183,13 @@ class TestSanctionsScreenerInit:
 
         assert screener.index_name == "custom_sanctions"
         mock_generator.assert_called_once_with(model_name="mpnet")
-        mock_search_client.assert_called_once_with(host="search.example.com", port=9300)
+        mock_search_client.assert_called_once_with(
+            host="search.example.com",
+            port=9300,
+            use_ssl=False,
+            verify_certs=True,
+            ca_certs=None,
+        )
 
     @patch("banking.aml.sanctions_screening.VectorSearchClient")
     @patch("banking.aml.sanctions_screening.EmbeddingGenerator")

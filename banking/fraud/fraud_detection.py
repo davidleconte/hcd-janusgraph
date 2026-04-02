@@ -63,6 +63,9 @@ class FraudDetector(NotebookCompatMixin):
         opensearch_port: int = 9200,
         embedding_model: str = "mpnet",
         use_ssl: bool = os.getenv("JANUSGRAPH_USE_SSL", "false").lower() == "true",
+        opensearch_use_ssl: bool = False,
+        opensearch_verify_certs: bool = True,
+        opensearch_ca_certs: Optional[str] = None,
     ):
         """Initialize fraud detector."""
         logger.info(
@@ -75,7 +78,13 @@ class FraudDetector(NotebookCompatMixin):
         self.generator = EmbeddingGenerator(model_name=embedding_model)
 
         logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
-        self.search_client = VectorSearchClient(host=opensearch_host, port=opensearch_port)
+        self.search_client = VectorSearchClient(
+            host=opensearch_host,
+            port=opensearch_port,
+            use_ssl=opensearch_use_ssl,
+            verify_certs=opensearch_verify_certs,
+            ca_certs=opensearch_ca_certs,
+        )
 
         self.fraud_index = "fraud_cases"
         self._ensure_fraud_index()

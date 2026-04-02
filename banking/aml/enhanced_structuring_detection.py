@@ -70,6 +70,9 @@ class EnhancedStructuringDetector:
         opensearch_host: str = "localhost",
         opensearch_port: int = 9200,
         embedding_model: str = "mpnet",
+        opensearch_use_ssl: bool = False,
+        opensearch_verify_certs: bool = True,
+        opensearch_ca_certs: Optional[str] = None,
     ):
         """
         Initialize enhanced structuring detector.
@@ -91,7 +94,13 @@ class EnhancedStructuringDetector:
 
         # Initialize vector search client
         logger.info("Connecting to OpenSearch: %s:%s", opensearch_host, opensearch_port)
-        self.search_client = VectorSearchClient(host=opensearch_host, port=opensearch_port)
+        self.search_client = VectorSearchClient(
+            host=opensearch_host,
+            port=opensearch_port,
+            use_ssl=opensearch_use_ssl,
+            verify_certs=opensearch_verify_certs,
+            ca_certs=opensearch_ca_certs,
+        )
 
         self.tx_index = "aml_transactions"
         self._ensure_transaction_index()

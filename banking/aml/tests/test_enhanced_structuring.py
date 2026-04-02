@@ -55,7 +55,13 @@ class TestEnhancedDetectorInit:
             embedding_model="bert",
         )
         mock_embed.assert_called_once_with(model_name="bert")
-        mock_search.assert_called_once_with(host="search.example.com", port=9300)
+        mock_search.assert_called_once_with(
+            host="search.example.com",
+            port=9300,
+            use_ssl=False,
+            verify_certs=True,
+            ca_certs=None,
+        )
 
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
