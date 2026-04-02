@@ -207,6 +207,43 @@ class TestPoolContextManager:
         assert pool._closed is True
 
 
+class TestPoolMaintenance:
+    """Test background maintenance behavior."""
+
+    def test_maintenance_thread_starts(self, mock_client_class):
+        config = PoolConfig(pool_size=1, health_check_interval=1)
+        pool = ConnectionPool(config)
+
+        assert pool._maintenance_thread is not None
+        assert pool._maintenance_thread.is_alive() is True
+
+        pool.close()
+
+    def test_background_refill_on_depletion(self, mock_client_class):
+        config = PoolConfig(pool_size=2, health_check_interval=1)
+        pool = ConnectionPool(config)
+
+        drained = [pool._pool.get_nowait(), pool._pool.get_nowait()]
+        assert pool.size == 0
+
+        pool._check_pool_health()
+        assert pool.size == 2
+
+        for conn in drained:
+            pool._destroy_connection(conn)
+        pool.close()
+
+    def test_close_stops_maintenance(self, mock_client_class):
+        config = PoolConfig(pool_size=1, health_check_interval=1)
+        pool = ConnectionPool(config)
+
+        pool.close()
+
+        assert pool._maintenance_stop.is_set() is True
+        if pool._maintenance_thread is not None:
+            assert pool._maintenance_thread.is_alive() is False
+
+
 class TestPoolClose:
     """Test pool closure."""
 

@@ -96,8 +96,11 @@ class ConnectionPool:
         self._closed = False
         self._total_created = 0
         self._total_returned = 0
+        self._maintenance_stop = threading.Event()
+        self._maintenance_thread: Optional[threading.Thread] = None
 
         self._initialize_pool()
+        self._start_maintenance()
         logger.info(
             "ConnectionPool initialized: size=%d, max_overflow=%d, host=%s:%d",
             self._config.pool_size,
@@ -114,6 +117,44 @@ class ConnectionPool:
                 self._pool.put_nowait(conn)
             except Exception as e:
                 logger.warning("Failed to pre-create connection: %s", e)
+
+    def _start_maintenance(self) -> None:
+        """Start background maintenance loop for proactive pool refill."""
+        if self._config.health_check_interval <= 0:
+            return
+
+        self._maintenance_thread = threading.Thread(
+            target=self._maintenance_loop,
+            name=f"connection-pool-maintenance-{id(self)}",
+            daemon=True,
+        )
+        self._maintenance_thread.start()
+
+    def _maintenance_loop(self) -> None:
+        """Continuously check pool health and refill if under target."""
+        while not self._maintenance_stop.wait(self._config.health_check_interval):
+            if self._closed:
+                break
+            self._check_pool_health()
+
+    def _check_pool_health(self) -> None:
+        """Refill available pooled connections up to configured pool_size."""
+        if self._closed:
+            return
+
+        missing = self._config.pool_size - self._pool.qsize()
+        if missing <= 0:
+            return
+
+        for _ in range(missing):
+            if self._closed:
+                break
+            try:
+                conn = self._create_connection()
+                self._pool.put_nowait(conn)
+            except Exception:
+                logger.warning("Failed to refill connection during maintenance", exc_info=True)
+                break
 
     def _create_connection(self) -> _PooledConnection:
         """Create and establish a new JanusGraph client connection.
@@ -233,6 +274,10 @@ class ConnectionPool:
     def close(self) -> None:
         """Close all connections and shut down the pool."""
         self._closed = True
+        self._maintenance_stop.set()
+        if self._maintenance_thread and self._maintenance_thread.is_alive():
+            self._maintenance_thread.join(timeout=self._config.health_check_interval + 1)
+
         while not self._pool.empty():
             try:
                 conn = self._pool.get_nowait()
