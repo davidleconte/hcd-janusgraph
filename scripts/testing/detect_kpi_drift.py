@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -27,9 +26,6 @@ class KPIDriftRecord:
     critical_threshold: float
     severity: str
     source_file: str
-
-
-PRECISION_PROXY_OUTPUT_RE = re.compile(r"Precision Proxy:\s*([0-9]+(?:\.[0-9]+)?)%")
 
 
 def _repo_root() -> Path:
@@ -97,70 +93,6 @@ def _load_record(
     )
 
 
-def _infer_metadata_from_notebook_name(notebook_path: Path) -> tuple[str, str]:
-    name = notebook_path.name.lower()
-    if "sanctions" in name:
-        return "sanctions", "SanctionsScreener"
-    if "aml_structuring" in name:
-        return "aml_structuring", "EnhancedStructuringDetector"
-    if "fraud_detection" in name:
-        return "fraud_detection", "FraudDetector"
-    return notebook_path.stem.lower(), "UnknownDetector"
-
-
-def _records_from_executed_notebooks(
-    report_dir: Path,
-    warning_threshold: float,
-    critical_threshold: float,
-) -> list[KPIDriftRecord]:
-    records: list[KPIDriftRecord] = []
-
-    for notebook_path in sorted(report_dir.glob("*.executed.ipynb")):
-        payload = json.loads(notebook_path.read_text(encoding="utf-8"))
-        cells = payload.get("cells", [])
-        cell_text_fragments: list[str] = []
-
-        for cell in cells:
-            if cell.get("cell_type") != "code":
-                continue
-            for output in cell.get("outputs", []) or []:
-                if output.get("output_type") != "stream":
-                    continue
-                text = output.get("text", "")
-                if isinstance(text, list):
-                    cell_text_fragments.extend(str(item) for item in text)
-                else:
-                    cell_text_fragments.append(str(text))
-
-        merged_text = "\n".join(cell_text_fragments)
-        match = PRECISION_PROXY_OUTPUT_RE.search(merged_text)
-        if not match:
-            continue
-
-        precision_pct = float(match.group(1))
-        precision_proxy = round(precision_pct / 100.0, 4)
-        scenario, detector = _infer_metadata_from_notebook_name(notebook_path)
-        severity = _classify_severity(
-            precision_proxy=precision_proxy,
-            warning_threshold=warning_threshold,
-            critical_threshold=critical_threshold,
-        )
-
-        records.append(
-            KPIDriftRecord(
-                scenario=scenario,
-                detector=detector,
-                precision_proxy=precision_proxy,
-                warning_threshold=warning_threshold,
-                critical_threshold=critical_threshold,
-                severity=severity,
-                source_file=str(notebook_path),
-            )
-        )
-
-    return records
-
-
 def build_verdict(
     report_dir: Path,
     warning_threshold: float,
@@ -178,15 +110,6 @@ def build_verdict(
         )
         if record is not None:
             records.append(record)
-
-    fallback_records_used = False
-    if not records:
-        records = _records_from_executed_notebooks(
-            report_dir=report_dir,
-            warning_threshold=warning_threshold,
-            critical_threshold=critical_threshold,
-        )
-        fallback_records_used = bool(records)
 
     records_sorted = sorted(records, key=lambda r: (r.severity, r.scenario, r.detector, r.source_file))
     critical = [r for r in records_sorted if r.severity == "CRITICAL"]
@@ -209,7 +132,6 @@ def build_verdict(
         "records_evaluated": len(records_sorted),
         "critical_count": len(critical),
         "warning_count": len(warning),
-        "fallback_records_used": fallback_records_used,
         "records": [asdict(item) for item in records_sorted],
     }
 
