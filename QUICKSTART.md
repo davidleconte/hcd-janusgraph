@@ -2,8 +2,8 @@
 
 **File**: QUICKSTART.md
 **Created**: 2026-01-28T10:35:00.123
-**Last Updated**: 2026-02-18
-**Last Verified**: 2026-02-18
+**Last Updated**: 2026-04-02
+**Last Verified**: 2026-04-02
 **Applies To**: Podman-based local deployment with `COMPOSE_PROJECT_NAME=janusgraph-demo`
 **Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
@@ -556,7 +556,7 @@ hcd-tarball-janusgraph/
 - `.env` - Environment variables (NOT committed)
 - `.env.example` - Environment template
 - `Makefile` - Common commands
-- `requirements.txt` - Python dependencies (pip)
+- `requirements.txt` - Python dependencies (install with `uv pip install -r requirements.txt`)
 - `environment.yml` - Conda environment definition
 - `pyproject.toml` - Project metadata and all dependencies
 - `config/compose/docker-compose.full.yml` - Full stack definition

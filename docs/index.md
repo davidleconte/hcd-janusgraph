@@ -1,6 +1,6 @@
 # Documentation Index
 
-**Date:** 2026-03-26  
+**Date:** 2026-04-02  
 **Status:** Active  
 **Project:** HCD + JanusGraph Banking Compliance Platform  
 **TL;DR:** This is the canonical documentation entry point. Use this page to navigate by role, topic, and operational objective.

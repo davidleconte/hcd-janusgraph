@@ -2,8 +2,8 @@
 
 **File**: README.md
 **Created**: 2026-01-28T10:36:00.123
-**Last Updated**: 2026-02-18
-**Last Verified**: 2026-02-18
+**Last Updated**: 2026-04-02
+**Last Verified**: 2026-04-02
 **Applies To**: Podman-based local deployment (`podman-compose`) with `COMPOSE_PROJECT_NAME=janusgraph-demo`
 **Authoritative Status**: [docs/project-status.md](docs/project-status.md)
 **Author**: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.Data Global Product Specialist (GPS)
@@ -43,7 +43,7 @@ Production-ready containerized stack combining **HyperConverged Database (HCD) 1
 
 The HCD (HyperConverged Database) distribution is included via **Git LFS** in the `vendor/` directory.
 
-After cloning, create a symlink so Docker can find it:
+After cloning, create a symlink so Podman can find it:
 
 ```bash
 # Pull LFS files (if not done automatically)
@@ -583,7 +583,7 @@ This gives you a strong, repeatable demo baseline without touching generator log
 
 ## Requirements
 
-- **Podman** 4.9+ (or Docker with Compose plugin)
+- **Podman** 4.9+
 - **Python** 3.11+
 - **Git**
 - **8GB+ RAM** recommended
@@ -644,9 +644,9 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
-**Version**: 2.0.0
+**Version**: 1.4.0
 **Status**: See [docs/project-status.md](docs/project-status.md) for current verified readiness.
-**Last Updated**: 2026-02-07
+**Last Updated**: 2026-04-02
 **Production Readiness**: Current verified metrics are centralized in [docs/project-status.md](docs/project-status.md).
 
 ---
