@@ -22,6 +22,7 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src/python"))
 
 from utils.embedding_generator import EmbeddingGenerator, encode_person_name
+from utils.math import normalize_score_100
 from utils.vector_search import VectorSearchClient
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ class SanctionMatch:
     match_type: str  # 'exact', 'fuzzy', 'phonetic'
     risk_level: str  # 'high', 'medium', 'low'
     weighted_score: float = 0.0
+    risk_score_100: float = 0.0
     reason_codes: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -370,11 +372,14 @@ class SanctionsScreener:
                 risk_level = "low"
                 match_type = "phonetic"
 
+            risk_score_100 = normalize_score_100(score)
+
             metadata = {
                 "entity_type": source.get("type", source.get("entity_type", "")),
                 "country": source.get("country", ""),
                 "aliases": source.get("aliases", ""),
                 "date_added": source.get("added_date", ""),
+                "risk_score_100": risk_score_100,
             }
             if weighted_components is not None:
                 metadata.update(weighted_components)
@@ -388,6 +393,7 @@ class SanctionsScreener:
                 match_type=match_type,
                 risk_level=risk_level,
                 weighted_score=score,
+                risk_score_100=risk_score_100,
                 reason_codes=reason_codes,
                 metadata=metadata,
             )
