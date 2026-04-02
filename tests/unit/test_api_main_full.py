@@ -109,6 +109,7 @@ class TestAPIEndpoints:
                     }
                 ],
                 1,
+                False,
             )
             mock_repo_cls.return_value = mock_repo
             mock_conn.return_value = MagicMock()
@@ -118,6 +119,7 @@ class TestAPIEndpoints:
                 assert resp.status_code == 200
                 data = resp.json()
                 assert len(data["ubos"]) == 1
+                assert "has_circular_ownership" in data
 
     def test_ubo_network_404(self):
         with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:

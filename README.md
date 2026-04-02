@@ -187,7 +187,7 @@ Use this command to run the full deterministic setup + notebook proof with statu
 ```bash
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate janusgraph-analysis
-export PODMAN_CONNECTION="${PODMAN_CONNECTION:-podman-wxd-root}"
+export PODMAN_CONNECTION="${PODMAN_CONNECTION:-}"
 bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh \
   --status-report exports/deterministic-status.json
 ```

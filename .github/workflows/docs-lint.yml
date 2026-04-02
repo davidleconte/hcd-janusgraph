@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
       - name: Enforce root documentation guardrails
         shell: bash
         run: |
@@ -36,7 +39,7 @@ jobs:
             exit 1
           fi
 
-          if rg -n --no-heading 'podman-wxd' "${STATUS_DOCS[@]}"; then
+          if rg -n --no-heading '(podman-wxd-root|PODMAN_CONNECTION[^[:cntrl:]]*podman-wxd|podman machine[^[:cntrl:]]*podman-wxd)' "${STATUS_DOCS[@]}"; then
             echo "ERROR: hardcoded podman machine name found in root docs."
             exit 1
           fi

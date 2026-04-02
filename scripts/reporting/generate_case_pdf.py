@@ -11,6 +11,8 @@ import textwrap
 from pathlib import Path
 from typing import Any
 
+LINES_PER_PAGE = 48
+
 
 def _escape_pdf_text(value: str) -> str:
     return value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
@@ -20,22 +22,56 @@ def _object_bytes(index: int, payload: bytes) -> bytes:
     return f"{index} 0 obj\n".encode("utf-8") + payload + b"\nendobj\n"
 
 
-def _build_pdf_bytes(lines: list[str]) -> bytes:
+def _build_page_stream(lines: list[str]) -> bytes:
     escaped_lines = [_escape_pdf_text(line) for line in lines]
     stream_lines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"]
     for line in escaped_lines:
         stream_lines.append(f"({line}) Tj")
         stream_lines.append("T*")
     stream_lines.append("ET")
-    stream_content = "\n".join(stream_lines).encode("utf-8")
+    return "\n".join(stream_lines).encode("utf-8")
 
-    objects = [
+
+def _chunk_lines(lines: list[str], chunk_size: int) -> list[list[str]]:
+    if not lines:
+        return [[]]
+    return [lines[index : index + chunk_size] for index in range(0, len(lines), chunk_size)]
+
+
+def _build_pdf_bytes(lines: list[str]) -> bytes:
+    pages = _chunk_lines(lines, LINES_PER_PAGE)
+    page_count = len(pages)
+
+    font_object_index = 3 + (2 * page_count)
+    page_kids = " ".join(f"{3 + (2 * page_idx)} 0 R" for page_idx in range(page_count))
+
+    objects: list[bytes] = [
         b"<< /Type /Catalog /Pages 2 0 R >>",
-        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R /Resources << /Font << /F1 4 0 R >> >> >>",
-        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-        b"<< /Length " + str(len(stream_content)).encode("utf-8") + b" >>\nstream\n" + stream_content + b"\nendstream",
+        f"<< /Type /Pages /Kids [{page_kids}] /Count {page_count} >>".encode("utf-8"),
     ]
+
+    for page_idx, page_lines in enumerate(pages):
+        page_object_index = 3 + (2 * page_idx)
+        content_object_index = page_object_index + 1
+        stream_content = _build_page_stream(page_lines)
+
+        page_object = (
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            f"/Contents {content_object_index} 0 R "
+            f"/Resources << /Font << /F1 {font_object_index} 0 R >> >> >>"
+        ).encode("utf-8")
+
+        content_object = (
+            b"<< /Length "
+            + str(len(stream_content)).encode("utf-8")
+            + b" >>\nstream\n"
+            + stream_content
+            + b"\nendstream"
+        )
+
+        objects.extend([page_object, content_object])
+
+    objects.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
 
     header = b"%PDF-1.4\n"
     body = b""
@@ -103,9 +139,6 @@ def _render_case_lines(case_data: dict[str, Any], title: str) -> list[str]:
             rendered = json.dumps(value, sort_keys=True) if isinstance(value, (dict, list)) else str(value)
             for wrapped in textwrap.wrap(f"{key}: {rendered}", width=90) or [""]:
                 lines.append(f"  {wrapped}")
-
-    if len(lines) > 48:
-        lines = lines[:47] + ["(truncated for single-page export)"]
 
     return lines
 

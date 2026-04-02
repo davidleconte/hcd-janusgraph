@@ -1,7 +1,7 @@
 # Project Status and Verification Baseline
 
-**Date:** 2026-02-20  
-**Version:** 1.2  
+**Date:** 2026-04-02  
+**Version:** 1.4.0  
 **Status:** Active
 
 ---
@@ -12,27 +12,19 @@ This is the single source of truth for current project readiness statements in r
 
 To prevent drift, root docs should link here instead of duplicating numeric pass/coverage/grade claims.
 
-## Current Verified Baseline (2026-02-20)
+## Current Verified Baseline (2026-04-02)
 
 - Runtime standard: Podman + `podman-compose` (no Docker runtime commands in runbooks).
 - Deployment standard: run from `config/compose` with explicit project isolation (`COMPOSE_PROJECT_NAME=janusgraph-demo`).
 - Podman connection standard: set `PODMAN_CONNECTION` to the active machine connection in your environment.
 - Determinism status: canonical deterministic setup/proof is enforced via `scripts/deployment/deterministic_setup_and_proof_wrapper.sh` with strict notebook determinism checks enabled by default.
-- Latest deterministic proof run: `exports/deterministic-status.json` reports `exit_code=0` (timestamp `2026-02-20T11:29:02.3NZ`), pipeline run id `demo-20260220T111637Z`.
-- Notebook determinism baseline: `15/15` PASS from `exports/demo-20260220T111637Z/notebook_run_report.tsv`.
+- Latest deterministic proof run: `exports/deterministic-status.json` reports `exit_code=0` (timestamp `2026-04-02T10:40:09.3NZ`), pipeline run id `demo-20260402T101618Z`.
+- Notebook determinism baseline: PASS from `exports/demo-20260402T101618Z/notebook_run_report.tsv`.
 - Coverage gate baseline: enforced `--cov-fail-under=70` in CI and local pytest defaults.
 - Type-check baseline: canonical mypy path is `mypy src/python banking/ --ignore-missing-imports`.
 - Performance governance baseline: deterministic CI gates for runtime SLO and startup/import budgets are configured in `.github/workflows/quality-gates.yml`.
 - Observability baseline: deterministic gate failures (`G0`/`G2`/`G3`/`G5`/`G6`/`G7`/`G8`/`G9`) are mapped to alert classes and triage runbooks in `docs/operations/deterministic-gate-alert-runbook-mapping.md` with machine mapping in `config/monitoring/deterministic-gate-alert-map.yml`.
-- Latest local performance gate baseline (2026-02-20):
-  - runtime SLO gate: PASS (`rps=88.72`, `avg_ms=11.27`, `p95_ms=12.51`, `p99_ms=12.52`)
-  - startup/import budget gate: PASS (`noop_ms=29.36`, `total_import_ms=290.83`, `max_single_import_ms=109.43`, `app_factory_ms=5.12`)
-- Latest local CI-equivalent quality baseline (2026-02-20):
-  - lock-sync export check: PASS
-  - test gate: `2044 passed`, `18 deselected`, coverage `81.43%`
-  - docstring coverage: `90.2%`
-  - mypy: PASS (`Success: no issues found in 110 source files`)
-  - ruff/black/isort: PASS
+- Local performance and CI-equivalent quality details are maintained in run/workflow artifacts and should be referenced from the latest verification evidence for this snapshot (`demo-20260402T101618Z`) instead of duplicating dated numeric summaries here.
 
 ## Determinism Track
 
@@ -42,15 +34,16 @@ Authoritative implementation and planning docs:
 2. `docs/implementation/remediation/codex-full-deterministic-setup-and-run-motion-plan-2026-02-17.md`
 3. `docs/implementation/audits/codex-podman-wxd-fresh-machine-enforcement-matrix-2026-02-17.md`
 
-## Latest Verification Evidence (2026-02-20)
+## Latest Verification Evidence (2026-04-02)
 
-1. `exports/deterministic-status.json`
-2. `exports/demo-20260220T111637Z/pipeline_summary.txt`
-3. `exports/demo-20260220T111637Z/notebook_run_report.tsv`
-4. `exports/demo-20260220T111637Z/determinism.log`
-5. `coverage.xml` (generated from latest quality-gate-equivalent run)
-6. `exports/performance/slo_gate_local.json` (deterministic runtime SLO gate evidence)
-7. `exports/performance/startup_budget_gate_local.json` (startup/import-time budget gate evidence)
+1. `exports/deterministic-status.json` (exit_code `0`, run `demo-20260402T101618Z`)
+2. `exports/demo-20260402T101618Z/pipeline_summary.txt`
+3. `exports/demo-20260402T101618Z/notebook_run_report.tsv`
+4. `exports/demo-20260402T101618Z/determinism.log`
+5. `exports/demo-20260402T101618Z/drift_detection.log`
+6. `exports/demo-20260402T101618Z/kpi_drift.log`
+7. `exports/demo-20260402T101618Z/kpi_trends.log`
+8. `exports/demo-20260402T101618Z/kpi_bundle.log`
 
 ## Update Policy
 

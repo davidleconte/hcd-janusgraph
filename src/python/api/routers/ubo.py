@@ -50,7 +50,7 @@ def discover_ubo(request: Request, body: UBORequest):
     ubos: List[UBOOwner] = []
     high_risk_indicators: List[str] = []
 
-    ubos_payload, total_layers = repo.find_ubo_owners(
+    ubos_payload, total_layers, has_circular_ownership = repo.find_ubo_owners(
         body.company_id,
         ownership_threshold=body.ownership_threshold,
         include_indirect=body.include_indirect,
@@ -82,6 +82,7 @@ def discover_ubo(request: Request, body: UBORequest):
         ),
         ubos=ubos,
         total_layers=total_layers,
+        has_circular_ownership=has_circular_ownership,
         high_risk_indicators=high_risk_indicators,
         risk_score=min(risk_score, 100.0),
         query_time_ms=round(query_time, 2),
@@ -93,7 +94,7 @@ def discover_ubo(request: Request, body: UBORequest):
 def get_ownership_network(
     request: Request,
     company_id: str,
-    depth: int = Query(3, ge=1, le=5, description="Traversal depth"),
+    depth: int = Query(3, ge=1, le=50, description="Traversal depth"),
 ):
     """Get ownership network around a company for visualization."""
     repo = GraphRepository(get_graph_connection())

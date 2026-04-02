@@ -1,14 +1,14 @@
 # Banking Notebooks Guide
 
-**Date:** 2026-02-04
-**Version:** 2.0
+**Date:** 2026-03-30
+**Version:** 2.1
 **Status:** Active
 
 ---
 
 ## Overview
 
-This guide covers the 10 Jupyter notebooks in `banking/notebooks/` that demonstrate the banking compliance platform's capabilities. Several notebooks now feature **cross-service integration**, demonstrating how JanusGraph, OpenSearch, and HCD work together for comprehensive compliance workflows.
+This guide covers the 18 Jupyter notebooks in `banking/notebooks/` that demonstrate the banking compliance platform's capabilities. Several notebooks feature **cross-service integration**, demonstrating how JanusGraph, OpenSearch, and HCD work together for comprehensive compliance workflows.
 
 ### Notebook Architecture
 
@@ -126,12 +126,20 @@ PROJECT_ROOT = config['project_root']
 | 02 | AML_Structuring_Detection_Demo | Detect transaction structuring patterns | JanusGraph | - |
 | 03 | Fraud_Detection_Demo | Identify fraudulent transaction patterns | JanusGraph | - |
 | 04 | Customer_360_View_Demo | Unified customer profile view | JanusGraph | ✅ HCD audit logging |
-| 05 | Advanced_Analytics_OLAP | OLAP-style analytics on graph data | JanusGraph | - |
+| 05 | Advanced_Analytics_OLAP | OLAP-style analytics on graph data | JanusGraph + OpenSearch | ✅ OpenSearch aggregation workflows |
 | 06 | TBML_Detection_Demo | Trade-based money laundering detection | JanusGraph | - |
-| 07 | Insider_Trading_Detection_Demo | Coordinated trading pattern detection | JanusGraph | ✅ OpenSearch MNPI search |
-| 08 | UBO_Discovery_Demo | Ultimate beneficial owner identification | JanusGraph | ✅ OpenSearch fuzzy matching |
-| 09 | API_Integration_Demo | FastAPI analytics service integration | FastAPI | - |
+| 07 | Insider_Trading_Detection_Demo | Coordinated trading pattern detection | JanusGraph + OpenSearch | ✅ OpenSearch MNPI search |
+| 08 | UBO_Discovery_Demo | Ultimate beneficial owner identification | JanusGraph + OpenSearch | ✅ Fuzzy entity matching |
+| 09 | Community_Detection_Demo | Network communities and cluster risk insights | JanusGraph | - |
 | 10 | Integrated_Architecture_Demo | Multi-service architecture demonstration | All Services | ✅ Full integration demo |
+| 11 | Streaming_Pipeline_Demo | Event pipeline from producer to graph/search sinks | Pulsar + JanusGraph + OpenSearch | ✅ End-to-end streaming flow |
+| 12 | API_Integration_Demo | FastAPI analytics service integration | FastAPI + JanusGraph | ✅ Service integration patterns |
+| 13 | Time_Travel_Queries_Demo | Historical state analysis and temporal investigation | JanusGraph | - |
+| 14 | Entity_Resolution_Demo | Identity stitching and duplicate entity resolution | JanusGraph + OpenSearch | ✅ Cross-source entity linking |
+| 15 | Graph_Embeddings_ML_Demo | Graph embeddings and ML-driven risk scoring | JanusGraph + ML stack | ✅ Feature extraction pipeline |
+| 16 | APP_Fraud_Mule_Chains | Authorized push payment fraud and mule-chain tracing | JanusGraph | - |
+| 17 | Account_Takeover_ATO_Demo | Account takeover detection and behavior anomaly signals | JanusGraph + OpenSearch | ✅ Cross-channel signal fusion |
+| 18 | Corporate_Vendor_Fraud_Demo | Corporate procurement/vendor fraud scenario analysis | JanusGraph + OpenSearch | ✅ Corporate fraud evidence graph |
 
 ### Detailed Descriptions
 
@@ -189,11 +197,11 @@ PROJECT_ROOT = config['project_root']
 - **Cross-Service**: OpenSearch fuzzy company name matching for entity resolution
 - **⚠️ Note**: Requires manual execution or longer timeout (>300s) for automated testing due to complex graph traversals. Run interactively for best experience.
 
-#### 09: API Integration Demo
+#### 09: Community Detection Demo
 
-- **Objective**: Demonstrate FastAPI analytics service integration
-- **Techniques**: REST API calls, batch processing
-- **Business Value**: Production-ready API integration patterns
+- **Objective**: Detect communities and high-risk clusters in entity networks
+- **Techniques**: Graph community detection, cluster analysis
+- **Business Value**: Prioritize investigations by suspicious network topology
 
 #### 10: Integrated Architecture Demo
 
@@ -281,4 +289,4 @@ Select "JanusGraph Analysis (Python 3.11)" from kernel dropdown.
 
 ---
 
-*Last Updated: 2026-02-04* (Added NB10, cross-service integration documentation)
+*Last Updated: 2026-03-30* (Updated to 18-notebook inventory and aligned guide metadata)
