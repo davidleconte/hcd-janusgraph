@@ -18,6 +18,7 @@ from src.python.api.models import (
     UBORequest,
     UBOResponse,
 )
+from src.python.client.exceptions import JanusGraphError
 from src.python.repository import GraphRepository
 
 logger = logging.getLogger(__name__)
@@ -50,12 +51,16 @@ def discover_ubo(request: Request, body: UBORequest):
     ubos: List[UBOOwner] = []
     high_risk_indicators: List[str] = []
 
-    ubos_payload, total_layers, has_circular_ownership = repo.find_ubo_owners(
-        body.company_id,
-        ownership_threshold=body.ownership_threshold,
-        include_indirect=body.include_indirect,
-        max_depth=body.max_depth,
-    )
+    try:
+        ubos_payload, total_layers, has_circular_ownership = repo.find_ubo_owners(
+            body.company_id,
+            ownership_threshold=body.ownership_threshold,
+            include_indirect=body.include_indirect,
+            max_depth=body.max_depth,
+        )
+    except JanusGraphError as exc:
+        logger.error("UBO traversal failed: %s", exc)
+        raise HTTPException(status_code=502, detail="Graph database traversal failed")
 
     for owner in ubos_payload:
         ubos.append(
@@ -117,7 +122,11 @@ def get_ownership_network(
     )
     visited.add(company_id)
 
-    owners = repo.get_owner_vertices(company_id)
+    try:
+        owners = repo.get_owner_vertices(company_id)
+    except JanusGraphError as exc:
+        logger.error("Ownership network traversal failed: %s", exc)
+        raise HTTPException(status_code=502, detail="Graph database traversal failed")
 
     for owner_flat in owners:
         person_id = owner_flat.get("person_id")

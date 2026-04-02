@@ -8,10 +8,11 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import List
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from src.python.api.dependencies import get_graph_connection, get_settings, limiter
 from src.python.api.models import StructuringAlert, StructuringAlertRequest, StructuringResponse
+from src.python.client.exceptions import JanusGraphError
 from src.python.repository import GraphRepository
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,14 @@ def detect_structuring(request: Request, body: StructuringAlertRequest):
 
     threshold_low = body.threshold_amount * 0.8
 
-    query_result = repo.get_account_transaction_summaries(account_id=body.account_id)
+    try:
+        if body.account_id and not repo.vertex_exists("account_id", body.account_id):
+            raise HTTPException(status_code=404, detail=f"Account not found: {body.account_id}")
+
+        query_result = repo.get_account_transaction_summaries(account_id=body.account_id)
+    except JanusGraphError as exc:
+        logger.error("Structuring traversal failed: %s", exc)
+        raise HTTPException(status_code=502, detail="Graph database traversal failed")
 
     for result in query_result:
         txn_count = result.get("txn_count", 0)

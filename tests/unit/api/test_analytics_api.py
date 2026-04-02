@@ -18,6 +18,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from src.python.client.exceptions import JanusGraphError
+
 os.environ.setdefault("AUDIT_LOG_DIR", "/tmp/janusgraph-test-logs")
 
 src_path = str(Path(__file__).parent.parent.parent.parent / "src" / "python")
@@ -200,6 +202,30 @@ class TestUBODiscoverEndpoint:
 
         assert response.status_code == 422
 
+    def test_ubo_discover_returns_502_on_graph_traversal_failure(self, client):
+        """Test UBO discover returns 502 when graph traversal fails."""
+        from fastapi import HTTPException
+        from src.python.api.models import UBORequest
+        from src.python.api.routers.ubo import discover_ubo
+
+        inner_fn = discover_ubo.__wrapped__
+        mock_repo = MagicMock()
+        mock_repo.get_company.return_value = {"company_id": "COMP-001", "legal_name": "Test Corp"}
+        mock_repo.find_ubo_owners.side_effect = JanusGraphError("Traversal timeout")
+
+        original_conn = inner_fn.__globals__["get_graph_connection"]
+        original_repo = inner_fn.__globals__["GraphRepository"]
+        inner_fn.__globals__["get_graph_connection"] = lambda *a, **kw: MagicMock()
+        inner_fn.__globals__["GraphRepository"] = lambda *_a, **_kw: mock_repo
+        try:
+            with pytest.raises(HTTPException) as exc_info:
+                inner_fn(MagicMock(), UBORequest(company_id="COMP-001"))
+            assert exc_info.value.status_code == 502
+            assert exc_info.value.detail == "Graph database traversal failed"
+        finally:
+            inner_fn.__globals__["get_graph_connection"] = original_conn
+            inner_fn.__globals__["GraphRepository"] = original_repo
+
     def test_ubo_discover_with_custom_threshold(self, client):
         """Test UBO discover accepts custom ownership threshold."""
         with patch("src.python.api.routers.ubo.get_graph_connection") as mock_conn:
@@ -278,6 +304,29 @@ class TestUBONetworkEndpoint:
 
             assert response.status_code in [200, 404, 500]
 
+    def test_network_returns_502_on_graph_traversal_failure(self, client):
+        """Test network endpoint returns 502 when graph traversal fails."""
+        from fastapi import HTTPException
+        from src.python.api.routers.ubo import get_ownership_network
+
+        inner_fn = get_ownership_network.__wrapped__
+        mock_repo = MagicMock()
+        mock_repo.get_company.return_value = {"company_id": "COMP-001", "legal_name": "Test Corp"}
+        mock_repo.get_owner_vertices.side_effect = JanusGraphError("Traversal failed")
+
+        original_conn = inner_fn.__globals__["get_graph_connection"]
+        original_repo = inner_fn.__globals__["GraphRepository"]
+        inner_fn.__globals__["get_graph_connection"] = lambda *a, **kw: MagicMock()
+        inner_fn.__globals__["GraphRepository"] = lambda *_a, **_kw: mock_repo
+        try:
+            with pytest.raises(HTTPException) as exc_info:
+                inner_fn(MagicMock(), "COMP-001", 3)
+            assert exc_info.value.status_code == 502
+            assert exc_info.value.detail == "Graph database traversal failed"
+        finally:
+            inner_fn.__globals__["get_graph_connection"] = original_conn
+            inner_fn.__globals__["GraphRepository"] = original_repo
+
 
 class TestAMLStructuringEndpoint:
     """Tests for POST /api/v1/aml/structuring endpoint."""
@@ -319,6 +368,55 @@ class TestAMLStructuringEndpoint:
             assert "total_alerts" in data
             assert "analysis_period" in data
             assert "query_time_ms" in data
+
+    def test_structuring_returns_404_for_missing_account(self, client):
+        """Test structuring endpoint returns 404 when account is missing."""
+        from fastapi import HTTPException
+        from src.python.api.models import StructuringAlertRequest
+        from src.python.api.routers.aml import detect_structuring
+
+        inner_fn = detect_structuring.__wrapped__
+        mock_repo = MagicMock()
+        mock_repo.vertex_exists.return_value = False
+
+        original_conn = inner_fn.__globals__["get_graph_connection"]
+        original_repo = inner_fn.__globals__["GraphRepository"]
+        inner_fn.__globals__["get_graph_connection"] = lambda *a, **kw: MagicMock()
+        inner_fn.__globals__["GraphRepository"] = lambda *_a, **_kw: mock_repo
+        try:
+            with pytest.raises(HTTPException) as exc_info:
+                inner_fn(MagicMock(), StructuringAlertRequest(account_id="ACC-NOTFOUND"))
+            assert exc_info.value.status_code == 404
+            assert exc_info.value.detail == "Account not found: ACC-NOTFOUND"
+        finally:
+            inner_fn.__globals__["get_graph_connection"] = original_conn
+            inner_fn.__globals__["GraphRepository"] = original_repo
+
+    def test_structuring_returns_502_on_graph_traversal_failure(self, client):
+        """Test structuring endpoint returns 502 on graph traversal failure."""
+        from fastapi import HTTPException
+        from src.python.api.models import StructuringAlertRequest
+        from src.python.api.routers.aml import detect_structuring
+
+        inner_fn = detect_structuring.__wrapped__
+        mock_repo = MagicMock()
+        mock_repo.vertex_exists.return_value = True
+        mock_repo.get_account_transaction_summaries.side_effect = JanusGraphError(
+            "Backend unavailable"
+        )
+
+        original_conn = inner_fn.__globals__["get_graph_connection"]
+        original_repo = inner_fn.__globals__["GraphRepository"]
+        inner_fn.__globals__["get_graph_connection"] = lambda *a, **kw: MagicMock()
+        inner_fn.__globals__["GraphRepository"] = lambda *_a, **_kw: mock_repo
+        try:
+            with pytest.raises(HTTPException) as exc_info:
+                inner_fn(MagicMock(), StructuringAlertRequest(account_id="ACC-001"))
+            assert exc_info.value.status_code == 502
+            assert exc_info.value.detail == "Graph database traversal failed"
+        finally:
+            inner_fn.__globals__["get_graph_connection"] = original_conn
+            inner_fn.__globals__["GraphRepository"] = original_repo
 
 
 class TestFraudRingsEndpoint:
