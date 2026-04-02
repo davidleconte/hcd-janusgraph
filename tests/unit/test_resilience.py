@@ -9,6 +9,7 @@ from src.python.utils.resilience import (
     CircuitBreakerConfig,
     CircuitOpenError,
     CircuitState,
+    async_retry,
     retry_with_backoff,
 )
 
@@ -140,6 +141,46 @@ class TestRetryWithBackoff:
 
         with pytest.raises(TypeError):
             wrong_type()
+
+
+class TestAsyncRetry:
+    @pytest.mark.asyncio
+    async def test_succeeds_first_try(self):
+        @async_retry(max_retries=2, base_delay=0.01)
+        async def ok():
+            return 42
+
+        assert await ok() == 42
+
+    @pytest.mark.asyncio
+    async def test_retries_on_failure(self, monkeypatch):
+        attempts = [0]
+        sleep_calls = []
+
+        async def fake_sleep(delay):
+            sleep_calls.append(delay)
+
+        monkeypatch.setattr("src.python.utils.resilience.asyncio.sleep", fake_sleep)
+
+        @async_retry(max_retries=2, base_delay=0.01)
+        async def flaky():
+            attempts[0] += 1
+            if attempts[0] < 3:
+                raise ValueError("fail")
+            return "ok"
+
+        assert await flaky() == "ok"
+        assert attempts[0] == 3
+        assert sleep_calls == [0.01, 0.02]
+
+    @pytest.mark.asyncio
+    async def test_raises_after_exhaustion(self):
+        @async_retry(max_retries=1, base_delay=0.01)
+        async def always_fail():
+            raise RuntimeError("permanent")
+
+        with pytest.raises(RuntimeError):
+            await always_fail()
 
 
 class TestCircuitOpenError:
