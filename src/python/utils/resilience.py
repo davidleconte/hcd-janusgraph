@@ -4,6 +4,7 @@ Resilience utilities: retry with backoff and circuit breaker.
 Provides decorators and helpers for fault-tolerant Gremlin operations.
 """
 
+import asyncio
 import logging
 import threading
 import time
@@ -115,6 +116,71 @@ class CircuitBreaker:
             self._state = CircuitState.CLOSED
             self._failure_count = 0
             self._last_failure_time = None
+
+
+
+def async_retry(
+    max_retries: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 30.0,
+    exponential_base: float = 2.0,
+    retryable_exceptions: tuple = (Exception,),
+    circuit_breaker = None,
+) -> callable:
+    """
+    Decorator: asynchronous retry with exponential backoff and optional circuit breaker.
+    Uses asyncio.sleep to avoid blocking the event loop.
+    """
+    from functools import wraps
+
+    def decorator(func: callable) -> callable:
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if circuit_breaker and not circuit_breaker.allow_request():
+                raise CircuitOpenError(
+                    f'Circuit breaker "{circuit_breaker._name}" is OPEN — request rejected'
+                )
+
+            last_exception = None
+            for attempt in range(max_retries + 1):
+                try:
+                    result = await func(*args, **kwargs)
+                    if circuit_breaker:
+                        circuit_breaker.record_success()
+                    return result
+                except retryable_exceptions as e:
+                    last_exception = e
+                    if circuit_breaker:
+                        circuit_breaker.record_failure()
+                    if attempt < max_retries:
+                        delay = min(base_delay * (exponential_base**attempt), max_delay)
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.warning(
+                            'Async Retry %d/%d for %s after %.1fs: %s',
+                            attempt + 1,
+                            max_retries,
+                            func.__name__,
+                            delay,
+                            e,
+                        )
+                        await asyncio.sleep(delay)
+                    else:
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.error(
+                            'All %d async retries exhausted for %s: %s',
+                            max_retries,
+                            func.__name__,
+                            e,
+                        )
+
+            assert last_exception is not None
+            raise last_exception
+
+        return wrapper
+
+    return decorator
 
 
 class CircuitOpenError(Exception):
