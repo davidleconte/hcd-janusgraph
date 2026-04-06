@@ -25,7 +25,7 @@ async-timeout==4.0.3
     # via
     #   gremlinpython
     #   redis
-attrs==25.4.0
+attrs==26.1.0
     # via aiohttp
 bcrypt==5.0.0
     # via hcd-janusgraph-banking
