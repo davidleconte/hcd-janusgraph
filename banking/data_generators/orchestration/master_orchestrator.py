@@ -136,7 +136,7 @@ class GenerationConfig:
 class GenerationStats:
     """Statistics from data generation"""
 
-    start_time: datetime = field(default_factory=datetime.now)
+    start_time: datetime = field(default_factory=lambda: REFERENCE_TIMESTAMP)
     end_time: Optional[datetime] = None
 
     # Entity counts
