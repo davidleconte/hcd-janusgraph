@@ -55,6 +55,35 @@ from ..utils.data_models import Account, Communication, Company, Pattern, Person
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Valid seeds for deterministic baseline management
+# See docs/operations/deterministic-baseline-management.md for details
+VALID_SEEDS = {42, 123, 999}  # Primary, secondary, stress test
+
+
+def validate_seed(seed: Optional[int]) -> None:
+    """
+    Validate that seed is in the approved set for deterministic baselines.
+    
+    Args:
+        seed: Random seed to validate
+        
+    Raises:
+        ValueError: If seed is not None and not in VALID_SEEDS
+        
+    Note:
+        None is allowed (non-deterministic mode for development).
+        Only approved seeds (42, 123, 999) are allowed for production baselines.
+    """
+    if seed is not None and seed not in VALID_SEEDS:
+        raise ValueError(
+            f"Invalid seed {seed}. Must be one of {VALID_SEEDS} or None.\n"
+            f"Approved seeds:\n"
+            f"  42  - Primary baseline (production)\n"
+            f"  123 - Secondary baseline (validation)\n"
+            f"  999 - Stress test baseline\n"
+            f"See docs/operations/deterministic-baseline-management.md for details."
+        )
+
 
 @dataclass
 class GenerationConfig:
@@ -186,9 +215,15 @@ class MasterOrchestrator:
         self.config = config or GenerationConfig()
         self.stats = GenerationStats()
 
+        # Validate seed before using it
+        validate_seed(self.config.seed)
+
         # Set random seed for reproducibility
         if self.config.seed is not None:
             random.seed(self.config.seed)
+            logger.info(f"Using deterministic seed: {self.config.seed}")
+        else:
+            logger.warning("No seed specified - running in non-deterministic mode")
 
         # Initialize core generators
         logger.info("Initializing core generators...")
