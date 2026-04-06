@@ -59,6 +59,7 @@ podman machine list
 
 **Canonical Baseline:** `exports/determinism-baselines/CANONICAL_42.checksums`
 **Strict Mode:** Enabled in CI (`DEMO_REQUIRE_EXISTING_BASELINE=1`)
+**Baseline Management:** See [Baseline Management Guide](docs/operations/deterministic-baseline-management.md)
 
 Deterministic pass criteria:
 - Wrapper status file exists at `exports/deterministic-status.json`.
@@ -66,6 +67,12 @@ Deterministic pass criteria:
 - Notebook report exists and all notebooks are `PASS`.
 - Determinism artifact verification passes (checksums/baseline behavior).
 - **No drift from canonical baseline** (checked by `detect_determinism_drift.sh`).
+
+**Baseline Update Process:**
+- All baseline updates require `[determinism-override]` token in commit message
+- CI automatically verifies baseline quality (`.github/workflows/verify-baseline-update.yml`)
+- Verification scripts: `scripts/validation/verify_baseline_quality.sh`, `scripts/validation/verify_baseline_integrity.sh`
+- Complete process documented in [Baseline Management Guide](docs/operations/deterministic-baseline-management.md)
 
 Protected determinism-sensitive files (require `[determinism-override]` token):
 - `requirements.lock.txt`, `environment.yml`, `uv.lock`

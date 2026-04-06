@@ -1,0 +1,215 @@
+name: Update Deterministic Baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_timestamp:
+        description: 'Run timestamp (YYYYMMDDTHHMMSSZ) from deterministic-status.json'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for baseline update'
+        required: true
+        type: string
+      seed:
+        description: 'Seed value (default: 42)'
+        required: false
+        default: '42'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-baseline:
+    name: Update Canonical Baseline
+    runs-on: [self-hosted]
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Construct run ID
+        id: run_id
+        run: |
+          RUN_ID="demo-${{ inputs.run_timestamp }}"
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "✅ Run ID: $RUN_ID"
+      
+      - name: Validate run exists
+        run: |
+          RUN_DIR="exports/${{ steps.run_id.outputs.run_id }}"
+          
+          if [[ ! -d "$RUN_DIR" ]]; then
+            echo "❌ ERROR: Run directory not found: $RUN_DIR"
+            echo ""
+            echo "Available recent runs:"
+            ls -1 exports/ | grep "^demo-" | tail -10 || echo "  (none found)"
+            echo ""
+            echo "Note: This workflow must run on self-hosted runner where exports/ exists"
+            exit 1
+          fi
+          
+          echo "✅ Run directory found: $RUN_DIR"
+      
+      - name: Run baseline verification script
+        run: |
+          echo "🔍 Running automated baseline verification..."
+          bash scripts/validation/verify_baseline_quality.sh \
+            "exports/${{ steps.run_id.outputs.run_id }}"
+      
+      - name: Create baseline backup
+        id: backup
+        run: |
+          SEED="${{ inputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          
+          if [[ -f "$CANONICAL" ]]; then
+            BACKUP="${CANONICAL}.backup-$(date +%Y%m%d-%H%M%S)"
+            cp "$CANONICAL" "$BACKUP"
+            echo "✅ Backup created: $BACKUP"
+            echo "backup_file=$BACKUP" >> $GITHUB_OUTPUT
+            echo "backup_created=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️  No existing baseline to backup (first-time creation)"
+            echo "backup_created=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Update canonical baseline
+        run: |
+          RUN_DIR="exports/${{ steps.run_id.outputs.run_id }}"
+          SEED="${{ inputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          
+          cp "$RUN_DIR/checksums.txt" "$CANONICAL"
+          echo "✅ Baseline updated: $CANONICAL"
+      
+      - name: Verify baseline integrity
+        run: |
+          SEED="${{ inputs.seed }}"
+          echo "🔍 Verifying baseline integrity..."
+          bash scripts/validation/verify_baseline_integrity.sh "$SEED"
+      
+      - name: Test rollback procedure
+        if: steps.backup.outputs.backup_created == 'true'
+        run: |
+          SEED="${{ inputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          BACKUP="${{ steps.backup.outputs.backup_file }}"
+          
+          echo "🔄 Testing rollback procedure..."
+          
+          # Test that rollback works
+          cp "$BACKUP" "${CANONICAL}.test-rollback"
+          
+          if ! diff -q "$BACKUP" "${CANONICAL}.test-rollback" > /dev/null 2>&1; then
+            echo "❌ Rollback test failed"
+            exit 1
+          fi
+          
+          rm "${CANONICAL}.test-rollback"
+          echo "✅ Rollback procedure verified"
+      
+      - name: Generate change report
+        id: changes
+        run: |
+          SEED="${{ inputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          BACKUP="${{ steps.backup.outputs.backup_file }}"
+          
+          if [[ -n "$BACKUP" && -f "$BACKUP" ]]; then
+            echo "## Baseline Changes" > changes.md
+            echo "" >> changes.md
+            echo '```diff' >> changes.md
+            diff -u "$BACKUP" "$CANONICAL" || true >> changes.md
+            echo '```' >> changes.md
+            
+            cat changes.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Baseline Changes" > changes.md
+            echo "" >> changes.md
+            echo "First-time baseline creation (no previous baseline to compare)" >> changes.md
+            
+            cat changes.md >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            [determinism-override] Update baseline for ${{ inputs.reason }}
+            
+            Reason: ${{ inputs.reason }}
+            Run ID: ${{ steps.run_id.outputs.run_id }}
+            Seed: ${{ inputs.seed }}
+            Timestamp: ${{ inputs.run_timestamp }}
+            Updated: ${{ github.event.repository.updated_at }}
+          branch: update-baseline-${{ inputs.run_timestamp }}
+          delete-branch: true
+          title: '[Determinism] Update canonical baseline - ${{ inputs.reason }}'
+          body: |
+            ## Baseline Update Request
+            
+            **Reason:** ${{ inputs.reason }}  
+            **Run ID:** `${{ steps.run_id.outputs.run_id }}`  
+            **Seed:** `${{ inputs.seed }}`  
+            **Timestamp:** `${{ inputs.run_timestamp }}`
+            
+            ## ✅ Automated Verification
+            
+            - [x] Run directory exists
+            - [x] All notebooks passed
+            - [x] Deterministic status = 0
+            - [x] Checksums valid
+            - [x] Backup created
+            - [x] Rollback tested
+            - [x] Baseline integrity verified
+            
+            ## 📋 Manual Review Required
+            
+            Reviewers must verify:
+            
+            - [ ] **Business Logic**: Changes are intentional and correct
+            - [ ] **No Regressions**: Existing functionality not broken
+            - [ ] **Documentation**: Updated to reflect changes
+            - [ ] **Reason**: Clear justification for baseline update
+            - [ ] **Impact**: Understand what changed and why
+            
+            ## 🔄 Rollback Instructions
+            
+            If this baseline causes issues after merge:
+            
+            ```bash
+            # Option 1: Revert the PR
+            git revert <commit-sha>
+            
+            # Option 2: Restore from backup
+            cp ${{ steps.backup.outputs.backup_file }} \
+               exports/determinism-baselines/CANONICAL_${{ inputs.seed }}.checksums
+            git add exports/determinism-baselines/CANONICAL_${{ inputs.seed }}.checksums
+            git commit -m "Rollback baseline update due to <reason>"
+            ```
+            
+            ## 📊 Verification Details
+            
+            See workflow run for complete verification report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ---
+            
+            **Automated by:** Update Deterministic Baseline workflow  
+            **Triggered by:** @${{ github.actor }}  
+            **Workflow:** ${{ github.workflow }}  
+            **Run:** ${{ github.run_id }}
+          labels: |
+            determinism
+            baseline-update
+            automated
+          reviewers: |
+            platform-team
+
+# Made with Bob

@@ -1,0 +1,290 @@
+name: Verify Baseline Update
+
+on:
+  pull_request:
+    paths:
+      - 'exports/determinism-baselines/CANONICAL_*.checksums'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  verify-baseline:
+    name: Verify Baseline Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Extract run ID from commit message
+        id: extract
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          # Extract Run ID
+          RUN_ID=$(echo "$COMMIT_MSG" | grep -oP 'Run ID: \K[^\s]+' || echo "")
+          if [[ -z "$RUN_ID" ]]; then
+            echo "❌ ERROR: Commit message must include 'Run ID: demo-YYYYMMDDTHHMMSSZ'"
+            echo ""
+            echo "Example commit message:"
+            echo "[determinism-override] Update baseline for feature X"
+            echo ""
+            echo "Reason: Added new notebook for feature X"
+            echo "Run ID: demo-20260406T120000Z"
+            echo "Seed: 42"
+            exit 1
+          fi
+          
+          # Extract Seed (default 42)
+          SEED=$(echo "$COMMIT_MSG" | grep -oP 'Seed: \K\d+' || echo "42")
+          
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "seed=$SEED" >> $GITHUB_OUTPUT
+          
+          echo "✅ Extracted Run ID: $RUN_ID"
+          echo "✅ Extracted Seed: $SEED"
+      
+      - name: Verify run directory exists
+        run: |
+          RUN_DIR="exports/${{ steps.extract.outputs.run_id }}"
+          
+          if [[ ! -d "$RUN_DIR" ]]; then
+            echo "❌ ERROR: Run directory not found: $RUN_DIR"
+            echo ""
+            echo "This means the baseline update references a non-existent run."
+            echo "The run directory must exist in the repository or be uploaded as an artifact."
+            echo ""
+            echo "Available recent runs:"
+            ls -1 exports/ | grep "^demo-" | tail -10 || echo "  (none found)"
+            exit 1
+          fi
+          
+          echo "✅ Run directory exists: $RUN_DIR"
+      
+      - name: Verify all notebooks passed
+        run: |
+          REPORT="exports/${{ steps.extract.outputs.run_id }}/notebook_run_report.tsv"
+          
+          if [[ ! -f "$REPORT" ]]; then
+            echo "❌ ERROR: Notebook report not found: $REPORT"
+            echo ""
+            echo "Required files in run directory:"
+            echo "  - notebook_run_report.tsv"
+            echo "  - deterministic-status.json"
+            echo "  - checksums.txt"
+            exit 1
+          fi
+          
+          # Count failures (any status != PASS)
+          FAILURES=$(awk -F'\t' '$2 != "PASS" && NR>1 {count++} END {print count+0}' "$REPORT")
+          
+          if [[ $FAILURES -gt 0 ]]; then
+            echo "❌ ERROR: Run has $FAILURES failed notebooks"
+            echo ""
+            echo "Failed notebooks:"
+            awk -F'\t' '$2 != "PASS" && NR>1 {print "  - " $1 ": " $2}' "$REPORT"
+            echo ""
+            echo "Baseline can only be updated from runs where ALL notebooks pass."
+            exit 1
+          fi
+          
+          # Count total notebooks
+          TOTAL=$(awk 'END {print NR-1}' "$REPORT")
+          
+          echo "✅ All $TOTAL notebooks passed"
+      
+      - name: Verify deterministic status
+        run: |
+          STATUS="exports/${{ steps.extract.outputs.run_id }}/deterministic-status.json"
+          
+          if [[ ! -f "$STATUS" ]]; then
+            echo "❌ ERROR: Status file not found: $STATUS"
+            exit 1
+          fi
+          
+          # Check exit code
+          EXIT_CODE=$(jq -r '.exit_code // 1' "$STATUS")
+          
+          if [[ "$EXIT_CODE" != "0" ]]; then
+            echo "❌ ERROR: Deterministic pipeline failed with exit code: $EXIT_CODE"
+            echo ""
+            echo "Status details:"
+            jq '.' "$STATUS"
+            echo ""
+            echo "Baseline can only be updated from successful runs (exit_code=0)."
+            exit 1
+          fi
+          
+          # Extract run timestamp
+          RUN_TIMESTAMP=$(jq -r '.run_timestamp // "unknown"' "$STATUS")
+          
+          echo "✅ Deterministic pipeline succeeded"
+          echo "   Exit code: $EXIT_CODE"
+          echo "   Timestamp: $RUN_TIMESTAMP"
+      
+      - name: Verify checksums match
+        run: |
+          SEED="${{ steps.extract.outputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          RUN_CHECKSUMS="exports/${{ steps.extract.outputs.run_id }}/checksums.txt"
+          
+          if [[ ! -f "$RUN_CHECKSUMS" ]]; then
+            echo "❌ ERROR: Run checksums not found: $RUN_CHECKSUMS"
+            exit 1
+          fi
+          
+          # Verify checksums were actually updated
+          if ! diff -q "$CANONICAL" "$RUN_CHECKSUMS" > /dev/null 2>&1; then
+            echo "❌ ERROR: Canonical baseline doesn't match run checksums"
+            echo ""
+            echo "This means the baseline file wasn't properly updated."
+            echo "Expected: canonical should be copied from run checksums"
+            echo ""
+            echo "Diff:"
+            diff -u "$RUN_CHECKSUMS" "$CANONICAL" || true
+            exit 1
+          fi
+          
+          echo "✅ Checksums match between run and canonical"
+      
+      - name: Verify checksum file format
+        run: |
+          SEED="${{ steps.extract.outputs.seed }}"
+          CANONICAL="exports/determinism-baselines/CANONICAL_${SEED}.checksums"
+          
+          # Check line count (should be 5)
+          LINE_COUNT=$(wc -l < "$CANONICAL")
+          if [[ $LINE_COUNT -ne 5 ]]; then
+            echo "❌ ERROR: Baseline has $LINE_COUNT lines, expected 5"
+            echo ""
+            echo "Expected format (5 lines):"
+            echo "  <sha256>  notebook_run_report.tsv"
+            echo "  <sha256>  image_digests.txt"
+            echo "  <sha256>  dependency_fingerprint.txt"
+            echo "  <sha256>  runtime_package_fingerprint.txt"
+            echo "  <sha256>  deterministic_manifest.json"
+            exit 1
+          fi
+          
+          # Verify SHA-256 format (64 hex chars + 2 spaces + filename)
+          if ! grep -qE '^[a-f0-9]{64}  [a-zA-Z0-9_.-]+$' "$CANONICAL"; then
+            echo "❌ ERROR: Baseline has invalid checksum format"
+            echo ""
+            echo "Each line must be: <64-char-hex>  <filename>"
+            cat "$CANONICAL"
+            exit 1
+          fi
+          
+          echo "✅ Checksum file format valid"
+      
+      - name: Verify [determinism-override] token
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          if ! echo "$COMMIT_MSG" | grep -q '\[determinism-override\]'; then
+            echo "❌ ERROR: Commit message must include [determinism-override] token"
+            echo ""
+            echo "This token signals intentional baseline change and is required for:"
+            echo "  1. Bypassing determinism-guard CI check"
+            echo "  2. Audit trail of intentional changes"
+            echo "  3. Review process awareness"
+            echo ""
+            echo "Example:"
+            echo "[determinism-override] Update baseline for feature X"
+            exit 1
+          fi
+          
+          echo "✅ Override token present"
+      
+      - name: Generate verification report
+        run: |
+          RUN_ID="${{ steps.extract.outputs.run_id }}"
+          SEED="${{ steps.extract.outputs.seed }}"
+          REPORT="exports/${RUN_ID}/notebook_run_report.tsv"
+          
+          cat > baseline-verification-report.md <<EOF
+          # Baseline Update Verification Report
+          
+          **Run ID:** \`${RUN_ID}\`
+          **Seed:** \`${SEED}\`
+          **Verified:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          **PR:** #${{ github.event.pull_request.number }}
+          
+          ## ✅ Automated Verification Results
+          
+          - ✅ Run directory exists
+          - ✅ All notebooks passed
+          - ✅ Deterministic pipeline succeeded (exit_code=0)
+          - ✅ Checksums match between run and canonical
+          - ✅ Checksum file format valid
+          - ✅ Override token present in commit message
+          
+          ## 📊 Baseline Quality Metrics
+          
+          ### Notebook Results
+          \`\`\`
+          $(cat "$REPORT" 2>/dev/null || echo "Report not available")
+          \`\`\`
+          
+          ### Deterministic Status
+          \`\`\`json
+          $(cat "exports/${RUN_ID}/deterministic-status.json" 2>/dev/null || echo "{}")
+          \`\`\`
+          
+          ## 📋 Manual Review Checklist
+          
+          Reviewers must verify:
+          
+          - [ ] **Business Logic**: Changes are intentional and correct
+          - [ ] **No Regressions**: Existing functionality not broken
+          - [ ] **Documentation**: Updated to reflect changes
+          - [ ] **Reason**: Clear justification for baseline update
+          - [ ] **Impact**: Understand what changed and why
+          
+          ## 🔄 Rollback Instructions
+          
+          If this baseline causes issues after merge:
+          
+          \`\`\`bash
+          # Option 1: Revert the commit
+          git revert <commit-sha>
+          
+          # Option 2: Restore from backup (if available)
+          cp exports/determinism-baselines/CANONICAL_${SEED}.checksums.backup-* \\
+             exports/determinism-baselines/CANONICAL_${SEED}.checksums
+          git add exports/determinism-baselines/CANONICAL_${SEED}.checksums
+          git commit -m "Rollback baseline update due to <reason>"
+          \`\`\`
+          
+          ## 📝 Audit Trail
+          
+          - **Commit:** ${{ github.event.pull_request.head.sha }}
+          - **Author:** ${{ github.event.pull_request.user.login }}
+          - **Date:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - **Workflow:** ${{ github.workflow }}
+          - **Run:** ${{ github.run_id }}
+          EOF
+          
+          # Add to workflow summary
+          cat baseline-verification-report.md >> $GITHUB_STEP_SUMMARY
+      
+      - name: Post verification report as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('baseline-verification-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+# Made with Bob
