@@ -332,7 +332,7 @@ urllib3==2.6.3
     #   requests
 wcwidth==0.5.3
     # via prompt-toolkit
-wrapt==1.17.3
+wrapt==2.1.2
     # via deprecated
 yarl==1.22.0
     # via aiohttp
