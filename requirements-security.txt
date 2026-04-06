@@ -369,7 +369,7 @@ wcwidth==0.5.3
     # via prompt-toolkit
 webencodings==0.5.1
     # via bleach
-wrapt==1.17.3
+wrapt==2.1.2
     # via deprecated
 yarl==1.22.0
     # via aiohttp
