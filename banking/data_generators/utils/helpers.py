@@ -22,6 +22,7 @@ from .constants import (
     SUSPICIOUS_KEYWORDS,
     TAX_HAVENS,
 )
+from .deterministic import REFERENCE_TIMESTAMP
 
 # ============================================================================
 # RANDOM GENERATION HELPERS
@@ -465,14 +466,14 @@ def detect_structuring_pattern(
         return False
 
     # Sort by timestamp
-    sorted_txns = sorted(transactions, key=lambda x: x.get("timestamp", datetime.now()))
+    sorted_txns = sorted(transactions, key=lambda x: x.get("timestamp", REFERENCE_TIMESTAMP))
 
     # Check for multiple transactions just below threshold within time window
     suspicious_count = 0
-    window_start = sorted_txns[0].get("timestamp", datetime.now())
+    window_start = sorted_txns[0].get("timestamp", REFERENCE_TIMESTAMP)
 
     for txn in sorted_txns:
-        txn_time = txn.get("timestamp", datetime.now())
+        txn_time = txn.get("timestamp", REFERENCE_TIMESTAMP)
         amount = txn.get("amount", Decimal("0"))
 
         # Reset window if beyond time limit

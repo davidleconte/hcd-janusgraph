@@ -17,6 +17,8 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from faker import Faker
 
+from ..utils.deterministic import REFERENCE_TIMESTAMP
+
 # Type variable for generated entity type
 T = TypeVar("T")
 
@@ -99,7 +101,7 @@ class BaseGenerator(ABC, Generic[T]):
         Returns:
             List of generated entities
         """
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = REFERENCE_TIMESTAMP
         entities = []
 
         for i in range(count):
@@ -130,7 +132,7 @@ class BaseGenerator(ABC, Generic[T]):
         rate = None
 
         if self.start_time:
-            elapsed_time = (datetime.now(timezone.utc) - self.start_time).total_seconds()
+            elapsed_time = (REFERENCE_TIMESTAMP - self.start_time).total_seconds()
             if elapsed_time > 0:
                 rate = self.generated_count / elapsed_time
 

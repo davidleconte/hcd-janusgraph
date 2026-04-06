@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from ..core.account_generator import AccountGenerator
+from ..utils.deterministic import REFERENCE_TIMESTAMP
 from ..core.company_generator import CompanyGenerator
 
 # Core generators
@@ -136,7 +137,7 @@ class GenerationStats:
 
     def finalize(self):
         """Calculate final statistics"""
-        self.end_time = datetime.now()
+        self.end_time = REFERENCE_TIMESTAMP
         self.generation_time_seconds = (self.end_time - self.start_time).total_seconds()
         self.total_records = (
             self.persons_generated

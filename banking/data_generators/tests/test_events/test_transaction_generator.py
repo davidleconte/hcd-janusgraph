@@ -86,8 +86,10 @@ class TestTransactionGeneratorFunctional:
             assert txn.transaction_type.value in [t.value for t in TransactionType]
 
     def test_timestamp_reasonable(self, sample_transactions):
-        """Test timestamps are within reasonable range"""
-        now = datetime.now()
+        """Test timestamps are within reasonable range (using REFERENCE_TIMESTAMP)"""
+        from banking.data_generators.utils.deterministic import REFERENCE_TIMESTAMP
+        
+        now = REFERENCE_TIMESTAMP
         one_year_ago = now - timedelta(days=365)
 
         for txn in sample_transactions:

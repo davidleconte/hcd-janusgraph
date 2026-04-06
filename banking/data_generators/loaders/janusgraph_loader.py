@@ -24,6 +24,8 @@ from typing import Any, Dict, List, Optional
 
 from gremlin_python.driver import client, serializer
 
+from ..utils.deterministic import REFERENCE_TIMESTAMP
+
 logger = logging.getLogger(__name__)
 
 REQUIRED_PERSON_FIELDS = {
@@ -567,7 +569,7 @@ class JanusGraphLoader:
             orchestrator: MasterOrchestrator instance with generated data
             clear_first: Whether to clear the graph before loading
         """
-        self.stats["start_time"] = datetime.now()
+        self.stats["start_time"] = REFERENCE_TIMESTAMP
 
         try:
             self.connect()
@@ -599,7 +601,7 @@ class JanusGraphLoader:
 
             # 4.5 Load trades
             self.load_trades(orchestrator.trades, account_id_map, person_id_map)
-            self.stats["end_time"] = datetime.now()
+            self.stats["end_time"] = REFERENCE_TIMESTAMP
 
             # Print summary
             duration = (self.stats["end_time"] - self.stats["start_time"]).total_seconds()
