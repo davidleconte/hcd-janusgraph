@@ -283,7 +283,7 @@ pyyaml==6.0.3
     #   transformers
 qrcode==8.2
     # via hcd-janusgraph-banking
-redis==7.1.0
+redis==7.4.0
     # via hcd-janusgraph-banking
 regex==2026.1.15
     # via transformers
