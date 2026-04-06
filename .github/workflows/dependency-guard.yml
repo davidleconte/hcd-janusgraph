@@ -1,0 +1,202 @@
+name: Dependency Change Guard
+
+on:
+  pull_request:
+    paths:
+      - 'requirements.lock.txt'
+      - 'requirements.txt'
+      - 'environment.yml'
+      - 'uv.lock'
+      - 'pyproject.toml'
+
+jobs:
+  check-determinism-override:
+    runs-on: ubuntu-latest
+    name: Check [determinism-override] Token
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get PR commits
+        id: get-commits
+        run: |
+          # Get all commit messages in this PR
+          git log --format=%B origin/${{ github.base_ref }}..HEAD > commits.txt
+          cat commits.txt
+      
+      - name: Check for [determinism-override] token
+        id: check-token
+        run: |
+          if grep -q '\[determinism-override\]' commits.txt; then
+            echo "✅ [determinism-override] token found"
+            echo "has_token=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ [determinism-override] token NOT found"
+            echo "has_token=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fail if token missing
+        if: steps.check-token.outputs.has_token == 'false'
+        run: |
+          echo "::error::Dependency changes require [determinism-override] token in commit message"
+          echo ""
+          echo "❌ DEPENDENCY CHANGE DETECTED WITHOUT OVERRIDE TOKEN"
+          echo ""
+          echo "This PR modifies dependency files that affect deterministic behavior:"
+          echo "  - requirements.lock.txt"
+          echo "  - requirements.txt"
+          echo "  - environment.yml"
+          echo "  - uv.lock"
+          echo "  - pyproject.toml"
+          echo ""
+          echo "These changes can break deterministic baselines due to:"
+          echo "  - ABI incompatibilities (numpy, pandas, sklearn)"
+          echo "  - Algorithm changes in dependencies"
+          echo "  - Random number generator changes"
+          echo "  - Floating point precision differences"
+          echo ""
+          echo "To proceed, you MUST:"
+          echo "  1. Add [determinism-override] to your commit message"
+          echo "  2. Verify all baselines still pass"
+          echo "  3. Update baselines if needed"
+          echo "  4. Document the reason for the change"
+          echo ""
+          echo "Example commit message:"
+          echo "  fix: Update numpy to 2.2.6 [determinism-override]"
+          echo ""
+          echo "  Reason: Security vulnerability CVE-2024-XXXX"
+          echo "  Impact: Verified all baselines pass with new version"
+          echo "  Baseline updates: None required"
+          echo ""
+          echo "See: docs/operations/deterministic-baseline-management.md"
+          exit 1
+      
+      - name: Post success comment
+        if: steps.check-token.outputs.has_token == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **Dependency Change Approved**\n\n' +
+                    'The `[determinism-override]` token was found in commit messages.\n\n' +
+                    '**Next Steps:**\n' +
+                    '1. Verify all deterministic tests pass\n' +
+                    '2. Run baseline verification: `bash scripts/deployment/deterministic_setup_and_proof_wrapper.sh`\n' +
+                    '3. Update baselines if needed\n' +
+                    '4. Document any baseline changes\n\n' +
+                    'See: [Baseline Management Guide](docs/operations/deterministic-baseline-management.md)'
+            })
+
+  verify-baseline-compatibility:
+    runs-on: ubuntu-latest
+    needs: check-determinism-override
+    name: Verify Baseline Compatibility
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      
+      - name: Check for ABI-sensitive packages
+        id: check-abi
+        run: |
+          echo "Checking for ABI-sensitive package changes..."
+          
+          # List of packages that commonly cause ABI issues
+          ABI_SENSITIVE="numpy pandas scikit-learn scipy torch tensorflow"
+          
+          # Check if any ABI-sensitive packages changed
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD)
+          
+          if echo "$changed_files" | grep -qE "(requirements|environment|uv\.lock)"; then
+            echo "⚠️  Dependency files changed - checking for ABI-sensitive packages"
+            
+            # This is a simplified check - in production, you'd parse the actual changes
+            echo "abi_risk=true" >> $GITHUB_OUTPUT
+            echo "::warning::ABI-sensitive packages may have changed. Verify baseline compatibility."
+          else
+            echo "abi_risk=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Post ABI warning
+        if: steps.check-abi.outputs.abi_risk == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **ABI Compatibility Warning**\n\n' +
+                    'This PR may affect ABI-sensitive packages (numpy, pandas, scikit-learn, etc.).\n\n' +
+                    '**Required Actions:**\n' +
+                    '1. Test with existing baselines\n' +
+                    '2. Check for `numpy.dtype size changed` errors\n' +
+                    '3. If errors occur, run: `uv pip install --force-reinstall numpy pandas scikit-learn`\n' +
+                    '4. Regenerate baselines if needed\n\n' +
+                    '**Common Issues:**\n' +
+                    '- NumPy ABI changes between versions\n' +
+                    '- Pandas dtype incompatibilities\n' +
+                    '- Scikit-learn model serialization changes\n\n' +
+                    'See: [Environment Repair Playbook](AGENTS.md#5-environment-repair-playbook-known-breakages)'
+            })
+
+  document-changes:
+    runs-on: ubuntu-latest
+    needs: check-determinism-override
+    name: Document Dependency Changes
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Generate dependency diff
+        id: diff
+        run: |
+          echo "Generating dependency change summary..."
+          
+          # Get changed files
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E "(requirements|environment|uv\.lock)" || true)
+          
+          if [ -n "$changed_files" ]; then
+            echo "Changed dependency files:"
+            echo "$changed_files"
+            
+            # Generate diff for each file
+            for file in $changed_files; do
+              if [ -f "$file" ]; then
+                echo "=== $file ==="
+                git diff origin/${{ github.base_ref }}..HEAD -- "$file" | head -50
+              fi
+            done
+          fi
+      
+      - name: Check for documentation
+        run: |
+          # Check if PR description or commits mention the reason for changes
+          git log --format=%B origin/${{ github.base_ref }}..HEAD > commits.txt
+          
+          if grep -qiE "(reason|because|fix|update|upgrade|security|vulnerability)" commits.txt; then
+            echo "✅ Change reason documented in commits"
+          else
+            echo "::warning::Consider documenting the reason for dependency changes"
+          fi
+
+# Made with Bob
