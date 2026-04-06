@@ -135,6 +135,9 @@ class BaseGenerator(ABC, Generic[T]):
             elapsed_time = (REFERENCE_TIMESTAMP - self.start_time).total_seconds()
             if elapsed_time > 0:
                 rate = self.generated_count / elapsed_time
+            else:
+                # Deterministic mode: start_time == REFERENCE_TIMESTAMP, so elapsed_time = 0
+                rate = 0.0
 
         return {
             "generated_count": self.generated_count,

@@ -13,7 +13,7 @@ Author: David LECONTE - IBM Worldwide | Data & AI | Tiger Team | Data Watstonx.D
 Date: 2026-02-06
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -93,10 +93,11 @@ class TestTransactionGeneratorFunctional:
         one_year_ago = now - timedelta(days=365)
 
         for txn in sample_transactions:
+            # Ensure both datetimes are timezone-aware for comparison
             txn_date = (
-                txn.transaction_date.replace(tzinfo=None)
+                txn.transaction_date
                 if txn.transaction_date.tzinfo
-                else txn.transaction_date
+                else txn.transaction_date.replace(tzinfo=timezone.utc)
             )
             assert one_year_ago <= txn_date <= now
 

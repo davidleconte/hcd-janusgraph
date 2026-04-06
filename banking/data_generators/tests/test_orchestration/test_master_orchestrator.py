@@ -77,7 +77,7 @@ class TestMasterOrchestratorFunctional:
 
         assert stats.total_records > 0
         assert stats.patterns_generated >= 0
-        assert stats.generation_time_seconds > 0
+        assert stats.generation_time_seconds >= 0  # Deterministic mode produces 0.0
 
     def test_error_handling(self, small_orchestrator):
         """Test error handling in orchestrator"""
