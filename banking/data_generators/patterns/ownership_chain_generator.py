@@ -83,7 +83,7 @@ DEMO_SCENARIOS = {
     "simple_direct": {
         "description": "Simple direct ownership - Person owns 60% of company",
         "chains": [
-            {"layers": 1, "ownership": 60.0, "type": "direct"}
+            {"layers": 1, "ownership_path": [60.0], "type": "direct"}
         ]
     },
     "two_layer_holding": {
