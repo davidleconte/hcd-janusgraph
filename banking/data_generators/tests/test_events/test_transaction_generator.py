@@ -72,9 +72,11 @@ class TestTransactionGeneratorFunctional:
 
     def test_currency_valid(self, sample_transactions):
         """Test currency codes are valid"""
-        valid_currencies = ["USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD"]
+        from banking.data_generators.utils.constants import CURRENCIES
+        
+        valid_currencies = list(CURRENCIES.keys())
         for txn in sample_transactions:
-            assert txn.currency in valid_currencies
+            assert txn.currency in valid_currencies, f"Currency {txn.currency} not in valid currencies"
 
     def test_transaction_types_valid(self, sample_transactions):
         """Test transaction types are valid"""

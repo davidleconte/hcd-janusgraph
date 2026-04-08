@@ -21,6 +21,7 @@ Updated: 2026-03-23 - Added vertex caching for performance optimization
 import concurrent.futures
 import logging
 import threading
+from collections import OrderedDict
 from typing import Any, Dict, List, Optional, Tuple
 
 from gremlin_python.process.graph_traversal import GraphTraversalSource, __
@@ -31,12 +32,23 @@ logger = logging.getLogger(__name__)
 
 # Module-level cache for vertex lookups using proper LRU eviction
 # Thread-safe implementation with hit/miss metrics
+# Optimized with OrderedDict for O(1) operations (2026-04-08)
 class _VertexCache:
-    """Thread-safe LRU cache for vertex lookups with metrics tracking."""
+    """Thread-safe LRU cache for vertex lookups with metrics tracking.
+    
+    Uses OrderedDict for O(1) access, insertion, and deletion operations.
+    Maintains LRU order automatically with move_to_end().
+    
+    Performance:
+        - get(): O(1) - OrderedDict lookup + move_to_end
+        - set(): O(1) - OrderedDict insertion + optional popitem
+        - invalidate(): O(1) - OrderedDict deletion
+        - invalidate_pattern(): O(n) - Must scan all keys
+    """
     
     def __init__(self, max_size: int = 1000):
-        self._cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
-        self._access_order: List[Tuple[str, str]] = []  # Track LRU order
+        # Use OrderedDict for O(1) LRU operations
+        self._cache: OrderedDict[Tuple[str, str], Dict[str, Any]] = OrderedDict()
         self._max_size = max_size
         self._lock = threading.RLock()
         
@@ -46,12 +58,14 @@ class _VertexCache:
         self._evictions = 0
     
     def get(self, key: Tuple[str, str]) -> Optional[Dict[str, Any]]:
-        """Get vertex from cache, updating LRU order."""
+        """Get vertex from cache, updating LRU order.
+        
+        Time Complexity: O(1)
+        """
         with self._lock:
             if key in self._cache:
-                # Move to end (most recently used)
-                self._access_order.remove(key)
-                self._access_order.append(key)
+                # Move to end (most recently used) - O(1) operation
+                self._cache.move_to_end(key)
                 self._hits += 1
                 logger.debug("Cache HIT for vertex: %s=%s", key[0], key[1])
                 return self._cache[key]
@@ -59,55 +73,66 @@ class _VertexCache:
             return None
     
     def set(self, key: Tuple[str, str], value: Dict[str, Any]) -> None:
-        """Set vertex in cache with LRU eviction."""
+        """Set vertex in cache with LRU eviction.
+        
+        Time Complexity: O(1)
+        """
         with self._lock:
             if key in self._cache:
-                # Update existing, move to end
-                self._access_order.remove(key)
-                self._access_order.append(key)
+                # Update existing, move to end - O(1) operation
+                self._cache.move_to_end(key)
                 self._cache[key] = value
             else:
                 # Evict least recently used if at capacity
                 if len(self._cache) >= self._max_size:
-                    lru_key = self._access_order.pop(0)
-                    del self._cache[lru_key]
+                    # popitem(last=False) removes first (oldest) item - O(1)
+                    lru_key, _ = self._cache.popitem(last=False)
                     self._evictions += 1
                     logger.debug("Evicted cached vertex (LRU): %s=%s", lru_key[0], lru_key[1])
                 
+                # Add new item at end - O(1)
                 self._cache[key] = value
-                self._access_order.append(key)
                 logger.debug("Cache SET for vertex: %s=%s", key[0], key[1])
     
     def invalidate(self, key: Tuple[str, str]) -> bool:
-        """Invalidate a specific cache entry."""
+        """Invalidate a specific cache entry.
+        
+        Time Complexity: O(1)
+        """
         with self._lock:
             if key in self._cache:
-                del self._cache[key]
-                self._access_order.remove(key)
+                del self._cache[key]  # O(1) deletion in OrderedDict
                 logger.debug("Invalidated cached vertex: %s=%s", key[0], key[1])
                 return True
             return False
     
     def invalidate_pattern(self, id_field: str) -> int:
-        """Invalidate all cache entries matching an id_field pattern."""
+        """Invalidate all cache entries matching an id_field pattern.
+        
+        Time Complexity: O(n) - Must scan all keys
+        """
         with self._lock:
             keys_to_remove = [k for k in self._cache if k[0] == id_field]
             for key in keys_to_remove:
-                del self._cache[key]
-                self._access_order.remove(key)
+                del self._cache[key]  # O(1) per deletion
             if keys_to_remove:
                 logger.debug("Invalidated %d vertices with field: %s", len(keys_to_remove), id_field)
             return len(keys_to_remove)
     
     def clear(self) -> None:
-        """Clear the entire cache."""
+        """Clear the entire cache.
+        
+        Time Complexity: O(1)
+        """
         with self._lock:
             self._cache.clear()
-            self._access_order.clear()
             logger.info("Cleared vertex cache")
     
     def stats(self) -> Dict[str, Any]:
-        """Return cache statistics including hit ratio."""
+        """Return cache statistics including hit ratio.
+        
+        Time Complexity: O(1)
+        """
         with self._lock:
             total_requests = self._hits + self._misses
             hit_ratio = self._hits / total_requests if total_requests > 0 else 0.0
@@ -118,7 +143,31 @@ class _VertexCache:
                 "misses": self._misses,
                 "evictions": self._evictions,
                 "hit_ratio": round(hit_ratio, 4),
+                "total_requests": total_requests,
             }
+    
+    def warm(self, entries: List[Tuple[Tuple[str, str], Dict[str, Any]]]) -> int:
+        """Warm the cache with pre-fetched entries.
+        
+        Args:
+            entries: List of (key, value) tuples to pre-populate cache.
+        
+        Returns:
+            Number of entries added to cache.
+        
+        Time Complexity: O(n) where n is number of entries
+        """
+        with self._lock:
+            added = 0
+            for key, value in entries:
+                if len(self._cache) >= self._max_size:
+                    break
+                if key not in self._cache:
+                    self._cache[key] = value
+                    added += 1
+            if added > 0:
+                logger.info("Warmed cache with %d entries", added)
+            return added
 
 
 # Global cache instance

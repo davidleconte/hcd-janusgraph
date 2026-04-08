@@ -124,10 +124,10 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
         # Select countries
         country_codes = list(COUNTRIES.keys())
         if departure_country is None:
-            departure_country = random.choice(country_codes)
+            departure_country = self.faker.random.choice(country_codes)
         if arrival_country is None:
             # Ensure different from departure
-            arrival_country = random.choice([c for c in country_codes if c != departure_country])
+            arrival_country = self.faker.random.choice([c for c in country_codes if c != departure_country])
 
         # Generate travel dates
         departure_date = random_datetime_between(
@@ -136,7 +136,7 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
         )
 
         # Travel duration (1-30 days)
-        duration_days = random.randint(1, 30)
+        duration_days = self.faker.random.randint(1, 30)
         arrival_date = departure_date + timedelta(days=duration_days)
 
         # Select purpose and transport
@@ -144,16 +144,16 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
         transport_mode = random_choice_weighted(list(self.transport_weights.items()))
 
         # Visa requirements (simplified)
-        visa_required = random.random() < 0.3  # 30% require visa
+        visa_required = self.faker.random.random() < 0.3  # 30% require visa
         visa_obtained = (
-            True if not visa_required else random.random() < 0.95
+            True if not visa_required else self.faker.random.random() < 0.95
         )  # 95% obtain if required
 
         # Generate passport number
         passport_number = self._generate_passport_number(departure_country)
 
         # Determine if suspicious
-        is_suspicious = force_suspicious or random.random() < self.suspicious_probability
+        is_suspicious = force_suspicious or self.faker.random.random() < self.suspicious_probability
 
         # Generate suspicious indicators
         suspicious_indicators = []
@@ -194,9 +194,9 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
     def _generate_passport_number(self, country_code: str) -> str:
         """Generate realistic passport number."""
         if country_code == "US":
-            return f"{random.randint(100000000, 999999999)}"
+            return f"{self.faker.random.randint(100000000, 999999999)}"
         elif country_code == "GB":
-            return f"{random.randint(100000000, 999999999)}"
+            return f"{self.faker.random.randint(100000000, 999999999)}"
         else:
             # Generic format
             prefix = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=2))
@@ -232,11 +232,11 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             indicators.append("tourism_to_high_risk_country")
 
         # Frequent traveler pattern (would need historical data)
-        if random.random() < 0.2:
+        if self.faker.random.random() < 0.2:
             indicators.append("frequent_international_travel")
 
         # Cash courier indicators
-        if random.random() < 0.1:
+        if self.faker.random.random() < 0.1:
             indicators.append("potential_cash_courier")
 
         return indicators
@@ -285,23 +285,23 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             "purpose": purpose,
             "duration_days": duration_days,
             "booking_date": (
-                REFERENCE_TIMESTAMP - timedelta(days=random.randint(1, 60))
+                REFERENCE_TIMESTAMP - timedelta(days=self.faker.random.randint(1, 60))
             ).isoformat(),
         }
 
         if transport_mode == "air":
             metadata["flight_number"] = (
-                f"{random.choice(['AA', 'BA', 'LH', 'AF', 'UA'])}{random.randint(100, 9999)}"
+                f"{self.faker.random.choice(['AA', 'BA', 'LH', 'AF', 'UA'])}{self.faker.random.randint(100, 9999)}"
             )
-            metadata["airline"] = random.choice(
+            metadata["airline"] = self.faker.random.choice(
                 ["American", "British Airways", "Lufthansa", "Air France", "United"]
             )
 
         if is_suspicious:
-            metadata["travel_frequency_30d"] = random.randint(3, 10)
-            metadata["cash_declaration"] = random.random() < 0.3
+            metadata["travel_frequency_30d"] = self.faker.random.randint(3, 10)
+            metadata["cash_declaration"] = self.faker.random.random() < 0.3
             if metadata["cash_declaration"]:
-                metadata["declared_cash_amount"] = random.randint(5000, 50000)
+                metadata["declared_cash_amount"] = self.faker.random.randint(5000, 50000)
 
         return metadata
 
@@ -332,13 +332,13 @@ class TravelGenerator(BaseGenerator[TravelEvent]):
             # Generate travel with suspicious indicators
             travel = self.generate(
                 traveler_id=traveler_id,
-                arrival_country=random.choice(risky_destinations),
+                arrival_country=self.faker.random.choice(risky_destinations),
                 force_suspicious=True,
             )
 
             # Adjust date to fit pattern
             travel.departure_date = base_date + timedelta(days=days_offset)
-            travel.arrival_date = travel.departure_date + timedelta(days=random.randint(1, 5))
+            travel.arrival_date = travel.departure_date + timedelta(days=self.faker.random.randint(1, 5))
 
             # Add pattern metadata
             travel.metadata["pattern_trip_number"] = i + 1

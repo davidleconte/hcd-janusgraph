@@ -14,6 +14,8 @@ Tests cover:
 from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
+from gremlin_python.process.traversal import T
+
 from banking.aml.enhanced_structuring_detection import (
     EnhancedStructuringDetector,
     StructuringPattern,
@@ -282,8 +284,6 @@ class TestEnhancedDetectorAdditionalCoverage:
     @patch("banking.aml.enhanced_structuring_detection.VectorSearchClient")
     @patch("banking.aml.enhanced_structuring_detection.EmbeddingGenerator")
     def test_format_transaction(self, mock_embed, mock_search):
-        from gremlin_python.process.traversal import T
-
         mock_search.return_value.client.indices.exists.return_value = True
         detector = EnhancedStructuringDetector()
         tx_data = {

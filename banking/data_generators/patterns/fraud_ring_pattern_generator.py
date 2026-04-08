@@ -110,11 +110,11 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
 
         # Set defaults
         if ring_size is None:
-            ring_size = random.randint(3, 15)
+            ring_size = self.faker.random.randint(3, 15)
         if transaction_count is None:
-            transaction_count = random.randint(10, 100)
+            transaction_count = self.faker.random.randint(10, 100)
         if duration_days is None:
-            duration_days = random.randint(7, 90)
+            duration_days = self.faker.random.randint(7, 90)
 
         # Generate pattern dates
         end_date = REFERENCE_TIMESTAMP
@@ -193,8 +193,8 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
                 "transaction_velocity": (
                     len(transactions) / duration_days if duration_days > 0 else 0
                 ),
-                "geographic_clustering": random.random() < 0.7,  # 70% show geographic clustering
-                "ip_address_overlap": random.random() < 0.6,  # 60% share IP addresses
+                "geographic_clustering": self.faker.random.random() < 0.7,  # 70% show geographic clustering
+                "ip_address_overlap": self.faker.random.random() < 0.6,  # 60% share IP addresses
             },
         )
 
@@ -219,20 +219,20 @@ class FraudRingPatternGenerator(BaseGenerator[Pattern]):
             # Select accounts based on pattern type
             if pattern_type == "money_mule_network":
                 # Hub and spoke pattern
-                if random.random() < 0.7:
+                if self.faker.random.random() < 0.7:
                     # Transaction involving hub
                     from_acc = (
-                        hub_account if random.random() < 0.5 else random.choice(account_ids[1:])
+                        hub_account if self.faker.random.random() < 0.5 else self.faker.random.choice(account_ids[1:])
                     )
                     to_acc = (
-                        random.choice(account_ids[1:]) if from_acc == hub_account else hub_account
+                        self.faker.random.choice(account_ids[1:]) if from_acc == hub_account else hub_account
                     )
                 else:
                     # Peer-to-peer
-                    from_acc, to_acc = random.sample(account_ids, 2)
+                    from_acc, to_acc = self.faker.random.sample(account_ids, 2)
             else:
                 # Random pairs
-                from_acc, to_acc = random.sample(account_ids, 2)
+                from_acc, to_acc = self.faker.random.sample(account_ids, 2)
 
             # Generate transaction
             txn = self.txn_gen.generate(from_account_id=from_acc, to_account_id=to_acc)

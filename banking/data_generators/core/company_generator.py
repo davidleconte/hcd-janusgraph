@@ -93,18 +93,18 @@ class CompanyGenerator(BaseGenerator[Company]):
         registration_date = self._generate_registration_date()
         registration_number = self._generate_registration_number(registration_country)
         tax_id = self._generate_tax_id(registration_country)
-        lei_code = generate_lei_code() if random.random() < 0.3 else None
+        lei_code = generate_lei_code() if self.faker.random.random() < 0.3 else None
 
         # Addresses
         addresses = self._generate_addresses(registration_country)
 
         # Public/Private
-        is_public = random.random() < self.public_company_probability
+        is_public = self.faker.random.random() < self.public_company_probability
         stock_ticker = None
         stock_exchange = None
         if is_public:
             stock_ticker = generate_stock_ticker()
-            stock_exchange = random.choice(list(STOCK_EXCHANGES.keys()))
+            stock_exchange = self.faker.random.choice(list(STOCK_EXCHANGES.keys()))
 
         # Financial metrics
         employee_count = self._generate_employee_count(company_type, is_public)
@@ -119,8 +119,8 @@ class CompanyGenerator(BaseGenerator[Company]):
         officers = []  # Placeholder for now
 
         # Risk & Compliance
-        is_shell_company = random.random() < self.shell_company_probability
-        is_sanctioned = random.random() < self.sanctioned_probability
+        is_shell_company = self.faker.random.random() < self.shell_company_probability
+        is_sanctioned = self.faker.random.random() < self.sanctioned_probability
         sanction_lists = self._generate_sanction_lists() if is_sanctioned else []
 
         # Operating countries

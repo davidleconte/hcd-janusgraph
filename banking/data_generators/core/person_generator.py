@@ -110,10 +110,10 @@ class PersonGenerator(BaseGenerator[Person]):
         net_worth = self._calculate_net_worth(annual_income, date_of_birth)
 
         # Risk & Compliance
-        is_pep = random.random() < self.pep_probability
+        is_pep = self.faker.random.random() < self.pep_probability
         pep_details = self._generate_pep_details() if is_pep else None
 
-        is_sanctioned = random.random() < self.sanctioned_probability
+        is_sanctioned = self.faker.random.random() < self.sanctioned_probability
         sanction_lists = self._generate_sanction_lists() if is_sanctioned else []
 
         # Calculate risk level
@@ -180,7 +180,7 @@ class PersonGenerator(BaseGenerator[Person]):
         else:
             first_name = self.faker.first_name()
 
-        middle_name = self.faker.first_name() if random.random() < 0.7 else None
+        middle_name = self.faker.first_name() if self.faker.random.random() < 0.7 else None
         last_name = self.faker.last_name()
 
         return first_name, middle_name, last_name
@@ -196,9 +196,9 @@ class PersonGenerator(BaseGenerator[Person]):
         """Generate nationality with weighted distribution."""
         # Weight major countries higher
         major_countries = ["US", "GB", "DE", "FR", "JP", "CA", "AU", "IT", "ES", "NL"]
-        if random.random() < 0.7:
-            return random.choice(major_countries)
-        return random.choice(list(COUNTRIES.keys()))
+        if self.faker.random.random() < 0.7:
+            return self.faker.random.choice(major_countries)
+        return self.faker.random.choice(list(COUNTRIES.keys()))
 
     def _generate_addresses(self, nationality: str, count: Optional[int] = None) -> List[Address]:
         """Generate addresses."""
@@ -237,7 +237,7 @@ class PersonGenerator(BaseGenerator[Person]):
                 country_code=nationality,
                 phone_type=random.choice(["mobile", "home", "work"]),
                 is_primary=(i == 0),
-                is_verified=random.random() < 0.8,
+                is_verified=self.faker.random.random() < 0.8,
             )
             phones.append(phone)
 
@@ -263,7 +263,7 @@ class PersonGenerator(BaseGenerator[Person]):
                 email=f"{username}@{random.choice(domains)}",
                 email_type="personal" if i == 0 else "work",
                 is_primary=(i == 0),
-                is_verified=random.random() < 0.9,
+                is_verified=self.faker.random.random() < 0.9,
             )
             emails.append(email)
 
@@ -276,7 +276,7 @@ class PersonGenerator(BaseGenerator[Person]):
         docs = []
 
         # Passport
-        if random.random() < 0.7:
+        if self.faker.random.random() < 0.7:
             issue_date = random_date_between(dob + timedelta(days=6570), date.today())  # After 18
             docs.append(
                 IdentificationDocument(
@@ -286,12 +286,12 @@ class PersonGenerator(BaseGenerator[Person]):
                     issuing_authority="Passport Office",
                     issue_date=issue_date,
                     expiry_date=issue_date + timedelta(days=3650),  # 10 years
-                    is_verified=random.random() < 0.95,
+                    is_verified=self.faker.random.random() < 0.95,
                 )
             )
 
         # Driver's License
-        if random.random() < 0.8:
+        if self.faker.random.random() < 0.8:
             issue_date = random_date_between(dob + timedelta(days=5840), date.today())  # After 16
             docs.append(
                 IdentificationDocument(
@@ -300,7 +300,7 @@ class PersonGenerator(BaseGenerator[Person]):
                     issuing_country=nationality,
                     issue_date=issue_date,
                     expiry_date=issue_date + timedelta(days=1825),  # 5 years
-                    is_verified=random.random() < 0.9,
+                    is_verified=self.faker.random.random() < 0.9,
                 )
             )
 
@@ -380,7 +380,7 @@ class PersonGenerator(BaseGenerator[Person]):
             "position": self.faker.job(),
             "country": random.choice(list(COUNTRIES.keys())),
             "start_date": str(random_date_between(date(2000, 1, 1), date.today())),
-            "is_active": random.random() < 0.7,
+            "is_active": self.faker.random.random() < 0.7,
         }
 
     def _generate_sanction_lists(self) -> List[str]:
@@ -413,9 +413,9 @@ class PersonGenerator(BaseGenerator[Person]):
         """Generate citizenship list."""
         citizenships = [nationality]
 
-        if random.random() < self.multi_citizenship_probability:
+        if self.faker.random.random() < self.multi_citizenship_probability:
             # Add second citizenship
-            other_country = random.choice([c for c in COUNTRIES.keys() if c != nationality])
+            other_country = self.faker.random.choice([c for c in COUNTRIES.keys() if c != nationality])
             citizenships.append(other_country)
 
         return citizenships

@@ -99,13 +99,13 @@ class AccountGenerator(BaseGenerator[Account]):
             owner_id = f"OWNER-{self.faker.uuid4()}"
 
         joint_owners = []
-        if random.random() < self.joint_account_probability:
-            num_joint = random.randint(1, 2)
+        if self.faker.random.random() < self.joint_account_probability:
+            num_joint = self.faker.random.randint(1, 2)
             joint_owners = [f"JOINT-{self.faker.uuid4()}" for _ in range(num_joint)]
 
         beneficial_owners = []
-        if owner_type == "company" and random.random() < 0.3:
-            num_beneficial = random.randint(1, 3)
+        if owner_type == "company" and self.faker.random.random() < 0.3:
+            num_beneficial = self.faker.random.randint(1, 3)
             beneficial_owners = [f"BENEFICIAL-{self.faker.uuid4()}" for _ in range(num_beneficial)]
 
         # Status
@@ -130,18 +130,18 @@ class AccountGenerator(BaseGenerator[Account]):
         )
 
         # Risk & Compliance
-        is_dormant = (status == "dormant") or (random.random() < self.dormant_probability)
-        is_monitored = random.random() < self.monitored_probability
+        is_dormant = (status == "dormant") or (self.faker.random.random() < self.dormant_probability)
+        is_monitored = self.faker.random.random() < self.monitored_probability
         monitoring_reason = self._generate_monitoring_reason() if is_monitored else None
-        has_suspicious_activity = is_monitored and random.random() < 0.5
+        has_suspicious_activity = is_monitored and self.faker.random.random() < 0.5
 
         risk_level = self._calculate_risk_level(
             is_monitored, has_suspicious_activity, is_dormant, current_balance, transaction_count
         )
 
         # KYC/AML verification
-        kyc_verified = status != "frozen" and random.random() < 0.95
-        aml_verified = status != "frozen" and random.random() < 0.90
+        kyc_verified = status != "frozen" and self.faker.random.random() < 0.95
+        aml_verified = status != "frozen" and self.faker.random.random() < 0.90
 
         # Create Account entity
         account = Account(
@@ -202,9 +202,9 @@ class AccountGenerator(BaseGenerator[Account]):
     def _generate_currency(self) -> str:
         """Generate currency with weighted distribution."""
         major_currencies = ["USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD"]
-        if random.random() < 0.85:
-            return random.choice(major_currencies)
-        return random.choice(list(CURRENCIES.keys()))
+        if self.faker.random.random() < 0.85:
+            return self.faker.random.choice(major_currencies)
+        return self.faker.random.choice(list(CURRENCIES.keys()))
 
     def _get_country_from_currency(self, currency: str) -> str:
         """Get country code from currency."""

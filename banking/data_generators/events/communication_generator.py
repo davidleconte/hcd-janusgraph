@@ -153,11 +153,11 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         subject, content = self._generate_content(
             communication_type,
             language,
-            force_suspicious or random.random() < self.suspicious_probability,
+            force_suspicious or self.faker.random.random() < self.suspicious_probability,
         )
 
         # Select platform
-        platform = random.choice(self.platforms[communication_type])
+        platform = self.faker.random.choice(self.platforms[communication_type])
 
         # Generate sentiment
         sentiment = random_choice_weighted(list(self.sentiment_weights.items()))
@@ -168,7 +168,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
 
         # Generate attachments (30% probability)
         attachments = []
-        if communication_type in self.attachment_types and random.random() < 0.30:
+        if communication_type in self.attachment_types and self.faker.random.random() < 0.30:
             attachments = self._generate_attachments(communication_type)
 
         # Detect suspicious keywords
@@ -183,7 +183,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         is_encrypted = self._is_encrypted(platform, risk_score)
 
         # Generate thread ID (70% are part of threads)
-        if random.random() < 0.70:
+        if self.faker.random.random() < 0.70:
             f"THREAD-{self.faker.uuid4()[:12]}"
 
         # Determine if flagged for review
@@ -243,31 +243,31 @@ class CommunicationGenerator(BaseGenerator[Communication]):
             content = "\n\n".join([faker_lang.paragraph(nb_sentences=3) for _ in range(2)])
 
         elif comm_type == CommunicationType.SMS:
-            content = faker_lang.sentence(nb_words=random.randint(5, 15))
+            content = faker_lang.sentence(nb_words=self.faker.random.randint(5, 15))
 
         elif comm_type == CommunicationType.PHONE:
             # Phone calls have transcripts
-            content = f"Call duration: {random.randint(30, 1800)} seconds. "
+            content = f"Call duration: {self.faker.random.randint(30, 1800)} seconds. "
             content += faker_lang.paragraph(nb_sentences=2)
 
         elif comm_type == CommunicationType.CHAT:
-            content = faker_lang.sentence(nb_words=random.randint(3, 20))
+            content = faker_lang.sentence(nb_words=self.faker.random.randint(3, 20))
 
         elif comm_type == CommunicationType.VIDEO:
-            content = f"Video call duration: {random.randint(300, 3600)} seconds. "
+            content = f"Video call duration: {self.faker.random.randint(300, 3600)} seconds. "
             content += faker_lang.sentence(nb_words=10)
 
         elif comm_type == CommunicationType.SOCIAL_MEDIA:
-            content = faker_lang.sentence(nb_words=random.randint(10, 30))
+            content = faker_lang.sentence(nb_words=self.faker.random.randint(10, 30))
 
         # Inject suspicious keywords if required
         if inject_suspicious:
-            category = random.choice(self.keyword_categories)
-            keywords = random.sample(SUSPICIOUS_KEYWORDS[category], k=random.randint(1, 3))
+            category = self.faker.random.choice(self.keyword_categories)
+            keywords = self.faker.random.sample(SUSPICIOUS_KEYWORDS[category], k=self.faker.random.randint(1, 3))
 
             # Insert keywords naturally into content
             for keyword in keywords:
-                if random.random() < 0.5 and subject:
+                if self.faker.random.random() < 0.5 and subject:
                     subject = f"{subject} {keyword}"
                 else:
                     content = f"{content} {keyword}"
@@ -295,10 +295,10 @@ class CommunicationGenerator(BaseGenerator[Communication]):
     def _calculate_sentiment_score(self, sentiment: str) -> float:
         """Calculate numerical sentiment score (-1 to 1)."""
         sentiment_scores = {
-            "positive": random.uniform(0.5, 1.0),
-            "neutral": random.uniform(-0.2, 0.2),
-            "negative": random.uniform(-1.0, -0.5),
-            "urgent": random.uniform(0.3, 0.8),
+            "positive": self.faker.random.uniform(0.5, 1.0),
+            "neutral": self.faker.random.uniform(-0.2, 0.2),
+            "negative": self.faker.random.uniform(-1.0, -0.5),
+            "urgent": self.faker.random.uniform(0.3, 0.8),
         }
         return sentiment_scores.get(sentiment, 0.0)
 
@@ -309,7 +309,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
         metadata: Dict[str, Any] = {
             "platform": platform,
             "language": language,
-            "timezone": random.choice(list(COUNTRIES.values())[:20]),
+            "timezone": self.faker.random.choice(list(COUNTRIES.values())[:20]),
         }
 
         if comm_type == CommunicationType.EMAIL:
@@ -317,12 +317,12 @@ class CommunicationGenerator(BaseGenerator[Communication]):
                 {
                     "from_address": self.faker.email(),
                     "to_address": self.faker.email(),
-                    "cc_count": random.randint(0, 5),
-                    "bcc_count": random.randint(0, 2),
+                    "cc_count": self.faker.random.randint(0, 5),
+                    "bcc_count": self.faker.random.randint(0, 2),
                     "message_id": f"<{self.faker.uuid4()}@{self.faker.domain_name()}>",
                     "in_reply_to": (
                         f"<{self.faker.uuid4()}@{self.faker.domain_name()}>"
-                        if random.random() < 0.4
+                        if self.faker.random.random() < 0.4
                         else None
                     ),
                 }
@@ -333,9 +333,9 @@ class CommunicationGenerator(BaseGenerator[Communication]):
                 {
                     "from_number": self.faker.phone_number(),
                     "to_number": self.faker.phone_number(),
-                    "call_type": random.choice(["incoming", "outgoing", "missed"]),
-                    "duration_seconds": random.randint(30, 1800),
-                    "recording_available": random.random() < 0.3,
+                    "call_type": self.faker.random.choice(["incoming", "outgoing", "missed"]),
+                    "duration_seconds": self.faker.random.randint(30, 1800),
+                    "recording_available": self.faker.random.random() < 0.3,
                 }
             )
 
@@ -344,8 +344,8 @@ class CommunicationGenerator(BaseGenerator[Communication]):
                 {
                     "from_number": self.faker.phone_number(),
                     "to_number": self.faker.phone_number(),
-                    "message_length": random.randint(10, 160),
-                    "delivery_status": random.choice(["delivered", "sent", "failed"]),
+                    "message_length": self.faker.random.randint(10, 160),
+                    "delivery_status": self.faker.random.choice(["delivered", "sent", "failed"]),
                 }
             )
 
@@ -354,7 +354,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
                 {
                     "channel_id": f"CHAN-{self.faker.uuid4()[:8]}",
                     "workspace_id": f"WS-{self.faker.uuid4()[:8]}",
-                    "message_type": random.choice(["text", "file", "mention", "reaction"]),
+                    "message_type": self.faker.random.choice(["text", "file", "mention", "reaction"]),
                 }
             )
 
@@ -362,10 +362,10 @@ class CommunicationGenerator(BaseGenerator[Communication]):
             metadata.update(
                 {
                     "meeting_id": f"MTG-{self.faker.uuid4()[:12]}",
-                    "duration_seconds": random.randint(300, 3600),
-                    "participants_count": random.randint(2, 20),
-                    "recording_available": random.random() < 0.5,
-                    "screen_shared": random.random() < 0.4,
+                    "duration_seconds": self.faker.random.randint(300, 3600),
+                    "participants_count": self.faker.random.randint(2, 20),
+                    "recording_available": self.faker.random.random() < 0.5,
+                    "screen_shared": self.faker.random.random() < 0.4,
                 }
             )
 
@@ -373,10 +373,10 @@ class CommunicationGenerator(BaseGenerator[Communication]):
             metadata.update(
                 {
                     "post_id": f"POST-{self.faker.uuid4()[:12]}",
-                    "likes_count": random.randint(0, 1000),
-                    "shares_count": random.randint(0, 100),
-                    "comments_count": random.randint(0, 50),
-                    "visibility": random.choice(["public", "private", "connections"]),
+                    "likes_count": self.faker.random.randint(0, 1000),
+                    "shares_count": self.faker.random.randint(0, 100),
+                    "comments_count": self.faker.random.randint(0, 50),
+                    "visibility": self.faker.random.choice(["public", "private", "connections"]),
                 }
             )
 
@@ -385,11 +385,11 @@ class CommunicationGenerator(BaseGenerator[Communication]):
     def _generate_attachments(self, comm_type: CommunicationType) -> List[Dict[str, Any]]:
         """Generate attachment metadata."""
         attachments = []
-        num_attachments = random.randint(1, 3)
+        num_attachments = self.faker.random.randint(1, 3)
 
         for _ in range(num_attachments):
-            file_type = random.choice(self.attachment_types[comm_type])
-            file_size = random.randint(1024, 10485760)  # 1KB to 10MB
+            file_type = self.faker.random.choice(self.attachment_types[comm_type])
+            file_size = self.faker.random.randint(1024, 10485760)  # 1KB to 10MB
 
             attachments.append(
                 {
@@ -465,9 +465,9 @@ class CommunicationGenerator(BaseGenerator[Communication]):
 
         # Higher risk communications more likely to be encrypted
         if risk_score > 0.5:
-            return random.random() < 0.6
+            return self.faker.random.random() < 0.6
 
-        return random.random() < 0.2
+        return self.faker.random.random() < 0.2
 
     def generate_conversation_thread(
         self,
@@ -511,7 +511,7 @@ class CommunicationGenerator(BaseGenerator[Communication]):
                 sender_id=current_sender,
                 recipient_id=current_recipient,
                 communication_type=communication_type,
-                force_suspicious=random.random() < suspicious_probability,
+                force_suspicious=self.faker.random.random() < suspicious_probability,
             )
 
             # Update timestamp to be within thread window

@@ -28,6 +28,40 @@ from .deterministic import REFERENCE_TIMESTAMP
 # RANDOM GENERATION HELPERS
 # ============================================================================
 
+def generate_seeded_uuid(seed: int, counter: int) -> str:
+    """
+    Generate deterministic UUID based on seed and counter.
+    
+    This function creates reproducible UUIDs for deterministic data generation.
+    The same seed and counter will always produce the same UUID.
+    
+    Args:
+        seed: Random seed for reproducibility
+        counter: Counter for unique IDs within the same seed
+        
+    Returns:
+        Deterministic UUID string in standard format (8-4-4-4-12)
+        
+    Example:
+        >>> generate_seeded_uuid(42, 0)
+        '3c9b8f1a-7e2d-4a5b-9c1e-6f8a2b4d7e9c'
+        >>> generate_seeded_uuid(42, 0)  # Same inputs = same output
+        '3c9b8f1a-7e2d-4a5b-9c1e-6f8a2b4d7e9c'
+    """
+    import uuid
+    
+    # Create deterministic hash from seed and counter
+    hash_input = f"{seed}-{counter}".encode()
+    hash_digest = hashlib.sha256(hash_input).hexdigest()
+    
+    # Convert first 32 hex characters to UUID format
+    # UUID format: 8-4-4-4-12 (32 hex chars total)
+    uuid_hex = hash_digest[:32]
+    uuid_str = f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:32]}"
+    
+    return uuid_str
+
+
 
 def random_choice_weighted(choices: List[Tuple[Any, float]]) -> Any:
     """

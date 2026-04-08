@@ -108,7 +108,7 @@ class TradeGenerator(BaseGenerator[Trade]):
 
         # Select exchange (ensure not None)
         if exchange is None:
-            exchange = random.choice(list(STOCK_EXCHANGES.keys()))
+            exchange = self.faker.random.choice(list(STOCK_EXCHANGES.keys()))
 
         # Generate symbol based on asset type
         symbol = self._generate_symbol(asset_type, exchange)
@@ -132,7 +132,7 @@ class TradeGenerator(BaseGenerator[Trade]):
         )
 
         # Determine if insider trade
-        is_insider = force_insider or random.random() < self.insider_probability
+        is_insider = force_insider or self.faker.random.random() < self.insider_probability
 
         # Generate insider trading indicators
         insider_indicators = []
@@ -177,58 +177,58 @@ class TradeGenerator(BaseGenerator[Trade]):
             return generate_stock_ticker()
         elif asset_type == "option":
             base = generate_stock_ticker()
-            expiry = (REFERENCE_TIMESTAMP + timedelta(days=random.randint(30, 365))).strftime(
+            expiry = (REFERENCE_TIMESTAMP + timedelta(days=self.faker.random.randint(30, 365))).strftime(
                 "%y%m%d"
             )
-            strike = random.randint(50, 500)
-            call_put = random.choice(["C", "P"])
+            strike = self.faker.random.randint(50, 500)
+            call_put = self.faker.random.choice(["C", "P"])
             return f"{base}{expiry}{call_put}{strike:05d}"
         elif asset_type == "future":
-            commodity = random.choice(["CL", "GC", "SI", "ES", "NQ", "ZB"])
-            month = random.choice(["H", "M", "U", "Z"])  # Mar, Jun, Sep, Dec
+            commodity = self.faker.random.choice(["CL", "GC", "SI", "ES", "NQ", "ZB"])
+            month = self.faker.random.choice(["H", "M", "U", "Z"])  # Mar, Jun, Sep, Dec
             year = REFERENCE_TIMESTAMP.year % 100
             return f"{commodity}{month}{year}"
         elif asset_type == "bond":
-            return f"US{random.randint(1, 30)}Y"
+            return f"US{self.faker.random.randint(1, 30)}Y"
         else:  # ETF
-            return random.choice(["SPY", "QQQ", "IWM", "DIA", "EEM", "GLD", "TLT"])
+            return self.faker.random.choice(["SPY", "QQQ", "IWM", "DIA", "EEM", "GLD", "TLT"])
 
     def _generate_quantity(self, asset_type: str) -> int:
         """Generate realistic quantity based on asset type."""
         if asset_type == "stock":
             # Stocks: 1 to 100,000 shares
-            return random.choice(
+            return self.faker.random.choice(
                 [
-                    random.randint(1, 100),  # Small retail: 70%
-                    random.randint(100, 1000),  # Medium retail: 20%
-                    random.randint(1000, 10000),  # Institutional: 8%
-                    random.randint(10000, 100000),  # Large institutional: 2%
+                    self.faker.random.randint(1, 100),  # Small retail: 70%
+                    self.faker.random.randint(100, 1000),  # Medium retail: 20%
+                    self.faker.random.randint(1000, 10000),  # Institutional: 8%
+                    self.faker.random.randint(10000, 100000),  # Large institutional: 2%
                 ]
             )
         elif asset_type == "option":
             # Options: 1 to 1000 contracts
-            return random.randint(1, 1000)
+            return self.faker.random.randint(1, 1000)
         elif asset_type == "future":
             # Futures: 1 to 500 contracts
-            return random.randint(1, 500)
+            return self.faker.random.randint(1, 500)
         elif asset_type == "bond":
             # Bonds: face value in thousands
-            return random.randint(1, 10000) * 1000
+            return self.faker.random.randint(1, 10000) * 1000
         else:  # ETF
-            return random.randint(1, 10000)
+            return self.faker.random.randint(1, 10000)
 
     def _generate_price(self, asset_type: str) -> Decimal:
         """Generate realistic price based on asset type."""
         if asset_type == "stock":
-            price = random.uniform(1.0, 500.0)
+            price = self.faker.random.uniform(1.0, 500.0)
         elif asset_type == "option":
-            price = random.uniform(0.10, 50.0)
+            price = self.faker.random.uniform(0.10, 50.0)
         elif asset_type == "future":
-            price = random.uniform(10.0, 5000.0)
+            price = self.faker.random.uniform(10.0, 5000.0)
         elif asset_type == "bond":
-            price = random.uniform(90.0, 110.0)  # Percentage of par
+            price = self.faker.random.uniform(90.0, 110.0)  # Percentage of par
         else:  # ETF
-            price = random.uniform(10.0, 500.0)
+            price = self.faker.random.uniform(10.0, 500.0)
 
         return Decimal(str(round(price, 2)))
 
@@ -251,8 +251,8 @@ class TradeGenerator(BaseGenerator[Trade]):
         ]
 
         # Select 1-4 indicators
-        num_indicators = random.randint(1, 4)
-        indicators = random.sample(all_indicators, num_indicators)
+        num_indicators = self.faker.random.randint(1, 4)
+        indicators = self.faker.random.sample(all_indicators, num_indicators)
 
         return indicators
 
@@ -297,16 +297,16 @@ class TradeGenerator(BaseGenerator[Trade]):
         metadata: Dict[str, Any] = {
             "exchange_name": STOCK_EXCHANGES.get(exchange, "Unknown"),
             "order_type": order_type,
-            "execution_venue": random.choice(["exchange", "dark_pool", "otc"]),
+            "execution_venue": self.faker.random.choice(["exchange", "dark_pool", "otc"]),
             "broker_id": f"BRK-{self.faker.uuid4()[:8]}",
-            "commission": round(random.uniform(0.0, 50.0), 2),
+            "commission": round(self.faker.random.uniform(0.0, 50.0), 2),
         }
 
         if is_insider:
-            metadata["insider_relationship"] = random.choice(
+            metadata["insider_relationship"] = self.faker.random.choice(
                 ["executive", "director", "beneficial_owner", "family_member"]
             )
-            metadata["days_before_announcement"] = random.randint(1, 30)
+            metadata["days_before_announcement"] = self.faker.random.randint(1, 30)
 
         return metadata
 

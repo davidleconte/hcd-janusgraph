@@ -86,6 +86,7 @@ class StartupValidationError(Exception):
 
 
 DEFAULT_PASSWORD_PATTERNS = [
+    # Original patterns
     r"^changeit$",
     r"^password$",
     r"^admin$",
@@ -95,6 +96,80 @@ DEFAULT_PASSWORD_PATTERNS = [
     r"CHANGE_?ME",
     r"PLACEHOLDER",
     r"^DefaultDev0nly!2026$",  # Specific OpenSearch default from docker-compose
+    
+    # Common weak passwords
+    r"^test$",
+    r"^demo$",
+    r"^example$",
+    r"^default$",
+    r"^root$",
+    r"^guest$",
+    r"^user$",
+    r"^pass$",
+    r"^qwerty",
+    r"^letmein",
+    r"^welcome",
+    r"^monkey",
+    r"^dragon",
+    r"^master",
+    r"^sunshine",
+    r"^princess",
+    r"^football",
+    r"^baseball",
+    r"^shadow",
+    r"^trustno1",
+    r"^abc123",
+    
+    # Number sequences
+    r"^12345",
+    r"^123456789",
+    r"^1234567890",
+    r"^0987654321",
+    r"^111111",
+    r"^000000",
+    r"^654321",
+    r"^987654",
+    
+    # Keyboard patterns
+    r"^asdf",
+    r"^zxcv",
+    r"^qazwsx",
+    r"^1qaz2wsx",
+    r"^!qaz@wsx",
+    
+    # 1337speak variations
+    r"^p@ssw0rd",
+    r"^p@ssword",
+    r"^passw0rd",
+    r"^adm1n",
+    r"^s3cr3t",
+    r"^t3st",
+    r"^d3m0",
+    
+    # Common substitutions
+    r"^password1",
+    r"^password123",
+    r"^admin123",
+    r"^test123",
+    r"^demo123",
+    r"^welcome1",
+    r"^qwerty123",
+    
+    # International keyboards
+    r"^azerty",  # French
+    r"^qwertz",  # German
+    
+    # Company/product names (case-insensitive via flags in validation)
+    r"^janusgraph",
+    r"^cassandra",
+    r"^opensearch",
+    r"^grafana",
+    r"^prometheus",
+    r"^docker",
+    r"^kubernetes",
+    r"^postgres",
+    r"^mysql",
+    r"^oracle",
 ]
 
 PASSWORD_VARIABLES = [

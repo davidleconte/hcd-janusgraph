@@ -155,7 +155,7 @@ class DocumentGenerator(BaseGenerator[Document]):
         )
 
         # Determine if TBML
-        is_tbml = force_tbml or random.random() < self.tbml_probability
+        is_tbml = force_tbml or self.faker.random.random() < self.tbml_probability
 
         # Generate line items
         line_items = self._generate_line_items(currency, is_tbml)
@@ -219,29 +219,29 @@ class DocumentGenerator(BaseGenerator[Document]):
             "packing_list": "PKL",
         }
         prefix = prefix_map.get(document_type, "DOC")
-        number = random.randint(100000, 999999)
+        number = self.faker.random.randint(100000, 999999)
         year = REFERENCE_TIMESTAMP.year
         return f"{prefix}-{year}-{number}"
 
     def _generate_line_items(self, currency: str, is_tbml: bool) -> List[Dict[str, Any]]:
         """Generate document line items."""
-        num_items = random.randint(1, 10)
+        num_items = self.faker.random.randint(1, 10)
         line_items = []
 
         for i in range(num_items):
-            category = random.choice(self.product_categories)
+            category = self.faker.random.choice(self.product_categories)
             description = f"{self.faker.word().capitalize()} {category}"
-            quantity = random.randint(1, 1000)
+            quantity = self.faker.random.randint(1, 1000)
 
             # Unit price (manipulated if TBML)
-            if is_tbml and random.random() < 0.5:
+            if is_tbml and self.faker.random.random() < 0.5:
                 # Over-invoicing or under-invoicing
-                if random.random() < 0.5:
+                if self.faker.random.random() < 0.5:
                     # Over-invoice (2-10x normal price)
-                    unit_price = float(random_amount(100, 1000)) * random.uniform(2, 10)
+                    unit_price = float(random_amount(100, 1000)) * self.faker.random.uniform(2, 10)
                 else:
                     # Under-invoice (10-50% of normal price)
-                    unit_price = float(random_amount(100, 1000)) * random.uniform(0.1, 0.5)
+                    unit_price = float(random_amount(100, 1000)) * self.faker.random.uniform(0.1, 0.5)
             else:
                 unit_price = float(random_amount(10, 1000))
 
@@ -282,23 +282,23 @@ class DocumentGenerator(BaseGenerator[Document]):
             indicators.append("unusual_quantity")
 
         # Phantom shipping (no actual goods)
-        if random.random() < 0.2:
+        if self.faker.random.random() < 0.2:
             indicators.append("phantom_shipping_suspected")
 
         # Multiple invoicing (same goods invoiced multiple times)
-        if random.random() < 0.15:
+        if self.faker.random.random() < 0.15:
             indicators.append("multiple_invoicing_suspected")
 
         # Misclassification of goods
-        if random.random() < 0.2:
+        if self.faker.random.random() < 0.2:
             indicators.append("goods_misclassification_suspected")
 
         # Short shipping (invoice for more than shipped)
-        if random.random() < 0.15:
+        if self.faker.random.random() < 0.15:
             indicators.append("short_shipping_suspected")
 
         # Unusual payment terms
-        if random.random() < 0.1:
+        if self.faker.random.random() < 0.1:
             indicators.append("unusual_payment_terms")
 
         return indicators
@@ -354,19 +354,19 @@ class DocumentGenerator(BaseGenerator[Document]):
         metadata: Dict[str, Any] = {
             "document_type": document_type,
             "currency": currency,
-            "payment_terms": random.choice(
+            "payment_terms": self.faker.random.choice(
                 ["Net 30", "Net 60", "Net 90", "COD", "Advance Payment"]
             ),
-            "shipping_method": random.choice(["Air", "Sea", "Land", "Rail"]),
-            "incoterms": random.choice(["FOB", "CIF", "EXW", "DDP", "DAP"]),
+            "shipping_method": self.faker.random.choice(["Air", "Sea", "Land", "Rail"]),
+            "incoterms": self.faker.random.choice(["FOB", "CIF", "EXW", "DDP", "DAP"]),
         }
 
         if document_type in ["invoice", "bill_of_lading"]:
-            metadata["origin_country"] = random.choice(list(COUNTRIES.keys()))
-            metadata["destination_country"] = random.choice(list(COUNTRIES.keys()))
+            metadata["origin_country"] = self.faker.random.choice(list(COUNTRIES.keys()))
+            metadata["destination_country"] = self.faker.random.choice(list(COUNTRIES.keys()))
 
         if is_tbml:
-            metadata["price_variance_percentage"] = random.uniform(50, 500)
+            metadata["price_variance_percentage"] = self.faker.random.uniform(50, 500)
             metadata["market_price_comparison"] = "significantly_different"
 
         return metadata
@@ -386,7 +386,7 @@ class DocumentGenerator(BaseGenerator[Document]):
             List of Document objects with TBML indicators
         """
         documents = []
-        base_date = REFERENCE_TIMESTAMP - timedelta(days=random.randint(30, 180))
+        base_date = REFERENCE_TIMESTAMP - timedelta(days=self.faker.random.randint(30, 180))
 
         for i in range(document_count):
             # Generate document with TBML indicators

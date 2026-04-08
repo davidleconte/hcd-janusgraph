@@ -665,4 +665,218 @@ class TestGetDLQHandler:
         assert isinstance(handler, DLQHandler)
 
 
+class TestDLQHandlerEdgeCases:
+    """Tests for edge cases and uncovered lines in DLQHandler."""
+
+    def test_import_error_pulsar_not_available(self):
+        """Test ImportError when pulsar is not available (lines 28-34)."""
+        import banking.streaming.dlq_handler as dlq_module
+        original_value = dlq_module.PULSAR_AVAILABLE
+        try:
+            dlq_module.PULSAR_AVAILABLE = False
+            with pytest.raises(ImportError, match="pulsar-client is not installed"):
+                DLQHandler()
+        finally:
+            dlq_module.PULSAR_AVAILABLE = original_value
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_parse_dlq_message_error(self):
+        """Test _parse_dlq_message with parsing error (lines 206-208)."""
+        handler = DLQHandler()
+        
+        # Create a mock message that will fail parsing
+        mock_msg = Mock()
+        mock_msg.data.side_effect = Exception("Parse error")
+        mock_msg.properties.return_value = {}
+        mock_msg.message_id.return_value = "msg-123"
+        
+        with pytest.raises(Exception, match="Parse error"):
+            handler._parse_dlq_message(mock_msg)
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_retry_message_with_exception(self):
+        """Test _retry_message when retry handler raises exception (lines 237-239)."""
+        retry_fn = Mock(side_effect=Exception("Retry error"))
+        handler = DLQHandler(retry_handler=retry_fn)
+        
+        event = EntityEvent(
+            entity_id="p-123",
+            event_type="create",
+            entity_type="person",
+            payload={},
+        )
+        
+        dlq_msg = DLQMessage(
+            original_topic="test",
+            original_event=event,
+            failure_reason="error",
+            failure_count=1,
+            first_failure_time=datetime.now(timezone.utc),
+            last_failure_time=datetime.now(timezone.utc),
+            message_id="msg-123",
+        )
+        
+        result = handler._retry_message(dlq_msg)
+        
+        assert result is False
+        assert handler.stats.messages_retried == 0
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_archive_message_with_error(self):
+        """Test _archive_message when file write fails (lines 258-260)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            handler = DLQHandler(archive_dir=tmpdir)
+            
+            dlq_msg = DLQMessage(
+                original_topic="test",
+                original_event=None,
+                failure_reason="error",
+                failure_count=3,
+                first_failure_time=datetime.now(timezone.utc),
+                last_failure_time=datetime.now(timezone.utc),
+                message_id="msg-123",
+            )
+            
+            # Make the directory read-only to cause write error
+            import os
+            os.chmod(tmpdir, 0o444)
+            
+            try:
+                handler._archive_message(dlq_msg)
+                
+                # Should log error but not raise
+                assert len(handler.stats.errors) > 0
+            finally:
+                # Restore permissions for cleanup
+                os.chmod(tmpdir, 0o755)
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_handle_permanent_failure_with_handler_error(self):
+        """Test _handle_permanent_failure when custom handler raises exception (lines 279-280)."""
+        failure_fn = Mock(side_effect=Exception("Handler error"))
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            handler = DLQHandler(archive_dir=tmpdir, failure_handler=failure_fn)
+            
+            dlq_msg = DLQMessage(
+                original_topic="test",
+                original_event=None,
+                failure_reason="error",
+                failure_count=3,
+                first_failure_time=datetime.now(timezone.utc),
+                last_failure_time=datetime.now(timezone.utc),
+                message_id="msg-123",
+            )
+            
+            # Should not raise, just log error
+            handler._handle_permanent_failure(dlq_msg)
+            
+            assert handler.stats.messages_failed_permanently == 1
+            failure_fn.assert_called_once()
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_process_message_retry_failed(self):
+        """Test process_message when retry fails (line 305)."""
+        retry_fn = Mock(return_value=False)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            handler = DLQHandler(
+                max_retries=3,
+                archive_dir=tmpdir,
+                retry_handler=retry_fn,
+            )
+            
+            event = EntityEvent(
+                entity_id="p-123",
+                event_type="create",
+                entity_type="person",
+                payload={},
+            )
+            
+            dlq_msg = DLQMessage(
+                original_topic="test",
+                original_event=event,
+                failure_reason="error",
+                failure_count=1,
+                first_failure_time=datetime.now(timezone.utc),
+                last_failure_time=datetime.now(timezone.utc),
+                message_id="msg-123",
+            )
+            
+            # Create mock message
+            mock_msg = Mock()
+            mock_msg.data.return_value = event.to_bytes()
+            mock_msg.properties.return_value = {
+                "original_topic": "test",
+                "failure_reason": "error",
+                "failure_count": "1",
+                "first_failure_time": datetime.now(timezone.utc).isoformat(),
+            }
+            mock_msg.message_id.return_value = "msg-123"
+            
+            result = handler.process_message(mock_msg)
+            
+            # Should handle permanent failure after retry fails
+            assert result is True
+            assert handler.stats.messages_failed_permanently == 1
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_process_message_with_exception(self):
+        """Test process_message when parsing raises exception (lines 311-314)."""
+        handler = DLQHandler()
+        
+        # Create mock message that will fail parsing
+        mock_msg = Mock()
+        mock_msg.data.side_effect = Exception("Parse error")
+        
+        result = handler.process_message(mock_msg)
+        
+        assert result is False
+        assert len(handler.stats.errors) > 0
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    @patch("banking.streaming.dlq_handler.pulsar")
+    def test_process_batch_connects_if_no_consumer(self, mock_pulsar):
+        """Test process_batch connects if consumer not set (line 327-328)."""
+        mock_client = Mock()
+        mock_consumer = Mock()
+        mock_client.subscribe.return_value = mock_consumer
+        mock_pulsar.Client.return_value = mock_client
+        
+        # Make receive timeout immediately
+        mock_consumer.receive.side_effect = Exception("timeout")
+        
+        handler = DLQHandler()
+        # Don't call connect() - let process_batch do it
+        
+        processed = handler.process_batch(max_messages=1, timeout_ms=100)
+        
+        # Should have connected
+        assert handler.consumer is not None
+        assert processed == 0
+
+    @patch("banking.streaming.dlq_handler.PULSAR_AVAILABLE", True)
+    def test_process_batch_negative_acknowledge(self):
+        """Test process_batch negative acknowledges failed messages (line 339)."""
+        with patch("banking.streaming.dlq_handler.pulsar") as mock_pulsar:
+            mock_client = Mock()
+            mock_consumer = Mock()
+            mock_client.subscribe.return_value = mock_consumer
+            mock_pulsar.Client.return_value = mock_client
+            
+            # Create a message that will fail processing
+            mock_msg = Mock()
+            mock_msg.data.side_effect = Exception("Parse error")
+            mock_consumer.receive.side_effect = [mock_msg, Exception("timeout")]
+            
+            handler = DLQHandler()
+            handler.connect()
+            
+            processed = handler.process_batch(max_messages=10, timeout_ms=100)
+            
+            # Should negative acknowledge the failed message
+            mock_consumer.negative_acknowledge.assert_called_once_with(mock_msg)
+            assert processed == 1
+
+
 # Made with Bob

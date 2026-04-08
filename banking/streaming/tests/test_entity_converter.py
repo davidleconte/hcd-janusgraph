@@ -225,6 +225,82 @@ class TestGetTextForEmbedding:
         assert result is None
 
 
+class TestEntityConverterEdgeCases:
+    """Tests for edge cases and uncovered lines in entity_converter."""
+
+    def test_get_entity_id_with_none_values(self):
+        """Test get_entity_id when ID fields are None (line 61)."""
+
+        @dataclass
+        class EntityWithNoneId:
+            id: None = None
+            person_id: str = "p-123"
+
+        entity = EntityWithNoneId()
+        result = get_entity_id(entity)
+        assert result == "p-123"
+
+    def test_get_entity_type_fallback(self):
+        """Test get_entity_type fallback to type_name (line 95)."""
+
+        @dataclass
+        class UnknownEntity:
+            id: str = "u-1"
+
+        entity = UnknownEntity()
+        result = get_entity_type(entity)
+        assert result == "unknownentity"
+
+    def test_company_embedding_no_name_fields(self):
+        """Test company embedding when no name fields exist (lines 122, 124)."""
+
+        @dataclass
+        class CompanyNoName:
+            company_id: str = "c-1"
+            industry: str = "Tech"
+
+        entity = CompanyNoName()
+        result = get_text_for_embedding(entity, "company")
+        assert result is None
+
+    def test_communication_embedding_no_content_fields(self):
+        """Test communication embedding when no content fields exist (lines 128, 130, 132)."""
+
+        @dataclass
+        class CommunicationNoContent:
+            communication_id: str = "cm-1"
+            sender_id: str = "p-1"
+            recipient_id: str = "p-2"
+
+        entity = CommunicationNoContent()
+        result = get_text_for_embedding(entity, "communication")
+        assert result is None
+
+    def test_document_embedding_no_content_fields(self):
+        """Test document embedding when no content fields exist (lines 135-140)."""
+
+        @dataclass
+        class DocumentNoContent:
+            document_id: str = "d-1"
+            title: str = "Test Document"
+
+        entity = DocumentNoContent()
+        result = get_text_for_embedding(entity, "document")
+        assert result is None
+
+    def test_document_embedding_with_content(self):
+        """Test document embedding with content field (lines 137-139)."""
+
+        @dataclass
+        class DocumentWithContent:
+            document_id: str = "d-1"
+            content: str = "This is document content"
+
+        entity = DocumentWithContent()
+        result = get_text_for_embedding(entity, "document")
+        assert result == "This is document content"
+
+
 class TestConvertEntityToEvent:
     """Tests for convert_entity_to_event function."""
 

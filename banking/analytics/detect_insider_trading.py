@@ -708,6 +708,193 @@ class InsiderTradingDetector:
 
         self.alerts.extend(alerts)
         logger.info("Found %s network-based alerts", len(alerts))
+    # =========================================================================
+    # MULTI-HOP TIPPING DETECTION
+    # =========================================================================
+
+    def detect_multi_hop_tipping(
+        self, 
+        max_hops: int = 5,
+        time_window_days: int = 30
+    ) -> List[InsiderTradingAlert]:
+        """
+        Detect multi-hop insider tipping chains.
+        
+        Identifies information flow from insiders through intermediaries
+        to traders, detecting up to N-hop tipping chains.
+        
+        This method uses graph traversals to find paths from company insiders
+        (CEO, CFO, etc.) through social/professional networks to traders who
+        executed suspicious trades before corporate events.
+        
+        Args:
+            max_hops: Maximum relationship hops to traverse (default: 5)
+            time_window_days: Days before event to analyze (default: 30)
+        
+        Returns:
+            List of multi-hop tipping alerts
+            
+        Example:
+            >>> detector = InsiderTradingDetector()
+            >>> detector.connect()
+            >>> alerts = detector.detect_multi_hop_tipping(max_hops=5)
+            >>> for alert in alerts:
+            ...     print(f"Found {alert.details['hop_count']}-hop chain")
+        """
+        logger.info(f"Detecting multi-hop tipping chains (max {max_hops} hops)...")
+        alerts = []
+        
+        # Query for multi-hop tipping chains
+        # This traversal finds paths from insiders to traders through intermediaries
+        query = f"""
+        g.V().hasLabel('person')
+         .has('job_title', within('CEO', 'CFO', 'Director', 'VP', 'President'))
+         .as('insider')
+         .repeat(
+           out('knows', 'related_to', 'colleague_of', 'family_of')
+           .simplePath()
+         )
+         .times({max_hops})
+         .as('contact')
+         .where(
+           out('performed_trade')
+           .has('total_value', gt(50000))
+         )
+         .path()
+         .by(valueMap('person_id', 'full_name', 'job_title'))
+         .limit(100)
+        """
+        
+        try:
+            results = self._query(query)
+            
+            for path in results:
+                if len(path) < 3:  # Need at least insider -> intermediary -> trader
+                    continue
+                    
+                # Extract path details
+                insider = path[0]
+                intermediaries = path[1:-1]
+                trader = path[-1]
+                
+                # Get trader's trades
+                trader_id = trader.get('person_id', [''])[0]
+                trades_query = f"""
+                g.V().has('person', 'person_id', '{trader_id}')
+                 .out('performed_trade')
+                 .has('total_value', gt(50000))
+                 .valueMap('trade_id', 'symbol', 'total_value', 'side', 'trade_date')
+                 .limit(20)
+                """
+                trader_trades = self._query(trades_query)
+                
+                if not trader_trades:
+                    continue
+                
+                # Calculate risk based on path length and roles
+                risk_score = self._calculate_multi_hop_risk(
+                    insider, intermediaries, trader, trader_trades
+                )
+                
+                if risk_score >= 0.7:
+                    total_value = sum(t.get('total_value', [0])[0] for t in trader_trades)
+                    symbols = list(set(t.get('symbol', [''])[0] for t in trader_trades))
+                    
+                    alert = InsiderTradingAlert(
+                        alert_id=f"IT-MULTIHOP-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+                        alert_type="multi_hop_tipping",
+                        severity=self._calculate_severity(risk_score),
+                        traders=[trader_id],
+                        trades=[t.get('trade_id', [''])[0] for t in trader_trades],
+                        symbol=symbols[0] if symbols else "",
+                        total_value=total_value,
+                        risk_score=risk_score,
+                        indicators=[
+                            f"{len(path)}-hop tipping chain detected",
+                            f"Insider: {insider.get('full_name', ['Unknown'])[0]}",
+                            f"Role: {insider.get('job_title', ['Unknown'])[0]}",
+                            f"Intermediaries: {len(intermediaries)}",
+                            f"Final trader: {trader.get('full_name', ['Unknown'])[0]}",
+                            f"Total trades: {len(trader_trades)}",
+                            f"Total value: ${total_value:,.2f}",
+                            "Sophisticated tipping network detected"
+                        ],
+                        timestamp=datetime.now(timezone.utc),
+                        details={
+                            'path': path,
+                            'hop_count': len(path),
+                            'insider': insider,
+                            'intermediaries': intermediaries,
+                            'trader': trader,
+                            'trades': trader_trades,
+                            'symbols': symbols
+                        }
+                    )
+                    alerts.append(alert)
+        
+        except Exception as e:
+            logger.warning(f"Multi-hop detection failed: {e}")
+        
+        self.alerts.extend(alerts)
+        logger.info(f"Found {len(alerts)} multi-hop tipping alerts")
+        return alerts
+
+    def _calculate_multi_hop_risk(
+        self,
+        insider: Dict,
+        intermediaries: List[Dict],
+        trader: Dict,
+        trades: List[Dict]
+    ) -> float:
+        """
+        Calculate risk score for multi-hop tipping chain.
+        
+        Risk factors:
+        - Path length (longer = more sophisticated)
+        - Insider seniority (C-level = higher risk)
+        - Number of intermediaries
+        - Trade volume and value
+        
+        Args:
+            insider: Insider person dict
+            intermediaries: List of intermediary person dicts
+            trader: Trader person dict
+            trades: List of trade dicts
+            
+        Returns:
+            Risk score between 0.0 and 1.0
+        """
+        score = 0.5  # Base score for multi-hop chain
+        
+        # Longer chains = higher sophistication = higher risk
+        hop_count = len(intermediaries) + 2
+        if hop_count >= 5:
+            score += 0.2
+        elif hop_count >= 3:
+            score += 0.1
+        
+        # C-level insider = higher risk
+        insider_title = insider.get('job_title', [''])[0].lower()
+        if any(title in insider_title for title in ['ceo', 'cfo', 'president']):
+            score += 0.2
+        elif any(title in insider_title for title in ['director', 'vp']):
+            score += 0.1
+        
+        # Multiple intermediaries = more sophisticated = higher risk
+        if len(intermediaries) >= 2:
+            score += 0.1
+        
+        # High trade volume = higher risk
+        if len(trades) >= 5:
+            score += 0.1
+        
+        # High trade value = higher risk
+        total_value = sum(t.get('total_value', [0])[0] for t in trades)
+        if total_value >= 500000:
+            score += 0.1
+        
+        return min(score, 1.0)
+
         return alerts
 
     def _calculate_network_risk(self, trades: List[Dict]) -> float:
@@ -767,6 +954,282 @@ class InsiderTradingDetector:
 
     def _count_alerts_by_type(self) -> Dict[str, int]:
         """Count alerts grouped by alert_type using deterministic key order."""
+
+    # =========================================================================
+    # BIDIRECTIONAL COMMUNICATION ANALYSIS
+    # =========================================================================
+
+    def detect_conversation_patterns(
+        self,
+        time_window_hours: int = 48
+    ) -> List[InsiderTradingAlert]:
+        """
+        Detect suspicious conversation patterns before trades.
+        
+        Analyzes bidirectional communication sequences (request-response)
+        that may indicate MNPI sharing. Unlike unidirectional analysis,
+        this method detects back-and-forth conversations that show
+        information exchange patterns.
+        
+        Key Patterns Detected:
+        - Insider initiates communication with suspicious keywords
+        - Contact responds (bidirectional flow)
+        - Subsequent trading activity by contact
+        - Temporal correlation between conversation and trades
+        
+        Args:
+            time_window_hours: Hours before trade to analyze communications (default: 48)
+        
+        Returns:
+            List of conversation pattern alerts
+            
+        Example:
+            >>> detector = InsiderTradingDetector()
+            >>> detector.connect()
+            >>> alerts = detector.detect_conversation_patterns(time_window_hours=48)
+            >>> for alert in alerts:
+            ...     print(f"Conversation between {alert.details['insider']['full_name']}")
+            ...     print(f"and {alert.details['contact']['full_name']}")
+        """
+        logger.info("Detecting suspicious conversation patterns...")
+        alerts = []
+        
+        # Query for bidirectional communication sequences
+        # This finds conversations where:
+        # 1. Insider sends message with suspicious keywords
+        # 2. Contact responds (bidirectional)
+        # 3. Contact has trading activity
+        query = """
+        g.V().hasLabel('person')
+         .has('job_title', within('CEO', 'CFO', 'Director', 'VP', 'President'))
+         .as('insider')
+         .both('sent_to', 'sent_from')
+         .hasLabel('communication')
+         .has('contains_suspicious_keywords', true)
+         .as('comm1')
+         .both('sent_to', 'sent_from')
+         .where(neq('insider'))
+         .as('contact')
+         .both('sent_to', 'sent_from')
+         .hasLabel('communication')
+         .as('comm2')
+         .where(
+           select('comm2').values('timestamp')
+         )
+         .select('insider', 'comm1', 'contact', 'comm2')
+         .by(valueMap('person_id', 'full_name', 'job_title'))
+         .by(valueMap('communication_id', 'timestamp', 'communication_type', 'content', 'contains_suspicious_keywords'))
+         .by(valueMap('person_id', 'full_name'))
+         .by(valueMap('communication_id', 'timestamp', 'communication_type', 'content', 'contains_suspicious_keywords'))
+         .limit(50)
+        """
+        
+        try:
+            results = self._query(query)
+            
+            for result in results:
+                insider = result.get('insider', {})
+                comm1 = result.get('comm1', {})
+                contact = result.get('contact', {})
+                comm2 = result.get('comm2', {})
+                
+                # Check if this is a suspicious conversation
+                if self._is_suspicious_conversation(comm1, comm2):
+                    # Get contact's trades
+                    contact_id = contact.get('person_id', [''])[0]
+                    trades_query = f"""
+                    g.V().has('person', 'person_id', '{contact_id}')
+                     .out('performed_trade')
+                     .has('total_value', gt(50000))
+                     .valueMap('trade_id', 'symbol', 'total_value', 'side', 'trade_date')
+                     .limit(20)
+                    """
+                    contact_trades = self._query(trades_query)
+                    
+                    # Calculate risk score
+                    risk_score = self._calculate_conversation_risk(
+                        insider, comm1, contact, comm2, contact_trades
+                    )
+                    
+                    if risk_score >= 0.6:
+                        total_value = sum(t.get('total_value', [0])[0] for t in contact_trades) if contact_trades else 0
+                        
+                        alert = InsiderTradingAlert(
+                            alert_id=f"IT-CONV-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+                            alert_type="conversation_pattern",
+                            severity=self._calculate_severity(risk_score),
+                            traders=[contact_id],
+                            trades=[t.get('trade_id', [''])[0] for t in contact_trades] if contact_trades else [],
+                            symbol=contact_trades[0].get('symbol', [''])[0] if contact_trades else "",
+                            total_value=total_value,
+                            risk_score=risk_score,
+                            indicators=[
+                                "Bidirectional communication pattern detected",
+                                f"Insider: {insider.get('full_name', ['Unknown'])[0]} ({insider.get('job_title', ['Unknown'])[0]})",
+                                f"Contact: {contact.get('full_name', ['Unknown'])[0]}",
+                                "MNPI keywords in conversation",
+                                "Request-response sequence identified",
+                                f"Communication types: {comm1.get('communication_type', ['unknown'])[0]} → {comm2.get('communication_type', ['unknown'])[0]}",
+                                f"Subsequent trades: {len(contact_trades) if contact_trades else 0}"
+                            ],
+                            timestamp=datetime.now(timezone.utc),
+                            details={
+                                'insider': insider,
+                                'initial_communication': comm1,
+                                'contact': contact,
+                                'response_communication': comm2,
+                                'conversation_type': 'bidirectional',
+                                'trades': contact_trades if contact_trades else [],
+                                'time_between_comms': self._calculate_time_diff(comm1, comm2)
+                            }
+                        )
+                        alerts.append(alert)
+        
+        except Exception as e:
+            logger.warning(f"Conversation pattern detection failed: {e}")
+        
+        self.alerts.extend(alerts)
+        logger.info(f"Found {len(alerts)} conversation pattern alerts")
+        return alerts
+
+    def _is_suspicious_conversation(
+        self,
+        comm1: Dict,
+        comm2: Dict
+    ) -> bool:
+        """
+        Check if conversation pattern is suspicious.
+        
+        Criteria:
+        - Time proximity (within 24 hours)
+        - MNPI keywords in at least one message
+        - Different communication types (e.g., email → phone)
+        
+        Args:
+            comm1: First communication dict
+            comm2: Second communication dict
+            
+        Returns:
+            True if conversation is suspicious
+        """
+        # Check time proximity (within 24 hours)
+        time1 = self._parse_date(comm1.get('timestamp', [''])[0])
+        time2 = self._parse_date(comm2.get('timestamp', [''])[0])
+        
+        if time1 and time2:
+            time_diff = abs((time2 - time1).total_seconds() / 3600)
+            if time_diff > 24:
+                return False
+        else:
+            return False
+        
+        # Check for MNPI keywords in either communication
+        has_mnpi_1 = comm1.get('contains_suspicious_keywords', [False])[0]
+        has_mnpi_2 = comm2.get('contains_suspicious_keywords', [False])[0]
+        
+        if not (has_mnpi_1 or has_mnpi_2):
+            # Also check content directly for MNPI keywords
+            content1 = str(comm1.get('content', '')).lower()
+            content2 = str(comm2.get('content', '')).lower()
+            
+            mnpi_keywords = [
+                'merger', 'acquisition', 'earnings', 'announcement',
+                'confidential', 'material', 'non-public', 'deal',
+                'between us', 'don\'t tell', 'keep quiet', 'inside'
+            ]
+            
+            has_mnpi_1 = any(kw in content1 for kw in mnpi_keywords)
+            has_mnpi_2 = any(kw in content2 for kw in mnpi_keywords)
+        
+        return has_mnpi_1 or has_mnpi_2
+
+    def _calculate_conversation_risk(
+        self,
+        insider: Dict,
+        comm1: Dict,
+        contact: Dict,
+        comm2: Dict,
+        trades: Optional[List[Dict]] = None
+    ) -> float:
+        """
+        Calculate risk score for conversation pattern.
+        
+        Risk Factors:
+        - Insider seniority (C-level = higher risk)
+        - MNPI keywords in both messages
+        - Quick response time (<1 hour)
+        - Communication type changes (email → phone)
+        - Subsequent trading activity
+        
+        Args:
+            insider: Insider person dict
+            comm1: First communication dict
+            contact: Contact person dict
+            comm2: Second communication dict
+            trades: Optional list of subsequent trades
+            
+        Returns:
+            Risk score between 0.0 and 1.0
+        """
+        score = 0.4  # Base score for bidirectional communication
+        
+        # C-level insider = higher risk
+        insider_title = insider.get('job_title', [''])[0].lower()
+        if any(title in insider_title for title in ['ceo', 'cfo', 'president']):
+            score += 0.2
+        elif any(title in insider_title for title in ['director', 'vp']):
+            score += 0.1
+        
+        # MNPI keywords in both messages = higher risk
+        if comm1.get('contains_suspicious_keywords', [False])[0] and \
+           comm2.get('contains_suspicious_keywords', [False])[0]:
+            score += 0.2
+        elif comm1.get('contains_suspicious_keywords', [False])[0] or \
+             comm2.get('contains_suspicious_keywords', [False])[0]:
+            score += 0.1
+        
+        # Quick response time (<1 hour) = higher urgency = higher risk
+        time1 = self._parse_date(comm1.get('timestamp', [''])[0])
+        time2 = self._parse_date(comm2.get('timestamp', [''])[0])
+        if time1 and time2:
+            time_diff = abs((time2 - time1).total_seconds() / 3600)
+            if time_diff < 1:
+                score += 0.15
+            elif time_diff < 4:
+                score += 0.1
+        
+        # Communication type change (email → phone) = higher risk
+        type1 = comm1.get('communication_type', [''])[0]
+        type2 = comm2.get('communication_type', [''])[0]
+        if type1 != type2 and 'phone' in [type1.lower(), type2.lower()]:
+            score += 0.1
+        
+        # Subsequent trading activity = higher risk
+        if trades and len(trades) > 0:
+            score += 0.1
+            if len(trades) >= 3:
+                score += 0.05
+        
+        return min(score, 1.0)
+
+    def _calculate_time_diff(self, comm1: Dict, comm2: Dict) -> Optional[float]:
+        """
+        Calculate time difference between two communications in hours.
+        
+        Args:
+            comm1: First communication dict
+            comm2: Second communication dict
+            
+        Returns:
+            Time difference in hours, or None if timestamps invalid
+        """
+        time1 = self._parse_date(comm1.get('timestamp', [''])[0])
+        time2 = self._parse_date(comm2.get('timestamp', [''])[0])
+        
+        if time1 and time2:
+            return abs((time2 - time1).total_seconds() / 3600)
+        return None
+
         return {
             alert_type: len([alert for alert in self.alerts if alert.alert_type == alert_type])
             for alert_type in self.ALERT_TYPE_ORDER
@@ -786,6 +1249,553 @@ class InsiderTradingDetector:
     def _unique_trader_count(self) -> int:
         """Compute number of unique traders across alerts."""
         return len({trader for alert in self.alerts for trader in alert.traders})
+
+    # ============================================================================
+    # VECTOR SEARCH METHODS (Sprint 1.4 - Added 2026-04-07)
+    # ============================================================================
+
+    def detect_semantic_mnpi_sharing(
+        self,
+        insider_id: str,
+        mnpi_threshold: float = 0.8,
+        similarity_threshold: float = 0.7,
+        time_window_days: int = 30
+    ) -> Optional[InsiderTradingAlert]:
+        """
+        Detect MNPI sharing using semantic vector similarity (OpenSearch k-NN).
+        
+        This method uses OpenSearch vector search to detect Material Non-Public
+        Information (MNPI) sharing based on semantic similarity of communications,
+        rather than exact keyword matching.
+        
+        Detection Logic:
+        1. Find communications from insider with high MNPI similarity (>0.8)
+        2. Cluster semantically similar communications (coordinated messaging)
+        3. Identify recipients who traded after receiving MNPI
+        4. Calculate risk score based on network size and trading patterns
+        
+        Args:
+            insider_id: Person ID of the insider
+            mnpi_threshold: Minimum MNPI similarity score (0.0 to 1.0)
+            similarity_threshold: Minimum semantic similarity for clustering
+            time_window_days: Time window for trade correlation (days)
+            
+        Returns:
+            InsiderTradingAlert if MNPI sharing detected, None otherwise
+            
+        Example:
+            >>> detector = InsiderTradingDetector(client)
+            >>> alert = detector.detect_semantic_mnpi_sharing("insider-123")
+            >>> if alert:
+            >>>     print(f"MNPI sharing detected: {alert.risk_score}")
+        """
+        try:
+            from banking.analytics.vector_search import get_vector_search_client
+        except ImportError:
+            logger.warning("Vector search not available - install sentence-transformers and opensearch-py")
+            return None
+        
+        logger.info(f"Detecting semantic MNPI sharing for insider: {insider_id}")
+        
+        # Initialize vector search client
+        vector_client = get_vector_search_client()
+        
+        # Detect MNPI sharing network using vector similarity
+        network_results = vector_client.detect_mnpi_sharing_network(
+            insider_id=insider_id,
+            mnpi_threshold=mnpi_threshold,
+            similarity_threshold=similarity_threshold
+        )
+        
+        if network_results['mnpi_communications_count'] == 0:
+            logger.info(f"No MNPI communications found for insider: {insider_id}")
+            return None
+        
+        # Get communication IDs from clusters
+        communication_ids = []
+        for cluster in network_results['similar_clusters']:
+            communication_ids.extend(cluster['communications'])
+        
+        if not communication_ids:
+            logger.info(f"No clustered MNPI communications for insider: {insider_id}")
+            return None
+        
+        # Query JanusGraph for trades correlated with these communications
+        query = """
+        g.V().has('person', 'person_id', insider_id)
+             .out('sent_communication')
+             .has('communication_id', within(comm_ids))
+             .as('comm')
+             .out('sent_to')
+             .as('recipient')
+             .out('performed_trade')
+             .has('timestamp', gte(start_time))
+             .as('trade')
+             .select('comm', 'recipient', 'trade')
+             .by(valueMap(true))
+        """
+        
+        # Calculate time window
+        start_time = (datetime.now(timezone.utc) - timedelta(days=time_window_days)).isoformat()
+        
+        bindings = {
+            'insider_id': insider_id,
+            'comm_ids': communication_ids,
+            'start_time': start_time
+        }
+        
+        try:
+            results = self.client.submit(query, bindings).all().result()
+        except Exception as e:
+            logger.error(f"Graph query failed: {e}")
+            return None
+        
+        if not results:
+            logger.info(f"No correlated trades found for MNPI communications")
+            return None
+        
+        # Process results
+        traders = set()
+        trades = []
+        total_value = 0.0
+        recipients = set()
+        
+        for result in results:
+            recipient_id = result['recipient']['person_id'][0]
+            trade_id = result['trade']['trade_id'][0]
+            trade_value = float(result['trade']['total_value'][0])
+            
+            traders.add(recipient_id)
+            recipients.add(recipient_id)
+            trades.append(trade_id)
+            total_value += trade_value
+        
+        # Calculate risk score
+        risk_score = self._calculate_semantic_mnpi_risk(
+            network_results=network_results,
+            trader_count=len(traders),
+            trade_count=len(trades),
+            total_value=total_value
+        )
+        
+        # Determine severity
+        severity = self._determine_severity(risk_score)
+        
+        # Create alert
+        alert = InsiderTradingAlert(
+            alert_id=f"semantic_mnpi_{insider_id}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+            alert_type="semantic_mnpi",
+            severity=severity,
+            traders=[insider_id] + list(traders),
+            trades=trades,
+            symbol="MULTIPLE",
+            total_value=total_value,
+            risk_score=risk_score,
+            indicators=[
+                f"MNPI communications: {network_results['mnpi_communications_count']}",
+                f"Semantic clusters: {len(network_results['similar_clusters'])}",
+                f"Recipients who traded: {len(recipients)}",
+                f"Network risk score: {network_results['risk_score']:.3f}",
+                f"Top MNPI keywords: {', '.join([kw[0] for kw in network_results['top_mnpi_keywords'][:5]])}",
+            ],
+            timestamp=datetime.now(timezone.utc),
+            details={
+                "insider_id": insider_id,
+                "mnpi_communications_count": network_results['mnpi_communications_count'],
+                "semantic_clusters": network_results['similar_clusters'],
+                "network_risk_score": network_results['risk_score'],
+                "alert_level": network_results['alert_level'],
+                "top_mnpi_keywords": network_results['top_mnpi_keywords'],
+                "recipients": list(recipients),
+                "time_window_days": time_window_days,
+                "detection_method": "vector_similarity"
+            }
+        )
+        
+        self.alerts.append(alert)
+        logger.info(f"Semantic MNPI sharing alert created: {alert.alert_id} (risk={risk_score:.3f})")
+        
+        return alert
+    
+    def _calculate_semantic_mnpi_risk(
+        self,
+        network_results: Dict[str, Any],
+        trader_count: int,
+        trade_count: int,
+        total_value: float
+    ) -> float:
+        """
+        Calculate risk score for semantic MNPI sharing detection.
+        
+        Risk factors:
+        1. Network risk score from vector analysis (40%)
+        2. Number of traders who acted on information (30%)
+        3. Number of trades executed (15%)
+        4. Total value of trades (15%)
+        
+        Args:
+            network_results: Results from vector search network detection
+            trader_count: Number of traders who traded after receiving MNPI
+            trade_count: Number of trades executed
+            total_value: Total value of trades
+            
+        Returns:
+            Risk score (0.0 to 1.0)
+        """
+        # Network risk score (from vector analysis)
+        network_score = network_results['risk_score']
+        
+        # Trader count score (normalize to 0-1, max at 10 traders)
+        trader_score = min(trader_count / 10.0, 1.0)
+        
+        # Trade count score (normalize to 0-1, max at 20 trades)
+        trade_score = min(trade_count / 20.0, 1.0)
+        
+        # Value score (normalize to 0-1, max at $10M)
+        value_score = min(total_value / 10_000_000, 1.0)
+        
+        # Weighted average
+        risk_score = (
+            network_score * 0.40 +
+            trader_score * 0.30 +
+            trade_score * 0.15 +
+            value_score * 0.15
+        )
+        
+        return round(risk_score, 3)
+    
+    def detect_coordinated_mnpi_network(
+        self,
+        min_participants: int = 3,
+        mnpi_threshold: float = 0.8,
+        similarity_threshold: float = 0.75,
+        time_window_hours: int = 48
+    ) -> List[InsiderTradingAlert]:
+        """
+        Detect coordinated MNPI sharing networks using vector similarity.
+        
+        Identifies groups of people sharing semantically similar MNPI content
+        and trading in coordination. Uses OpenSearch k-NN to find clusters of
+        similar communications across multiple senders.
+        
+        Detection Logic:
+        1. Find all communications with high MNPI similarity across all senders
+        2. Cluster communications by semantic similarity (coordinated messaging)
+        3. Identify clusters with multiple senders (network coordination)
+        4. Check if cluster participants traded within time window
+        5. Generate alerts for coordinated networks
+        
+        Args:
+            min_participants: Minimum number of people in network
+            mnpi_threshold: Minimum MNPI similarity score
+            similarity_threshold: Minimum semantic similarity for clustering
+            time_window_hours: Time window for coordinated trading
+            
+        Returns:
+            List of alerts for detected coordinated networks
+            
+        Example:
+            >>> detector = InsiderTradingDetector(client)
+            >>> alerts = detector.detect_coordinated_mnpi_network(min_participants=3)
+            >>> print(f"Found {len(alerts)} coordinated networks")
+        """
+        try:
+            from banking.analytics.vector_search import get_vector_search_client
+        except ImportError:
+            logger.warning("Vector search not available")
+            return []
+        
+        logger.info("Detecting coordinated MNPI networks using vector similarity")
+        
+        # Initialize vector search client
+        vector_client = get_vector_search_client()
+        
+        # Search for all high-MNPI communications
+        search_body = {
+            "size": 1000,
+            "query": {
+                "range": {
+                    "mnpi_similarity": {"gte": mnpi_threshold}
+                }
+            },
+            "sort": [
+                {"mnpi_similarity": {"order": "desc"}},
+                {"timestamp": {"order": "desc"}}
+            ]
+        }
+        
+        try:
+            response = vector_client.client.search(
+                index="communications-vector",
+                body=search_body
+            )
+        except Exception as e:
+            logger.error(f"OpenSearch query failed: {e}")
+            return []
+        
+        if not response['hits']['hits']:
+            logger.info("No high-MNPI communications found")
+            return []
+        
+        # Extract communications
+        communications = []
+        for hit in response['hits']['hits']:
+            comm = hit['_source']
+            comm['embedding'] = comm.get('content_vector', [])
+            communications.append(comm)
+        
+        # Cluster by semantic similarity
+        clusters = self._cluster_communications_by_similarity(
+            communications,
+            similarity_threshold
+        )
+        
+        # Filter clusters by minimum participants
+        coordinated_clusters = [
+            cluster for cluster in clusters
+            if len(cluster['senders']) >= min_participants
+        ]
+        
+        if not coordinated_clusters:
+            logger.info(f"No coordinated networks found (min_participants={min_participants})")
+            return []
+        
+        # Generate alerts for each coordinated network
+        alerts = []
+        for cluster in coordinated_clusters:
+            alert = self._create_coordinated_network_alert(
+                cluster,
+                time_window_hours
+            )
+            if alert:
+                alerts.append(alert)
+                self.alerts.append(alert)
+        
+        logger.info(f"Detected {len(alerts)} coordinated MNPI networks")
+        return alerts
+    
+    def _cluster_communications_by_similarity(
+        self,
+        communications: List[Dict[str, Any]],
+        threshold: float
+    ) -> List[Dict[str, Any]]:
+        """
+        Cluster communications by semantic similarity.
+        
+        Uses cosine similarity between embeddings to group
+        semantically similar communications.
+        
+        Args:
+            communications: List of communications with embeddings
+            threshold: Similarity threshold for clustering
+            
+        Returns:
+            List of clusters with metadata
+        """
+        import numpy as np
+        
+        if len(communications) < 2:
+            return []
+        
+        # Extract embeddings
+        embeddings = []
+        for comm in communications:
+            embedding = np.array(comm.get('embedding', []))
+            if embedding.size == 0:
+                # Skip communications without embeddings
+                continue
+            embeddings.append(embedding)
+        
+        if len(embeddings) < 2:
+            return []
+        
+        # Simple clustering: find groups with high pairwise similarity
+        clusters = []
+        processed = set()
+        
+        for i, comm1 in enumerate(communications):
+            if i in processed or not comm1.get('embedding'):
+                continue
+            
+            cluster = {
+                "cluster_id": f"cluster_{len(clusters)}",
+                "communications": [comm1['communication_id']],
+                "senders": {comm1['sender_id']},
+                "receivers": {comm1.get('receiver_id', 'unknown')},
+                "avg_mnpi_similarity": comm1['mnpi_similarity'],
+                "timestamps": [comm1['timestamp']],
+                "matching_keywords": set(comm1.get('matching_keywords', []))
+            }
+            
+            embedding1 = embeddings[i]
+            
+            for j, comm2 in enumerate(communications[i+1:], start=i+1):
+                if j in processed or not comm2.get('embedding'):
+                    continue
+                
+                embedding2 = embeddings[j]
+                
+                # Calculate cosine similarity
+                similarity = np.dot(embedding1, embedding2) / (
+                    np.linalg.norm(embedding1) * np.linalg.norm(embedding2)
+                )
+                
+                if similarity >= threshold:
+                    cluster['communications'].append(comm2['communication_id'])
+                    cluster['senders'].add(comm2['sender_id'])
+                    cluster['receivers'].add(comm2.get('receiver_id', 'unknown'))
+                    cluster['timestamps'].append(comm2['timestamp'])
+                    cluster['matching_keywords'].update(comm2.get('matching_keywords', []))
+                    processed.add(j)
+            
+            if len(cluster['communications']) > 1:
+                # Convert sets to lists for JSON serialization
+                cluster['senders'] = list(cluster['senders'])
+                cluster['receivers'] = list(cluster['receivers'])
+                cluster['matching_keywords'] = list(cluster['matching_keywords'])
+                clusters.append(cluster)
+                processed.add(i)
+        
+        return clusters
+    
+    def _create_coordinated_network_alert(
+        self,
+        cluster: Dict[str, Any],
+        time_window_hours: int
+    ) -> Optional[InsiderTradingAlert]:
+        """
+        Create alert for coordinated MNPI network.
+        
+        Args:
+            cluster: Cluster of coordinated communications
+            time_window_hours: Time window for trade correlation
+            
+        Returns:
+            InsiderTradingAlert if trades detected, None otherwise
+        """
+        senders = cluster['senders']
+        
+        # Query for trades by cluster participants
+        query = """
+        g.V().has('person', 'person_id', within(sender_ids))
+             .out('performed_trade')
+             .has('timestamp', gte(start_time))
+             .valueMap(true)
+        """
+        
+        # Calculate time window
+        start_time = (datetime.now(timezone.utc) - timedelta(hours=time_window_hours)).isoformat()
+        
+        bindings = {
+            'sender_ids': senders,
+            'start_time': start_time
+        }
+        
+        try:
+            results = self.client.submit(query, bindings).all().result()
+        except Exception as e:
+            logger.error(f"Graph query failed: {e}")
+            return None
+        
+        if not results:
+            return None
+        
+        # Process trades
+        trades = []
+        total_value = 0.0
+        
+        for result in results:
+            trade_id = result['trade_id'][0]
+            trade_value = float(result['total_value'][0])
+            trades.append(trade_id)
+            total_value += trade_value
+        
+        # Calculate risk score
+        risk_score = self._calculate_coordinated_network_risk(
+            cluster=cluster,
+            trade_count=len(trades),
+            total_value=total_value
+        )
+        
+        # Determine severity
+        severity = self._determine_severity(risk_score)
+        
+        # Create alert
+        alert = InsiderTradingAlert(
+            alert_id=f"coordinated_network_{cluster['cluster_id']}_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}",
+            alert_type="coordinated_network",
+            severity=severity,
+            traders=senders,
+            trades=trades,
+            symbol="MULTIPLE",
+            total_value=total_value,
+            risk_score=risk_score,
+            indicators=[
+                f"Network participants: {len(senders)}",
+                f"Coordinated communications: {len(cluster['communications'])}",
+                f"Trades executed: {len(trades)}",
+                f"Avg MNPI similarity: {cluster['avg_mnpi_similarity']:.3f}",
+                f"Top keywords: {', '.join(list(cluster['matching_keywords'])[:5])}",
+            ],
+            timestamp=datetime.now(timezone.utc),
+            details={
+                "cluster_id": cluster['cluster_id'],
+                "participants": senders,
+                "communication_count": len(cluster['communications']),
+                "avg_mnpi_similarity": cluster['avg_mnpi_similarity'],
+                "matching_keywords": cluster['matching_keywords'],
+                "time_window_hours": time_window_hours,
+                "detection_method": "coordinated_vector_clustering"
+            }
+        )
+        
+        return alert
+    
+    def _calculate_coordinated_network_risk(
+        self,
+        cluster: Dict[str, Any],
+        trade_count: int,
+        total_value: float
+    ) -> float:
+        """
+        Calculate risk score for coordinated network.
+        
+        Risk factors:
+        1. Number of participants (30%)
+        2. MNPI similarity (30%)
+        3. Number of trades (20%)
+        4. Total value (20%)
+        
+        Args:
+            cluster: Cluster metadata
+            trade_count: Number of trades
+            total_value: Total trade value
+            
+        Returns:
+            Risk score (0.0 to 1.0)
+        """
+        # Participant score (normalize to 0-1, max at 10 participants)
+        participant_score = min(len(cluster['senders']) / 10.0, 1.0)
+        
+        # MNPI similarity score
+        mnpi_score = cluster['avg_mnpi_similarity']
+        
+        # Trade count score (normalize to 0-1, max at 20 trades)
+        trade_score = min(trade_count / 20.0, 1.0)
+        
+        # Value score (normalize to 0-1, max at $10M)
+        value_score = min(total_value / 10_000_000, 1.0)
+        
+        # Weighted average
+        risk_score = (
+            participant_score * 0.30 +
+            mnpi_score * 0.30 +
+            trade_score * 0.20 +
+            value_score * 0.20
+        )
+        
+        return round(risk_score, 3)
+
 
     @staticmethod
     def _serialize_alert(alert: InsiderTradingAlert) -> Dict[str, Any]:

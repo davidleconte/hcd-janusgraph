@@ -123,13 +123,13 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
 
         # Set defaults
         if entity_count is None:
-            entity_count = random.randint(2, 5)
+            entity_count = self.faker.random.randint(2, 5)
         if document_count is None:
-            document_count = random.randint(3, 20)
+            document_count = self.faker.random.randint(3, 20)
         if transaction_count is None:
-            transaction_count = random.randint(3, 20)
+            transaction_count = self.faker.random.randint(3, 20)
         if duration_days is None:
-            duration_days = random.randint(30, 180)
+            duration_days = self.faker.random.randint(30, 180)
 
         # Generate pattern dates
         end_date = REFERENCE_TIMESTAMP
@@ -137,7 +137,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         # Generate entities involved (or select from existing)
         if existing_entity_ids:
             sample_count = min(entity_count, len(existing_entity_ids))
-            entity_ids = random.sample(existing_entity_ids, sample_count)
+            entity_ids = self.faker.random.sample(existing_entity_ids, sample_count)
             if sample_count < entity_count:
                 entity_ids.extend(
                     [f"COM-{self.faker.uuid4()[:8]}" for _ in range(entity_count - sample_count)]
@@ -222,10 +222,10 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
                     float(total_value / len(transactions)) if transactions else 0
                 ),
                 "high_risk_route": (
-                    random.choice(self.high_risk_routes) if random.random() < 0.5 else None
+                    self.faker.random.choice(self.high_risk_routes) if self.faker.random.random() < 0.5 else None
                 ),
                 "price_variance_percentage": (
-                    random.uniform(50, 500)
+                    self.faker.random.uniform(50, 500)
                     if pattern_type in ["over_invoicing", "under_invoicing"]
                     else 0
                 ),
@@ -243,7 +243,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
         for haven in tax_haven_list[:10]:  # Top 10 tax havens
             routes.append(
                 {
-                    "origin": random.choice(list(COUNTRIES.keys())),
+                    "origin": self.faker.random.choice(list(COUNTRIES.keys())),
                     "destination": haven,
                     "risk_factor": "tax_haven_destination",
                 }
@@ -251,7 +251,7 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             routes.append(
                 {
                     "origin": haven,
-                    "destination": random.choice(list(COUNTRIES.keys())),
+                    "destination": self.faker.random.choice(list(COUNTRIES.keys())),
                     "risk_factor": "tax_haven_origin",
                 }
             )
@@ -271,8 +271,8 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
 
         for i in range(document_count):
             # Select issuer and recipient
-            issuer_id = random.choice(entity_ids)
-            recipient_id = random.choice([e for e in entity_ids if e != issuer_id])
+            issuer_id = self.faker.random.choice(entity_ids)
+            recipient_id = self.faker.random.choice([e for e in entity_ids if e != issuer_id])
 
             # Generate document date
             doc_date = random_datetime_between(start_date, end_date)
@@ -294,22 +294,22 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
             if pattern_type == "over_invoicing":
                 # Inflate prices
                 for item in doc.line_items:
-                    item["unit_price"] *= random.uniform(2, 10)
+                    item["unit_price"] *= self.faker.random.uniform(2, 10)
                     item["amount"] = item["quantity"] * item["unit_price"]
                 doc.total_amount = sum(
                     (Decimal(str(item["amount"])) for item in doc.line_items), Decimal("0.00")
                 )
-                doc.metadata["price_inflation_factor"] = random.uniform(2, 10)
+                doc.metadata["price_inflation_factor"] = self.faker.random.uniform(2, 10)
 
             elif pattern_type == "under_invoicing":
                 # Deflate prices
                 for item in doc.line_items:
-                    item["unit_price"] *= random.uniform(0.1, 0.5)
+                    item["unit_price"] *= self.faker.random.uniform(0.1, 0.5)
                     item["amount"] = item["quantity"] * item["unit_price"]
                 doc.total_amount = sum(
                     (Decimal(str(item["amount"])) for item in doc.line_items), Decimal("0.00")
                 )
-                doc.metadata["price_deflation_factor"] = random.uniform(0.1, 0.5)
+                doc.metadata["price_deflation_factor"] = self.faker.random.uniform(0.1, 0.5)
 
             elif pattern_type == "phantom_shipping":
                 doc.metadata["actual_shipment"] = False
@@ -341,8 +341,8 @@ class TBMLPatternGenerator(BaseGenerator[Pattern]):
 
         for i in range(transaction_count):
             # Select from/to entities
-            from_entity = random.choice(entity_ids)
-            to_entity = random.choice([e for e in entity_ids if e != from_entity])
+            from_entity = self.faker.random.choice(entity_ids)
+            to_entity = self.faker.random.choice([e for e in entity_ids if e != from_entity])
 
             # Transaction date (after corresponding document)
             if i < len(documents):

@@ -104,7 +104,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
 
         # Dates
         transaction_date = self._generate_transaction_date()
-        posting_date = transaction_date + timedelta(days=random.randint(0, 2))
+        posting_date = transaction_date + timedelta(days=self.faker.random.randint(0, 2))
         value_date = posting_date.date()
 
         # Accounts
@@ -114,14 +114,14 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             to_account_id = f"ACC-{self.faker.uuid4()}"
 
         # Entities (optional)
-        from_entity_id = f"ENT-{self.faker.uuid4()}" if random.random() < 0.8 else None
-        to_entity_id = f"ENT-{self.faker.uuid4()}" if random.random() < 0.8 else None
+        from_entity_id = f"ENT-{self.faker.uuid4()}" if self.faker.random.random() < 0.8 else None
+        to_entity_id = f"ENT-{self.faker.uuid4()}" if self.faker.random.random() < 0.8 else None
 
         # Currency and amount
         currency = self._generate_currency()
 
         # Determine if structuring
-        is_structuring = force_structuring or (random.random() < self.structuring_probability)
+        is_structuring = force_structuring or (self.faker.random.random() < self.structuring_probability)
 
         if is_structuring:
             amount = random_just_below_threshold(self._get_country_from_currency(currency))
@@ -134,9 +134,9 @@ class TransactionGenerator(BaseGenerator[Transaction]):
         exchange_rate = None
         amount_local = None
         currency_local = None
-        if random.random() < 0.1:  # 10% have local currency conversion
-            currency_local = random.choice(list(CURRENCIES.keys()))
-            exchange_rate = Decimal(str(random.uniform(0.5, 2.0)))
+        if self.faker.random.random() < 0.1:  # 10% have local currency conversion
+            currency_local = self.faker.random.choice(list(CURRENCIES.keys()))
+            exchange_rate = Decimal(str(self.faker.random.uniform(0.5, 2.0)))
             amount_local = amount * exchange_rate
 
         # Fees
@@ -146,7 +146,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
         # Geographic information
         originating_country = self._generate_country()
 
-        is_cross_border = random.random() < self.cross_border_probability
+        is_cross_border = self.faker.random.random() < self.cross_border_probability
         if is_cross_border:
             destination_country = self._generate_country(exclude=originating_country)
         else:
@@ -180,15 +180,15 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             ),
         )
 
-        is_suspicious = risk_score > 0.5 or random.random() < self.suspicious_probability
+        is_suspicious = risk_score > 0.5 or self.faker.random.random() < self.suspicious_probability
 
         alert_ids = []
         if is_suspicious:
-            num_alerts = random.randint(1, 3)
+            num_alerts = self.faker.random.randint(1, 3)
             alert_ids = [f"ALERT-{self.faker.uuid4()[:8].upper()}" for _ in range(num_alerts)]
 
         # Pattern detection
-        is_part_of_pattern = is_suspicious and random.random() < 0.3
+        is_part_of_pattern = is_suspicious and self.faker.random.random() < 0.3
         pattern_id = f"PTN-{self.faker.uuid4()[:8].upper()}" if is_part_of_pattern else None
         pattern_type = self._generate_pattern_type() if is_part_of_pattern else None
 
@@ -246,11 +246,11 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             List of structuring transactions
         """
         transactions = []
-        base_time = REFERENCE_TIMESTAMP - timedelta(days=random.randint(1, 30))
+        base_time = REFERENCE_TIMESTAMP - timedelta(days=self.faker.random.randint(1, 30))
 
         for i in range(count):
             # Spread transactions across time window
-            offset_hours = random.uniform(0, time_window_hours)
+            offset_hours = self.faker.random.uniform(0, time_window_hours)
             txn_time = base_time + timedelta(hours=offset_hours)
 
             # Generate structuring transaction
@@ -258,7 +258,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
 
             # Override transaction date
             txn.transaction_date = txn_time
-            txn.posting_date = txn_time + timedelta(hours=random.randint(1, 48))
+            txn.posting_date = txn_time + timedelta(hours=self.faker.random.randint(1, 48))
 
             transactions.append(txn)
 
@@ -287,7 +287,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
         start_date = end_date - timedelta(days=90)
 
         # 70% during business hours
-        if random.random() < 0.7:
+        if self.faker.random.random() < 0.7:
             date_only = random_datetime_between(start_date, end_date).date()
             return random_business_hours_datetime(date_only)
         else:
@@ -296,9 +296,9 @@ class TransactionGenerator(BaseGenerator[Transaction]):
     def _generate_currency(self) -> str:
         """Generate currency with weighted distribution."""
         major_currencies = ["USD", "EUR", "GBP", "JPY", "CHF"]
-        if random.random() < 0.85:
-            return random.choice(major_currencies)
-        return random.choice(list(CURRENCIES.keys()))
+        if self.faker.random.random() < 0.85:
+            return self.faker.random.choice(major_currencies)
+        return self.faker.random.choice(list(CURRENCIES.keys()))
 
     def _get_country_from_currency(self, currency: str) -> str:
         """Get country code from currency."""
@@ -340,12 +340,12 @@ class TransactionGenerator(BaseGenerator[Transaction]):
 
         # Weight major countries
         major_countries = ["US", "GB", "DE", "FR", "JP", "CA", "AU"]
-        if random.random() < 0.7:
+        if self.faker.random.random() < 0.7:
             available_major = [c for c in major_countries if c != exclude]
             if available_major:
-                return random.choice(available_major)
+                return self.faker.random.choice(available_major)
 
-        return random.choice(countries)
+        return self.faker.random.choice(countries)
 
     def _get_tax_havens(self) -> List[str]:
         """Get list of tax haven countries."""
@@ -390,7 +390,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
                 "utilities",
                 "insurance",
             ]
-            return random.choice(categories)
+            return self.faker.random.choice(categories)
         return None
 
     def _generate_status(self) -> str:
@@ -410,7 +410,7 @@ class TransactionGenerator(BaseGenerator[Transaction]):
             "trade_based",
             "round_tripping",
         ]
-        return random.choice(patterns)
+        return self.faker.random.choice(patterns)
 
 
 __all__ = ["TransactionGenerator"]
