@@ -174,8 +174,9 @@ class TestServiceHealthChecks:
 
     def test_check_janusgraph_unhealthy(self, health_checker):
         """Test JanusGraph health check when service is down."""
-        result = health_checker.check_janusgraph(host="nonexistent", port=9999)
-        assert result is False
+        # Test with nonexistent host - should return False
+        result = health_checker.check_janusgraph(host="nonexistent.invalid", port=99999)
+        assert result is False, f"Expected False for unreachable host, got {result}"
 
     @pytest.mark.slow
     def test_check_opensearch_healthy(self, health_checker, services_available):

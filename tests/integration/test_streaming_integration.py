@@ -280,7 +280,7 @@ class TestStreamingE2EFlow:
     def e2e_config(self):
         """Create E2E test configuration."""
         return StreamingConfig(
-            seed=99999,
+            seed=42,  # Use approved seed instead of 99999
             person_count=5,
             company_count=2,
             account_count=8,

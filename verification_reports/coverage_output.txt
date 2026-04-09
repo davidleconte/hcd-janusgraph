@@ -1,0 +1,1155 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.14, pytest-9.0.2, pluggy-1.6.0 -- /Users/david.leconte/miniforge3/envs/janusgraph-analysis/bin/python3.11
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+metadata: {'Python': '3.11.14', 'Platform': 'macOS-26.3.1-arm64-arm-64bit', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'benchmark': '5.2.3', 'hypothesis': '6.151.6', 'mock': '3.15.1', 'xdist': '3.8.0', 'timeout': '2.4.0', 'metadata': '3.1.1', 'html': '4.2.0', 'asyncio': '1.3.0', 'Faker': '40.1.2', 'cov': '7.0.0'}}
+rootdir: /Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph
+configfile: pyproject.toml
+plugins: anyio-4.12.1, benchmark-5.2.3, hypothesis-6.151.6, mock-3.15.1, xdist-3.8.0, timeout-2.4.0, metadata-3.1.1, html-4.2.0, asyncio-1.3.0, Faker-40.1.2, cov-7.0.0
+timeout: 300.0s
+timeout method: signal
+timeout func_only: False
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 419 items
+
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQMessage::test_to_dict PASSED [  0%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQMessage::test_to_json PASSED [  0%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQMessage::test_to_dict_without_event PASSED [  0%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQStats::test_initialization PASSED [  0%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQStats::test_to_dict PASSED [  1%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerInitialization::test_init_with_defaults PASSED [  1%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerInitialization::test_init_with_custom_values PASSED [  1%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerInitialization::test_init_creates_archive_directory PASSED [  1%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerInitialization::test_init_state_initialized PASSED [  2%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerConnection::test_connect_establishes_connection PASSED [  2%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerConnection::test_close_closes_connections PASSED [  2%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerMessageParsing::test_parse_dlq_message_success PASSED [  2%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerMessageParsing::test_parse_dlq_message_without_event PASSED [  3%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_should_retry_below_max PASSED [  3%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_should_retry_at_max PASSED [  3%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_should_retry_above_max PASSED [  3%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_retry_message_success PASSED [  4%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_retry_message_failure PASSED [  4%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_retry_message_exception PASSED [  4%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerRetryLogic::test_retry_message_without_handler PASSED [  4%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerArchiving::test_archive_message_success PASSED [  5%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerArchiving::test_archive_message_creates_json_file PASSED [  5%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerPermanentFailure::test_handle_permanent_failure_archives PASSED [  5%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerPermanentFailure::test_handle_permanent_failure_calls_handler PASSED [  5%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerPermanentFailure::test_handle_permanent_failure_handler_exception PASSED [  5%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerProcessing::test_process_message_success PASSED [  6%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerProcessing::test_process_message_with_retry PASSED [  6%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerProcessing::test_process_batch_empty PASSED [  6%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerProcessing::test_process_batch_single_message PASSED [  6%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerStats::test_get_stats_returns_dict PASSED [  7%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerStats::test_stats_updated_on_processing PASSED [  7%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerContextManager::test_context_manager_enter PASSED [  7%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerContextManager::test_context_manager_exit PASSED [  7%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestDLQHandlerContextManager::test_context_manager_exit_with_exception PASSED [  8%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_initialization PASSED [  8%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_connect PASSED [  8%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_process_message PASSED [  8%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_process_batch PASSED [  9%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_start_stop PASSED [  9%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestMockDLQHandler::test_mock_handler_context_manager PASSED [  9%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestGetDLQHandler::test_get_dlq_handler_mock PASSED [  9%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestGetDLQHandler::test_get_dlq_handler_no_pulsar PASSED [ 10%]
+banking/streaming/tests/test_dlq_handler_unit.py::TestGetDLQHandler::test_get_dlq_handler_real PASSED [ 10%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestGraphConsumerInitialization::test_consumer_initialization_default FAILED [ 10%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestGraphConsumerInitialization::test_consumer_initialization_custom FAILED [ 10%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_create_person_event FAILED [ 10%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_update_event FAILED [ 11%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_delete_event FAILED [ 11%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_invalid_event_type FAILED [ 11%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestErrorHandling::test_send_to_dlq_on_processing_error ERROR [ 11%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestErrorHandling::test_retry_logic_on_transient_error ERROR [ 12%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestMetricsCollection::test_metrics_incremented_on_success ERROR [ 12%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestConnectionManagement::test_connect_establishes_connections PASSED [ 12%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestConnectionManagement::test_disconnect_closes_connections FAILED [ 12%]
+banking/streaming/tests/test_graph_consumer_unit.py::TestDeterministicBehavior::test_same_event_produces_same_graph_operation FAILED [ 13%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsInitialization::test_init_creates_instance PASSED [ 13%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsInitialization::test_prometheus_available_flag PASSED [ 13%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsPublish::test_record_publish_increments_counter PASSED [ 13%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsPublish::test_record_publish_with_latency PASSED [ 14%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsPublish::test_record_publish_failure PASSED [ 14%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsConsume::test_record_consume_increments_counter PASSED [ 14%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsConsume::test_record_consume_with_latency PASSED [ 14%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsConsume::test_record_consume_failure PASSED [ 15%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsDLQ::test_record_dlq_message PASSED [ 15%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsDLQ::test_record_dlq_retry PASSED [ 15%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsDLQ::test_record_dlq_archived PASSED [ 15%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsGauges::test_set_consumer_lag PASSED [ 15%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsGauges::test_set_dlq_queue_size PASSED [ 16%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsGauges::test_set_producer_connected PASSED [ 16%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsGauges::test_set_producer_disconnected PASSED [ 16%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsGauges::test_set_consumer_connected PASSED [ 16%]
+banking/streaming/tests/test_metrics_unit.py::TestStreamingMetricsBatch::test_record_batch_size PASSED [ 17%]
+banking/streaming/tests/test_metrics_unit.py::TestTimedDecorators::test_timed_publish_success PASSED [ 17%]
+banking/streaming/tests/test_metrics_unit.py::TestTimedDecorators::test_timed_publish_failure PASSED [ 17%]
+banking/streaming/tests/test_metrics_unit.py::TestTimedDecorators::test_timed_consume_success PASSED [ 17%]
+banking/streaming/tests/test_metrics_unit.py::TestTimedDecorators::test_timed_consume_failure PASSED [ 18%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_metrics_output FAILED [ 18%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_content_type FAILED [ 18%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_metric FAILED [ 18%]
+banking/streaming/tests/test_metrics_unit.py::TestGlobalMetricsInstance::test_streaming_metrics_exists PASSED [ 19%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_record_publish_no_op PASSED [ 19%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_record_consume_no_op PASSED [ 19%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_set_gauge_no_op PASSED [ 19%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_get_metric_returns_none PASSED [ 20%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_get_metrics_output_fallback PASSED [ 20%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsWithoutPrometheus::test_get_content_type_fallback PASSED [ 20%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsThreadSafety::test_concurrent_increments PASSED [ 20%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsThreadSafety::test_concurrent_observations PASSED [ 21%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsLabels::test_labels_with_special_characters PASSED [ 21%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsLabels::test_labels_with_empty_strings PASSED [ 21%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsEdgeCases::test_negative_latency PASSED [ 21%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsEdgeCases::test_zero_latency PASSED [ 21%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsEdgeCases::test_very_large_batch_size PASSED [ 22%]
+banking/streaming/tests/test_metrics_unit.py::TestMetricsEdgeCases::test_negative_lag PASSED [ 22%]
+banking/streaming/tests/test_producer_unit.py::TestEntityProducerInitialization::test_producer_initialization_default_config PASSED [ 22%]
+banking/streaming/tests/test_producer_unit.py::TestEntityProducerInitialization::test_producer_initialization_custom_config PASSED [ 22%]
+banking/streaming/tests/test_producer_unit.py::TestEntityProducerInitialization::test_producer_initialization_from_env PASSED [ 23%]
+banking/streaming/tests/test_producer_unit.py::TestEntityProducerInitialization::test_producer_connection_failure PASSED [ 23%]
+banking/streaming/tests/test_producer_unit.py::TestEntityProducerInitialization::test_producer_connection_timeout PASSED [ 23%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_person PASSED [ 23%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_company PASSED [ 24%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_account PASSED [ 24%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_transaction PASSED [ 24%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_communication PASSED [ 24%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_trade PASSED [ 25%]
+banking/streaming/tests/test_producer_unit.py::TestTopicRouting::test_get_topic_custom_namespace PASSED [ 25%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_creates_new PASSED [ 25%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_caches_producer PASSED [ 25%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_different_topics PASSED [ 26%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_with_compression FAILED [ 26%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_without_compression PASSED [ 26%]
+banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_client_not_initialized PASSED [ 26%]
+banking/streaming/tests/test_producer_unit.py::TestSendEvent::test_send_event_success PASSED [ 26%]
+banking/streaming/tests/test_producer_unit.py::TestSendEvent::test_send_event_with_callback PASSED [ 27%]
+banking/streaming/tests/test_producer_unit.py::TestSendEvent::test_send_event_not_connected PASSED [ 27%]
+banking/streaming/tests/test_producer_unit.py::TestSendEvent::test_send_event_producer_failure PASSED [ 27%]
+banking/streaming/tests/test_producer_unit.py::TestSendEvent::test_send_event_partition_key PASSED [ 27%]
+banking/streaming/tests/test_producer_unit.py::TestSendBatch::test_send_batch_groups_by_topic PASSED [ 28%]
+banking/streaming/tests/test_producer_unit.py::TestSendBatch::test_send_batch_empty_list PASSED [ 28%]
+banking/streaming/tests/test_producer_unit.py::TestSendBatch::test_send_batch_single_event PASSED [ 28%]
+banking/streaming/tests/test_producer_unit.py::TestSendBatch::test_send_batch_maintains_order PASSED [ 28%]
+banking/streaming/tests/test_producer_unit.py::TestContextManager::test_context_manager_enter_exit PASSED [ 29%]
+banking/streaming/tests/test_producer_unit.py::TestContextManager::test_context_manager_exception_handling PASSED [ 29%]
+banking/streaming/tests/test_producer_unit.py::TestCloseAndCleanup::test_close_closes_all_producers PASSED [ 29%]
+banking/streaming/tests/test_producer_unit.py::TestCloseAndCleanup::test_close_handles_already_closed PASSED [ 29%]
+banking/streaming/tests/test_producer_unit.py::TestDeterministicBehavior::test_same_config_produces_same_setup PASSED [ 30%]
+banking/streaming/tests/test_producer_unit.py::TestDeterministicBehavior::test_topic_routing_deterministic PASSED [ 30%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerInitialization::test_init_with_defaults PASSED [ 30%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerInitialization::test_init_with_custom_values PASSED [ 30%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerInitialization::test_init_metrics_initialized PASSED [ 31%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerInitialization::test_init_state_initialized PASSED [ 31%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerConnection::test_connect_establishes_all_connections PASSED [ 31%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerConnection::test_connect_creates_indices PASSED [ 31%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerConnection::test_disconnect_closes_all_connections PASSED [ 31%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEmbedding::test_generate_embedding_with_model PASSED [ 32%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEmbedding::test_generate_embedding_without_model PASSED [ 32%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEmbedding::test_generate_batch_embeddings_with_model PASSED [ 32%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEmbedding::test_generate_batch_embeddings_without_model PASSED [ 32%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerIndexMapping::test_get_index_name_person PASSED [ 33%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerIndexMapping::test_get_index_name_company PASSED [ 33%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerIndexMapping::test_get_index_name_unknown PASSED [ 33%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBatchCollection::test_collect_batch_empty PASSED [ 33%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBatchCollection::test_collect_batch_single_event PASSED [ 34%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBatchCollection::test_collect_batch_respects_batch_size PASSED [ 34%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEventPartitioning::test_split_embeddable_events_all_embeddable PASSED [ 34%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEventPartitioning::test_split_embeddable_events_none_embeddable PASSED [ 34%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerEventPartitioning::test_split_embeddable_events_mixed PASSED [ 35%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerAcknowledgement::test_ack_non_embeddable_events PASSED [ 35%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkActions::test_build_bulk_actions_create PASSED [ 35%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkActions::test_build_bulk_actions_delete PASSED [ 35%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkActions::test_build_bulk_actions_multiple PASSED [ 36%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkIndexing::test_bulk_index_actions_success PASSED [ 36%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkIndexing::test_bulk_index_actions_partial_errors PASSED [ 36%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerBulkIndexing::test_bulk_index_actions_failure PASSED [ 36%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerMetrics::test_get_metrics_returns_copy PASSED [ 36%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerMetrics::test_metrics_updated_on_processing PASSED [ 37%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerContextManager::test_context_manager_enter PASSED [ 37%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerContextManager::test_context_manager_exit PASSED [ 37%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerContextManager::test_context_manager_exit_with_exception PASSED [ 37%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerProcessing::test_stop_sets_running_flag PASSED [ 38%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerProcessing::test_process_batch_returns_zero_on_empty PASSED [ 38%]
+banking/streaming/tests/test_vector_consumer_unit.py::TestVectorConsumerProcessing::test_process_batch_skips_non_embeddable PASSED [ 38%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionMatch::test_sanction_match_creation PASSED [ 38%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionMatch::test_sanction_match_with_defaults PASSED [ 39%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestScreeningResult::test_screening_result_creation PASSED [ 39%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestScreeningResult::test_screening_result_no_match PASSED [ 39%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_initialization PASSED [ 39%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_set_and_get PASSED [ 40%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_miss PASSED [ 40%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_expiration PASSED [ 40%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_eviction PASSED [ 40%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_clear PASSED [ 41%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_stats PASSED [ 41%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_key_generation PASSED [ 41%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestTTLCache::test_cache_thread_safety PASSED [ 41%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerInitialization::test_init_with_defaults PASSED [ 42%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerInitialization::test_init_with_custom_values PASSED [ 42%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerInitialization::test_init_creates_cache PASSED [ 42%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerConstants::test_risk_thresholds PASSED [ 42%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerConstants::test_weight_constants PASSED [ 42%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerIndexManagement::test_ensure_index_exists_creates_index PASSED [ 43%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerIndexManagement::test_ensure_index_exists_skips_if_exists PASSED [ 43%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerEdgeCases::test_empty_customer_name PASSED [ 43%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerEdgeCases::test_very_high_similarity PASSED [ 43%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerEdgeCases::test_zero_similarity PASSED [ 44%]
+banking/aml/tests/test_sanctions_screening_unit.py::TestSanctionsScreenerCacheIntegration::test_cache_used_for_repeated_lookups PASSED [ 44%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringPattern::test_pattern_creation PASSED [ 44%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringAlert::test_alert_creation PASSED [ 44%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorInitialization::test_init_with_defaults PASSED [ 45%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorInitialization::test_init_with_custom_threshold PASSED [ 45%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorInitialization::test_init_with_ssl PASSED [ 45%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorInitialization::test_init_with_custom_host_port PASSED [ 45%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConnection::test_connect_establishes_connection PASSED [ 46%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConnection::test_disconnect_closes_connection FAILED [ 46%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConnection::test_disconnect_when_not_connected PASSED [ 46%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConnection::test_get_traversal_connects_if_needed PASSED [ 46%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorContextManager::test_context_manager_enter PASSED [ 47%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorContextManager::test_context_manager_exit FAILED [ 47%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorContextManager::test_context_manager_exit_with_exception PASSED [ 47%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorSmurfing::test_detect_smurfing_no_transactions PASSED [ 47%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorSmurfing::test_detect_smurfing_below_minimum PASSED [ 47%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorSmurfing::test_detect_smurfing_exception_handling PASSED [ 48%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorLayering::test_detect_layering_no_patterns PASSED [ 48%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorLayering::test_detect_layering_exception_handling PASSED [ 48%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorThresholds::test_ctr_threshold_default PASSED [ 48%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorThresholds::test_suspicious_threshold_calculation PASSED [ 49%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorThresholds::test_custom_ctr_threshold PASSED [ 49%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorCircuitBreaker::test_circuit_breaker_initialized FAILED [ 49%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorCircuitBreaker::test_circuit_breaker_config FAILED [ 49%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorRetry::test_connect_retries_on_failure PASSED [ 50%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConstants::test_ctr_threshold_constant PASSED [ 50%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConstants::test_suspicious_threshold_constant PASSED [ 50%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConstants::test_time_window_constant PASSED [ 50%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConstants::test_min_transactions_constant PASSED [ 51%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConstants::test_confidence_thresholds PASSED [ 51%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorEdgeCases::test_empty_account_id PASSED [ 51%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorEdgeCases::test_zero_time_window PASSED [ 51%]
+banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorEdgeCases::test_negative_min_transactions PASSED [ 52%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_data_access_events PASSED [ 52%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_data_modification_events PASSED [ 52%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_authentication_events PASSED [ 52%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_authorization_events PASSED [ 52%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_compliance_events PASSED [ 53%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEventType::test_security_events PASSED [ 53%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditSeverity::test_severity_levels PASSED [ 53%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEvent::test_audit_event_creation PASSED [ 53%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEvent::test_audit_event_with_optional_fields PASSED [ 54%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEvent::test_audit_event_to_dict PASSED [ 54%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditEvent::test_audit_event_to_json PASSED [ 54%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerInitialization::test_init_with_defaults PASSED [ 54%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerInitialization::test_init_with_custom_values PASSED [ 55%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerInitialization::test_init_creates_log_directory PASSED [ 55%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerInitialization::test_init_configures_logger PASSED [ 55%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerEventLogging::test_log_event_writes_json PASSED [ 55%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerEventLogging::test_log_event_respects_severity_threshold PASSED [ 56%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerDataAccess::test_log_data_access PASSED [ 56%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerDataModification::test_log_data_modification PASSED [ 56%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerAuthentication::test_log_authentication_login_success PASSED [ 56%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerAuthentication::test_log_authentication_login_failure PASSED [ 57%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerAuthentication::test_log_authentication_logout PASSED [ 57%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerAuthorization::test_log_authorization_granted PASSED [ 57%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerAuthorization::test_log_authorization_denied PASSED [ 57%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerSeverityOrdering::test_severity_order_info_lowest PASSED [ 57%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerSeverityOrdering::test_severity_order_warning_filters_info PASSED [ 58%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerEdgeCases::test_empty_metadata PASSED [ 58%]
+banking/compliance/tests/test_audit_logger_unit.py::TestAuditLoggerEdgeCases::test_none_optional_fields PASSED [ 58%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceMetrics::test_metrics_creation PASSED [ 58%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceMetrics::test_metrics_to_dict PASSED [ 59%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceViolation::test_violation_creation PASSED [ 59%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterInitialization::test_init_with_defaults PASSED [ 59%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterInitialization::test_init_with_custom_log_dir PASSED [ 59%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterLogParsing::test_parse_audit_log_empty_file PASSED [ 60%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterLogParsing::test_parse_audit_log_nonexistent_file PASSED [ 60%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterLogParsing::test_parse_audit_log_with_events PASSED [ 60%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterLogParsing::test_parse_audit_log_with_date_filter PASSED [ 60%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterLogParsing::test_parse_audit_log_skips_invalid_json PASSED [ 61%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterMetricsCalculation::test_calculate_metrics_empty_events PASSED [ 61%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterMetricsCalculation::test_calculate_metrics_with_events PASSED [ 61%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterMetricsCalculation::test_calculate_metrics_counts_event_types PASSED [ 61%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterMetricsCalculation::test_calculate_metrics_counts_severity PASSED [ 62%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterViolationDetection::test_detect_violations_empty_events PASSED [ 62%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterViolationDetection::test_detect_violations_excessive_failed_auth PASSED [ 62%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterViolationDetection::test_detect_violations_unauthorized_access PASSED [ 62%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterViolationDetection::test_detect_violations_security_breach PASSED [ 63%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterViolationDetection::test_detect_violations_unencrypted_data_access PASSED [ 63%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterGDPRReport::test_generate_gdpr_report_empty PASSED [ 63%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterEdgeCases::test_parse_log_with_missing_timestamp PASSED [ 63%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterEdgeCases::test_calculate_metrics_with_duplicate_users PASSED [ 63%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterEdgeCases::test_detect_violations_below_threshold PASSED [ 64%]
+banking/compliance/tests/test_compliance_reporter_unit.py::TestComplianceReporterComplexScenarios::test_multiple_violation_types PASSED [ 64%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_default_parameters PASSED [ 64%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_custom_host_port PASSED [ 64%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_with_ssl PASSED [ 65%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_thresholds PASSED [ 65%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_velocity_limits PASSED [ 65%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_high_risk_merchants PASSED [ 65%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_embedding_generator PASSED [ 66%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_vector_search_client PASSED [ 66%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_circuit_breaker PASSED [ 66%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFraudDetectorInitialization::test_init_fraud_index_creation PASSED [ 66%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_success PASSED [ 67%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_idempotent PASSED [ 67%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_circuit_breaker_open PASSED [ 67%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_records_success PASSED [ 67%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_records_failure FAILED [ 68%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_disconnect PASSED [ 68%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_disconnect_when_not_connected PASSED [ 68%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_get_traversal_connects_if_needed PASSED [ 68%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestContextManager::test_context_manager_enter PASSED [ 68%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestContextManager::test_context_manager_exit PASSED [ 69%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestContextManager::test_context_manager_exception_propagation PASSED [ 69%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestContextManager::test_context_manager_closes_on_exception PASSED [ 69%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_basic PASSED [ 69%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_low_risk PASSED [ 70%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_medium_risk PASSED [ 70%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_high_risk PASSED [ 70%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_critical_risk PASSED [ 70%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_weighted_components PASSED [ 71%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_default_timestamp PASSED [ 71%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_component_scores_stored PASSED [ 71%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_zero_amount PASSED [ 71%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestScoreTransaction::test_score_transaction_large_amount PASSED [ 72%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_no_transactions PASSED [ 72%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_below_threshold PASSED [ 72%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_exceeds_transaction_threshold FAILED [ 72%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_exceeds_amount_threshold PASSED [ 73%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_error_handling PASSED [ 73%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_timestamp_calculation PASSED [ 73%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckNetwork::test_check_network_no_connections PASSED [ 73%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckNetwork::test_check_network_few_connections PASSED [ 73%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckNetwork::test_check_network_many_connections PASSED [ 74%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckNetwork::test_check_network_error_handling PASSED [ 74%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_empty PASSED [ 74%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_normal PASSED [ 74%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_crypto PASSED [ 75%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_gambling PASSED [ 75%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_multiple_keywords FAILED [ 75%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_case_insensitive PASSED [ 75%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_with_fraud_history PASSED [ 76%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_search_error PASSED [ 76%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_no_history FAILED [ 76%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_normal_pattern PASSED [ 76%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_unusual_amount FAILED [ 77%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_new_merchant FAILED [ 77%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_unusual_description FAILED [ 77%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_error_handling PASSED [ 77%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_no_transactions PASSED [ 78%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_normal_pattern PASSED [ 78%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_suspicious_amount FAILED [ 78%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_high_confidence FAILED [ 78%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFindSimilarFraudCases::test_find_similar_cases_no_results PASSED [ 78%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFindSimilarFraudCases::test_find_similar_cases_with_results PASSED [ 79%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFindSimilarFraudCases::test_find_similar_cases_custom_k PASSED [ 79%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestFindSimilarFraudCases::test_find_similar_cases_error_handling PASSED [ 79%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_below_threshold PASSED [ 79%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_velocity_type PASSED [ 80%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_merchant_type PASSED [ 80%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_with_risk_factors PASSED [ 80%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_with_similar_cases PASSED [ 80%]
+banking/fraud/tests/test_fraud_detection_unit.py::TestGenerateAlert::test_generate_alert_metadata PASSED [ 81%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_init_default PASSED [ 81%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_init_with_seed PASSED [ 81%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_init_with_locale PASSED [ 81%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_init_with_config PASSED [ 82%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_default_pattern PASSED [ 82%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_money_mule_network PASSED [ 82%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_account_takeover_ring PASSED [ 82%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_synthetic_identity_fraud PASSED [ 83%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_bust_out_fraud PASSED [ 83%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_generate_check_kiting_ring PASSED [ 83%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_has_required_fields PASSED [ 83%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_risk_level_critical PASSED [ 84%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_risk_level_low FAILED [ 84%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_indicators_present PASSED [ 84%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_red_flags_present PASSED [ 84%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_metadata_complete PASSED [ 84%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_deterministic_with_same_seed PASSED [ 85%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_different_seeds_produce_different_patterns PASSED [ 85%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_duration_calculation PASSED [ 85%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_init_default PASSED [ 85%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_init_with_seed PASSED [ 86%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_default_pattern PASSED [ 86%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_classic_structuring PASSED [ 86%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_smurfing PASSED [ 86%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_geographic_smurfing PASSED [ 87%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_temporal_smurfing PASSED [ 87%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_generate_account_hopping PASSED [ 87%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_has_required_fields PASSED [ 87%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_indicators_present PASSED [ 88%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_metadata_complete PASSED [ 88%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_deterministic_with_same_seed PASSED [ 88%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_total_value_calculated PASSED [ 88%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_time_window_calculation PASSED [ 89%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestStructuringPatternGenerator::test_pattern_confidence_score_range PASSED [ 89%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_init_default PASSED [ 89%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_init_with_seed PASSED [ 89%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_generate_default_pattern FAILED [ 89%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_has_required_fields FAILED [ 90%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_indicators_present FAILED [ 90%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_metadata_present FAILED [ 90%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_deterministic_with_same_seed FAILED [ 90%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_entity_ids_present FAILED [ 91%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_risk_level_set FAILED [ 91%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_severity_score_range FAILED [ 91%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_dates_set FAILED [ 91%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_detection_date_set FAILED [ 92%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_init_default PASSED [ 92%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_init_with_seed PASSED [ 92%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_generate_default_pattern FAILED [ 92%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_has_required_fields FAILED [ 93%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_indicators_present FAILED [ 93%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_metadata_present FAILED [ 93%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_deterministic_with_same_seed FAILED [ 93%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_entity_ids_present FAILED [ 94%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_risk_level_set FAILED [ 94%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_total_value_set FAILED [ 94%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_transaction_count_set FAILED [ 94%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_red_flags_present FAILED [ 94%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_init_default PASSED [ 95%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_init_with_seed PASSED [ 95%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_generate_default_pattern FAILED [ 95%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_has_required_fields FAILED [ 95%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_indicators_present PASSED [ 96%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_deterministic_with_same_seed PASSED [ 96%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_entity_ids_present FAILED [ 96%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_risk_level_set PASSED [ 96%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_confidence_score_range PASSED [ 97%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_metadata_present PASSED [ 97%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_dates_valid PASSED [ 97%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_init_default PASSED [ 97%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_init_with_seed PASSED [ 98%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_generate_default_pattern FAILED [ 98%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_has_required_fields FAILED [ 98%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_indicators_present FAILED [ 98%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_deterministic_with_same_seed FAILED [ 99%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_entity_ids_present FAILED [ 99%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_risk_level_set FAILED [ 99%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_metadata_present FAILED [ 99%]
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_transaction_count_positive FAILED [100%]
+ERROR: Coverage failure: total of 25 is less than fail-under=70
+
+
+==================================== ERRORS ====================================
+___ ERROR at setup of TestErrorHandling.test_send_to_dlq_on_processing_error ___
+banking/streaming/tests/test_graph_consumer_unit.py:184: in consumer_with_dlq
+    with patch('banking.streaming.graph_consumer.pulsar') as mock_pulsar, \
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'banking.streaming.graph_consumer' from '/Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/graph_consumer.py'> does not have the attribute 'DLQHandler'
+___ ERROR at setup of TestErrorHandling.test_retry_logic_on_transient_error ____
+banking/streaming/tests/test_graph_consumer_unit.py:184: in consumer_with_dlq
+    with patch('banking.streaming.graph_consumer.pulsar') as mock_pulsar, \
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'banking.streaming.graph_consumer' from '/Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/graph_consumer.py'> does not have the attribute 'DLQHandler'
+_ ERROR at setup of TestMetricsCollection.test_metrics_incremented_on_success __
+banking/streaming/tests/test_graph_consumer_unit.py:249: in consumer_with_metrics
+    with patch('banking.streaming.graph_consumer.pulsar'), \
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1446: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:1419: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'banking.streaming.graph_consumer' from '/Users/david.leconte/Documents/Work/Demos/hcd-tarball-janusgraph/banking/streaming/graph_consumer.py'> does not have the attribute 'Counter'
+=================================== FAILURES ===================================
+_____ TestGraphConsumerInitialization.test_consumer_initialization_default _____
+banking/streaming/tests/test_graph_consumer_unit.py:56: in test_consumer_initialization_default
+    assert consumer.subscription_name == "graph-consumer-sub"
+E   AssertionError: assert 'graph-loaders' == 'graph-consumer-sub'
+E     
+E     - graph-consumer-sub
+E     + graph-loaders
+_____ TestGraphConsumerInitialization.test_consumer_initialization_custom ______
+banking/streaming/tests/test_graph_consumer_unit.py:63: in test_consumer_initialization_custom
+    consumer = GraphConsumer(
+E   TypeError: GraphConsumer.__init__() got an unexpected keyword argument 'janusgraph_host'
+____________ TestMessageProcessing.test_process_create_person_event ____________
+banking/streaming/tests/test_graph_consumer_unit.py:117: in test_process_create_person_event
+    consumer._process_create(event)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'GraphConsumer' object has no attribute '_process_create'
+_______________ TestMessageProcessing.test_process_update_event ________________
+banking/streaming/tests/test_graph_consumer_unit.py:137: in test_process_update_event
+    consumer._process_update(event)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'GraphConsumer' object has no attribute '_process_update'
+_______________ TestMessageProcessing.test_process_delete_event ________________
+banking/streaming/tests/test_graph_consumer_unit.py:154: in test_process_delete_event
+    consumer._process_delete(event)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'GraphConsumer' object has no attribute '_process_delete'
+____________ TestMessageProcessing.test_process_invalid_event_type _____________
+banking/streaming/tests/test_graph_consumer_unit.py:163: in test_process_invalid_event_type
+    event = EntityEvent(
+<string>:13: in __init__
+    ???
+banking/streaming/events.py:143: in __post_init__
+    raise ValueError(
+E   ValueError: Invalid event_type: invalid. Must be one of {'delete', 'update', 'create'}
+_________ TestConnectionManagement.test_disconnect_closes_connections __________
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:908: in assert_called
+    raise AssertionError(msg)
+E   AssertionError: Expected 'close' to have been called.
+
+During handling of the above exception, another exception occurred:
+banking/streaming/tests/test_graph_consumer_unit.py:311: in test_disconnect_closes_connections
+    mock_consumer.close.assert_called()
+E   AssertionError: Expected 'close' to have been called.
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.streaming.graph_consumer:event=graph_consumer_disconnect_start component=graph_consumer
+INFO:banking.streaming.graph_consumer:event=graph_consumer_disconnected component=graph_consumer
+------------------------------ Captured log call -------------------------------
+INFO     banking.streaming.graph_consumer:graph_consumer.py:206 event=graph_consumer_disconnect_start component=graph_consumer
+INFO     banking.streaming.graph_consumer:graph_consumer.py:206 event=graph_consumer_disconnected component=graph_consumer
+___ TestDeterministicBehavior.test_same_event_produces_same_graph_operation ____
+banking/streaming/tests/test_graph_consumer_unit.py:339: in test_same_event_produces_same_graph_operation
+    consumer._process_create(event)
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'GraphConsumer' object has no attribute '_process_create'
+__________________ TestMetricsOutput.test_get_metrics_output ___________________
+banking/streaming/tests/test_metrics_unit.py:373: in test_get_metrics_output
+    assert b"Metrics" in output
+E   assert b'Metrics' in b'# HELP python_gc_objects_collected_total Objects collected during gc\n# TYPE python_gc_objects_collected_total counter\npython_gc_objects_collected_total{generation="0"} 20115.0\npython_gc_objects_collected_total{generation="1"} 16488.0\npython_gc_objects_collected_total{generation="2"} 3361.0\n# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC\n# TYPE python_gc_objects_uncollectable_total counter\npython_gc_objects_uncollectable_total{generation="0"} 0.0\npython_gc_objects_uncollectable_total{generation="1"} 0.0\npython_gc_objects_uncollectable_total{generation="2"} 0.0\n# HELP python_gc_collections_total Number of times this generation was collected\n# TYPE python_gc_collections_total counter\npython_gc_collections_total{generation="0"} 1725.0\npython_gc_collections_total{generation="1"} 156.0\npython_gc_collections_total{generation="2"} 10.0\n# HELP python_info Python platform information\n# TYPE python_info gauge\npython_info{implementation="CPython",major="3",minor="11",patchlevel="14",version="3.11.14"} 1.0\n# HELP streaming_events_published_total Total number of events published to Pulsar\n# TYPE streaming_events_published_total counter\n#... (messages behind)\n# TYPE streaming_consumer_lag gauge\n# HELP streaming_dlq_messages_total Total messages sent to DLQ\n# TYPE streaming_dlq_messages_total counter\n# HELP streaming_dlq_retries_total Total DLQ message retry attempts\n# TYPE streaming_dlq_retries_total counter\n# HELP streaming_dlq_archived_total Total DLQ messages archived (permanently failed)\n# TYPE streaming_dlq_archived_total counter\n# HELP streaming_dlq_queue_size Current DLQ queue size\n# TYPE streaming_dlq_queue_size gauge\nstreaming_dlq_queue_size 0.0\n# HELP streaming_producer_connected Producer connection status (1=connected, 0=disconnected)\n# TYPE streaming_producer_connected gauge\n# HELP streaming_consumer_connected Consumer connection status (1=connected, 0=disconnected)\n# TYPE streaming_consumer_connected gauge\n# HELP streaming_batch_size Batch size for batch operations\n# TYPE streaming_batch_size histogram\n# HELP alert_quality_precision_proxy Alert quality precision proxy by scenario and detector\n# TYPE alert_quality_precision_proxy gauge\n# HELP streaming_info Streaming module information\n# TYPE streaming_info gauge\nstreaming_info{pulsar_namespace="public/banking",version="1.0.0"} 1.0\n'
+___________________ TestMetricsOutput.test_get_content_type ____________________
+banking/streaming/tests/test_metrics_unit.py:379: in test_get_content_type
+    assert content_type == "text/plain; version=0.0.4"
+E   AssertionError: assert 'text/plain; ...charset=utf-8' == 'text/plain; version=0.0.4'
+E     
+E     - text/plain; version=0.0.4
+E     + text/plain; version=0.0.4; charset=utf-8
+E     ?                          +++++++++++++++
+______________________ TestMetricsOutput.test_get_metric _______________________
+banking/streaming/tests/test_metrics_unit.py:389: in test_get_metric
+    assert metric == mock_counter
+E   AssertionError: assert <MagicMock na...'13501933968'> == <MagicMock na...'13487191120'>
+E     
+E     Full diff:
+E     - <MagicMock name='_metrics.__getitem__()' id='13487191120'>
+E     ?                           --   ------          ^^^  ^^^^
+E     + <MagicMock name='_metrics.get()' id='13501933968'>
+E     ?                                        ^^  ^^^^^
+___________ TestProducerCreation.test_get_producer_with_compression ____________
+banking/streaming/tests/test_producer_unit.py:228: in test_get_producer_with_compression
+    assert call_kwargs['compression_type'] == 'ZSTD'
+E   AssertionError: assert <CompressionType.ZSTD: 3> == 'ZSTD'
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.streaming.producer:Connecting to Pulsar at pulsar://localhost:6650
+INFO:banking.streaming.producer:Connected to Pulsar successfully
+------------------------------ Captured log setup ------------------------------
+INFO     banking.streaming.producer:producer.py:125 Connecting to Pulsar at pulsar://localhost:6650
+INFO     banking.streaming.producer:producer.py:130 Connected to Pulsar successfully
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.streaming.producer:Creating producer for topic: persistent://public/banking/persons-events
+INFO:banking.streaming.producer:Created producer for topic: persistent://public/banking/persons-events
+------------------------------ Captured log call -------------------------------
+INFO     banking.streaming.producer:producer.py:166 Creating producer for topic: persistent://public/banking/persons-events
+INFO     banking.streaming.producer:producer.py:184 Created producer for topic: persistent://public/banking/persons-events
+_____ TestStructuringDetectorConnection.test_disconnect_closes_connection ______
+banking/aml/tests/test_structuring_detection_unit.py:208: in test_disconnect_closes_connection
+    detector._connection.close.assert_called_once()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'close'
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.aml.structuring_detection:Initialized StructuringDetector: threshold=$10000.00
+INFO:banking.aml.structuring_detection:Disconnected from JanusGraph
+------------------------------ Captured log call -------------------------------
+INFO     banking.aml.structuring_detection:structuring_detection.py:110 Initialized StructuringDetector: threshold=$10000.00
+INFO     banking.aml.structuring_detection:structuring_detection.py:127 Disconnected from JanusGraph
+_______ TestStructuringDetectorContextManager.test_context_manager_exit ________
+banking/aml/tests/test_structuring_detection_unit.py:267: in test_context_manager_exit
+    detector._connection.close.assert_called_once()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'close'
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.aml.structuring_detection:Initialized StructuringDetector: threshold=$10000.00
+INFO:banking.aml.structuring_detection:Disconnected from JanusGraph
+------------------------------ Captured log call -------------------------------
+INFO     banking.aml.structuring_detection:structuring_detection.py:110 Initialized StructuringDetector: threshold=$10000.00
+INFO     banking.aml.structuring_detection:structuring_detection.py:127 Disconnected from JanusGraph
+____ TestStructuringDetectorCircuitBreaker.test_circuit_breaker_initialized ____
+banking/aml/tests/test_structuring_detection_unit.py:391: in test_circuit_breaker_initialized
+    assert detector._breaker.name == "structuring-gremlin"
+           ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'CircuitBreaker' object has no attribute 'name'
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.aml.structuring_detection:Initialized StructuringDetector: threshold=$10000.00
+------------------------------ Captured log call -------------------------------
+INFO     banking.aml.structuring_detection:structuring_detection.py:110 Initialized StructuringDetector: threshold=$10000.00
+______ TestStructuringDetectorCircuitBreaker.test_circuit_breaker_config _______
+banking/aml/tests/test_structuring_detection_unit.py:397: in test_circuit_breaker_config
+    assert detector._breaker.config.failure_threshold == 5
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'CircuitBreaker' object has no attribute 'config'
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.aml.structuring_detection:Initialized StructuringDetector: threshold=$10000.00
+------------------------------ Captured log call -------------------------------
+INFO     banking.aml.structuring_detection:structuring_detection.py:110 Initialized StructuringDetector: threshold=$10000.00
+____________ TestConnectionManagement.test_connect_records_failure _____________
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/unittest/mock.py:918: in assert_called_once
+    raise AssertionError(msg)
+E   AssertionError: Expected 'record_failure' to have been called once. Called 4 times.
+E   Calls: [call(), call(), call(), call()].
+
+During handling of the above exception, another exception occurred:
+banking/fraud/tests/test_fraud_detection_unit.py:250: in test_connect_records_failure
+    detector._breaker.record_failure.assert_called_once()
+E   AssertionError: Expected 'record_failure' to have been called once. Called 4 times.
+E   Calls: [call(), call(), call(), call()].
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+WARNING:src.python.utils.resilience:Retry 1/3 for connect after 1.0s: Connection failed
+WARNING:src.python.utils.resilience:Retry 2/3 for connect after 2.0s: Connection failed
+WARNING:src.python.utils.resilience:Retry 3/3 for connect after 4.0s: Connection failed
+ERROR:src.python.utils.resilience:All 3 retries exhausted for connect: Connection failed
+------------------------------ Captured log call -------------------------------
+WARNING  src.python.utils.resilience:resilience.py:239 Retry 1/3 for connect after 1.0s: Connection failed
+WARNING  src.python.utils.resilience:resilience.py:239 Retry 2/3 for connect after 2.0s: Connection failed
+WARNING  src.python.utils.resilience:resilience.py:239 Retry 3/3 for connect after 4.0s: Connection failed
+ERROR    src.python.utils.resilience:resilience.py:249 All 3 retries exhausted for connect: Connection failed
+_____ TestCheckVelocity.test_check_velocity_exceeds_transaction_threshold ______
+banking/fraud/tests/test_fraud_detection_unit.py:503: in test_check_velocity_exceeds_transaction_threshold
+    assert score >= 1.0  # Capped at 1.0
+    ^^^^^^^^^^^^^^^^^^^
+E   assert 0.0 >= 1.0
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR:banking.fraud.fraud_detection:Error checking velocity: unsupported operand type(s) for /: 'Mock' and 'float'
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:111 Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR    banking.fraud.fraud_detection:fraud_detection.py:265 Error checking velocity: unsupported operand type(s) for /: 'Mock' and 'float'
+___________ TestCheckMerchant.test_check_merchant_multiple_keywords ____________
+banking/fraud/tests/test_fraud_detection_unit.py:634: in test_check_merchant_multiple_keywords
+    assert score > 0.5  # Multiple keywords increase risk
+    ^^^^^^^^^^^^^^^^^^
+E   assert 0.42 > 0.5
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Merchant risk for 'Crypto Casino Gambling': category=0.70, historical=0.00, final=0.42
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:325 Merchant risk for 'Crypto Casino Gambling': category=0.70, historical=0.00, final=0.42
+_______________ TestCheckBehavior.test_check_behavior_no_history _______________
+banking/fraud/tests/test_fraud_detection_unit.py:678: in test_check_behavior_no_history
+    assert score == 0.3  # Default score for no history
+    ^^^^^^^^^^^^^^^^^^^
+E   assert 0.2 == 0.3
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR:banking.fraud.fraud_detection:Error checking behavior for account acc-1: 'Mock' object is not iterable
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:111 Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR    banking.fraud.fraud_detection:fraud_detection.py:445 Error checking behavior for account acc-1: 'Mock' object is not iterable
+_____________ TestCheckBehavior.test_check_behavior_unusual_amount _____________
+banking/fraud/tests/test_fraud_detection_unit.py:711: in test_check_behavior_unusual_amount
+    assert score > 0.3  # Unusual amount increases risk
+    ^^^^^^^^^^^^^^^^^^
+E   assert 0.2 > 0.3
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR:banking.fraud.fraud_detection:Error checking behavior for account acc-3: 'Mock' object is not iterable
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:111 Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR    banking.fraud.fraud_detection:fraud_detection.py:445 Error checking behavior for account acc-3: 'Mock' object is not iterable
+______________ TestCheckBehavior.test_check_behavior_new_merchant ______________
+banking/fraud/tests/test_fraud_detection_unit.py:726: in test_check_behavior_new_merchant
+    assert score >= 0.3  # New merchant increases risk
+    ^^^^^^^^^^^^^^^^^^^
+E   assert 0.2 >= 0.3
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR:banking.fraud.fraud_detection:Error checking behavior for account acc-4: 'Mock' object is not iterable
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:111 Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR    banking.fraud.fraud_detection:fraud_detection.py:445 Error checking behavior for account acc-4: 'Mock' object is not iterable
+__________ TestCheckBehavior.test_check_behavior_unusual_description ___________
+banking/fraud/tests/test_fraud_detection_unit.py:744: in test_check_behavior_unusual_description
+    assert score > 0.2  # Unusual description increases risk
+    ^^^^^^^^^^^^^^^^^^
+E   assert 0.2 > 0.2
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+----------------------------- Captured stderr call -----------------------------
+INFO:banking.fraud.fraud_detection:Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR:banking.fraud.fraud_detection:Error checking behavior for account acc-5: 'Mock' object is not iterable
+------------------------------ Captured log call -------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:111 Connected to JanusGraph at ws://localhost:18182/gremlin
+ERROR    banking.fraud.fraud_detection:fraud_detection.py:445 Error checking behavior for account acc-5: 'Mock' object is not iterable
+___ TestDetectAccountTakeover.test_detect_account_takeover_suspicious_amount ___
+banking/fraud/tests/test_fraud_detection_unit.py:792: in test_detect_account_takeover_suspicious_amount
+    assert confidence > 0.0
+E   assert 0.0 > 0.0
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+____ TestDetectAccountTakeover.test_detect_account_takeover_high_confidence ____
+banking/fraud/tests/test_fraud_detection_unit.py:805: in test_detect_account_takeover_high_confidence
+    assert confidence > 0.0
+E   assert 0.0 > 0.0
+---------------------------- Captured stderr setup -----------------------------
+INFO:banking.fraud.fraud_detection:Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO:banking.fraud.fraud_detection:Initializing embedding generator: mpnet
+INFO:banking.fraud.fraud_detection:Connecting to OpenSearch: localhost:9200
+INFO:banking.fraud.fraud_detection:Creating fraud index: fraud_cases
+------------------------------ Captured log setup ------------------------------
+INFO     banking.fraud.fraud_detection:fraud_detection.py:71 Connecting to JanusGraph: localhost:18182 (SSL: False)
+INFO     banking.fraud.fraud_detection:fraud_detection.py:77 Initializing embedding generator: mpnet
+INFO     banking.fraud.fraud_detection:fraud_detection.py:80 Connecting to OpenSearch: localhost:9200
+INFO     banking.fraud.fraud_detection:fraud_detection.py:153 Creating fraud index: fraud_cases
+__________ TestFraudRingPatternGenerator.test_pattern_risk_level_low ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:219: in test_pattern_risk_level_low
+    assert pattern.risk_level in [RiskLevel.LOW, RiskLevel.MEDIUM]
+E   AssertionError: assert <RiskLevel.CRITICAL: 'critical'> in [<RiskLevel.LOW: 'low'>, <RiskLevel.MEDIUM: 'medium'>]
+E    +  where <RiskLevel.CRITICAL: 'critical'> = Pattern(id='5F8B35AAD5B4', created_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={'pattern_subtype': 'synthetic_identity_fraud', 'ring_size': 3, 'account_ids': ['ACC-bdd640fb', 'ACC-23b8c1e9', 'ACC-bd9c66b3'], 'average_transaction_value': 342088.798, 'transaction_velocity': 0.05555555555555555, 'geographic_clustering': True, 'ip_address_overlap': False}, pattern_id='PTN-FRAUD-b74d0fb1-32e', pattern_type='fraud_ring', detection_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), detection_method='network_analysis_synthetic_identity_fraud', confidence_score=0.8999999999999999, entity_ids=['PER-972a8469', 'PER-17fc695a', 'PER-9a1de644'], entity_types=['person', 'person', 'person'], transaction_ids=['B6697E6590D2', 'D100D5906CEA', 'DF7E6A47D77F', 'C98DAD57DF81', '6E32B9F978EE'], communication_ids=[], start_date=datetime.datetime(2025, 10, 17, 12, 0, tzinfo=datetime.timezone.utc), end_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), duration_days=90, total_value=Decimal('1710443.99'), transaction_count=5, risk_level=<RiskLevel.CRITICAL: 'critical'>, severity_score=0.6599999999999999, indicators=['bust_out_preparation', 'synthetic_identity_suspected', 'fabricated_identity_indicators', 'network_pattern_identified', 'fraud_ring_detected', 'coordinated_activity', 'credit_building_pattern'], red_flags=['very_high_fraud_value', 'identity_fabrication', 'credit_fraud_indicators'], is_investigated=False, investigation_status=None, investigator_id=None, investigation_notes=None, is_confirmed=None, outcome=None, action_taken=None).risk_level
+_______ TestInsiderTradingPatternGenerator.test_generate_default_pattern _______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:431: in test_generate_default_pattern
+    assert isinstance(pattern, Pattern)
+E   AssertionError: assert False
+E    +  where False = isinstance((Pattern(id='FB00E70E049A', created_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={'pattern_subtype': 'executive_trading_pattern', 'days_before_announcement': 32, 'entity_count': 2, 'trade_count': 22, 'communication_count': 5, 'announcement_date': '2026-01-08T12:00:00+00:00', 'average_trade_value': 3485444.800909091, 'insider_relationships': ['attorney', 'consultant']}, pattern_id='PTN-IT-bd9c66b3-ad3', pattern_type='insider_trading', detection_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), detection_method='multi_dimensional_analysis_executive_trading_pattern', confidence_score=0.8999999999999999, entity_ids=['PER-bdd640fb', 'PER-23b8c1e9'], entity_types=['person', 'person'], transaction_ids=['TRADE-23b8c1e9-392', 'TRADE-972a8469-164', 'TRADE-9a1de644-815', 'TRADE-6b65a6a4-8b8', 'TRADE-c241330b-01a', 'TRADE-371ecd7b-27c', 'TRADE-5be6128e-18c', 'TRADE-759cde66-bac', 'TRADE-4b0dbb41-8d5', 'TRADE-3139d32c-93c', 'TRADE-fc377a4c-4a1', 'TRADE-7412b293-472', 'TRADE-ab9099a4-35a', 'TRADE-a28defe3-9bf', 'TRADE-451b4cf3-612', 'TRADE-5304317f-af4', '...ge_id': '<95a76d79-bf3c-4c06-8343-08bc89fa6a68@hurst-ross.com>', 'in_reply_to': '<827050a8-2369-4584-bf5e-9ff0ff50bde4@davis-williams.com>', 'pattern_type': 'executive_trading_pattern', 'days_before_announcement': 27}, communication_id='COMM-10435a10-98a', communication_type=<CommunicationType.EMAIL: 'email'>, timestamp=datetime.datetime(2025, 12, 12, 7, 32, 7, tzinfo=datetime.timezone.utc), duration_seconds=None, sender_id='PER-23b8c1e9', sender_type='person', recipient_ids=['PER-bdd640fb'], recipient_types=['person'], subject='Tree note responsibility defense material.', content='Enter east no enjoy. Investment on gun young catch management sense technology. Physical society instead as.\n\nYou more wife team activity result race Mr. Shoulder future fall citizen about. Will seven medical blood personal. wire transfer', language='cs', is_encrypted=False, platform='Outlook', device_type=None, location=None, ip_address=None, has_attachments=False, attachment_count=0, attachment_types=[], sentiment_score=-0.18357234791754556, contains_financial_terms=False, contains_suspicious_keywords=False, suspicious_keywords=['wire transfer'], risk_score=0.3, is_flagged=False, flag_reason=None)]), Pattern)
+_____ TestInsiderTradingPatternGenerator.test_pattern_has_required_fields ______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:438: in test_pattern_has_required_fields
+    assert pattern.pattern_id is not None
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_id'
+______ TestInsiderTradingPatternGenerator.test_pattern_indicators_present ______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:446: in test_pattern_indicators_present
+    assert len(pattern.indicators) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'indicators'
+_______ TestInsiderTradingPatternGenerator.test_pattern_metadata_present _______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:452: in test_pattern_metadata_present
+    assert pattern.metadata is not None
+           ^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'metadata'
+_____ TestInsiderTradingPatternGenerator.test_deterministic_with_same_seed _____
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:464: in test_deterministic_with_same_seed
+    assert pattern1.pattern_type == pattern2.pattern_type
+           ^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_type'
+______ TestInsiderTradingPatternGenerator.test_pattern_entity_ids_present ______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:470: in test_pattern_entity_ids_present
+    assert len(pattern.entity_ids) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'entity_ids'
+________ TestInsiderTradingPatternGenerator.test_pattern_risk_level_set ________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:476: in test_pattern_risk_level_set
+    assert pattern.risk_level in [
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'risk_level'
+_____ TestInsiderTradingPatternGenerator.test_pattern_severity_score_range _____
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:487: in test_pattern_severity_score_range
+    assert 0.0 <= pattern.severity_score <= 100.0
+                  ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'severity_score'
+__________ TestInsiderTradingPatternGenerator.test_pattern_dates_set ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:493: in test_pattern_dates_set
+    assert pattern.start_date is not None
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'start_date'
+______ TestInsiderTradingPatternGenerator.test_pattern_detection_date_set ______
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:501: in test_pattern_detection_date_set
+    assert pattern.detection_date is not None
+           ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'detection_date'
+____________ TestTBMLPatternGenerator.test_generate_default_pattern ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:523: in test_generate_default_pattern
+    assert isinstance(pattern, Pattern)
+E   AssertionError: assert False
+E    +  where False = isinstance((Pattern(id='F446DC5151DC', created_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={'pattern_subtype': 'under_invoicing', 'document_count': 11, 'entity_count': 5, 'average_document_value': 1025003.3107144019, 'average_transaction_value': 572221.9, 'high_risk_route': None, 'price_variance_percentage': 421.98402184252683}, pattern_id='PTN-TBML-6c307511-b2b', pattern_type='tbml', detection_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), detection_method='tbml_analysis_under_invoicing', confidence_score=0.8999999999999999, entity_ids=['COM-9a1de644', 'COM-b74d0fb1', 'COM-6b65a6a4', 'COM-47378190', 'COM-c241330b'], entity_types=['company', 'company', 'company', 'company', 'company'], transaction_ids=['3A7722DB4084', '5404D1E0F106', '2F43202FF85F'], communication_ids=[], start_date=datetime.datetime(2025, 11, 6, 12, 0, tzinfo=datetime.timezone.utc), end_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), duration_days=70, total_value=Decimal('1716665.70'), transaction_count=3, risk_level=<RiskLevel.HIGH: 'high'>, severity_scor..., 'price_deflation_factor': 0.2254709256779965}, document_id='DOC-bacfb3d0-0b1', document_type='contract', issuer_id='COM-9a1de644', recipient_id='COM-6b65a6a4', issue_date=datetime.datetime(2025, 12, 8, 18, 2, 53, tzinfo=datetime.timezone.utc), document_number='CTR-2026-941204', currency='EUR', total_amount=Decimal('247562.2940694672676'), line_items=[{'line_number': 1, 'description': 'Her Pharmaceuticals', 'category': 'Pharmaceuticals', 'quantity': 164, 'unit_price': 206.18654500918745, 'amount': 33814.59338150674, 'currency': 'EUR'}, {'line_number': 2, 'description': 'Throw Raw Materials', 'category': 'Raw Materials', 'quantity': 228, 'unit_price': 53.915211982603424, 'amount': 12292.668332033581, 'currency': 'EUR'}, {'line_number': 3, 'description': 'Guy Chemicals', 'category': 'Chemicals', 'quantity': 25, 'unit_price': 78.26480538917866, 'amount': 1956.6201347294666, 'currency': 'EUR'}, {'line_number': 4, 'description': 'Pm Textiles', 'category': 'Textiles', 'quantity': 991, 'unit_price': 201.31020405771693, 'amount': 199498.41222119748, 'currency': 'EUR'}], tbml_indicators=['short_shipping_suspected'], authenticity_score=0.85, risk_score=0.3, flagged_for_review=False), ...]), Pattern)
+__________ TestTBMLPatternGenerator.test_pattern_has_required_fields ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:530: in test_pattern_has_required_fields
+    assert pattern.pattern_id is not None
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_id'
+___________ TestTBMLPatternGenerator.test_pattern_indicators_present ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:538: in test_pattern_indicators_present
+    assert len(pattern.indicators) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'indicators'
+____________ TestTBMLPatternGenerator.test_pattern_metadata_present ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:544: in test_pattern_metadata_present
+    assert pattern.metadata is not None
+           ^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'metadata'
+__________ TestTBMLPatternGenerator.test_deterministic_with_same_seed __________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:554: in test_deterministic_with_same_seed
+    assert pattern1.pattern_type == pattern2.pattern_type
+           ^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_type'
+___________ TestTBMLPatternGenerator.test_pattern_entity_ids_present ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:560: in test_pattern_entity_ids_present
+    assert len(pattern.entity_ids) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'entity_ids'
+_____________ TestTBMLPatternGenerator.test_pattern_risk_level_set _____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:566: in test_pattern_risk_level_set
+    assert pattern.risk_level in [
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'risk_level'
+____________ TestTBMLPatternGenerator.test_pattern_total_value_set _____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:577: in test_pattern_total_value_set
+    assert pattern.total_value >= Decimal("0")
+           ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'total_value'
+_________ TestTBMLPatternGenerator.test_pattern_transaction_count_set __________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:583: in test_pattern_transaction_count_set
+    assert pattern.transaction_count >= 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'transaction_count'
+___________ TestTBMLPatternGenerator.test_pattern_red_flags_present ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:589: in test_pattern_red_flags_present
+    assert isinstance(pattern.red_flags, list)
+                      ^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'red_flags'
+____________ TestCATOPatternGenerator.test_generate_default_pattern ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:612: in test_generate_default_pattern
+    assert pattern.pattern_type == "cato"
+E   AssertionError: assert 'account_takeover' == 'cato'
+E     
+E     - cato
+E     + account_takeover
+__________ TestCATOPatternGenerator.test_pattern_has_required_fields ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:619: in test_pattern_has_required_fields
+    assert pattern.pattern_type == "cato"
+E   AssertionError: assert 'account_takeover' == 'cato'
+E     
+E     - cato
+E     + account_takeover
+___________ TestCATOPatternGenerator.test_pattern_entity_ids_present ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:641: in test_pattern_entity_ids_present
+    assert len(pattern.entity_ids) > 0
+E   AssertionError: assert 0 > 0
+E    +  where 0 = len([])
+E    +    where [] = Pattern(id='3139BC144760', created_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={'attack_type': 'credential_stuffing', 'victim_count': 5, 'attacker_count': 2, 'failed_attempts': 57, 'total_stolen': 49768.01, 'attacker_ips': ['198.154.61.204', '145.21.177.137', '110.189.35.130', '166.174.6.218', '108.250.54.111', '93.235.78.112'], 'attacker_devices': ['Bot-0000', 'Bot-0001', 'Bot-0002', 'Bot-0003', 'Bot-0004', 'Bot-0005', 'Bot-0006', 'Bot-0007', 'Bot-0008', 'Bot-0009']}, pattern_id='CATO-CS-710754', pattern_type='account_takeover', detection_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), detection_method='coordinated_account_takeover_detection', confidence_score=0.9, entity_ids=[], entity_types=[], transaction_ids=[], communication_ids=[], start_date=datetime.datetime(2026, 3, 29, 0, 0), end_date=datetime.datetime(2026, 4, 5, 0, 0), duration_days=None, total_value=Decimal('0.00'), transaction_count=0, risk_level=<RiskLevel.HIGH: 'high'>, severity_score=0.7100000000000001, indicators=['Phishing emails sent to all victims', 'Failed login atte...001266092381', 'Phone number changed for 001266092381', 'Successful login to 001827424723 from 108.250.54.111 (device: Bot-0006)', 'Email changed for 001827424723', 'Phone number changed for 001827424723', 'Successful login to 001560481234 from 166.174.6.218 (device: Bot-0002)', 'Email changed for 001560481234', 'Phone number changed for 001560481234', 'Total amount stolen: $49,768.01'], red_flags=['Coordinated phishing campaign detected', 'High volume of failed logins: 57 attempts', 'Login from new device/location for 001878822178', 'Multiple account changes within minutes of login', 'Login from new device/location for 001053749181', 'Multiple account changes within minutes of login', 'Login from new device/location for 001266092381', 'Multiple account changes within minutes of login', 'Login from new device/location for 001827424723', 'Multiple account changes within minutes of login', 'Login from new device/location for 001560481234', 'Multiple account changes within minutes of login', 'Large-scale coordinated theft: $49,768.01'], is_investigated=False, investigation_status=None, investigator_id=None, investigation_notes=None, is_confirmed=None, outcome=None, action_taken=None).entity_ids
+_____________ TestMuleChainGenerator.test_generate_default_pattern _____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:692: in test_generate_default_pattern
+    assert isinstance(pattern, Pattern)
+E   AssertionError: assert False
+E    +  where False = isinstance((Pattern(id='C98DAD57DF81', created_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={'pattern_subtype': 'app_mule_chain', 'victim_account_id': 'ACC-BDD640FB', 'mule_account_ids': ['ACC-23B8C1E9', 'ACC-BD9C66B3'], 'cash_out_account_id': 'ACC-972A8469', 'hop_delay_minutes': 15, 'fee_decay_applied': True}, pattern_id='PTN-MULE-17FC695A-07A', pattern_type='mule_chain', detection_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), detection_method='app_mule_chain_velocity_analysis', confidence_score=0.7, entity_ids=['ACC-BDD640FB', 'ACC-23B8C1E9', 'ACC-BD9C66B3', 'ACC-972A8469'], entity_types=['account', 'account', 'account', 'account'], transaction_ids=['TXN-BDD640FB-066', 'TXN-CF36D58B-473', 'TXN-D453DD32-4B0'], communication_ids=[], start_date=datetime.datetime(2026, 1, 12, 12, 0, tzinfo=datetime.timezone.utc), end_date=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), duration_days=3, total_value=Decimal('28706.42'), transaction_count=3, risk_level=<RiskLevel.MEDIUM: 'medium'>, severity_score=0.59, indicators=['app_fraud_suspecte... 15, 12, 0, tzinfo=datetime.timezone.utc), updated_at=datetime.datetime(2026, 1, 15, 12, 0, tzinfo=datetime.timezone.utc), metadata={}, transaction_id='TXN-D453DD32-4B0', reference_number='REF-9593103413', transaction_type=<TransactionType.TRANSFER: 'transfer'>, transaction_date=datetime.datetime(2026, 1, 14, 11, 3, 41, tzinfo=datetime.timezone.utc), posting_date=datetime.datetime(2026, 1, 14, 11, 3, 41, tzinfo=datetime.timezone.utc), value_date=datetime.date(2026, 1, 14), from_account_id='ACC-BD9C66B3', to_account_id='ACC-972A8469', from_entity_id='ENT-47294739-614f-43d7-99db-3ad0ddd1dfb2', to_entity_id='ENT-5d65a441-d588-42de-a2bc-372f7412b293', amount=Decimal('9138.61'), currency='USD', exchange_rate=None, amount_local=None, currency_local=None, fee_amount=Decimal('1900.66210'), fee_currency='USD', originating_country='SC', destination_country='SC', transaction_location='West Michael', ip_address='132.145.219.213', description='APP mule-chain hop 3', merchant_name=None, merchant_category=None, status='completed', risk_score=0.35, is_suspicious=False, alert_ids=[], is_structuring=False, is_round_amount=False, is_part_of_pattern=True, pattern_id=None, pattern_type='mule_chain')]), Pattern)
+___________ TestMuleChainGenerator.test_pattern_has_required_fields ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:699: in test_pattern_has_required_fields
+    assert pattern.pattern_id is not None
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_id'
+____________ TestMuleChainGenerator.test_pattern_indicators_present ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:706: in test_pattern_indicators_present
+    assert len(pattern.indicators) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'indicators'
+___________ TestMuleChainGenerator.test_deterministic_with_same_seed ___________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:716: in test_deterministic_with_same_seed
+    assert pattern1.pattern_type == pattern2.pattern_type
+           ^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'pattern_type'
+____________ TestMuleChainGenerator.test_pattern_entity_ids_present ____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:722: in test_pattern_entity_ids_present
+    assert len(pattern.entity_ids) > 0
+               ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'entity_ids'
+______________ TestMuleChainGenerator.test_pattern_risk_level_set ______________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:728: in test_pattern_risk_level_set
+    assert pattern.risk_level in [
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'risk_level'
+_____________ TestMuleChainGenerator.test_pattern_metadata_present _____________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:739: in test_pattern_metadata_present
+    assert pattern.metadata is not None
+           ^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'metadata'
+________ TestMuleChainGenerator.test_pattern_transaction_count_positive ________
+banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py:745: in test_pattern_transaction_count_positive
+    assert pattern.transaction_count >= 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'tuple' object has no attribute 'transaction_count'
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:241
+  <frozen importlib._bootstrap>:241: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/site-packages/torchvision/io/image.py:13
+  /Users/david.leconte/miniforge3/envs/janusgraph-analysis/lib/python3.11/site-packages/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: 'Could not load this library: /Users/david.leconte/miniforge3/envs/janusgraph-analysis/lib/python3.11/site-packages/torchvision/image.so'If you don't plan on using image functionality from `torchvision.io`, you can ignore this warning. Otherwise, there might be something wrong with your environment. Did you have `libjpeg` or `libpng` installed before building `torchvision` from source?
+    warn(
+
+../../../../miniforge3/envs/janusgraph-analysis/lib/python3.11/site-packages/_hypothesis_pytestplugin.py:481
+  /Users/david.leconte/miniforge3/envs/janusgraph-analysis/lib/python3.11/site-packages/_hypothesis_pytestplugin.py:481: UserWarning: Skipping collection of '.hypothesis' directory - this usually means you've explicitly set the `norecursedirs` pytest config option, replacing rather than extending the default ignores.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.11.14-final-0 _______________
+
+Name                                                                    Stmts   Miss Branch BrPart  Cover   Missing
+-------------------------------------------------------------------------------------------------------------------
+banking/__init__.py                                                         0      0      0      0   100%
+banking/aml/__init__.py                                                     3      0      0      0   100%
+banking/aml/enhanced_structuring_detection.py                             275    228     76      0    13%   88-106, 110-124, 147-241, 268-452, 471-490, 510-521, 525, 547-580, 609-649, 677-710, 733-776, 799-826
+banking/aml/sanctions_screening.py                                        199     94     46      0    46%   248-280, 305-442, 458-486, 495-497, 507-508
+banking/aml/structuring_detection.py                                      193     83     50      4    50%   116, 205-213, 266-270, 272, 294-353, 360, 368-404, 427-441, 460-474, 499-535
+banking/analytics/__init__.py                                               8      8      0      0     0%   8-37
+banking/analytics/aml_structuring_detector.py                             202    202     36      0     0%   19-445
+banking/analytics/community_detection.py                                  272    272     96      0     0%   24-669
+banking/analytics/detect_ato.py                                            70     70     14      0     0%   9-174
+banking/analytics/detect_insider_trading.py                               642    642    242      0     0%   17-1872
+banking/analytics/detect_mule_chains.py                                   115    115     36      0     0%   12-246
+banking/analytics/detect_procurement.py                                    73     73     18      0     0%   9-188
+banking/analytics/detect_tbml.py                                          277    277    120      0     0%   17-684
+banking/analytics/embeddings.py                                           105    105     32      0     0%   19-391
+banking/analytics/entity_resolution.py                                    327    327    126      0     0%   26-928
+banking/analytics/governance.py                                            45     45      6      0     0%   8-93
+banking/analytics/graph_ml.py                                             370    370    136      0     0%   26-897
+banking/analytics/time_travel.py                                          131    131     24      0     0%   18-430
+banking/analytics/vector_search.py                                        147    147     56      0     0%   19-565
+banking/compliance/__init__.py                                              2      0      0      0   100%
+banking/compliance/audit_logger.py                                        133     20     10      1    84%   256-257, 310-326, 337-354, 365-382, 395-412, 423-440, 450-452
+banking/compliance/compliance_reporter.py                                 160     56     54      3    63%   116, 270->267, 319-320, 376-411, 442-457, 487-491, 512-531, 535-569, 593-607
+banking/data_generators/__init__.py                                         6      0      0      0   100%
+banking/data_generators/core/__init__.py                                    5      0      0      0   100%
+banking/data_generators/core/account_generator.py                         134      5     46      4    95%   108-109, 185, 347, 358
+banking/data_generators/core/base_generator.py                             63     30     14      0    48%   104-122, 131-142, 153-155, 164-166, 175
+banking/data_generators/core/company_generator.py                         149    120     42      0    15%   69-76, 86-174, 178-183, 187-190, 194-203, 208-226, 230-270, 275-278, 283-285, 289-297, 301-304, 308-341, 345-354, 360-377, 381-386, 390-391, 395-408, 419-440, 444-451
+banking/data_generators/core/person_generator.py                          189      7     52      7    94%   181, 205->208, 230->233, 250->253, 378, 388-389, 404, 406, 408
+banking/data_generators/events/__init__.py                                  6      0      0      0   100%
+banking/data_generators/events/communication_generator.py                 156     28     76     11    81%   129, 131, 134->138, 138->148, 235-236, 257-258, 260->264, 362, 372->383, 444, 448-450, 455, 495-528
+banking/data_generators/events/document_generator.py                      134     18     50     11    83%   129, 131, 134->138, 172->178, 273, 277, 282, 318, 336, 340, 368->372, 388-405
+banking/data_generators/events/trade_generator.py                         124     46     50     11    56%   101, 103, 107, 110->114, 139->143, 178-194, 208-218, 224-231, 271->273, 284, 305->311, 356-381
+banking/data_generators/events/transaction_generator.py                   137     11     30      2    91%   112, 248-265, 345->348
+banking/data_generators/events/travel_generator.py                        122     89     48      0    19%   83-99, 121-176, 196-204, 210-242, 253-277, 283-306, 322-350
+banking/data_generators/loaders/__init__.py                                 2      2      0      0     0%   8-10
+banking/data_generators/loaders/janusgraph_loader.py                      331    331    130      0     0%   19-706
+banking/data_generators/orchestration/__init__.py                           2      0      0      0   100%
+banking/data_generators/orchestration/master_orchestrator.py              320    221     62      0    26%   77-78, 169-183, 215-262, 271-303, 307-345, 368-379, 383-440, 446-461, 465-478, 482-491, 495-508, 512-521, 525-534, 538-568, 572-583, 588, 593-594, 598-621, 625-632, 636, 651-659, 674-682
+banking/data_generators/patterns/__init__.py                                7      0      0      0   100%
+banking/data_generators/patterns/cato_pattern_generator.py                266    146     82     17    43%   96, 104-121, 168->172, 247-305, 332-395, 422-479, 507-557, 590-593, 598-601, 605, 609, 613, 616-617, 629, 637, 641, 644->647, 655-658, 668, 671, 673
+banking/data_generators/patterns/fraud_ring_pattern_generator.py          117     12     62      5    86%   137, 319-320, 348-351, 362-365, 375, 393
+banking/data_generators/patterns/insider_trading_pattern_generator.py     141     24     66     23    72%   130->134, 137->139, 139->141, 141->145, 152-156, 177, 291, 348->351, 352, 355, 361, 366, 383->391, 385->387, 387->391, 394, 397->401, 402, 404->407, 413-418, 433-436, 440, 446, 467
+banking/data_generators/patterns/mule_chain_generator.py                   65      5     12      5    87%   194, 196, 203, 205, 208
+banking/data_generators/patterns/ownership_chain_generator.py             190    190     46      0     0%   22-602
+banking/data_generators/patterns/structuring_pattern_generator.py          86      3     38      1    95%   205-207
+banking/data_generators/patterns/tbml_pattern_generator.py                176     34     98     24    72%   118->122, 125->127, 127->129, 129->131, 131->135, 139-142, 163, 314-325, 351, 363->367, 405-426, 436->439, 443->453, 463, 465, 473, 482-486, 493, 496-499, 513, 515, 516->520, 522->526, 527, 548
+banking/data_generators/utils/__init__.py                                   3      0      0      0   100%
+banking/data_generators/utils/constants.py                                 21      0      0      0   100%
+banking/data_generators/utils/data_models.py                              382      1      2      1    99%   293
+banking/data_generators/utils/deterministic.py                             21      0      2      1    96%   59->exit
+banking/data_generators/utils/helpers.py                                  166     45     68      7    69%   51-62, 256, 352-363, 456, 459, 465, 469, 473, 476, 499-526, 556, 581-582, 596-600
+banking/exceptions.py                                                      81     81     20      0     0%   18-509
+banking/fraud/__init__.py                                                   3      0      0      0   100%
+banking/fraud/fraud_detection.py                                          250     50     74      8    76%   152->exit, 315->323, 362-363, 369-442, 448-459, 470->478, 475-476, 510
+banking/fraud/models.py                                                    29      0      0      0   100%
+banking/fraud/notebook_compat.py                                          103     77     22      0    21%   26-30, 35, 42-57, 62, 67, 85, 89-92, 96-103, 115-124, 142-151, 166-181, 200-214, 227, 231-257
+banking/streaming/__init__.py                                               9      0      0      0   100%
+banking/streaming/dlq_handler.py                                          207     36     34      8    78%   28-34, 136, 206-208, 258-260, 300->308, 311-314, 328, 332->348, 339, 345, 352-369, 380->382, 382->385, 470, 478
+banking/streaming/entity_converter.py                                      64     55     48      0     8%   28-33, 47-64, 77-95, 109-143, 171-180, 210
+banking/streaming/events.py                                               135     37     40      7    66%   35, 51-65, 73-76, 148, 153, 156, 205-216, 266-267, 310->exit, 319, 327, 331-336, 358, 375, 392, 410
+banking/streaming/graph_consumer.py                                       250    155     62      8    34%   29-31, 39-40, 112, 114, 176, 178, 180, 182, 192, 196, 210, 221, 225-235, 241-245, 249-276, 280-294, 298-324, 328-340, 357-381, 385-404, 410-429, 433-447, 451-454, 466-482, 491-506, 510, 514, 518-519, 532-533, 538-560
+banking/streaming/metrics.py                                              181     26     52     14    83%   31-32, 63-64, 80, 83-85, 101, 104-105, 120, 123-124, 138, 141-142, 241->249, 246-247, 295, 325, 334, 343, 352, 373, 380, 389
+banking/streaming/producer.py                                             182     59     36      3    66%   26-32, 99, 259-260, 273-289, 313->exit, 317-318, 324, 340, 344-351, 369-371, 380-390, 401-406, 413-415, 419, 423-424, 429, 437, 448-449, 463-466
+banking/streaming/streaming_orchestrator.py                               213    179     72      0    12%   90-112, 119-131, 144-166, 179-187, 191-250, 254-364, 373-412, 416-418, 422, 426-427, 431
+banking/streaming/vector_consumer.py                                      246     47     62     13    79%   29-31, 37-38, 44-45, 119, 121, 207, 220->225, 257->259, 259->261, 261->264, 272, 276, 303, 330, 372-380, 467, 472, 487-502, 534-556
+src/python/__init__.py                                                      0      0      0      0   100%
+src/python/analytics/__init__.py                                            2      2      0      0     0%   11-13
+src/python/analytics/ubo_discovery.py                                     239    239     96      0     0%   18-641
+src/python/api/__init__.py                                                  0      0      0      0   100%
+src/python/api/dependencies.py                                            103    103     34      0     0%   8-209
+src/python/api/main.py                                                     98     98     12      0     0%   11-192
+src/python/api/middleware.py                                               16     16      0      0     0%   8-36
+src/python/api/models.py                                                  181    181      2      0     0%   9-319
+src/python/api/routers/__init__.py                                          0      0      0      0   100%
+src/python/api/routers/aml.py                                              39     39      8      0     0%   6-80
+src/python/api/routers/auth.py                                            212    212     78      0     0%   8-462
+src/python/api/routers/fraud.py                                            14     14      0      0     0%   6-39
+src/python/api/routers/health.py                                           29     29      0      0     0%   6-52
+src/python/api/routers/performance.py                                      97     97      8      0     0%   8-199
+src/python/api/routers/ubo.py                                              57     57     12      0     0%   6-148
+src/python/api/waf_middleware.py                                          116    116     50      0     0%   13-291
+src/python/client/__init__.py                                               5      5      0      0     0%   16-21
+src/python/client/async_client.py                                         229    229     44      0     0%   24-510
+src/python/client/connection_pool.py                                      165    165     30      0     0%   17-325
+src/python/client/exceptions.py                                             8      8      0      0     0%   10-37
+src/python/client/janusgraph_client.py                                    148    148     24      0     0%   10-327
+src/python/config/__init__.py                                               2      2      0      0     0%   3-5
+src/python/config/settings.py                                              66     66      4      0     0%   18-138
+src/python/exceptions.py                                                   92     92     18      0     0%   18-610
+src/python/init/__init__.py                                                 0      0      0      0   100%
+src/python/init/initialize_graph.py                                        87     87      6      0     0%   12-228
+src/python/monitoring/__init__.py                                           0      0      0      0   100%
+src/python/performance/__init__.py                                          0      0      0      0   100%
+src/python/performance/benchmark.py                                       158    158     24      0     0%   8-472
+src/python/performance/query_cache.py                                     177    177     42      0     0%   8-465
+src/python/performance/query_profiler.py                                  182    182     28      0     0%   8-541
+src/python/performance/slo_gate.py                                        115    115     30      0     0%   12-345
+src/python/performance/startup_budget_gate.py                             117    117     28      0     0%   12-326
+src/python/repository/__init__.py                                           2      2      0      0     0%   9-11
+src/python/repository/graph_repository.py                                 203    203     48      0     0%   21-569
+src/python/security/__init__.py                                             2      2      0      0     0%   12-19
+src/python/security/mfa.py                                                248    248     64      0     0%   8-575
+src/python/security/query_sanitizer.py                                    195    195     54      0     0%   18-508
+src/python/security/rbac.py                                               228    228     60      0     0%   8-619
+src/python/security/session_manager.py                                    161    161     40      0     0%   12-443
+src/python/utils/__init__.py                                                0      0      0      0   100%
+src/python/utils/auth.py                                                   25     25     14      0     0%   10-110
+src/python/utils/embedding_generator.py                                    71     44     12      0    33%   20-21, 28-29, 35-37, 73-88, 93, 114-127, 140-141, 157-158, 172-175, 191-198, 215-220, 236-239, 256-262
+src/python/utils/error_codes.py                                            35     35      0      0     0%   8-114
+src/python/utils/log_sanitizer.py                                          60     60     26      0     0%   10-258
+src/python/utils/math.py                                                    4      2      0      0    50%   8-9
+src/python/utils/resilience.py                                            123     65     34      3    41%   53-61, 69-73, 81-86, 99-108, 115-118, 134-183, 222, 231, 236
+src/python/utils/startup_validation.py                                    115    115     54      0     0%   13-239
+src/python/utils/tracing.py                                               232    232     44      0     0%   9-434
+src/python/utils/validation.py                                            339    339    158      0     0%   11-887
+src/python/utils/vault_client.py                                          192    192     44      0     0%   13-534
+src/python/utils/vector_search.py                                          91     74     34      0    14%   57-95, 124-162, 185-195, 216-245, 270-303, 315-321, 333-334, 356-362, 385-392
+-------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                   14303  10411   4040    202    25%
+Coverage HTML written to dir verification_reports/htmlcov
+Coverage XML written to file coverage.xml
+FAIL Required test coverage of 70% not reached. Total coverage: 25.27%
+=========================== short test summary info ============================
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestGraphConsumerInitialization::test_consumer_initialization_default
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestGraphConsumerInitialization::test_consumer_initialization_custom
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_create_person_event
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_update_event
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_delete_event
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestMessageProcessing::test_process_invalid_event_type
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestConnectionManagement::test_disconnect_closes_connections
+FAILED banking/streaming/tests/test_graph_consumer_unit.py::TestDeterministicBehavior::test_same_event_produces_same_graph_operation
+FAILED banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_metrics_output
+FAILED banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_content_type
+FAILED banking/streaming/tests/test_metrics_unit.py::TestMetricsOutput::test_get_metric
+FAILED banking/streaming/tests/test_producer_unit.py::TestProducerCreation::test_get_producer_with_compression
+FAILED banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorConnection::test_disconnect_closes_connection
+FAILED banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorContextManager::test_context_manager_exit
+FAILED banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorCircuitBreaker::test_circuit_breaker_initialized
+FAILED banking/aml/tests/test_structuring_detection_unit.py::TestStructuringDetectorCircuitBreaker::test_circuit_breaker_config
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestConnectionManagement::test_connect_records_failure
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckVelocity::test_check_velocity_exceeds_transaction_threshold
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckMerchant::test_check_merchant_multiple_keywords
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_no_history
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_unusual_amount
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_new_merchant
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestCheckBehavior::test_check_behavior_unusual_description
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_suspicious_amount
+FAILED banking/fraud/tests/test_fraud_detection_unit.py::TestDetectAccountTakeover::test_detect_account_takeover_high_confidence
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestFraudRingPatternGenerator::test_pattern_risk_level_low
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_generate_default_pattern
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_has_required_fields
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_indicators_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_metadata_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_deterministic_with_same_seed
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_entity_ids_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_risk_level_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_severity_score_range
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_dates_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestInsiderTradingPatternGenerator::test_pattern_detection_date_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_generate_default_pattern
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_has_required_fields
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_indicators_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_metadata_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_deterministic_with_same_seed
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_entity_ids_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_risk_level_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_total_value_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_transaction_count_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestTBMLPatternGenerator::test_pattern_red_flags_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_generate_default_pattern
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_has_required_fields
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestCATOPatternGenerator::test_pattern_entity_ids_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_generate_default_pattern
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_has_required_fields
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_indicators_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_deterministic_with_same_seed
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_entity_ids_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_risk_level_set
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_metadata_present
+FAILED banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py::TestMuleChainGenerator::test_pattern_transaction_count_positive
+ERROR banking/streaming/tests/test_graph_consumer_unit.py::TestErrorHandling::test_send_to_dlq_on_processing_error
+ERROR banking/streaming/tests/test_graph_consumer_unit.py::TestErrorHandling::test_retry_logic_on_transient_error
+ERROR banking/streaming/tests/test_graph_consumer_unit.py::TestMetricsCollection::test_metrics_incremented_on_success
+============ 57 failed, 359 passed, 4 warnings, 3 errors in 36.01s =============
+sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+ERROR conda.cli.main_run:execute(127): `conda run pytest banking/streaming/tests/test_dlq_handler_unit.py banking/streaming/tests/test_graph_consumer_unit.py banking/streaming/tests/test_metrics_unit.py banking/streaming/tests/test_producer_unit.py banking/streaming/tests/test_vector_consumer_unit.py banking/aml/tests/test_sanctions_screening_unit.py banking/aml/tests/test_structuring_detection_unit.py banking/compliance/tests/test_audit_logger_unit.py banking/compliance/tests/test_compliance_reporter_unit.py banking/fraud/tests/test_fraud_detection_unit.py banking/data_generators/tests/test_patterns/test_pattern_generators_unit.py --cov=banking/streaming --cov=banking/aml --cov=banking/compliance --cov=banking/fraud --cov=banking/data_generators/patterns --cov-report=html:verification_reports/htmlcov --cov-report=term-missing --cov-fail-under=70` failed. (See above for error)
+
