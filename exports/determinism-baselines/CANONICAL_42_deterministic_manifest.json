@@ -1,0 +1,8 @@
+{
+  "seed":"42",
+  "compose_project_name":"janusgraph-demo",
+  "image_digests_sha256":"93f7cb66f4da18fbaa7d69de9512da0e0cbbbf1aeab833dde78c63e3c6b63829",
+  "dependency_fingerprint_sha256":"de5b132154bff98d12009f711569449ab6f66dfd8ae93ee0d8908026fe3f9afc",
+  "runtime_package_fingerprint_sha256":"7f6b8ebe948f5ef27031c43bb3d6bad8d0822f639a3646cedd7478d57b2852e4",
+  "notebook_report_sha256":"3352ce6f5e15fef2c1d9b3ae8035be9b041d32a49f6d82287b0837a5d07d4f36"
+}

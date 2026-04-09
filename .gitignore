@@ -131,6 +131,7 @@ config/compose/.backup/
 
 # Graph exports (generated)
 exports/
+!exports/determinism-baselines/
 notebooks/graph_interactive.html
 
 # Podman/Docker volumes
