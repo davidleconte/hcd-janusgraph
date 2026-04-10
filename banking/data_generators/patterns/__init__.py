@@ -10,6 +10,7 @@ Date: 2026-02-06
 """
 
 from .cato_pattern_generator import CATOPatternGenerator
+from .crypto_mixer_pattern_generator import CryptoMixerPatternGenerator
 from .fraud_ring_pattern_generator import FraudRingPatternGenerator
 from .insider_trading_pattern_generator import InsiderTradingPatternGenerator
 from .mule_chain_generator import MuleChainGenerator
@@ -23,4 +24,5 @@ __all__ = [
     "MuleChainGenerator",
     "StructuringPatternGenerator",
     "CATOPatternGenerator",
+    "CryptoMixerPatternGenerator",
 ]
