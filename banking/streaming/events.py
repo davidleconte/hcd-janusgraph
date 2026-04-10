@@ -135,6 +135,11 @@ class EntityEvent:
         "trade",
         "travel",
         "document",
+        # Crypto entities
+        "crypto_wallet",
+        "crypto_transaction",
+        "mixer_detection",
+        "sanctions_screening",
     }
 
     def __post_init__(self) -> None:
