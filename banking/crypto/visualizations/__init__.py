@@ -26,6 +26,15 @@ from .risk_dashboard import (
     RiskMetrics,
     create_risk_dashboard,
 )
+from .business_reports import (
+    AuditTrailEntry,
+    BusinessReportGenerator,
+    ExecutiveSummary,
+    TrendAnalysis,
+    generate_audit_trail_report,
+    generate_executive_summary_report,
+    generate_trend_analysis_report,
+)
 
 __all__ = [
     # Network Graphs
@@ -40,6 +49,14 @@ __all__ = [
     "RiskMetrics",
     "AlertSummary",
     "create_risk_dashboard",
+    # Business Reports
+    "BusinessReportGenerator",
+    "ExecutiveSummary",
+    "AuditTrailEntry",
+    "TrendAnalysis",
+    "generate_executive_summary_report",
+    "generate_audit_trail_report",
+    "generate_trend_analysis_report",
 ]
 
 # Made with Bob

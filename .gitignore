@@ -188,3 +188,4 @@ terraform/environments/*/.terraform/
 terraform/environments/*/.terraform.lock.hcl
 # Generated visualization files
 crypto_*.html
+crypto_*.txt
