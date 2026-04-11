@@ -69,7 +69,7 @@ class VisualizationConfig:
     
     # Color settings
     color_scheme: str = "risk"  # risk, community, centrality, custom
-    risk_colors: Dict[str, str] = None
+    risk_colors: Optional[Dict[str, str]] = None
     
     # Display settings
     show_labels: bool = True

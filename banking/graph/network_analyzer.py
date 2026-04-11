@@ -152,7 +152,7 @@ class NetworkAnalyzer:
         >>> network_stats = analyzer.get_network_metrics(network)
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize network analyzer."""
         self.logger = logging.getLogger(__name__)
     
@@ -213,7 +213,13 @@ class NetworkAnalyzer:
             if "phone" in identity:
                 phone_index[identity["phone"]].append(identity_id)
             if "address" in identity:
-                address_index[identity["address"]].append(identity_id)
+                # Convert address dict to string for use as dict key
+                address = identity["address"]
+                if isinstance(address, dict):
+                    address_str = f"{address.get('street', '')}, {address.get('city', '')}, {address.get('state', '')} {address.get('zip', '')}"
+                else:
+                    address_str = str(address)
+                address_index[address_str].append(identity_id)
         
         # Add edges for shared SSN
         for ssn, ids in ssn_index.items():
@@ -515,7 +521,7 @@ class NetworkAnalyzer:
         risk_scores = [m.get_risk_score() for m in centrality_metrics.values()]
         roles = [m.get_role() for m in centrality_metrics.values()]
         
-        role_counts = {}
+        role_counts: Dict[str, int] = {}
         for role in roles:
             role_counts[role] = role_counts.get(role, 0) + 1
         

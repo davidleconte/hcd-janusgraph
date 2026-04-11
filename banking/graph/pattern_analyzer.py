@@ -371,6 +371,12 @@ class PatternAnalyzer:
             for attr_type in attribute_types:
                 attr_value = identity.get(attr_type)
                 if attr_value:
+                    # Convert dict values to strings for use as dict keys
+                    if isinstance(attr_value, dict):
+                        if attr_type == "address":
+                            attr_value = f"{attr_value.get('street', '')}, {attr_value.get('city', '')}, {attr_value.get('state', '')} {attr_value.get('zip', '')}"
+                        else:
+                            attr_value = str(attr_value)
                     attribute_index[attr_type][attr_value].add(entity_id)
         
         # Find shared attributes

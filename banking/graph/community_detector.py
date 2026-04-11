@@ -116,6 +116,12 @@ class CommunityDetectionResult:
     total_communities: int
     modularity: float
     algorithm: str
+    node_to_community: Dict[str, int] = None  # type: ignore
+    
+    @property
+    def num_communities(self) -> int:
+        """Alias for total_communities for backward compatibility."""
+        return self.total_communities
     
     def get_fraud_rings(self, min_size: int = 3, min_risk: float = 60.0) -> List[Community]:
         """
@@ -183,7 +189,7 @@ class CommunityDetector:
         >>> fraud_rings = result.get_fraud_rings(min_size=3, min_risk=60.0)
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize community detector."""
         self.logger = logging.getLogger(__name__)
     
@@ -191,7 +197,7 @@ class CommunityDetector:
         self,
         G: nx.Graph,
         algorithm: str = "louvain",
-        **kwargs
+        **kwargs: Any
     ) -> CommunityDetectionResult:
         """
         Detect communities in the network.
@@ -219,7 +225,7 @@ class CommunityDetector:
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
     
-    def _detect_louvain(self, G: nx.Graph, **kwargs) -> CommunityDetectionResult:
+    def _detect_louvain(self, G: nx.Graph, **kwargs: Any) -> CommunityDetectionResult:
         """
         Detect communities using Louvain algorithm.
         
@@ -253,13 +259,14 @@ class CommunityDetector:
             communities=communities,
             total_communities=len(communities),
             modularity=modularity,
-            algorithm="louvain"
+            algorithm="louvain",
+            node_to_community=partition
         )
     
     def _detect_label_propagation(
         self,
         G: nx.Graph,
-        **kwargs
+        **kwargs: Any
     ) -> CommunityDetectionResult:
         """
         Detect communities using label propagation algorithm.
@@ -289,7 +296,8 @@ class CommunityDetector:
             communities=communities,
             total_communities=len(communities),
             modularity=modularity,
-            algorithm="label_propagation"
+            algorithm="label_propagation",
+            node_to_community=partition
         )
     
     def _calculate_modularity(
@@ -480,7 +488,7 @@ class CommunityDetector:
         # Assign small community members to nearest large community
         for small_comm in small_communities:
             # Find most connected large community
-            connections = defaultdict(int)
+            connections: Dict[int, int] = defaultdict(int)
             for node in small_comm.members:
                 for neighbor in G.neighbors(node):
                     if neighbor in partition:
